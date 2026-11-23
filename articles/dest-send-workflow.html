@@ -164,8 +164,9 @@ comparison</li>
 trusted for comparisons:</p>
 <ul>
 <li>
-<strong>NULL</strong> - No trusted version available; treat remote
-as empty (upload everything)</li>
+<strong>NULL</strong> - No trusted version is available. If the
+destination exists and inspection is enabled, projr can inspect its
+files directly.</li>
 <li>
 <strong>Version string</strong> - Trusted version exists; compare
 local files against this version</li>
@@ -203,10 +204,10 @@ files need to be uploaded, removed, or updated.</p>
     CheckCue --&gt;|if-change| CheckChanges{Any changes?}
     
     CheckChanges --&gt;|Yes| ProceedSend
-    CheckChanges --&gt;|No| SkipSend[Skip upload]
+    CheckChanges --&gt;|No| SkipSend[Reuse existing files]
     
     ProceedSend --&gt; BuildMetadata[Build metadata updates&lt;br/&gt;- manifest&lt;br/&gt;- VERSION file&lt;br/&gt;- changelog]
-    SkipSend --&gt; End
+    SkipSend --&gt; BuildMetadata
     BuildMetadata --&gt; End([Return plan])
     
     style Start fill:#e1f5e1
@@ -246,8 +247,8 @@ on remote</li>
 <strong>sync-diff</strong> - Upload new/changed files, remove
 deleted files</li>
 <li>
-<strong>sync-purge</strong> - Remove all remote files, then upload
-all local files</li>
+<strong>sync-purge</strong> - Replace the selected label’s files
+with the local files</li>
 </ul>
 <p><strong>Inspection Modes:</strong></p>
 <p>The <code>inspect</code> parameter controls how projr determines
@@ -311,8 +312,9 @@ metadata.</p>
 <p><strong>Key Operations:</strong></p>
 <ol style="list-style-type: decimal">
 <li>
-<strong>Purge</strong> (if <code>purge = TRUE</code>) - Remove all
-existing files from remote</li>
+<strong>Purge</strong> (if <code>purge = TRUE</code>) - Clear the
+files at the destination for this label and version. Preserve its
+release metadata.</li>
 <li>
 <strong>Add files</strong> - Upload files in <code>fn_add</code> to
 remote destination</li>
@@ -364,9 +366,7 @@ created.</p>
     
     Stage1 --&gt; Stage2[Stage 2: Build Plan&lt;br/&gt;.dsl_get_plan]
     
-    Stage2 --&gt; CheckCue{send_cue&lt;br/&gt;allows?}
-    CheckCue --&gt;|No| Loop
-    CheckCue --&gt;|Yes| Stage3[Stage 3: Implement Plan&lt;br/&gt;.dsl_implement_plan]
+    Stage2 --&gt; Stage3[Stage 3: Apply file operations&lt;br/&gt;and update metadata]
     
     Stage3 --&gt; Loop
     Loop --&gt; End([Build Complete])
@@ -394,140 +394,63 @@ workflow)</li>
 <strong>Dev Version Bump</strong> - Increment to next dev
 version</li>
 </ol>
-<p>For each configured destination in <code>_projr.yml</code>: - Check
-if <code>send_cue</code> condition is met (always, if-change) - Get
-remotes and determine comparison version - Build upload/removal plan
-based on <code>send_strategy</code> and <code>send_inspect</code> -
-Execute plan if approved by cue logic</p>
+<p>For each selected destination and directory label, projr determines
+which version to compare, plans the file operations, and records the
+build in the destination’s history. A build that reuses an existing
+upload still gets a manifest entry.</p>
 </div>
 <div class="section level2">
 <h2 id="configuration-parameters">Configuration Parameters<a class="anchor" aria-label="anchor" href="#configuration-parameters"></a>
 </h2>
-<p>The workflow behavior is controlled by parameters in
-<code>_projr.yml</code>:</p>
-<p><strong>structure</strong> (where versions are stored): -
-<code>archive</code> - Create separate versions (v0.0.1, v0.0.2, etc.) -
-<code>latest</code> - Overwrite same location each time</p>
-<p><strong>send_cue</strong> (when to upload): - <code>always</code> -
-Upload every build - <code>if-change</code> - Only upload if content
-changed</p>
-<p><strong>send_strategy</strong> (how to upload): -
-<code>sync-diff</code> - Upload changed/new files, remove deleted files
-- <code>sync-purge</code> - Remove all, then upload all -
-<code>upload-all</code> - Upload all files - <code>upload-missing</code>
-- Only upload missing files</p>
-<p><strong>send_inspect</strong> (how to check remote): -
-<code>manifest</code> - Use manifest (fast) - <code>file</code> - Hash
-actual files (slower, accurate) - <code>none</code> - Treat as empty
-(always upload)</p>
+<p>This example uses the named archives added after projr 0.6.1. It
+publishes <code>output</code> to a GitHub release named
+<code>reports</code>. The <code>send</code> options shown are the
+defaults.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="at">      </span><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="at">      </span><span class="fu">send</span><span class="kw">:</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">        </span><span class="fu">strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">        </span><span class="fu">inspect</span><span class="kw">:</span><span class="at"> manifest</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span></code></pre></div>
+<p>With these settings, the first build uploads the directory’s files.
+If the next build has the same filenames and contents, projr can reuse
+the first upload. The release’s <code>manifest.zip</code> records both
+builds with the same snapshot ID. If a file changes, the new version
+gets its own files and file list. Older versions remain available on the
+release.</p>
+<p>For a destination that always holds the current files, change the
+definition to <code>structure: latest</code> and use the settings below
+under <code>send</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">cue</span><span class="kw">:</span><span class="at"> always</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">strategy</span><span class="kw">:</span><span class="at"> sync-purge</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">inspect</span><span class="kw">:</span><span class="at"> none</span></span></code></pre></div>
+<p>This replaces the files for the selected label on every publication.
+Its history can identify a previous build’s files, but retrieving them
+still requires a copy with the recorded contents.</p>
 </div>
 <div class="section level2">
-<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+<h2 id="trust-and-manifest-validation">Trust and manifest validation<a class="anchor" aria-label="anchor" href="#trust-and-manifest-validation"></a>
 </h2>
-<div class="section level3">
-<h3 id="example-1-first-upload-no-remote-exists">Example 1: First Upload (No Remote Exists)<a class="anchor" aria-label="anchor" href="#example-1-first-upload-no-remote-exists"></a>
-</h3>
-<p><strong>Configuration:</strong></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">send_cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">send_strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">send_inspect</span><span class="kw">:</span><span class="at"> manifest</span></span></code></pre></div>
-<p><strong>Workflow:</strong> 1. <strong>Get Remotes</strong>:
-<code>version_comp = NULL</code> (no remote exists) 2. <strong>Build
-Plan</strong>: <code>fn_add = all local files</code>,
-<code>fn_rm = []</code> 3. <strong>Implement</strong>: Create remote,
-upload all files, write manifest</p>
-</div>
-<div class="section level3">
-<h3 id="example-2-incremental-update-files-changed">Example 2: Incremental Update (Files Changed)<a class="anchor" aria-label="anchor" href="#example-2-incremental-update-files-changed"></a>
-</h3>
-<p><strong>Configuration:</strong></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">send_cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">send_strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">send_inspect</span><span class="kw">:</span><span class="at"> manifest</span></span></code></pre></div>
-<p><strong>Workflow:</strong> 1. <strong>Get Remotes</strong>:
-<code>version_comp = "0.0.1"</code> (last upload version) 2.
-<strong>Build Plan</strong>: Compare against v0.0.1 manifest -
-<code>fn_add = [new_file.txt, changed_file.txt]</code> -
-<code>fn_rm = [deleted_file.txt]</code> 3. <strong>Implement</strong>:
-Upload 2 files, remove 1 file, update manifest</p>
-</div>
-<div class="section level3">
-<h3 id="example-3-no-changes-skip-upload">Example 3: No Changes (Skip Upload)<a class="anchor" aria-label="anchor" href="#example-3-no-changes-skip-upload"></a>
-</h3>
-<p><strong>Configuration:</strong></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">send_cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">send_strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">send_inspect</span><span class="kw">:</span><span class="at"> manifest</span></span></code></pre></div>
-<p><strong>Workflow:</strong> 1. <strong>Get Remotes</strong>:
-<code>version_comp = "0.0.1"</code> 2. <strong>Build Plan</strong>:
-Compare against v0.0.1 manifest - <code>fn_add = []</code>,
-<code>fn_rm = []</code> (no changes) 3. <strong>Implement</strong>: Skip
-upload (cue not met)</p>
-</div>
-<div class="section level3">
-<h3 id="example-4-latest-structure-always-overwrite">Example 4: Latest Structure (Always Overwrite)<a class="anchor" aria-label="anchor" href="#example-4-latest-structure-always-overwrite"></a>
-</h3>
-<p><strong>Configuration:</strong></p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">structure</span><span class="kw">:</span><span class="at"> latest</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">send_cue</span><span class="kw">:</span><span class="at"> always</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">send_strategy</span><span class="kw">:</span><span class="at"> sync-purge</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">send_inspect</span><span class="kw">:</span><span class="at"> none</span></span></code></pre></div>
-<p><strong>Workflow:</strong> 1. <strong>Get Remotes</strong>:
-<code>version_comp = NULL</code> (inspect = none) 2. <strong>Build
-Plan</strong>: <code>purge = true</code>,
-<code>fn_add = all local files</code> 3. <strong>Implement</strong>:
-Remove all remote files, upload all local files</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="trust-and-manifest-validation">Trust and Manifest Validation<a class="anchor" aria-label="anchor" href="#trust-and-manifest-validation"></a>
-</h2>
-<p>The workflow maintains a trust system to ensure accurate
-synchronization:</p>
-<p><strong>Trusted Versions</strong> (can use manifest for comparison):
-- Uploaded with <code>sync-diff</code> or <code>sync-purge</code>
-strategy - Has a valid manifest on the remote - No local changes since
-that version</p>
-<p><strong>Untrusted Versions</strong> (must hash actual files): -
-Uploaded with <code>upload-all</code> or <code>upload-missing</code>
-strategy - No manifest on the remote - Manifest doesn’t match local
-manifest for that version</p>
-<p>The VERSION file tracks trust status with an asterisk:</p>
-<pre><code>project: 0.0.2
-output: 0.0.1*  # Asterisk means untrusted
-raw-data: 0.0.1  # No asterisk means trusted</code></pre>
-<p>When a version is untrusted, projr falls back to hashing actual files
-(<code>inspect = "file"</code>) even when
-<code>inspect = "manifest"</code> is configured.</p>
-</div>
-<div class="section level2">
-<h2 id="performance-considerations">Performance Considerations<a class="anchor" aria-label="anchor" href="#performance-considerations"></a>
-</h2>
-<p><strong>Fast Configuration</strong> (recommended default):</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">send_cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">send_strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">send_inspect</span><span class="kw">:</span><span class="at"> manifest</span></span></code></pre></div>
-<p>This is fastest because: - Archives preserve version history -
-<code>if-change</code> skips unchanged content - <code>sync-diff</code>
-uploads only differences - <code>manifest</code> avoids downloading
-files</p>
-<p><strong>Simple Configuration</strong> (easier to understand):</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">structure</span><span class="kw">:</span><span class="at"> latest</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">send_cue</span><span class="kw">:</span><span class="at"> always</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="fu">send_strategy</span><span class="kw">:</span><span class="at"> upload-all</span></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="fu">send_inspect</span><span class="kw">:</span><span class="at"> none</span></span></code></pre></div>
-<p>This is simpler but slower: - Always uploads all files - No
-comparison logic needed - No manifest dependency</p>
+<p>For manifest-based comparisons, projr checks the recorded version and
+compares the destination’s file list for that version with the analysis
+manifest. An asterisk beside the directory’s version in
+<code>VERSION</code> marks its files as untrusted. For example, an
+upload that leaves older, extra files in place can leave the directory
+in this state. When a comparison needs file hashes and the destination
+has no trusted manifest for them, projr can hash the files
+themselves.</p>
 </div>
 <div class="section level2">
 <h2 id="debugging">Debugging<a class="anchor" aria-label="anchor" href="#debugging"></a>
 </h2>
 <p>Enable debug output to see workflow details:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set debug output level</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
 <span></span>

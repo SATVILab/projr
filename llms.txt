@@ -179,7 +179,7 @@ Functions for managing project versions
 
 ## Manifest queries
 
-Functions for querying manifest to track file changes across versions
+Compare files and versions recorded in the current checkout.
 
 - [`projr_manifest_changes()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
   [`projr_manifest_range()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)

@@ -189,6 +189,16 @@ If NULL, uses the current project version.</p></dd>
 
 </dl><p>Returns a 0-row data.frame if file not found.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Run these queries in the project checkout whose history you want to
+inspect. Production builds record each directory's history under
+<code>.projr/manifests/</code>. Builds with identical filenames and file contents
+share one file list for that directory. Older projects can also be queried
+from their root <code>manifest.csv</code>.</p>
+<p>To retrieve the files recorded for a build, use <code><a href="projr_get.html">projr_get_local()</a></code> or
+<code><a href="projr_get.html">projr_get_github()</a></code>.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

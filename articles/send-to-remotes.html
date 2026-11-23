@@ -77,15 +77,15 @@ Development builds (<code><a href="../reference/projr_build_dev.html">projr_buil
 remotes.</p>
 <p>Supported remote types:</p>
 <ul>
-<li>GitHub Releases – version-controlled releases on your GitHub
-repository</li>
+<li>GitHub Releases in the analysis repository or a specified
+destination repository</li>
 <li>Local directories – local, network-mounted, or cloud-synced
 folders</li>
 </ul>
-<p>Archive labels declared under <code>directories</code>, such as
-<code>raw-data</code>, <code>cache</code>, <code>output</code>, or
-<code>docs</code>. GitHub also provides a source archive for each
-release tag, accessible with <code>content: code</code>.</p>
+<p>Archive directories by their configured labels, such as
+<code>raw-data</code>, <code>output</code>, or <code>docs</code>. Select
+<code>cache</code> explicitly to include it. GitHub supplies its own
+source-code download for the commit at the release tag.</p>
 <p>With the development version of projr, put the address of a named
 archive under <code>remotes</code> and select it under
 <code>build</code>. This example makes reports available in a GitHub
@@ -108,7 +108,7 @@ selection. The inline build configurations below are also supported.</p>
 <h2 id="github-destinations">GitHub Destinations<a class="anchor" aria-label="anchor" href="#github-destinations"></a>
 </h2>
 <p>Configure a GitHub remote for the checkout and a credential with
-write access to releases in that repository. Run
+write access to releases in the destination repository. Run
 <code><a href="../reference/instr_auth.html">projr_instr_auth_github()</a></code> for setup.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add a GitHub release for raw data</span></span>
@@ -201,9 +201,14 @@ in place.</p>
 example, <code>archives/@branch/@version-@uuid</code> keeps a separate
 local archive for each build. Find the concrete title and destination in
 the <strong>Resolved archive destinations</strong> section of
-<code>.projr/BUILDLOG.md</code>. When restoring an earlier build, give
-<code><a href="../reference/projr_content_update.html">projr_content_update()</a></code> its configured <code>title</code>
-and pass the recorded tag or path as <code>destination</code>.</p>
+<code>.projr/BUILDLOG.md</code>. Use
+<code>projr_restore(version = "1.2.3")</code> in a checkout to restore
+the inputs from a build published with
+<code>archive_github = TRUE</code>. To copy published directories
+elsewhere, use <code><a href="../reference/projr_get.html">projr_get_local()</a></code> or
+<code><a href="../reference/projr_get.html">projr_get_github()</a></code> with <code>version</code> and
+<code>out</code>. The <a href="restore-artifacts.html">restore guide</a>
+covers both workflows.</p>
 </div>
 <div class="section level2">
 <h2 id="customization-options">Customization Options<a class="anchor" aria-label="anchor" href="#customization-options"></a>
@@ -227,8 +232,8 @@ Defaults are shown first.</p>
 <tr class="odd">
 <td align="left">
 <code>"archive"</code> (default)</td>
-<td align="left">Creates a separate version per build (v0.1.0, v0.2.0,
-…)</td>
+<td align="left">Keeps uploaded files under their build version.
+Unchanged files can be retrieved from a matching earlier upload.</td>
 </tr>
 <tr class="even">
 <td align="left"><code>"latest"</code></td>
@@ -287,7 +292,8 @@ version</td>
 </tr>
 <tr class="even">
 <td align="left"><code>"sync-purge"</code></td>
-<td align="left">Delete everything on remote, then upload all</td>
+<td align="left">Replace the files for the selected label at the
+destination</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>"upload-all"</code></td>
@@ -348,9 +354,9 @@ it has stopped before removing its lock asset.</p>
 <h3 id="comprehensive-github-setup">Comprehensive GitHub setup<a class="anchor" aria-label="anchor" href="#comprehensive-github-setup"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Raw data: archive, only when changed</span></span>
+<code class="sourceCode R"><span><span class="co"># Raw data: reuse the earlier upload on the same release when unchanged</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
-<span>  title <span class="op">=</span> <span class="st">"raw-data-@version"</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"raw-data"</span>,</span>
 <span>  content <span class="op">=</span> <span class="st">"raw-data"</span>,</span>
 <span>  structure <span class="op">=</span> <span class="st">"archive"</span>,</span>
 <span>  send_cue <span class="op">=</span> <span class="st">"if-change"</span>,</span>
@@ -437,7 +443,9 @@ build.</p>
 <div class="section level2">
 <h2 id="build-workflow">Build Workflow<a class="anchor" aria-label="anchor" href="#build-workflow"></a>
 </h2>
-<p>Remotes activate automatically during production builds:</p>
+<p>Production builds publish to the destinations selected under
+<code>build.local</code> or <code>build.github</code> and to any one-off
+archive requested in the call.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># does NOT upload to remotes</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># uploads (0.1.0 -&gt; 0.1.1)</span></span>
@@ -466,8 +474,9 @@ release write access.</p>
 <h2 id="best-practices">Best Practices<a class="anchor" aria-label="anchor" href="#best-practices"></a>
 </h2>
 <ul>
-<li>Use <code>@version</code> in GitHub release titles; use descriptive
-prefixes like <code>"raw-data-@version"</code>.</li>
+<li>Use a literal tag such as <code>archive</code> to keep several
+builds in one GitHub release. Use <code>raw-data-@version</code> when
+each build needs its own release.</li>
 <li>Archive <code>raw-data</code> separately from
 <code>output</code>.</li>
 <li>Start with the defaults: <code>structure = "archive"</code>,

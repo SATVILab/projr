@@ -167,23 +167,29 @@ var (<code>"pre"</code>, <code>"post"</code>, or
 <div class="section level2">
 <h2 id="archive-artefacts">4. Archive artefacts<a class="anchor" aria-label="anchor" href="#archive-artefacts"></a>
 </h2>
-<p>To archive raw data in a shared folder, add a named local
-destination. For a GitHub release, use a named entry under
-<code>github</code> instead.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<p>Named archives were added after projr 0.6.1. To use them before the
+next release, install
+<code>remotes::install_github("SATVILab/projr@main")</code>.</p>
+<p>This configuration publishes raw data to a shared folder and output
+to a GitHub release named <code>figures</code>. Keep the addresses and
+sending options under <code>remotes</code>. List the labels to send
+under <code>build</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">    </span><span class="fu">backup</span><span class="kw">:</span></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> ~/project-archives/study</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="at">    </span><span class="fu">figures</span><span class="kw">:</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="at">      </span><span class="fu">send</span><span class="kw">:</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span></code></pre></div>
-<p>The equivalent R calls are:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_yml_dest_add.html">projr_yml_dest_add_local</a></span><span class="op">(</span><span class="st">"backup"</span>, <span class="st">"raw-data"</span>, <span class="st">"~/project-archives/study"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span><span class="st">"figures"</span>, <span class="st">"output"</span>, send_cue <span class="op">=</span> <span class="st">"if-change"</span><span class="op">)</span></span></code></pre></div>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="at">    </span><span class="fu">figures</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="at">    </span><span class="fu">backup</span><span class="kw">:</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="at">    </span><span class="fu">figures</span><span class="kw">:</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span></code></pre></div>
+<p>To pause new uploads to <code>backup</code>, remove its entry under
+<code>build.local</code>. The address under <code>remotes.local</code>
+still lets you retrieve earlier files.</p>
 <p>Use <code>structure: archive</code> to retain versioned artifacts or
 <code>structure: latest</code> to keep the current payload. See
 <code><a href="../articles/configuration.html">vignette("configuration")</a></code> for all the options.</p>
@@ -197,22 +203,29 @@ run <code><a href="../reference/projr_restore.html">projr_restore()</a></code> i
 missing raw data after verifying the recorded file hashes. Use
 <code>projr_restore(version = "1.2.3")</code> to select a particular
 build.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Clone a repo and restore archived content</span></span>
 <span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span>, path <span class="op">=</span> <span class="st">"~/projects/my-project"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Restore from the current working directory (already cloned)</span></span>
-<span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Restore specific directories:</p>
+<span><span class="co"># Restore the inputs for the build in an existing checkout</span></span>
+<span><span class="fu"><a href="../reference/projr_restore.html">projr_restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>To copy the raw data from build 1.2.3 of the named local archive
+above into <code>downloads/raw-data/</code>, run the following in the
+project that defines <code>backup</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_get.html">projr_get_local</a></span><span class="op">(</span>remote <span class="op">=</span> <span class="st">"backup"</span>, label <span class="op">=</span> <span class="st">"raw-data"</span>, version <span class="op">=</span> <span class="st">"1.2.3"</span>, out <span class="op">=</span> <span class="st">"downloads"</span><span class="op">)</span></span></code></pre></div>
+<p>To update configured directories in place from their latest available
+files, use <code><a href="../reference/projr_content_update.html">projr_content_update()</a></code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"raw-data"</span>, <span class="st">"output"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span>, type <span class="op">=</span> <span class="st">"local"</span>, title <span class="op">=</span> <span class="st">"backup"</span><span class="op">)</span></span></code></pre></div>
-<p>By default, projr looks for each label’s configured source, then a
-build destination containing that label. To reuse a templated archive
-from an earlier build, pass the concrete path or tag recorded in
-<code>.projr/BUILDLOG.md</code> as <code>destination</code>.</p>
+<p>By default, <code><a href="../reference/projr_content_update.html">projr_content_update()</a></code> looks for each
+label’s configured source, then a build destination containing that
+label. To reuse a templated archive from an earlier build, pass the
+concrete path or tag recorded in <code>.projr/BUILDLOG.md</code> as
+<code>destination</code>.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -402,7 +415,8 @@ files.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.5"</span>, label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span></code></pre></div>
-<p>Check when directories last changed:</p>
+<p>See the most recent build that recorded files for each label. This
+can include builds that reused earlier files.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="st">"0.0.3"</span><span class="op">)</span></span></code></pre></div>

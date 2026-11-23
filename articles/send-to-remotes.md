@@ -11,13 +11,13 @@ never upload to remotes.
 
 Supported remote types:
 
-- GitHub Releases – version-controlled releases on your GitHub
+- GitHub Releases in the analysis repository or a specified destination
   repository
 - Local directories – local, network-mounted, or cloud-synced folders
 
-Archive labels declared under `directories`, such as `raw-data`,
-`cache`, `output`, or `docs`. GitHub also provides a source archive for
-each release tag, accessible with `content: code`.
+Archive directories by their configured labels, such as `raw-data`,
+`output`, or `docs`. Select `cache` explicitly to include it. GitHub
+supplies its own source-code download for the commit at the release tag.
 
 With the development version of projr, put the address of a named
 archive under `remotes` and select it under `build`. This example makes
@@ -45,7 +45,7 @@ selection. The inline build configurations below are also supported.
 ## GitHub Destinations
 
 Configure a GitHub remote for the checkout and a credential with write
-access to releases in that repository. Run
+access to releases in the destination repository. Run
 [`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
 for setup.
 
@@ -141,11 +141,16 @@ Local destination names and paths and GitHub release names accept
 `@branch`, `@version`, and `@uuid`. For example,
 `archives/@branch/@version-@uuid` keeps a separate local archive for
 each build. Find the concrete title and destination in the **Resolved
-archive destinations** section of `.projr/BUILDLOG.md`. When restoring
-an earlier build, give
-[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
-its configured `title` and pass the recorded tag or path as
-`destination`.
+archive destinations** section of `.projr/BUILDLOG.md`. Use
+`projr_restore(version = "1.2.3")` in a checkout to restore the inputs
+from a build published with `archive_github = TRUE`. To copy published
+directories elsewhere, use
+[`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md)
+or
+[`projr_get_github()`](https://satvilab.github.io/projr/reference/projr_get.md)
+with `version` and `out`. The [restore
+guide](https://satvilab.github.io/projr/articles/restore-artifacts.md)
+covers both workflows.
 
 ## Customization Options
 
@@ -158,7 +163,7 @@ How versions are organized on the remote.
 
 | Value | Behaviour |
 |:---|:---|
-| `"archive"` (default) | Creates a separate version per build (v0.1.0, v0.2.0, …) |
+| `"archive"` (default) | Keeps uploaded files under their build version. Unchanged files can be retrieved from a matching earlier upload. |
 | `"latest"` | Overwrites the same location each build |
 
 Use `"archive"` for reproducibility; `"latest"` for always-current
@@ -177,12 +182,12 @@ When to create a new version on the remote.
 
 How files are transferred.
 
-| Value                   | Behaviour                                      |
-|:------------------------|:-----------------------------------------------|
+| Value | Behaviour |
+|:---|:---|
 | `"sync-diff"` (default) | Upload changed/new files, remove deleted files |
-| `"sync-purge"`          | Delete everything on remote, then upload all   |
-| `"upload-all"`          | Upload all files (may overwrite)               |
-| `"upload-missing"`      | Upload only files not present on remote        |
+| `"sync-purge"` | Replace the files for the selected label at the destination |
+| `"upload-all"` | Upload all files (may overwrite) |
+| `"upload-missing"` | Upload only files not present on remote |
 
 Use `"sync-diff"` for efficiency. Use `"sync-purge"` to guarantee no
 stale files. Avoid `"upload-missing"` if you delete files locally.
@@ -210,9 +215,9 @@ asset.
 
 ``` r
 
-# Raw data: archive, only when changed
+# Raw data: reuse the earlier upload on the same release when unchanged
 projr_yml_dest_add_github(
-  title = "raw-data-@version",
+  title = "raw-data",
   content = "raw-data",
   structure = "archive",
   send_cue = "if-change",
@@ -300,7 +305,9 @@ projr_yml_dest_add_local(
 
 ## Build Workflow
 
-Remotes activate automatically during production builds:
+Production builds publish to the destinations selected under
+`build.local` or `build.github` and to any one-off archive requested in
+the call.
 
 ``` r
 
@@ -335,8 +342,9 @@ release write access.
 
 ## Best Practices
 
-- Use `@version` in GitHub release titles; use descriptive prefixes like
-  `"raw-data-@version"`.
+- Use a literal tag such as `archive` to keep several builds in one
+  GitHub release. Use `raw-data-@version` when each build needs its own
+  release.
 - Archive `raw-data` separately from `output`.
 - Start with the defaults: `structure = "archive"`,
   `send_strategy = "sync-diff"`, `send_cue = "if-change"`,

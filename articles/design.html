@@ -137,8 +137,8 @@ outputs</li>
 <strong>Git integration</strong>: Automatic commits preserve
 history</li>
 <li>
-<strong>Reversible versioning</strong>: Can always access previous
-versions via Git + archives</li>
+<strong>Restoration</strong>: Recover recorded inputs from an
+archive for a checked-out build</li>
 </ul>
 <p><strong>Anti-pattern</strong>: In-place modification of output
 directories leading to lost results.</p>
@@ -178,11 +178,10 @@ version-controlled files</li>
 <p><strong>Anti-pattern</strong>: Build systems with hidden state,
 implicit dependencies, or configuration scattered across multiple
 locations.</p>
-<p><strong>Example</strong>: projr’s manifest system:</p>
-<pre class="csv"><code>label,path,hash,version,timestamp
-raw-data,_raw_data,abc123...,v0.1.0,2024-01-15</code></pre>
-<p>You can inspect, version-control, and audit this. Compare to a system
-that tracks dependencies in a binary database or in-memory cache.</p>
+<p>For example, open <code>.projr/manifests/raw-data/versions.csv</code>
+to see which production builds used the same inputs. Follow a row’s
+<code>snapshot</code> to the matching file list to see exactly which
+inputs those builds used.</p>
 </div>
 <div class="section level4">
 <h4 id="reproducibility-by-default">4. Reproducibility by default<a class="anchor" aria-label="anchor" href="#reproducibility-by-default"></a>
@@ -200,26 +199,19 @@ a version</li>
 <strong>renv integration</strong>: Optional package version
 locking</li>
 <li>
-<strong>Archiving</strong>: Automatic upload to GitHub Releases or a
-local archive</li>
+<strong>Archiving</strong>: A production build can publish to GitHub
+Releases or a local archive</li>
 <li>
 <strong>Restoration</strong>: One command to reconstruct</li>
 </ul>
 <p><strong>Anti-pattern</strong>: Reproducibility as an afterthought
 requiring manual effort.</p>
-<p><strong>Example</strong>: Without thinking about it, projr users
-get:</p>
-<pre><code>v0.1.0:
-  - code: Git SHA abc123
-  - data: Hash def456
-  - outputs: Hash ghi789
-  - packages: renv.lock
-  - archived: GitHub Release v0.1.0</code></pre>
-<p>All automatically. To reproduce:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span>
-<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html" class="external-link">restore</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>For example, <code>projr_build(archive_github = TRUE)</code> records
+the build’s inputs and outputs and publishes them in a GitHub release
+named <code>archive</code>. To recover its inputs, open the build commit
+in a fresh checkout and run <code><a href="../reference/projr_restore.html">projr_restore()</a></code>. If the project
+uses renv, <code><a href="https://rstudio.github.io/renv/reference/restore.html" class="external-link">renv::restore()</a></code> installs the packages recorded
+in its lockfile.</p>
 <hr>
 </div>
 </div>
@@ -475,9 +467,18 @@ from</li>
 <div class="section level4">
 <h4 id="manifest-format">Manifest format<a class="anchor" aria-label="anchor" href="#manifest-format"></a>
 </h4>
-<p>Manifests use CSV for simplicity and compatibility:</p>
-<pre class="csv"><code>label,path,hash,version,timestamp
-raw-data,_raw_data,abc123...,v0.1.0,2024-01-15T10:30:00Z</code></pre>
+<p>Each tracked directory has its own history. Its
+<code>versions.csv</code> has one row per recorded build. Builds with
+identical files point to the same
+<code>files-&lt;snapshot&gt;.csv</code>. Each file list contains paths
+relative to the directory and their MD5 hashes. For example, a list for
+an input folder might contain a single empty file named
+<code>notes.txt</code>.</p>
+<pre class="csv"><code>"fn","hash"
+"notes.txt","d41d8cd98f00b204e9800998ecf8427e"</code></pre>
+<p>Local archives keep these histories in <code>manifests/</code>. A
+GitHub release stores the histories for its published directories
+together in <code>manifest.zip</code>.</p>
 <p><strong>Why CSV?</strong></p>
 <ul>
 <li>
@@ -532,10 +533,11 @@ spreadsheet</li>
 </h4>
 <p>A local archive can live on a shared drive and use the team’s
 existing file permissions. A GitHub release keeps downloadable artifacts
-alongside a code tag and requires access to that repository. Choose the
-destinations for a project under <code>build.local</code> and
-<code>build.github</code>, or request a one-off archive when calling a
-production build.</p>
+alongside a code tag and requires write access to publish there. Define
+a reusable address under <code>remotes.local</code> or
+<code>remotes.github</code>. Select its title and directories to publish
+under <code>build.local</code> or <code>build.github</code>. A
+production build also accepts a one-off archive request.</p>
 </div>
 <div class="section level4">
 <h4 id="why-clear-_output-before-builds">Why clear _output before builds?<a class="anchor" aria-label="anchor" href="#why-clear-_output-before-builds"></a>

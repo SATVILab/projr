@@ -167,8 +167,9 @@ the list is empty. A README that uses the project package also requires
 <div class="section level4">
 <h4 id="remote-destination-preparation">Remote destination preparation<a class="anchor" aria-label="anchor" href="#remote-destination-preparation"></a>
 </h4>
-<p>Creates GitHub releases or local archive directories as configured in
-<code>_projr.yml</code>.</p>
+<p>Prepares the GitHub releases or local archive directories selected
+for this production build. A destination listed only under
+<code>remotes</code> stays available for reading.</p>
 </div>
 <div class="section level4">
 <h4 id="documentation-and-dependency-snapshot">Documentation and dependency snapshot<a class="anchor" aria-label="anchor" href="#documentation-and-dependency-snapshot"></a>
@@ -500,7 +501,7 @@ directories). The behavior is controlled by four parameters in
 <code>archive_github</code> or <code>archive_local</code>
 parameters:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Archive all directories to a GitHub release</span></span>
+<code class="sourceCode R"><span><span class="co"># Archive declared raw, output and docs directories to a GitHub release</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>msg <span class="op">=</span> <span class="st">"Release v0.0.2"</span>, archive_github <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Archive specific directories</span></span>
@@ -567,18 +568,17 @@ SHA-256 in the index identifies those exact CSV bytes. A change in
 <code>manifest.csv</code>. Its next production build imports the old
 history and writes subsequent updates under
 <code>.projr/manifests/</code>.</p>
-<p>Query the manifest:</p>
+<p>Use these functions in the analysis checkout to query its recorded
+history.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Changes between two versions</span></span>
 <span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span><span class="op">)</span></span>
-<span><span class="va">changes</span><span class="op">$</span><span class="va">added</span></span>
-<span><span class="va">changes</span><span class="op">$</span><span class="va">removed</span></span>
-<span><span class="va">changes</span><span class="op">$</span><span class="va">modified</span></span>
+<span><span class="va">changes</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"label"</span>, <span class="st">"fn"</span>, <span class="st">"change_type"</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co"># Changes across multiple versions</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.5"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Last build's changes</span></span>
+<span><span class="co"># Latest version that recorded files for each label</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>

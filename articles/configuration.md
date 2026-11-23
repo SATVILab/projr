@@ -272,18 +272,33 @@ distribute files across workers during a hashing phase. The default uses
 a single worker. The earlier `settings.hash-engine` spelling is accepted
 for compatibility.
 
-Each versioned build records the selected raw/cache inputs before
-rendering and outputs/docs afterward. Open
-`.projr/manifests/<label>/versions.csv` to see the project version,
-earliest matching directory version, and file-list identifier. The
-matching `files-<snapshot>.csv` lists relative filenames and MD5 hashes.
-Identical contents share a single file list per label, including when a
-directory returns to an earlier state. A legacy root `manifest.csv` is
-readable and its history is imported during a production build. For a
-comparison in R, use
+Each production build records its selected inputs before rendering and
+its outputs afterward. Each directory has its own history. For example,
+a change in `output` adds a new file list for that directory while
+`raw-data` can keep using its existing list. Development builds leave
+these histories alone.
+
+| Where to look | Where the history for `raw-data` lives |
+|----|----|
+| Project checkout | `.projr/manifests/raw-data/` |
+| Local archive | `manifests/raw-data/` inside the archive folder |
+| GitHub Release | The `raw-data/` directory inside the `manifest.zip` asset |
+
+Open `versions.csv` in any of those directories to find a build’s
+version, the earliest version that recorded identical contents there,
+and the snapshot identifier. The matching `files-<snapshot>.csv` lists
+relative filenames and their MD5 hashes. A directory that returns to an
+earlier state reuses the same list. projr can also read a legacy root
+`manifest.csv` and imports its history on the next production build.
+
+Run
 [`projr_manifest_changes()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
-or
-[`projr_manifest_file_history()`](https://satvilab.github.io/projr/reference/projr_manifest_file_query.md).
+in the checkout to compare two builds, or
+[`projr_manifest_file_history()`](https://satvilab.github.io/projr/reference/projr_manifest_file_query.md)
+to see when an individual file changed. An archive records the builds it
+received, so its first copy of a file list can have a different version.
+For a worked example with a published archive, see [restoring an earlier
+build](https://satvilab.github.io/projr/articles/restore-artifacts.html#when-builds-share-the-same-inputs).
 
 ## Saving artifacts
 
@@ -331,7 +346,10 @@ Put the address, layout and transfer settings under `remotes` and only
 `content` in the matching build entry. Readers can ask for any label
 actually saved for a build, even after its publishing selection changes.
 Existing configurations that define a destination entirely under `build`
-still work.
+still work. To move an existing `build.github.archive` to the named
+layout, move its address, `structure` and `send` settings to
+`remotes.github.archive`. Leave its `content` selection under
+`build.github.archive`.
 
 For GitHub, `repo` defaults to the repository that produced the build.
 The name under `remotes.github` supplies the release tag and title

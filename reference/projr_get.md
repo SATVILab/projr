@@ -82,6 +82,18 @@ projr_get_github(
 
 A named character vector of absolute paths to the verified directories.
 
+## Details
+
+To inspect an archive's records, open `manifests/<label>/versions.csv`
+at a local destination. On GitHub, download the release's `manifest.zip`
+and open `<label>/versions.csv` inside it. The `snapshot` column
+identifies the matching `files-<snapshot>.csv`, which lists the expected
+paths and hashes. Several builds can share a file list. To query build
+history in a checkout, use
+[`projr_manifest_changes()`](https://satvilab.github.io/projr/reference/projr_manifest_query.md)
+or
+[`projr_manifest_file_history()`](https://satvilab.github.io/projr/reference/projr_manifest_file_query.md).
+
 ## Examples
 
 ``` r

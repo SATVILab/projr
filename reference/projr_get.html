@@ -130,6 +130,16 @@ identifies the release without looking up the producer's configuration.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A named character vector of absolute paths to the verified directories.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>To inspect an archive's records, open <code>manifests/&lt;label&gt;/versions.csv</code>
+at a local destination. On GitHub, download the release's <code>manifest.zip</code>
+and open <code>&lt;label&gt;/versions.csv</code> inside it. The <code>snapshot</code> column
+identifies the matching <code>files-&lt;snapshot&gt;.csv</code>, which
+lists the expected paths and hashes. Several builds can share a file list.
+To query build history in a checkout, use <code><a href="projr_manifest_query.html">projr_manifest_changes()</a></code> or
+<code><a href="projr_manifest_file_query.html">projr_manifest_file_history()</a></code>.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

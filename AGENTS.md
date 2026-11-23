@@ -49,6 +49,13 @@ Key architectural patterns:
   (e.g.,
   [`projr_build_patch()`](https://satvilab.github.io/projr/reference/projr_build.md)).
 
+The public `projr_manifest_*()` functions read the current checkout’s
+history. A destination’s history reflects the builds it received. The
+same list of files can therefore have a different first recorded version
+in the checkout and in an archive. Compare the snapshot identifiers and
+verify the files when retrieving a build. Keep manifest queries local
+and use the retrieval and restore APIs for archive reads.
+
 A project with a legacy root `manifest.csv` can be queried and restored
 before migration. The next production build imports its history. Local
 destinations store directory histories in `manifests/`. GitHub Releases

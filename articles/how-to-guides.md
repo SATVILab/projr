@@ -124,29 +124,31 @@ build:
 
 ## 4. Archive artefacts
 
-To archive raw data in a shared folder, add a named local destination.
-For a GitHub release, use a named entry under `github` instead.
+Named archives were added after projr 0.6.1. To use them before the next
+release, install `remotes::install_github("SATVILab/projr@main")`.
+
+This configuration publishes raw data to a shared folder and output to a
+GitHub release named `figures`. Keep the addresses and sending options
+under `remotes`. List the labels to send under `build`.
 
 ``` yaml
-build:
+remotes:
   local:
     backup:
       path: ~/project-archives/study
+  github:
+    figures: {}
+build:
+  local:
+    backup:
       content: [raw-data]
   github:
     figures:
       content: [output]
-      send:
-        cue: if-change
 ```
 
-The equivalent R calls are:
-
-``` r
-
-projr_yml_dest_add_local("backup", "raw-data", "~/project-archives/study")
-projr_yml_dest_add_github("figures", "output", send_cue = "if-change")
-```
+To pause new uploads to `backup`, remove its entry under `build.local`.
+The address under `remotes.local` still lets you retrieve earlier files.
 
 Use `structure: archive` to retain versioned artifacts or
 `structure: latest` to keep the current payload. See
@@ -169,11 +171,22 @@ particular build.
 projr_restore_repo("owner/repo")
 projr_restore_repo("owner/repo", path = "~/projects/my-project")
 
-# Restore from the current working directory (already cloned)
-projr_content_update()
+# Restore the inputs for the build in an existing checkout
+projr_restore()
 ```
 
-Restore specific directories:
+To copy the raw data from build 1.2.3 of the named local archive above
+into `downloads/raw-data/`, run the following in the project that
+defines `backup`.
+
+``` r
+
+projr_get_local(remote = "backup", label = "raw-data", version = "1.2.3", out = "downloads")
+```
+
+To update configured directories in place from their latest available
+files, use
+[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md).
 
 ``` r
 
@@ -182,10 +195,12 @@ projr_content_update(label = c("raw-data", "output"))
 projr_content_update(label = "raw-data", type = "local", title = "backup")
 ```
 
-By default, projr looks for each label’s configured source, then a build
-destination containing that label. To reuse a templated archive from an
-earlier build, pass the concrete path or tag recorded in
-`.projr/BUILDLOG.md` as `destination`.
+By default,
+[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
+looks for each label’s configured source, then a build destination
+containing that label. To reuse a templated archive from an earlier
+build, pass the concrete path or tag recorded in `.projr/BUILDLOG.md` as
+`destination`.
 
 ------------------------------------------------------------------------
 
@@ -413,7 +428,8 @@ projr_manifest_range("0.0.1")
 projr_manifest_range("0.0.1", "0.0.5", label = "raw-data")
 ```
 
-Check when directories last changed:
+See the most recent build that recorded files for each label. This can
+include builds that reused earlier files.
 
 ``` r
 

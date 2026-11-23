@@ -233,7 +233,7 @@ relative filenames and their MD5 hashes.</p>
 <span><span class="co"># File history across a range of versions</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Most recent change for each label</span></span>
+<span><span class="co"># Latest version that recorded files for each label</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -241,20 +241,23 @@ relative filenames and their MD5 hashes.</p>
 <h3 id="archiving-and-restoration">Archiving and restoration<a class="anchor" aria-label="anchor" href="#archiving-and-restoration"></a>
 </h3>
 <p>projr can archive directory contents to GitHub Releases or local
-directories after each build.</p>
+directories after a production build.</p>
 <div class="section level4">
 <h4 id="archive-strategies">Archive strategies<a class="anchor" aria-label="anchor" href="#archive-strategies"></a>
 </h4>
-<p>Two strategies control how archives are organised:</p>
+<p>The <code>structure</code> setting controls how files are kept.</p>
 <ul>
 <li>
-<code>archive</code> — each version gets its own archive (preserves
-history)</li>
+<code>archive</code> keeps versioned copies. Builds with identical
+contents can share an earlier upload.</li>
 <li>
-<code>latest</code> — each build overwrites the previous archive
-(saves space)</li>
+<code>latest</code> updates one copy of each selected directory. Its
+history still records earlier builds, but earlier files can only be
+retrieved if matching contents remain available.</li>
 </ul>
-<p>Add a remote destination in R:</p>
+<p>The R helpers below write supported inline build destinations. To
+keep an archive available for reads when uploads are paused, use a named
+entry under <code>remotes</code> as shown in the <a href="send-to-remotes.html">archive guide</a>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"my-release"</span>,</span>
@@ -392,15 +395,14 @@ projects). Skip it for quick exploratory work.</p>
 <span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># Check outputs in _tmp/projr/v0.0.1/</span></span>
 <span></span>
-<span><span class="co"># 5. First release</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># Outputs in _output/, archived to remotes</span></span>
+<span><span class="co"># 5. Write results to _output/ and publish this build on GitHub</span></span>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>archive_github <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 6. Keep working, then release again</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_minor</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># 6. Keep working, then publish the next build</span></span>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_minor</a></span><span class="op">(</span>archive_github <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 7. Collaborator restores the project</span></span>
-<span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"you/your-project"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># 7. In a fresh checkout, open the build commit and recover its raw inputs</span></span>
+<span><span class="fu"><a href="../reference/projr_restore.html">projr_restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>In short: organise files by purpose, iterate with dev builds, release
 with versioned builds, and restore anywhere with a single command.</p>
 </div>

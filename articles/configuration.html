@@ -482,17 +482,51 @@ the same file MD5s and use the same directory histories.
 files across workers during a hashing phase. The default uses a single
 worker. The earlier <code>settings.hash-engine</code> spelling is
 accepted for compatibility.</p>
-<p>Each versioned build records the selected raw/cache inputs before
-rendering and outputs/docs afterward. Open
-<code>.projr/manifests/&lt;label&gt;/versions.csv</code> to see the
-project version, earliest matching directory version, and file-list
-identifier. The matching <code>files-&lt;snapshot&gt;.csv</code> lists
-relative filenames and MD5 hashes. Identical contents share a single
-file list per label, including when a directory returns to an earlier
-state. A legacy root <code>manifest.csv</code> is readable and its
-history is imported during a production build. For a comparison in R,
-use <code><a href="../reference/projr_manifest_query.html">projr_manifest_changes()</a></code> or
-<code><a href="../reference/projr_manifest_file_query.html">projr_manifest_file_history()</a></code>.</p>
+<p>Each production build records its selected inputs before rendering
+and its outputs afterward. Each directory has its own history. For
+example, a change in <code>output</code> adds a new file list for that
+directory while <code>raw-data</code> can keep using its existing list.
+Development builds leave these histories alone.</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Where to look</th>
+<th>Where the history for <code>raw-data</code> lives</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Project checkout</td>
+<td><code>.projr/manifests/raw-data/</code></td>
+</tr>
+<tr class="even">
+<td>Local archive</td>
+<td>
+<code>manifests/raw-data/</code> inside the archive folder</td>
+</tr>
+<tr class="odd">
+<td>GitHub Release</td>
+<td>The <code>raw-data/</code> directory inside the
+<code>manifest.zip</code> asset</td>
+</tr>
+</tbody>
+</table>
+<p>Open <code>versions.csv</code> in any of those directories to find a
+build’s version, the earliest version that recorded identical contents
+there, and the snapshot identifier. The matching
+<code>files-&lt;snapshot&gt;.csv</code> lists relative filenames and
+their MD5 hashes. A directory that returns to an earlier state reuses
+the same list. projr can also read a legacy root
+<code>manifest.csv</code> and imports its history on the next production
+build.</p>
+<p>Run <code><a href="../reference/projr_manifest_query.html">projr_manifest_changes()</a></code> in the checkout to compare
+two builds, or <code><a href="../reference/projr_manifest_file_query.html">projr_manifest_file_history()</a></code> to see when an
+individual file changed. An archive records the builds it received, so
+its first copy of a file list can have a different version. For a worked
+example with a published archive, see <a href="restore-artifacts.html#when-builds-share-the-same-inputs">restoring
+an earlier build</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="saving-artifacts">Saving artifacts<a class="anchor" aria-label="anchor" href="#saving-artifacts"></a>
@@ -561,7 +595,11 @@ when explicitly selected.</td>
 <code>remotes</code> and only <code>content</code> in the matching build
 entry. Readers can ask for any label actually saved for a build, even
 after its publishing selection changes. Existing configurations that
-define a destination entirely under <code>build</code> still work.</p>
+define a destination entirely under <code>build</code> still work. To
+move an existing <code>build.github.archive</code> to the named layout,
+move its address, <code>structure</code> and <code>send</code> settings
+to <code>remotes.github.archive</code>. Leave its <code>content</code>
+selection under <code>build.github.archive</code>.</p>
 <p>For GitHub, <code>repo</code> defaults to the repository that
 produced the build. The name under <code>remotes.github</code> supplies
 the release tag and title unless <code>tag</code> supplies a different

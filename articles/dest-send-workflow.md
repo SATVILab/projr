@@ -73,8 +73,8 @@ flowchart TD
 The `version_comp` determines which remote version can be trusted for
 comparisons:
 
-- **NULL** - No trusted version available; treat remote as empty (upload
-  everything)
+- **NULL** - No trusted version is available. If the destination exists
+  and inspection is enabled, projr can inspect its files directly.
 - **Version string** - Trusted version exists; compare local files
   against this version
 
@@ -112,10 +112,10 @@ flowchart TD
     CheckCue -->|if-change| CheckChanges{Any changes?}
     
     CheckChanges -->|Yes| ProceedSend
-    CheckChanges -->|No| SkipSend[Skip upload]
+    CheckChanges -->|No| SkipSend[Reuse existing files]
     
     ProceedSend --> BuildMetadata[Build metadata updates<br/>- manifest<br/>- VERSION file<br/>- changelog]
-    SkipSend --> End
+    SkipSend --> BuildMetadata
     BuildMetadata --> End([Return plan])
     
     style Start fill:#e1f5e1
@@ -142,7 +142,8 @@ Different strategies determine how local and remote files are compared:
 - **upload-all** - Upload all local files, ignore remote state
 - **upload-missing** - Only upload files that don’t exist on remote
 - **sync-diff** - Upload new/changed files, remove deleted files
-- **sync-purge** - Remove all remote files, then upload all local files
+- **sync-purge** - Replace the selected label’s files with the local
+  files
 
 **Inspection Modes:**
 
@@ -202,8 +203,8 @@ flowchart TD
 
 **Key Operations:**
 
-1.  **Purge** (if `purge = TRUE`) - Remove all existing files from
-    remote
+1.  **Purge** (if `purge = TRUE`) - Clear the files at the destination
+    for this label and version. Preserve its release metadata.
 2.  **Add files** - Upload files in `fn_add` to remote destination
 3.  **Remove files** - Delete files in `fn_rm` from remote destination
 4.  **Finalize remotes** - Handle empty/full remote variants:
@@ -242,9 +243,7 @@ flowchart TD
     
     Stage1 --> Stage2[Stage 2: Build Plan<br/>.dsl_get_plan]
     
-    Stage2 --> CheckCue{send_cue<br/>allows?}
-    CheckCue -->|No| Loop
-    CheckCue -->|Yes| Stage3[Stage 3: Implement Plan<br/>.dsl_implement_plan]
+    Stage2 --> Stage3[Stage 3: Apply file operations<br/>and update metadata]
     
     Stage3 --> Loop
     Loop --> End([Build Complete])
@@ -266,143 +265,61 @@ The destination send process is triggered during post-build operations:
 4.  **Destination Send** - Upload to remotes (this workflow)
 5.  **Dev Version Bump** - Increment to next dev version
 
-For each configured destination in `_projr.yml`: - Check if `send_cue`
-condition is met (always, if-change) - Get remotes and determine
-comparison version - Build upload/removal plan based on `send_strategy`
-and `send_inspect` - Execute plan if approved by cue logic
+For each selected destination and directory label, projr determines
+which version to compare, plans the file operations, and records the
+build in the destination’s history. A build that reuses an existing
+upload still gets a manifest entry.
 
 ## Configuration Parameters
 
-The workflow behavior is controlled by parameters in `_projr.yml`:
-
-**structure** (where versions are stored): - `archive` - Create separate
-versions (v0.0.1, v0.0.2, etc.) - `latest` - Overwrite same location
-each time
-
-**send_cue** (when to upload): - `always` - Upload every build -
-`if-change` - Only upload if content changed
-
-**send_strategy** (how to upload): - `sync-diff` - Upload changed/new
-files, remove deleted files - `sync-purge` - Remove all, then upload
-all - `upload-all` - Upload all files - `upload-missing` - Only upload
-missing files
-
-**send_inspect** (how to check remote): - `manifest` - Use manifest
-(fast) - `file` - Hash actual files (slower, accurate) - `none` - Treat
-as empty (always upload)
-
-## Examples
-
-### Example 1: First Upload (No Remote Exists)
-
-**Configuration:**
+This example uses the named archives added after projr 0.6.1. It
+publishes `output` to a GitHub release named `reports`. The `send`
+options shown are the defaults.
 
 ``` yaml
-structure: archive
-send_cue: if-change
-send_strategy: sync-diff
-send_inspect: manifest
+remotes:
+  github:
+    reports:
+      structure: archive
+      send:
+        cue: if-change
+        strategy: sync-diff
+        inspect: manifest
+build:
+  github:
+    reports:
+      content: [output]
 ```
 
-**Workflow:** 1. **Get Remotes**: `version_comp = NULL` (no remote
-exists) 2. **Build Plan**: `fn_add = all local files`, `fn_rm = []` 3.
-**Implement**: Create remote, upload all files, write manifest
+With these settings, the first build uploads the directory’s files. If
+the next build has the same filenames and contents, projr can reuse the
+first upload. The release’s `manifest.zip` records both builds with the
+same snapshot ID. If a file changes, the new version gets its own files
+and file list. Older versions remain available on the release.
 
-### Example 2: Incremental Update (Files Changed)
-
-**Configuration:**
+For a destination that always holds the current files, change the
+definition to `structure: latest` and use the settings below under
+`send`.
 
 ``` yaml
-structure: archive
-send_cue: if-change
-send_strategy: sync-diff
-send_inspect: manifest
+cue: always
+strategy: sync-purge
+inspect: none
 ```
 
-**Workflow:** 1. **Get Remotes**: `version_comp = "0.0.1"` (last upload
-version) 2. **Build Plan**: Compare against v0.0.1 manifest -
-`fn_add = [new_file.txt, changed_file.txt]` -
-`fn_rm = [deleted_file.txt]` 3. **Implement**: Upload 2 files, remove 1
-file, update manifest
+This replaces the files for the selected label on every publication. Its
+history can identify a previous build’s files, but retrieving them still
+requires a copy with the recorded contents.
 
-### Example 3: No Changes (Skip Upload)
+## Trust and manifest validation
 
-**Configuration:**
-
-``` yaml
-structure: archive
-send_cue: if-change
-send_strategy: sync-diff
-send_inspect: manifest
-```
-
-**Workflow:** 1. **Get Remotes**: `version_comp = "0.0.1"` 2. **Build
-Plan**: Compare against v0.0.1 manifest - `fn_add = []`, `fn_rm = []`
-(no changes) 3. **Implement**: Skip upload (cue not met)
-
-### Example 4: Latest Structure (Always Overwrite)
-
-**Configuration:**
-
-``` yaml
-structure: latest
-send_cue: always
-send_strategy: sync-purge
-send_inspect: none
-```
-
-**Workflow:** 1. **Get Remotes**: `version_comp = NULL` (inspect = none)
-2. **Build Plan**: `purge = true`, `fn_add = all local files` 3.
-**Implement**: Remove all remote files, upload all local files
-
-## Trust and Manifest Validation
-
-The workflow maintains a trust system to ensure accurate
-synchronization:
-
-**Trusted Versions** (can use manifest for comparison): - Uploaded with
-`sync-diff` or `sync-purge` strategy - Has a valid manifest on the
-remote - No local changes since that version
-
-**Untrusted Versions** (must hash actual files): - Uploaded with
-`upload-all` or `upload-missing` strategy - No manifest on the remote -
-Manifest doesn’t match local manifest for that version
-
-The VERSION file tracks trust status with an asterisk:
-
-    project: 0.0.2
-    output: 0.0.1*  # Asterisk means untrusted
-    raw-data: 0.0.1  # No asterisk means trusted
-
-When a version is untrusted, projr falls back to hashing actual files
-(`inspect = "file"`) even when `inspect = "manifest"` is configured.
-
-## Performance Considerations
-
-**Fast Configuration** (recommended default):
-
-``` yaml
-structure: archive
-send_cue: if-change
-send_strategy: sync-diff
-send_inspect: manifest
-```
-
-This is fastest because: - Archives preserve version history -
-`if-change` skips unchanged content - `sync-diff` uploads only
-differences - `manifest` avoids downloading files
-
-**Simple Configuration** (easier to understand):
-
-``` yaml
-structure: latest
-send_cue: always
-send_strategy: upload-all
-send_inspect: none
-```
-
-This is simpler but slower: - Always uploads all files - No comparison
-logic needed - No manifest dependency
+For manifest-based comparisons, projr checks the recorded version and
+compares the destination’s file list for that version with the analysis
+manifest. An asterisk beside the directory’s version in `VERSION` marks
+its files as untrusted. For example, an upload that leaves older, extra
+files in place can leave the directory in this state. When a comparison
+needs file hashes and the destination has no trusted manifest for them,
+projr can hash the files themselves.
 
 ## Debugging
 

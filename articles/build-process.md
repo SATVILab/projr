@@ -107,8 +107,9 @@ uses the project package also requires `pkgbuild`.
 
 #### Remote destination preparation
 
-Creates GitHub releases or local archive directories as configured in
-`_projr.yml`.
+Prepares the GitHub releases or local archive directories selected for
+this production build. A destination listed only under `remotes` stays
+available for reading.
 
 #### Documentation and dependency snapshot
 
@@ -376,7 +377,7 @@ For quick archiving without editing `_projr.yml`, use the
 
 ``` r
 
-# Archive all directories to a GitHub release
+# Archive declared raw, output and docs directories to a GitHub release
 projr_build_patch(msg = "Release v0.0.2", archive_github = TRUE)
 
 # Archive specific directories
@@ -454,20 +455,19 @@ An existing project can continue reading its root `manifest.csv`. Its
 next production build imports the old history and writes subsequent
 updates under `.projr/manifests/`.
 
-Query the manifest:
+Use these functions in the analysis checkout to query its recorded
+history.
 
 ``` r
 
 # Changes between two versions
 changes <- projr_manifest_changes("0.0.1", "0.0.2")
-changes$added
-changes$removed
-changes$modified
+changes[, c("label", "fn", "change_type")]
 
 # Changes across multiple versions
 projr_manifest_range("0.0.1", "0.0.5")
 
-# Last build's changes
+# Latest version that recorded files for each label
 projr_manifest_last_change()
 ```
 

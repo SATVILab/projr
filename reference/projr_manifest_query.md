@@ -111,6 +111,19 @@ A data.frame with columns:
 
   Number of files in directory at this version
 
+## Details
+
+Run these queries in the project checkout whose history you want to
+inspect. Production builds record each directory's history under
+`.projr/manifests/`. Builds with identical filenames and file contents
+share one file list for that directory. Older projects can also be
+queried from their root `manifest.csv`.
+
+To retrieve the files recorded for a build, use
+[`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md)
+or
+[`projr_get_github()`](https://satvilab.github.io/projr/reference/projr_get.md).
+
 ## Examples
 
 ``` r
