@@ -1,30 +1,37 @@
-# --------------------------------------------
-# CITATION file created with {cffr} R package
+# ------------------------------------------------
+# CITATION.cff file created with {cffr} R package
 # See also: https://docs.ropensci.org/cffr/
-# --------------------------------------------
- 
+# ------------------------------------------------
+
 cff-version: 1.2.0
 message: 'To cite package "projr" in publications use:'
 type: software
-title: 'projr: Facilitate reproducible and archived projects'
-version: 0.2.18
-abstract: Facilitate reproducible and archived projects.
+license: MIT
+title: 'projr: Facilitate Reproducible and Archived Projects'
+version: 0.6.0
+doi: 10.5281/zenodo.18402379
+abstract: Run R scripts and render 'Quarto', 'R Markdown' and 'bookdown' documents
+  in a configured order. Record file hashes for each version of an analysis, archive
+  its inputs and outputs locally or in 'GitHub' releases, and restore the inputs for
+  a checked-out version.
 authors:
 - family-names: Rodo
   given-names: Miguel
   email: miguel.rodo@uct.ac.za
   orcid: https://orcid.org/0000-0002-2036-4878
 preferred-citation:
-  type: generic
-  title: 'projr: Facilitate reproducible and archived projects'
+  type: manual
+  title: 'projr: Facilitate Reproducible and Archived Projects'
   authors:
   - family-names: Rodo
     given-names: Miguel
     email: miguel.rodo@uct.ac.za
     orcid: https://orcid.org/0000-0002-2036-4878
+  year: '2026'
+  notes: R package version 0.6.0
   url: https://satvilab.github.io/projr/
-  abstract: Facilitate reproducible and archived projects.
-  version: 0.0.9-10
+  doi: 10.5281/zenodo.18402379
+repository-code: https://github.com/SATVILab/projr
 url: https://satvilab.github.io/projr/
 contact:
 - family-names: Rodo
@@ -33,8 +40,21 @@ contact:
   orcid: https://orcid.org/0000-0002-2036-4878
 references:
 - type: software
-  title: renv
-  abstract: 'renv: Project Environments'
+  title: 'R: A Language and Environment for Statistical Computing'
+  notes: Depends
+  url: https://www.R-project.org/
+  authors:
+  - name: R Core Team
+    website: https://ror.org/02zz1nj61
+  institution:
+    name: R Foundation for Statistical Computing
+    website: https://ror.org/05qewa988
+    address: Vienna, Austria
+  year: '2026'
+  doi: 10.32614/R.manuals
+  version: '>= 4.1.0'
+- type: software
+  title: 'renv: Project Environments'
   notes: Imports
   url: https://rstudio.github.io/renv/
   repository: https://CRAN.R-project.org/package=renv
@@ -47,11 +67,11 @@ references:
     given-names: Hadley
     email: hadley@rstudio.com
     orcid: https://orcid.org/0000-0003-4757-117X
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.renv
+  version: '>= 1.1.6'
 - type: software
-  title: jsonlite
-  abstract: 'jsonlite: A Simple and Robust JSON Parser and Generator for R'
+  title: 'jsonlite: A Simple and Robust JSON Parser and Generator for R'
   notes: Imports
   url: https://jeroen.r-universe.dev/jsonlite
   repository: https://CRAN.R-project.org/package=jsonlite
@@ -61,49 +81,21 @@ references:
     email: jeroenooms@gmail.com
     orcid: https://orcid.org/0000-0002-4035-0289
   year: '2025'
-  identifiers:
-  - type: url
-    value: https://arxiv.org/abs/1403.2805
   doi: 10.32614/CRAN.package.jsonlite
 - type: software
-  title: yaml
-  abstract: 'yaml: Methods to Convert R Data to YAML and Back'
+  title: 'yaml: Methods to Convert R Data to YAML and Back'
   notes: Imports
-  url: https://github.com/vubiostat/r-yaml/
+  url: https://yaml.r-lib.org
   repository: https://CRAN.R-project.org/package=yaml
   authors:
-  - family-names: Garbett
-    given-names: Shawn P
   - family-names: Stephens
     given-names: Jeremy
   - family-names: Simonov
     given-names: Kirill
-  - family-names: Xie
-    given-names: Yihui
-  - family-names: Dong
-    given-names: Zhuoer
-  - family-names: Wickham
-    given-names: Hadley
-  - family-names: Horner
-    given-names: Jeffrey
-  - name: reikoch
-  - family-names: Beasley
-    given-names: Will
-  - family-names: O'Connor
-    given-names: Brendan
-  - family-names: Warnes
-    given-names: Gregory R.
-  - family-names: Quinn
-    given-names: Michael
-  - family-names: Kamvar
-    given-names: Zhian N.
-  - family-names: Gao
-    given-names: Charlie
   year: '2025'
   doi: 10.32614/CRAN.package.yaml
 - type: software
-  title: rprojroot
-  abstract: 'rprojroot: Finding Files in Project Subdirectories'
+  title: 'rprojroot: Finding Files in Project Subdirectories'
   notes: Imports
   url: https://rprojroot.r-lib.org/
   repository: https://CRAN.R-project.org/package=rprojroot
@@ -115,8 +107,7 @@ references:
   year: '2025'
   doi: 10.32614/CRAN.package.rprojroot
 - type: software
-  title: desc
-  abstract: 'desc: Manipulate DESCRIPTION Files'
+  title: 'desc: Manipulate DESCRIPTION Files'
   notes: Imports
   url: https://desc.r-lib.org/
   repository: https://CRAN.R-project.org/package=desc
@@ -129,11 +120,10 @@ references:
   - family-names: Hester
     given-names: Jim
     email: james.f.hester@gmail.com
-  year: '2025'
+  year: '2023'
   doi: 10.32614/CRAN.package.desc
 - type: software
-  title: fs
-  abstract: 'fs: Cross-Platform File System Operations Based on ''libuv'''
+  title: 'fs: Cross-Platform File System Operations Based on ''libuv'''
   notes: Imports
   url: https://fs.r-lib.org
   repository: https://CRAN.R-project.org/package=fs
@@ -142,17 +132,14 @@ references:
     given-names: Jim
   - family-names: Wickham
     given-names: Hadley
-    email: hadley@posit.co
   - family-names: Csárdi
     given-names: Gábor
-    email: csardi.gabor@gmail.com
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.fs
 - type: software
-  title: digest
-  abstract: 'digest: Create Compact Hash Digests of R Objects'
+  title: 'digest: Create Compact Hash Digests of R Objects'
   notes: Imports
-  url: https://dirk.eddelbuettel.com/code/digest.html
+  url: https://eddelbuettel.github.io/digest/
   repository: https://CRAN.R-project.org/package=digest
   authors:
   - family-names: Eddelbuettel
@@ -162,8 +149,89 @@ references:
   year: '2025'
   doi: 10.32614/CRAN.package.digest
 - type: software
-  title: remotes
-  abstract: 'remotes: R Package Installation from Remote Repositories, Including ''GitHub'''
+  title: 'cli: Helpers for Developing Command Line Interfaces'
+  notes: Imports
+  url: https://cli.r-lib.org
+  repository: https://CRAN.R-project.org/package=cli
+  authors:
+  - family-names: Csárdi
+    given-names: Gábor
+    email: gabor@posit.co
+  year: '2026'
+  doi: 10.32614/CRAN.package.cli
+- type: software
+  title: 'glue: Interpreted String Literals'
+  notes: Imports
+  url: https://glue.tidyverse.org/
+  repository: https://CRAN.R-project.org/package=glue
+  authors:
+  - family-names: Hester
+    given-names: Jim
+    orcid: https://orcid.org/0000-0002-2739-7082
+  - family-names: Bryan
+    given-names: Jennifer
+    email: jenny@posit.co
+    orcid: https://orcid.org/0000-0002-6983-2759
+  year: '2026'
+  doi: 10.32614/CRAN.package.glue
+- type: software
+  title: 'uuid: Tools for Generating and Handling of UUIDs'
+  notes: Imports
+  url: https://www.rforge.net/uuid
+  repository: https://CRAN.R-project.org/package=uuid
+  authors:
+  - family-names: Urbanek
+    given-names: Simon
+    email: Simon.Urbanek@r-project.org
+    orcid: https://orcid.org/0000-0003-2297-1732
+  - family-names: Ts'o
+    given-names: Theodore
+    email: tytso@thunk.org
+  year: '2026'
+  doi: 10.32614/CRAN.package.uuid
+- type: software
+  title: 'filelock: Portable File Locking'
+  notes: Imports
+  url: https://r-lib.github.io/filelock/
+  repository: https://CRAN.R-project.org/package=filelock
+  authors:
+  - family-names: Csárdi
+    given-names: Gábor
+    email: csardi.gabor@gmail.com
+  year: '2023'
+  doi: 10.32614/CRAN.package.filelock
+- type: software
+  title: 'xfun: Supporting Functions for Packages Maintained by ''Yihui Xie'''
+  notes: Imports
+  url: https://github.com/yihui/xfun
+  repository: https://CRAN.R-project.org/package=xfun
+  authors:
+  - family-names: Xie
+    given-names: Yihui
+    email: xie@yihui.name
+    orcid: https://orcid.org/0000-0003-0645-5666
+  year: '2026'
+  doi: 10.32614/CRAN.package.xfun
+- type: software
+  title: 'cpp11: A C++11 Interface for R''s C Interface'
+  notes: LinkingTo
+  url: https://cpp11.r-lib.org
+  repository: https://CRAN.R-project.org/package=cpp11
+  authors:
+  - family-names: Vaughan
+    given-names: Davis
+    email: davis@posit.co
+    orcid: https://orcid.org/0000-0003-4777-038X
+  - family-names: Hester
+    given-names: Jim
+    orcid: https://orcid.org/0000-0002-2739-7082
+  - family-names: François
+    given-names: Romain
+    orcid: https://orcid.org/0000-0002-2444-4226
+  year: '2026'
+  doi: 10.32614/CRAN.package.cpp11
+- type: software
+  title: 'remotes: R Package Installation from Remote Repositories, Including ''GitHub'''
   notes: Suggests
   url: https://remotes.r-lib.org
   repository: https://CRAN.R-project.org/package=remotes
@@ -181,11 +249,10 @@ references:
     given-names: Martin
   - family-names: Tenenbaum
     given-names: Dan
-  year: '2025'
+  year: '2024'
   doi: 10.32614/CRAN.package.remotes
 - type: software
-  title: roxygen2
-  abstract: 'roxygen2: In-Line Documentation for R'
+  title: 'roxygen2: In-Line Documentation for R'
   notes: Suggests
   url: https://roxygen2.r-lib.org/
   repository: https://CRAN.R-project.org/package=roxygen2
@@ -202,11 +269,10 @@ references:
     email: csardi.gabor@gmail.com
   - family-names: Eugster
     given-names: Manuel
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.roxygen2
 - type: software
-  title: usethis
-  abstract: 'usethis: Automate Package and Project Setup'
+  title: 'usethis: Automate Package and Project Setup'
   notes: Suggests
   url: https://usethis.r-lib.org
   repository: https://CRAN.R-project.org/package=usethis
@@ -230,8 +296,7 @@ references:
   year: '2025'
   doi: 10.32614/CRAN.package.usethis
 - type: software
-  title: gert
-  abstract: 'gert: Simple Git Client for R'
+  title: 'gert: Simple Git Client for R'
   notes: Suggests
   url: https://docs.ropensci.org/gert/
   repository: https://CRAN.R-project.org/package=gert
@@ -240,11 +305,10 @@ references:
     given-names: Jeroen
     email: jeroenooms@gmail.com
     orcid: https://orcid.org/0000-0002-4035-0289
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.gert
 - type: software
-  title: gh
-  abstract: 'gh: ''GitHub'' ''API'''
+  title: 'gh: ''GitHub'' ''API'''
   notes: Suggests
   url: https://gh.r-lib.org/
   repository: https://CRAN.R-project.org/package=gh
@@ -253,11 +317,10 @@ references:
     given-names: Jennifer
   - family-names: Wickham
     given-names: Hadley
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.gh
 - type: software
-  title: credentials
-  abstract: 'credentials: Tools for Managing SSH and Git Credentials'
+  title: 'credentials: Tools for Managing SSH and Git Credentials'
   notes: Suggests
   url: https://docs.ropensci.org/credentials/
   repository: https://CRAN.R-project.org/package=credentials
@@ -267,13 +330,9 @@ references:
     email: jeroenooms@gmail.com
     orcid: https://orcid.org/0000-0002-4035-0289
   year: '2025'
-  identifiers:
-  - type: url
-    value: https://r-lib.r-universe.dev/credentials
   doi: 10.32614/CRAN.package.credentials
 - type: software
-  title: gitcreds
-  abstract: 'gitcreds: Query ''git'' Credentials from ''R'''
+  title: 'gitcreds: Query ''git'' Credentials from ''R'''
   notes: Suggests
   url: https://gitcreds.r-lib.org/
   repository: https://CRAN.R-project.org/package=gitcreds
@@ -281,44 +340,10 @@ references:
   - family-names: Csárdi
     given-names: Gábor
     email: csardi.gabor@gmail.com
-  year: '2025'
+  year: '2022'
   doi: 10.32614/CRAN.package.gitcreds
 - type: software
-  title: piggyback
-  abstract: 'piggyback: Managing Larger Data on a GitHub Repository'
-  notes: Suggests
-  url: https://github.com/ropensci/piggyback
-  repository: https://CRAN.R-project.org/package=piggyback
-  authors:
-  - family-names: Boettiger
-    given-names: Carl
-    email: cboettig@gmail.com
-    orcid: https://orcid.org/0000-0002-1642-628X
-  - family-names: Ho
-    given-names: Tan
-    orcid: https://orcid.org/0000-0001-8388-5155
-  year: '2025'
-  doi: 10.32614/CRAN.package.piggyback
-- type: software
-  title: osfr
-  abstract: 'osfr: Interface to the ''Open Science Framework'' (''OSF'')'
-  notes: Suggests
-  url: https://docs.ropensci.org/osfr/
-  repository: https://CRAN.R-project.org/package=osfr
-  authors:
-  - family-names: Wolen
-    given-names: Aaron
-    email: aaron@wolen.com
-    orcid: https://orcid.org/0000-0003-2542-2202
-  - family-names: Hartgerink
-    given-names: Chris
-    email: chjh@protonmail.com
-    orcid: https://orcid.org/0000-0003-1050-6809
-  year: '2025'
-  doi: 10.32614/CRAN.package.osfr
-- type: software
-  title: codemeta
-  abstract: 'codemeta: A Smaller ''codemetar'' Package'
+  title: 'codemeta: A Smaller ''codemetar'' Package'
   notes: Suggests
   url: https://github.com/cboettig/codemeta
   repository: https://CRAN.R-project.org/package=codemeta
@@ -330,11 +355,10 @@ references:
   - family-names: Salmon
     given-names: Maëlle
     orcid: https://orcid.org/0000-0002-2815-0399
-  year: '2025'
+  year: '2021'
   doi: 10.32614/CRAN.package.codemeta
 - type: software
-  title: cffr
-  abstract: 'cffr: Generate Citation File Format (''cff'') Metadata for R Packages'
+  title: 'cffr: Generate Citation File Format (''CFF'') Metadata'
   notes: Suggests
   url: https://docs.ropensci.org/cffr/
   repository: https://CRAN.R-project.org/package=cffr
@@ -343,11 +367,10 @@ references:
     given-names: Diego
     email: diego.hernangomezherrero@gmail.com
     orcid: https://orcid.org/0000-0001-8457-4658
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.cffr
 - type: software
-  title: pkgbuild
-  abstract: 'pkgbuild: Find Tools Needed to Build R Packages'
+  title: 'pkgbuild: Find Tools Needed to Build R Packages'
   notes: Suggests
   url: https://pkgbuild.r-lib.org
   repository: https://CRAN.R-project.org/package=pkgbuild
@@ -362,8 +385,7 @@ references:
   year: '2025'
   doi: 10.32614/CRAN.package.pkgbuild
 - type: software
-  title: rmarkdown
-  abstract: 'rmarkdown: Dynamic Documents for R'
+  title: 'rmarkdown: Dynamic Documents for R'
   notes: Suggests
   url: https://pkgs.rstudio.com/rmarkdown/
   repository: https://CRAN.R-project.org/package=rmarkdown
@@ -403,11 +425,10 @@ references:
     given-names: Richard
     email: rich@posit.co
     orcid: https://orcid.org/0000-0003-3925-190X
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.rmarkdown
 - type: software
-  title: bookdown
-  abstract: 'bookdown: Authoring Books and Technical Documents with R Markdown'
+  title: 'bookdown: Authoring Books and Technical Documents with R Markdown'
   notes: Suggests
   url: https://pkgs.rstudio.com/bookdown/
   repository: https://CRAN.R-project.org/package=bookdown
@@ -416,11 +437,10 @@ references:
     given-names: Yihui
     email: xie@yihui.name
     orcid: https://orcid.org/0000-0003-0645-5666
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.bookdown
 - type: software
-  title: knitr
-  abstract: 'knitr: A General-Purpose Package for Dynamic Report Generation in R'
+  title: 'knitr: A General-Purpose Package for Dynamic Report Generation in R'
   notes: Suggests
   url: https://yihui.org/knitr/
   repository: https://CRAN.R-project.org/package=knitr
@@ -432,8 +452,7 @@ references:
   year: '2025'
   doi: 10.32614/CRAN.package.knitr
 - type: software
-  title: quarto
-  abstract: 'quarto: R Interface to ''Quarto'' Markdown Publishing System'
+  title: 'quarto: R Interface to ''Quarto'' Markdown Publishing System'
   notes: Suggests
   url: https://quarto-dev.github.io/quarto-r/
   repository: https://CRAN.R-project.org/package=quarto
@@ -449,8 +468,7 @@ references:
   year: '2025'
   doi: 10.32614/CRAN.package.quarto
 - type: software
-  title: testthat
-  abstract: 'testthat: Unit Testing for R'
+  title: 'testthat: Unit Testing for R'
   notes: Suggests
   url: https://testthat.r-lib.org
   repository: https://CRAN.R-project.org/package=testthat
@@ -458,12 +476,11 @@ references:
   - family-names: Wickham
     given-names: Hadley
     email: hadley@posit.co
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.testthat
   version: '>= 3.0.0'
 - type: software
-  title: devtools
-  abstract: 'devtools: Tools to Make Developing R Packages Easier'
+  title: 'devtools: Tools to Make Developing R Packages Easier'
   notes: Suggests
   url: https://devtools.r-lib.org/
   repository: https://CRAN.R-project.org/package=devtools
@@ -476,13 +493,12 @@ references:
     given-names: Winston
   - family-names: Bryan
     given-names: Jennifer
-    email: jenny@rstudio.com
+    email: jenny@posit.co
     orcid: https://orcid.org/0000-0002-6983-2759
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.devtools
 - type: software
-  title: httr
-  abstract: 'httr: Tools for Working with URLs and HTTP'
+  title: 'httr: Tools for Working with URLs and HTTP'
   notes: Suggests
   url: https://httr.r-lib.org/
   repository: https://CRAN.R-project.org/package=httr
@@ -490,11 +506,10 @@ references:
   - family-names: Wickham
     given-names: Hadley
     email: hadley@posit.co
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.httr
 - type: software
-  title: covr
-  abstract: 'covr: Test Coverage for Packages'
+  title: 'covr: Test Coverage for Packages'
   notes: Suggests
   url: https://covr.r-lib.org
   repository: https://CRAN.R-project.org/package=covr
@@ -502,11 +517,10 @@ references:
   - family-names: Hester
     given-names: Jim
     email: james.f.hester@gmail.com
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.covr
 - type: software
-  title: htmltools
-  abstract: 'htmltools: Tools for HTML'
+  title: 'htmltools: Tools for HTML'
   notes: Suggests
   url: https://rstudio.github.io/htmltools/
   repository: https://CRAN.R-project.org/package=htmltools
@@ -534,8 +548,7 @@ references:
   year: '2025'
   doi: 10.32614/CRAN.package.htmltools
 - type: software
-  title: DT
-  abstract: 'DT: A Wrapper of the JavaScript Library ''DataTables'''
+  title: 'DT: A Wrapper of the JavaScript Library ''DataTables'''
   notes: Suggests
   url: https://github.com/rstudio/DT
   repository: https://CRAN.R-project.org/package=DT
@@ -547,11 +560,26 @@ references:
     email: joe@posit.co
   - family-names: Tan
     given-names: Xianying
+  - family-names: Aden-Buie
+    given-names: Garrick
+    email: garrick@posit.co
+    orcid: https://orcid.org/0000-0002-7111-0077
   year: '2025'
   doi: 10.32614/CRAN.package.DT
 - type: software
-  title: rlang
-  abstract: 'rlang: Functions for Base Types and Core R and ''Tidyverse'' Features'
+  title: 'curl: A Modern and Flexible Web Client for R'
+  notes: Suggests
+  url: https://jeroen.r-universe.dev/curl
+  repository: https://CRAN.R-project.org/package=curl
+  authors:
+  - family-names: Ooms
+    given-names: Jeroen
+    email: jeroenooms@gmail.com
+    orcid: https://orcid.org/0000-0002-4035-0289
+  year: '2026'
+  doi: 10.32614/CRAN.package.curl
+- type: software
+  title: 'rlang: Functions for Base Types and Core R and ''Tidyverse'' Features'
   notes: Suggests
   url: https://rlang.r-lib.org
   repository: https://CRAN.R-project.org/package=rlang
@@ -562,11 +590,10 @@ references:
   - family-names: Wickham
     given-names: Hadley
     email: hadley@posit.co
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.rlang
 - type: software
-  title: withr
-  abstract: 'withr: Run Code ''With'' Temporarily Modified Global State'
+  title: 'withr: Run Code ''With'' Temporarily Modified Global State'
   notes: Suggests
   url: https://withr.r-lib.org
   repository: https://CRAN.R-project.org/package=withr
@@ -587,11 +614,10 @@ references:
     email: hadley@posit.co
   - family-names: Chang
     given-names: Winston
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.withr
 - type: software
-  title: BiocManager
-  abstract: 'BiocManager: Access the Bioconductor Project Package Repository'
+  title: 'BiocManager: Access the Bioconductor Project Package Repository'
   notes: Suggests
   url: https://bioconductor.github.io/BiocManager/
   repository: https://CRAN.R-project.org/package=BiocManager
@@ -607,15 +633,22 @@ references:
   year: '2025'
   doi: 10.32614/CRAN.package.BiocManager
 - type: software
-  title: cli
-  abstract: 'cli: Helpers for Developing Command Line Interfaces'
+  title: 'styler: Non-Invasive Pretty Printing of R Code'
   notes: Suggests
-  url: https://cli.r-lib.org
-  repository: https://CRAN.R-project.org/package=cli
+  url: https://styler.r-lib.org
+  repository: https://CRAN.R-project.org/package=styler
   authors:
-  - family-names: Csárdi
-    given-names: Gábor
-    email: gabor@posit.co
+  - family-names: Müller
+    given-names: Kirill
+    email: kirill@cynkra.com
+    orcid: https://orcid.org/0000-0002-1416-3412
+  - family-names: Walthert
+    given-names: Lorenz
+    email: lorenz.walthert@icloud.com
+  - family-names: Patil
+    given-names: Indrajeet
+    email: patilindrajeet.science@gmail.com
+    orcid: https://orcid.org/0000-0003-1995-6531
   year: '2025'
-  doi: 10.32614/CRAN.package.cli
+  doi: 10.32614/CRAN.package.styler
 

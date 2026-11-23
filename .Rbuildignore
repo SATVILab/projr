@@ -40,3 +40,5 @@
 ^\.projects$
 ^AGENTS\.md$
 ^index\.md$
+^CHANGELOG\.md$
+^cran-comments\.md$
