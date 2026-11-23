@@ -48,26 +48,38 @@
   )
 }
 
+.git_run_write <- function(args, ...) {
+  result <- suppressWarnings(system2("git", args = args, ...))
+  status <- if (is.character(result)) attr(result, "status") %||% 0L else result
+  if (status != 0L) {
+    detail <- if (is.character(result) && length(result)) {
+      # Captured Git diagnostics may include a credentialed remote URL.
+      result <- gsub("([[:alpha:]][[:alnum:]+.-]*://)[^/@[:space:]]+@", "\\1", result)
+      paste0("\n", paste(result, collapse = "\n"))
+    }
+    stop("git ", args[1L], " failed with exit status ", status, ".", detail, call. = FALSE)
+  }
+  invisible(result)
+}
+
+.git_quiet_flag <- function() {
+  if (!.cli_should_show("std")) "--quiet"
+}
+
 .git_commit_file_git <- function(file, msg, ...) {
   .git_add_file_git(file)
-  system2(
-    "git",
-    args = paste0(
-      "commit -m ", shQuote(msg), " ",
-      paste0(normalizePath(file, winslash = "/"), collapse = " ")
-    ),
-    ...
-  )
+  .git_commit_staged_git(msg, shQuote(file), ...)
+}
+
+.git_commit_staged_git <- function(msg, paths = character(), ...) {
+  status <- system2("git", c("diff", "--cached", "--quiet", "--", paths))
+  if (status == 0L) return(invisible(FALSE))
+  if (status != 1L) stop("git diff failed with exit status ", status, ".", call. = FALSE)
+  .git_run_write(c("commit", "--quiet", "-m", shQuote(.git_msg_get(msg)), "--", paths), ...)
 }
 
 .git_add_file_git <- function(file, ...) {
-  system2(
-    "git",
-    args = paste0(
-      "add ", paste0(normalizePath(file, winslash = "/"), collapse = " ")
-    ),
-    stdout = TRUE, ...
-  )
+  .git_run_write(c("add", "--", shQuote(file)), stdout = TRUE, ...)
 }
 
 .git_commit_file_gert <- function(file, msg, ...) {
@@ -76,11 +88,15 @@
 }
 
 .git_commit_all <- function(msg = NULL, add_untracked = TRUE) {
+  if (.git_system_get() == "git") {
+    # Let Git stage paths directly, including deletions and filenames with spaces.
+    .git_run_write(c("add", if (add_untracked) "--all" else "--update"))
+    return(.git_commit_staged_git(msg))
+  }
   add_vec <- .git_modified_get()
   if (add_untracked) {
     add_vec <- c(add_vec, .git_new_get())
   }
-  msg <- .git_msg_get(msg)
   .git_commit_file(add_vec, msg)
 }
 
@@ -208,7 +224,7 @@
 # initialisation
 .git_init_git <- function() {
   .cli_debug("Running 'git init'")
-  system2("git", args = "init", stdout = TRUE)
+  .git_run_write(c("init", .git_quiet_flag()), stdout = TRUE)
 }
 
 .git_init_gert <- function() {
@@ -326,12 +342,12 @@
 }
 
 .git_push_git <- function(...) {
-  system2("git", args = "push", ...)
+  .git_run_write(c("push", .git_quiet_flag()), ...)
   invisible(TRUE)
 }
 
-.git_push_gert <- function(...) {
-  gert::git_push(...)
+.git_push_gert <- function(..., verbose = interactive() && .cli_should_show("std")) {
+  gert::git_push(..., verbose = verbose)
   invisible(TRUE)
 }
 
@@ -543,10 +559,10 @@
 }
 
 .git_fetch_git <- function() {
-  system2("git", args = c("fetch"))
+  system2("git", args = c("fetch", .git_quiet_flag()))
 }
 .git_fetch_gert <- function() {
-  gert::git_fetch()
+  gert::git_fetch(verbose = interactive() && .cli_should_show("std"))
 }
 
 .git_get_commit_hash_remote <- function() {
