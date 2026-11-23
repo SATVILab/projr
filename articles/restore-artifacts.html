@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,12 +77,9 @@ then run <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a>
 <div class="section level2">
 <h2 id="get-files-from-a-completed-build">Get files from a completed build<a class="anchor" aria-label="anchor" href="#get-files-from-a-completed-build"></a>
 </h2>
-<p>The <code>projr_get</code> functions were added after projr 0.6.1.
-Install <code>remotes::install_github("SATVILab/projr@main")</code> to
-try them before the next release. These examples work outside a projr
-project. The first downloads reports from a GitHub Release. The second
-copies results from an analysis on disk and works without Git or a
-network connection.</p>
+<p>These examples work outside a projr project. The first downloads
+reports from a GitHub Release. The second copies results from an
+analysis on disk and works without Git or a network connection.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satvilab.github.io/projr/">projr</a></span><span class="op">)</span></span>
 <span></span>
@@ -168,22 +165,20 @@ changed files.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"v0.2.0"</span>, <span class="st">"v0.6.1"</span>, label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span></code></pre></div>
 <p>The comparison reads the checkout’s history. When you restore the
-earlier build, projr can use a later upload if the exact and earlier
-copies are unavailable. The release must record the same snapshot, and
-every downloaded filename and hash must match. This fallback was added
-after projr 0.6.1.</p>
+earlier build, projr 0.7.0 and later can use a later upload if the exact
+and earlier copies are unavailable. The release must record the same
+snapshot, and every downloaded filename and hash must match.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="check-whether-a-build-reproduces">Check whether a build reproduces<a class="anchor" aria-label="anchor" href="#check-whether-a-build-reproduces"></a>
 </h2>
-<p>With the development version of projr, run
-<code><a href="../reference/projr_reproduce.html">projr_reproduce()</a></code> when you want to know whether an analysis
-still produces the exact files it recorded. It clones the project,
-restores its raw inputs and runs the production scripts from empty
-output folders. The configured inputs, outputs and cache must be inside
-the clone. Archives can live elsewhere. Choose a project whose scripts
-and hooks you trust.</p>
+<p>Run <code><a href="../reference/projr_reproduce.html">projr_reproduce()</a></code> to check whether an analysis still
+produces the exact files it recorded. It clones the project, restores
+its raw inputs and runs the production scripts from empty output
+folders. The configured inputs, outputs and cache must be inside the
+clone. Archives can live elsewhere. Choose a project whose scripts and
+hooks you trust.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_reproduce.html">projr_reproduce</a></span><span class="op">(</span><span class="st">"owner/study"</span>, branch <span class="op">=</span> <span class="st">"analysis"</span>, path <span class="op">=</span> <span class="st">"study-check"</span><span class="op">)</span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">exact</span></span>
@@ -333,9 +328,8 @@ the current directory.</p></li>
 <div class="section level2">
 <h2 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a>
 </h2>
-<p>GitHub downloads use the R package <code>httr</code>, which the
-development version of projr installs automatically. If you restore an
-older renv project pinned to projr 0.6.1 and see a
+<p>projr 0.7.0 installs <code>httr</code> for GitHub downloads. If you
+restore an older renv project pinned to projr 0.6.1 and see a
 missing-<code>httr</code> error, run <code>renv::install("httr")</code>
 in that project, then retry the download.</p>
 <p>For private GitHub artifacts, use a credential with access to the

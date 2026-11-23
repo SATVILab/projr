@@ -27,7 +27,7 @@ Install projr and its GitHub tools once in R.
 
 ``` r
 
-install.packages(c("remotes", "gh", "httr"))  # projr 0.6.1 needs httr separately
+install.packages(c("remotes", "gh"))
 remotes::install_github("SATVILab/projr@*release")
 ```
 
@@ -142,11 +142,8 @@ reproduces](https://satvilab.github.io/projr/articles/restore-artifacts.html#che
 
 ## Get the finished result
 
-Someone who just needs the result can download it directly. This
-download function was added after 0.6.1. To try it before the next
-release, install `remotes::install_github("SATVILab/projr@main")`. Then
-run the following in any folder, replacing `owner/repo` with your
-analysis repository.
+Someone who just needs the result can download it directly. Run this in
+any folder, replacing `owner/repo` with your analysis repository.
 
 ``` r
 

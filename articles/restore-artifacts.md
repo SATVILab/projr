@@ -12,11 +12,9 @@ in its checkout, then run
 
 ## Get files from a completed build
 
-The `projr_get` functions were added after projr 0.6.1. Install
-`remotes::install_github("SATVILab/projr@main")` to try them before the
-next release. These examples work outside a projr project. The first
-downloads reports from a GitHub Release. The second copies results from
-an analysis on disk and works without Git or a network connection.
+These examples work outside a projr project. The first downloads reports
+from a GitHub Release. The second copies results from an analysis on
+disk and works without Git or a network connection.
 
 ``` r
 
@@ -121,20 +119,19 @@ projr_manifest_changes("v0.2.0", "v0.6.1", label = "raw-data")
 ```
 
 The comparison reads the checkout’s history. When you restore the
-earlier build, projr can use a later upload if the exact and earlier
-copies are unavailable. The release must record the same snapshot, and
-every downloaded filename and hash must match. This fallback was added
-after projr 0.6.1.
+earlier build, projr 0.7.0 and later can use a later upload if the exact
+and earlier copies are unavailable. The release must record the same
+snapshot, and every downloaded filename and hash must match.
 
 ## Check whether a build reproduces
 
-With the development version of projr, run
+Run
 [`projr_reproduce()`](https://satvilab.github.io/projr/reference/projr_reproduce.md)
-when you want to know whether an analysis still produces the exact files
-it recorded. It clones the project, restores its raw inputs and runs the
-production scripts from empty output folders. The configured inputs,
-outputs and cache must be inside the clone. Archives can live elsewhere.
-Choose a project whose scripts and hooks you trust.
+to check whether an analysis still produces the exact files it recorded.
+It clones the project, restores its raw inputs and runs the production
+scripts from empty output folders. The configured inputs, outputs and
+cache must be inside the clone. Archives can live elsewhere. Choose a
+project whose scripts and hooks you trust.
 
 ``` r
 
@@ -276,10 +273,9 @@ successful `projr_build_*()` run first.
 
 ## Authentication
 
-GitHub downloads use the R package `httr`, which the development version
-of projr installs automatically. If you restore an older renv project
-pinned to projr 0.6.1 and see a missing-`httr` error, run
-`renv::install("httr")` in that project, then retry the download.
+projr 0.7.0 installs `httr` for GitHub downloads. If you restore an
+older renv project pinned to projr 0.6.1 and see a missing-`httr` error,
+run `renv::install("httr")` in that project, then retry the download.
 
 For private GitHub artifacts, use a credential with access to the
 project. Run

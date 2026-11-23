@@ -124,9 +124,6 @@ build:
 
 ## 4. Archive artefacts
 
-Named archives were added after projr 0.6.1. To use them before the next
-release, install `remotes::install_github("SATVILab/projr@main")`.
-
 This configuration publishes raw data to a shared folder and output to a
 GitHub release named `figures`. Keep the addresses and sending options
 under `remotes`. List the labels to send under `build`.

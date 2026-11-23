@@ -1,27 +1,23 @@
 # Changelog
 
-## projr (development version)
+## projr 0.7.0
 
 - [`projr_reproduce()`](https://satvilab.github.io/projr/reference/projr_reproduce.md)
   runs a completed build in a fresh clone and shows which output files
   matched, changed, were missing or were added.
-
 - Download reports or inputs from a completed build with
   [`projr_get_github()`](https://satvilab.github.io/projr/reference/projr_get.md),
   or copy them from a local analysis with
   [`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md).
   Choose the labels and version you need. projr verifies the files
   before copying them into the folder you choose.
-
 - Installing projr now brings in `httr`, which it uses to download and
   upload GitHub release files. An older project pinned to projr 0.6.1
   can add the missing package with `renv::install("httr")`.
-
 - [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
   can recover missing files for an older build from a later upload when
   the release records an identical directory snapshot. It tries the
   requested version and earlier matches first and verifies every file.
-
 - Name archives under `remotes` in `_projr.yml`. Select them under
   `build` when you want to publish. You can keep an archive available to
   readers after you stop uploading new builds to it.

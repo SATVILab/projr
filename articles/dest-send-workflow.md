@@ -272,9 +272,8 @@ upload still gets a manifest entry.
 
 ## Configuration Parameters
 
-This example uses the named archives added after projr 0.6.1. It
-publishes `output` to a GitHub release named `reports`. The `send`
-options shown are the defaults.
+This example publishes `output` to a GitHub release named `reports`. The
+`send` options shown are the defaults.
 
 ``` yaml
 remotes:

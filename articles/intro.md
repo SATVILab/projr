@@ -23,9 +23,7 @@ Project structure and build actions are configured in `_projr.yml`.
 
 ``` r
 
-if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
-}
+install.packages(c("remotes", "gh"))
 remotes::install_github("SATVILab/projr@*release")
 ```
 
@@ -76,8 +74,8 @@ bookdown).
 
 #### Versioning
 
-The project version lives in `DESCRIPTION` and follows **semantic
-versioning** (`major.minor.patch`). Use
+The project version lives in `VERSION` or the package’s `DESCRIPTION`
+and follows **semantic versioning** (`major.minor.patch`). Use
 [`projr_version_get()`](https://satvilab.github.io/projr/reference/projr_version_get.md)
 and
 [`projr_version_set()`](https://satvilab.github.io/projr/reference/projr_version_set.md)
@@ -89,10 +87,10 @@ distinguishable from released versions.
 
 #### Sharing outputs
 
-After each production build, `projr` can upload project components (raw
-data, outputs, docs) to GitHub releases or a local folder. This is
-configured under the `build` key in `_projr.yml` and happens
-automatically.
+A production build can publish raw data, outputs and documents to a
+GitHub release or a local folder. In `_projr.yml`, define each
+destination under `remotes` and select the directories to publish under
+`build`.
 
 ### `_projr.yml` configuration
 
@@ -147,11 +145,13 @@ Controls what happens after each production build. For example, with
 GitHub configured:
 
 ``` yaml
+remotes:
+  github:
+    input: {}
 build:
   github:
     input:
       content: [raw-data]
-      description: "Project inputs"
 ```
 
 This uploads the `raw-data` directory to a GitHub release after each

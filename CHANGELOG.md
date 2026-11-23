@@ -1,18 +1,16 @@
 # Technical changelog
 
-## Development version
+## 0.7.0
 
 - Add
   [`projr_reproduce()`](https://satvilab.github.io/projr/reference/projr_reproduce.md)
   to select a build by branch, version or commit, restore its inputs and
   compare a fresh production render against its recorded output and
   documentation snapshots.
-
 - Resolve registered GitHub and local destinations from `remotes`. A
   build selects a registered destination by name and can restrict its
   `content`. A GitHub destination can specify its own repository and
   release tag.
-
 - Add
   [`projr_get()`](https://satvilab.github.io/projr/reference/projr_get.md),
   [`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md)

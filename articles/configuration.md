@@ -302,9 +302,6 @@ build](https://satvilab.github.io/projr/articles/restore-artifacts.html#when-bui
 
 ## Saving artifacts
 
-The `remotes` section was added after projr 0.6.1. To use it before the
-next release, install `remotes::install_github("SATVILab/projr@main")`.
-
 Use `remotes` to give an archive a name and record where it lives. Use
 `build` to select which archives a production build writes to. This
 example keeps a complete local archive called `shared` and sends just

@@ -19,10 +19,9 @@ Archive directories by their configured labels, such as `raw-data`,
 `output`, or `docs`. Select `cache` explicitly to include it. GitHub
 supplies its own source-code download for the commit at the release tag.
 
-With the development version of projr, put the address of a named
-archive under `remotes` and select it under `build`. This example makes
-reports available in a GitHub release named `reports` in the analysis
-repository.
+Put the address of a named archive under `remotes` and select it under
+`build`. This example publishes documents to a GitHub release named
+`reports` in the analysis repository.
 
 ``` yaml
 remotes:

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,7 @@ input files you archive will be available to people who can read that
 repository.</p>
 <p>Install projr and its GitHub tools once in R.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"remotes"</span>, <span class="st">"gh"</span>, <span class="st">"httr"</span><span class="op">)</span><span class="op">)</span>  <span class="co"># projr 0.6.1 needs httr separately</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"remotes"</span>, <span class="st">"gh"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"SATVILab/projr@*release"</span><span class="op">)</span></span></code></pre></div>
 <p>If this is your first time publishing a release from R, create a
 fine-grained GitHub token for this repository with read and write access
@@ -185,12 +185,9 @@ whether a build reproduces</a>.</p>
 <div class="section level2">
 <h2 id="get-the-finished-result">Get the finished result<a class="anchor" aria-label="anchor" href="#get-the-finished-result"></a>
 </h2>
-<p>Someone who just needs the result can download it directly. This
-download function was added after 0.6.1. To try it before the next
-release, install
-<code>remotes::install_github("SATVILab/projr@main")</code>. Then run
-the following in any folder, replacing <code>owner/repo</code> with your
-analysis repository.</p>
+<p>Someone who just needs the result can download it directly. Run this
+in any folder, replacing <code>owner/repo</code> with your analysis
+repository.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">files</span> <span class="op">&lt;-</span> <span class="fu">projr</span><span class="fu">::</span><span class="fu"><a href="../reference/projr_get.html">projr_get_github</a></span><span class="op">(</span>repo <span class="op">=</span> <span class="st">"owner/repo"</span>, tag <span class="op">=</span> <span class="st">"archive"</span>,</span>
 <span>                                 label <span class="op">=</span> <span class="st">"output"</span>, out <span class="op">=</span> <span class="st">"download"</span><span class="op">)</span></span>

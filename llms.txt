@@ -29,15 +29,15 @@ the package in R.
 
 ``` r
 
-install.packages(c("remotes", "gh", "httr"))  # projr 0.6.1 needs httr separately
+install.packages(c("remotes", "gh"))
 remotes::install_github("SATVILab/projr@*release")
 library(projr)
 ```
 
-For a specific version, use its tag, such as `SATVILab/projr@v0.6.1`. To
-install the current development code, use `SATVILab/projr@main`.
-[Downloadable source
-packages](https://github.com/SATVILab/projr/releases)
+To install version 0.7.0 specifically, run
+`remotes::install_github("SATVILab/projr@v0.7.0")`. To install the
+current development code, use `SATVILab/projr@main`. [Downloadable
+source packages](https://github.com/SATVILab/projr/releases)
 
 ### Read an input and write a result
 
@@ -84,6 +84,10 @@ verifies the restored inputs against its recorded hashes.
 
 projr::projr_restore()
 ```
+
+To run the production build in a fresh clone and compare the results
+with the saved files, see [Check whether a build
+reproduces](https://satvilab.github.io/projr/articles/restore-artifacts.html#check-whether-a-build-reproduces).
 
 ## Adapt the workflow
 

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,9 +88,7 @@ in your code.</li>
 <h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"remotes"</span>, <span class="st">"gh"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"SATVILab/projr@*release"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -133,10 +131,11 @@ projects, bookdown).</p>
 <div class="section level4">
 <h4 id="versioning">Versioning<a class="anchor" aria-label="anchor" href="#versioning"></a>
 </h4>
-<p>The project version lives in <code>DESCRIPTION</code> and follows
-<strong>semantic versioning</strong> (<code>major.minor.patch</code>).
-Use <code><a href="../reference/projr_version_get.html">projr_version_get()</a></code> and
-<code><a href="../reference/projr_version_set.html">projr_version_set()</a></code> to inspect or change it directly.</p>
+<p>The project version lives in <code>VERSION</code> or the package’s
+<code>DESCRIPTION</code> and follows <strong>semantic
+versioning</strong> (<code>major.minor.patch</code>). Use
+<code><a href="../reference/projr_version_get.html">projr_version_get()</a></code> and <code><a href="../reference/projr_version_set.html">projr_version_set()</a></code> to
+inspect or change it directly.</p>
 <p>After a production build, the version is bumped to a development
 suffix (e.g. <code>0.0.2</code> becomes <code>0.0.2-1</code>) so that
 development work is always distinguishable from released versions.</p>
@@ -144,10 +143,10 @@ development work is always distinguishable from released versions.</p>
 <div class="section level4">
 <h4 id="sharing-outputs">Sharing outputs<a class="anchor" aria-label="anchor" href="#sharing-outputs"></a>
 </h4>
-<p>After each production build, <code>projr</code> can upload project
-components (raw data, outputs, docs) to GitHub releases or a local
-folder. This is configured under the <code>build</code> key in
-<code>_projr.yml</code> and happens automatically.</p>
+<p>A production build can publish raw data, outputs and documents to a
+GitHub release or a local folder. In <code>_projr.yml</code>, define
+each destination under <code>remotes</code> and select the directories
+to publish under <code>build</code>.</p>
 </div>
 </div>
 <div class="section level3">
@@ -203,11 +202,13 @@ calls.</p>
 </h4>
 <p>Controls what happens after each production build. For example, with
 GitHub configured:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="at">    </span><span class="fu">input</span><span class="kw">:</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="at">      </span><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">"Project inputs"</span></span></code></pre></div>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="at">    </span><span class="fu">input</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="at">    </span><span class="fu">input</span><span class="kw">:</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span></code></pre></div>
 <p>This uploads the <code>raw-data</code> directory to a GitHub release
 after each build. Uploads are incremental by default (only when content
 changes). Git commit, push and other settings are also configured
