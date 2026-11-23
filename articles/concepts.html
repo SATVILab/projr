@@ -280,11 +280,11 @@ history)</li>
 </h4>
 <p>Restore a full project (raw data + outputs) from its remotes:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_restore.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span></code></pre></div>
 <p>Or update a single label:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_restore.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"output"</span>, version <span class="op">=</span> <span class="st">"0.1.0"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"output"</span>, version <span class="op">=</span> <span class="st">"0.1.0"</span><span class="op">)</span></span></code></pre></div>
 <p>projr tries each configured remote in order (GitHub, OSF, local) and
 uses the first one that has the requested content.</p>
 <hr>
@@ -407,7 +407,7 @@ projects). Skip it for quick exploratory work.</p>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_minor</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 7. Collaborator restores the project</span></span>
-<span><span class="fu"><a href="../reference/projr_restore.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"you/your-project"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"you/your-project"</span><span class="op">)</span></span></code></pre></div>
 <p>In short: organise files by purpose, iterate with dev builds, release
 with versioned builds, and restore anywhere with a single command.</p>
 </div>

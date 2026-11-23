@@ -129,7 +129,7 @@ Local destination names and paths and GitHub release names accept
 each build. Find the concrete title and destination in the **Resolved
 archive destinations** section of `BUILDLOG.md`. When restoring an
 earlier build, give
-[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
 its configured `title` and pass the recorded tag or path as
 `destination`.
 

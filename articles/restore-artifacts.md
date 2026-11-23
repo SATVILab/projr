@@ -4,13 +4,14 @@ projr can restore versioned project artifacts (raw data, outputs,
 documents) from remote sources. This is useful when setting up on a new
 machine, collaborating, or recovering archived data.
 
-Three functions handle restoration:
-
-- [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+- [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+  – restore the inputs of a checked-out version from a GitHub archive
+  release
+- [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
   – clone a repository and restore artifacts
-- [`projr_restore_repo_wd()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+- [`projr_restore_repo_wd()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
   – clone into the current directory and restore
-- [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+- [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
   – restore artifacts in an existing local project
 
 ## Quick start
@@ -28,6 +29,36 @@ projr_content_update()
 # Restore only raw data
 projr_content_update(label = "raw-data")
 ```
+
+## Rebuild a checked-out version
+
+After checking out a production build or its follow-up development
+commit, run
+[`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+in the clone. For a project published with
+`projr_build_patch(archive_github = TRUE)`, the release named `archive`
+already contains the required inputs. Each raw directory is restored to
+its configured path. You can then render the checked-out scripts with
+[`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md).
+
+``` r
+
+projr_restore()
+projr_build_dev()
+```
+
+projr selects the version recorded in the checkout. When that version
+reused a directory snapshot, it can download the earlier archive with
+the same paths and hashes. It recovers missing manifest data from the
+release and verifies the complete file list and MD5 hashes before
+installing any downloaded files. If the checkout lacks both
+`DESCRIPTION` and `VERSION`, projr can recover the version from its
+`BUILDLOG.md`. You can also supply `version = "1.2.3"`.
+
+A partially populated input directory is filled when its existing files
+match. To replace local edits or remove extra files, supply
+`clear = TRUE`. For a templated release, pass its recorded concrete tag
+with `destination`.
 
 ## projr_restore_repo()
 
@@ -245,15 +276,18 @@ if (!result) {
 
 ## Notes
 
-- For archive remotes, restoration always fetches the latest available
-  version regardless of your current Git checkout. To get an older
-  version, download it manually from the remote source (e.g., GitHub
-  Releases).
+- [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
+  fetches the latest available version. Use
+  [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+  for the raw inputs of a checked-out build. You can also download an
+  archive manually from the remote source (e.g., GitHub Releases).
 
 - Remote sources are checked in the order they appear in `_projr.yml`.
 
-- Errors during restoration are caught per label, so some labels may
-  succeed even if others fail.
+- [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
+  catches errors per label.
+  [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+  verifies all downloaded directories before installing them.
 
 - For debug output, set `Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")`
   before restoring.

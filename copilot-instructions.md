@@ -110,8 +110,8 @@ env vars: `PROJR_OUTPUT_LEVEL`, `PROJR_CLEAR_OUTPUT`,
 `gert`
 
 **Remotes:** Local, GitHub, OSF destinations; restore:
-[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_restore.md),
-[`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md),
+[`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
 
 **Directory licenses:** Per-directory LICENSE files; YAML
 (auto-regenerated) or manual
