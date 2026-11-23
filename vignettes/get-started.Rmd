@@ -27,7 +27,7 @@ you archive will be available to people who can read that repository.
 Install projr and its GitHub tools once in R.
 
 ```{r eval=FALSE}
-install.packages(c("remotes", "gh", "httr"))  # projr 0.6.1 needs httr separately
+install.packages(c("remotes", "gh"))
 remotes::install_github("SATVILab/projr@*release")
 ```
 
@@ -125,10 +125,8 @@ see [checking whether a build reproduces](restore-artifacts.html#check-whether-a
 
 ## Get the finished result
 
-Someone who just needs the result can download it directly. This download
-function was added after 0.6.1. To try it before the next release, install
-`remotes::install_github("SATVILab/projr@main")`. Then run the following
-in any folder, replacing `owner/repo` with your analysis repository.
+Someone who just needs the result can download it directly. Run this in
+any folder, replacing `owner/repo` with your analysis repository.
 
 ```{r eval=FALSE}
 files <- projr::projr_get_github(repo = "owner/repo", tag = "archive",

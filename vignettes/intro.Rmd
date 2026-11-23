@@ -30,9 +30,7 @@ Project structure and build actions are configured in `_projr.yml`.
 ## Installation
 
 ```{r, eval=FALSE}
-if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
-}
+install.packages(c("remotes", "gh"))
 remotes::install_github("SATVILab/projr@*release")
 ```
 
@@ -72,13 +70,13 @@ Both detect your document type automatically (Rmd, Qmd, Quarto projects, bookdow
 
 ### Versioning
 
-The project version lives in `DESCRIPTION` and follows **semantic versioning** (`major.minor.patch`). Use `projr_version_get()` and `projr_version_set()` to inspect or change it directly.
+The project version lives in `VERSION` or the package's `DESCRIPTION` and follows **semantic versioning** (`major.minor.patch`). Use `projr_version_get()` and `projr_version_set()` to inspect or change it directly.
 
 After a production build, the version is bumped to a development suffix (e.g. `0.0.2` becomes `0.0.2-1`) so that development work is always distinguishable from released versions.
 
 ### Sharing outputs
 
-After each production build, `projr` can upload project components (raw data, outputs, docs) to GitHub releases or a local folder. This is configured under the `build` key in `_projr.yml` and happens automatically.
+A production build can publish raw data, outputs and documents to a GitHub release or a local folder. In `_projr.yml`, define each destination under `remotes` and select the directories to publish under `build`.
 
 ## `_projr.yml` configuration
 
@@ -125,11 +123,13 @@ If you later change the output path in `_projr.yml`, `projr_path_get()` adapts a
 Controls what happens after each production build. For example, with GitHub configured:
 
 ```yaml
+remotes:
+  github:
+    input: {}
 build:
   github:
     input:
       content: [raw-data]
-      description: "Project inputs"
 ```
 
 This uploads the `raw-data` directory to a GitHub release after each build. Uploads are incremental by default (only when content changes). Git commit, push and other settings are also configured here.
