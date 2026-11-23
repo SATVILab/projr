@@ -213,6 +213,20 @@ references:
   year: '2026'
   doi: 10.32614/CRAN.package.xfun
 - type: software
+  title: 'callr: Call R from R'
+  notes: Imports
+  url: https://callr.r-lib.org
+  repository: https://CRAN.R-project.org/package=callr
+  authors:
+  - family-names: Csárdi
+    given-names: Gábor
+    email: csardi.gabor@gmail.com
+    orcid: https://orcid.org/0000-0001-7098-9676
+  - family-names: Chang
+    given-names: Winston
+  year: '2026'
+  doi: 10.32614/CRAN.package.callr
+- type: software
   title: 'cpp11: A C++11 Interface for R''s C Interface'
   notes: LinkingTo
   url: https://cpp11.r-lib.org
@@ -632,3 +646,16 @@ references:
     orcid: https://orcid.org/0000-0002-3242-0582
   year: '2025'
   doi: 10.32614/CRAN.package.BiocManager
+- type: software
+  title: 'pak: Another Approach to Package Installation'
+  notes: Suggests
+  url: https://pak.r-lib.org/
+  repository: https://CRAN.R-project.org/package=pak
+  authors:
+  - family-names: Csárdi
+    given-names: Gábor
+    email: csardi.gabor@gmail.com
+  - family-names: Hester
+    given-names: Jim
+  year: '2026'
+  doi: 10.32614/CRAN.package.pak

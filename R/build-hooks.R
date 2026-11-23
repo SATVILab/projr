@@ -68,7 +68,5 @@
   # This prevents hooks from cluttering the global environment or affecting each other
   label <- if (is.null(stage)) "hook" else paste0(stage, "-build hook")
   .cli_step("Running {label} {path}")
-  hook_env <- new.env(parent = .GlobalEnv)
-  source(path, local = hook_env)
-  invisible(NULL)
+  .build_source(path)
 }

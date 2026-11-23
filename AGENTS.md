@@ -73,6 +73,12 @@ Store package bookkeeping under `.projr/` (optional configuration in `config/`, 
 - `projr_get_local()` accepts a local analysis path or a current-project remote name. `projr_get_github()` accepts a producer repository (optionally qualified with `@branch`) or a registered remote name, and an optional release tag. Direct reads work outside a project. Local reads require neither Git nor a network connection.
 - Use the source manifest and available files to retrieve labels from a completed build, independently of the current publishing selection. Default to the latest completed build, accept an exact version and verify filenames and hashes before installing files under `out/<label>/`. Require `overwrite = TRUE` to replace conflicting contents. Return the absolute output paths named by label.
 
+### Reproducing a completed build
+
+- `projr_reproduce()` clones into a new or empty directory. Use the latest completed build on the selected branch, an exact version, or the last completed build reachable as of a commit. When both a commit and version are specified, use that commit's code with the named version's inputs and expected outputs.
+- Restore dependencies from the code checkout's lockfile. With only a DESCRIPTION, use pak and report the unpinned versions. Restore verified raw inputs, clear the clone's outputs and run its production scripts and hooks. Run the analysis without bumping its version, committing, pushing or publishing artifacts.
+- Compare the complete file sets and hashes for output and documentation directories. Return overall and per-directory matches plus per-file statuses. A recorded empty directory can match. Missing hashes prevent a successful comparison.
+
 ### Destination and directory templates
 
 - Expand `@version`, `@branch`, and `@uuid` in configured directory paths, local destination names and paths, and GitHub release names. A token ends at the end of the string or before a hyphen, underscore, period, ordinary space, or path separator. Preserve unknown names literally.
@@ -94,6 +100,7 @@ Store package bookkeeping under `.projr/` (optional configuration in `config/`, 
 | Package | Purpose |
 |---------|---------|
 | `renv` | Reproducible dependency management |
+| `callr` | Run replayed scripts and hooks in an R session with the analysis libraries |
 | `yaml` | Read/write `_projr.yml` |
 | `jsonlite` | JSON serialisation |
 | `httr` | GitHub release downloads and uploads, including reads from a restored renv library |

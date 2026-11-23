@@ -121,6 +121,38 @@ build, projr can use a later upload if the exact and earlier copies are
 unavailable. The release must record the same snapshot, and every downloaded
 filename and hash must match. This fallback was added after projr 0.6.1.
 
+## Check whether a build reproduces
+
+With the development version of projr, run `projr_reproduce()` when you want
+to know whether an analysis still produces the exact files it recorded.
+It clones the project, restores its raw inputs and runs the production scripts
+from empty output folders. The configured inputs, outputs and cache must be
+inside the clone. Archives can live elsewhere. Choose a project whose scripts
+and hooks you trust.
+
+```{r eval=FALSE}
+result <- projr_reproduce("owner/study", branch = "analysis", path = "study-check")
+result$exact
+result$directories
+subset(result$files, status != "identical")
+```
+
+| Arguments | Code and expected files |
+|---|---|
+| Neither `version` nor `commit` | The latest completed build on the selected branch. |
+| `version = "1.2.3"` | The code, inputs and expected outputs for that build. |
+| `commit` alone | The last completed build at or before the commit, using that build's code. |
+| Both | The specified commit's code with the named version's inputs and expected outputs. |
+
+A lockfile supplies the package versions for the run. With only a
+`DESCRIPTION`, pak installs the dependencies and their versions are unpinned.
+Inspect `result$dependencies$packages` to see which versions were available.
+The overall result is true only when every expected directory has a recorded
+baseline and the relative filenames and bytes all match. Inspect
+`result$files` to see which files changed, went missing or appeared. For
+example, a PDF can have matching text and still differ in its metadata.
+The results stay in the checkout you selected with `path`.
+
 ## projr_restore_repo()
 
 Clones a GitHub repository and restores artifacts in one step.

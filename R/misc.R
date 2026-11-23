@@ -32,6 +32,10 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 # without prompting, even in non-interactive sessions.
 
 .dep_install <- function(dep) {
+  # Replay uses the packages already installed in the analysis's own library.
+  if (!is.null(getOption("projr.reproduce.session"))) {
+    return(invisible(NULL))
+  }
   for (x in dep) {
     .dep_add(x)
     if (!requireNamespace(x, quietly = TRUE)) {

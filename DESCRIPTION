@@ -20,12 +20,13 @@ Depends:
     R (>= 4.1.0)
 Imports:
     renv (>= 1.1.6), jsonlite, yaml, rprojroot, desc, fs, digest, cli, glue,
-    uuid, filelock, xfun, httr
+    uuid, filelock, xfun, httr, callr
 LinkingTo: cpp11
 Suggests:
     remotes, roxygen2, usethis, gert, gh, credentials, gitcreds, codemeta,
     cffr, pkgbuild, rmarkdown, bookdown, knitr, quarto, testthat (>= 3.0.0),
-    devtools, covr, htmltools, DT, curl, rlang, withr, BiocManager
+    devtools, covr, htmltools, DT, curl, rlang, withr, BiocManager,
+    pak
 Config/testthat/edition: 3
 URL: https://satvilab.github.io/projr/, https://github.com/SATVILab/projr
 BugReports: https://github.com/SATVILab/projr/issues
