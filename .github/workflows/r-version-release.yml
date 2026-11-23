@@ -13,7 +13,7 @@ on:
         required: false
         type: choice
         options:
-          - ''
+          - none
           - patch
           - minor
           - major
@@ -30,8 +30,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     concurrency:
-      group: package-release-${{ github.sha }}
-      cancel-in-progress: false
+      group: publish-package-release
+      queue: max
     permissions:
       contents: write
     steps:
@@ -74,5 +74,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ steps.stable.outputs.version || inputs.version }}
-          bump_type: ${{ inputs.bump_type }}
+          bump_type: ${{ inputs.bump_type != 'none' && inputs.bump_type || '' }}
           version_force: ${{ github.event_name == 'push' || inputs.version_force }}
