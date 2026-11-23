@@ -113,6 +113,13 @@
 <li>Use the source manifest and available files to retrieve labels from a completed build, independently of the current publishing selection. Default to the latest completed build, accept an exact version and verify filenames and hashes before installing files under <code>out/&lt;label&gt;/</code>. Require <code>overwrite = TRUE</code> to replace conflicting contents. Return the absolute output paths named by label.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="reproducing-a-completed-build">Reproducing a completed build<a class="anchor" aria-label="anchor" href="#reproducing-a-completed-build"></a></h3>
+<ul><li>
+<code><a href="reference/projr_reproduce.html">projr_reproduce()</a></code> clones into a new or empty directory. Use the latest completed build on the selected branch, an exact version, or the last completed build reachable as of a commit. When both a commit and version are specified, use that commit’s code with the named version’s inputs and expected outputs.</li>
+<li>Restore dependencies from the code checkout’s lockfile. With only a DESCRIPTION, use pak and report the unpinned versions. Restore verified raw inputs, clear the clone’s outputs and run its production scripts and hooks. Run the analysis without bumping its version, committing, pushing or publishing artifacts.</li>
+<li>Compare the complete file sets and hashes for output and documentation directories. Return overall and per-directory matches plus per-file statuses. A recorded empty directory can match. Missing hashes prevent a successful comparison.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="destination-and-directory-templates">Destination and directory templates<a class="anchor" aria-label="anchor" href="#destination-and-directory-templates"></a></h3>
 <ul><li>Expand <code>@version</code>, <code>@branch</code>, and <code>@uuid</code> in configured directory paths, local destination names and paths, and GitHub release names. A token ends at the end of the string or before a hyphen, underscore, period, ordinary space, or path separator. Preserve unknown names literally.</li>
 <li>Use the build version with one <code>v</code> prefix. Capture one UUIDv4 and Git HEAD per build and share them with child render processes and retries. Encode branch names as one portable path component, preserving the distinction between <code>feature/foo</code> and <code>feature-foo</code>. Detached HEAD uses the commit SHA.</li>
@@ -135,6 +142,8 @@
 <th>Purpose</th>
 </tr></thead><tbody><tr><td><code>renv</code></td>
 <td>Reproducible dependency management</td>
+</tr><tr><td><code>callr</code></td>
+<td>Run replayed scripts and hooks in an R session with the analysis libraries</td>
 </tr><tr><td><code>yaml</code></td>
 <td>Read/write <code>_projr.yml</code>
 </td>

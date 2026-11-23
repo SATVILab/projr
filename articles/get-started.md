@@ -136,7 +136,9 @@ downloads the raw inputs for that build and checks their contents
 against the recorded file hashes.
 [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
 then runs the analysis locally so you can inspect the result without
-publishing another version.
+publishing another version. To compare all of a build’s files
+automatically, see [checking whether a build
+reproduces](https://satvilab.github.io/projr/articles/restore-artifacts.html#check-whether-a-build-reproduces).
 
 ## Get the finished result
 

@@ -131,6 +131,8 @@ Main functions for project workflow
   : Download directories from another projr analysis
 - [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
   : Restore the files used by a checked-out build
+- [`projr_reproduce()`](https://satvilab.github.io/projr/reference/projr_reproduce.md)
+  : Rebuild an analysis and compare its files with a completed build
 - [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
   [`projr_restore_repo_wd()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
   [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)

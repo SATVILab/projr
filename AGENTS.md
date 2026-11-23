@@ -273,6 +273,24 @@ files.
   `out/<label>/`. Require `overwrite = TRUE` to replace conflicting
   contents. Return the absolute output paths named by label.
 
+### Reproducing a completed build
+
+- [`projr_reproduce()`](https://satvilab.github.io/projr/reference/projr_reproduce.md)
+  clones into a new or empty directory. Use the latest completed build
+  on the selected branch, an exact version, or the last completed build
+  reachable as of a commit. When both a commit and version are
+  specified, use that commit’s code with the named version’s inputs and
+  expected outputs.
+- Restore dependencies from the code checkout’s lockfile. With only a
+  DESCRIPTION, use pak and report the unpinned versions. Restore
+  verified raw inputs, clear the clone’s outputs and run its production
+  scripts and hooks. Run the analysis without bumping its version,
+  committing, pushing or publishing artifacts.
+- Compare the complete file sets and hashes for output and documentation
+  directories. Return overall and per-directory matches plus per-file
+  statuses. A recorded empty directory can match. Missing hashes prevent
+  a successful comparison.
+
 ### Destination and directory templates
 
 - Expand `@version`, `@branch`, and `@uuid` in configured directory
@@ -312,6 +330,7 @@ files.
 | Package | Purpose |
 |----|----|
 | `renv` | Reproducible dependency management |
+| `callr` | Run replayed scripts and hooks in an R session with the analysis libraries |
 | `yaml` | Read/write `_projr.yml` |
 | `jsonlite` | JSON serialisation |
 | `httr` | GitHub release downloads and uploads, including reads from a restored renv library |
