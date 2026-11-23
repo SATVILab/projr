@@ -143,7 +143,6 @@ test_that("projr_build_copy_pkg works", {
       # package: TRUE
       .yml_dir_set_pkg(TRUE, "output", "default")
       # ensure there is something to build the package out of
-      projr_yml_dir_path_set("data", "data")
       x <- "1"
       projr_use_data(x, safe = FALSE)
       dir.create("inst", showWarnings = FALSE)

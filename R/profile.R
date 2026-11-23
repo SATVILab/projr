@@ -128,7 +128,7 @@ projr_profile_create_local <- function() {
 
 .list_elem_as_null <- function(x) {
   lapply(x, function(elem) {
-    if (!is.list(elem)) {
+    if (!is.list(elem) || is.null(names(elem))) {
       return(NULL)
     }
     .list_elem_as_null(elem)

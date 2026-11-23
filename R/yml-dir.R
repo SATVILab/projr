@@ -232,6 +232,7 @@
 }
 
 .yml_dir_get_path <- function(label, profile) {
+  if (identical(label, "data")) return("data")
   directory <- .yml_dir_get_label(label, profile)
   if (is.null(directory)) stop("label '", label, "' not found in _projr.yml", call. = FALSE)
   path <- if (is.list(directory)) directory[["path"]]

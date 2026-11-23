@@ -6,7 +6,7 @@
 }
 
 .yml_dev_get_scripts <- function(profile) {
-  .yml_dev_get(profile)[["scripts"]] %||% NULL
+  .yml_scripts_normalize(.yml_dev_get(profile)[["scripts"]], "dev.scripts")
 }
 
 .yml_dev_get_hooks <- function(profile) {

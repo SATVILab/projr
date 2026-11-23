@@ -19,7 +19,7 @@ test_that("projr_path_get_dir works with different labels", {
       expect_true(is.character(projr_path_get_dir("docs")))
       expect_error(projr_path_get_dir("project"), "not found")
       expect_error(projr_path_get_dir("code"), "not found")
-      expect_error(projr_path_get_dir("data"), "not found")
+      expect_identical(projr_path_get_dir("data", safe = FALSE, create = FALSE), "data")
 
       # Test invalid label
       expect_error(projr_path_get_dir("invalid_label"))
@@ -316,7 +316,6 @@ test_that("directory functions handle edge cases", {
 
       projr_yml_dir_path_set("code", "source")
       projr_yml_dir_path_set("project", ".")
-      projr_yml_dir_path_set("data", "data")
       # Code and project use their declared paths
       path_code <- projr_path_get_dir("code", create = FALSE)
       expect_identical(path_code, "source")

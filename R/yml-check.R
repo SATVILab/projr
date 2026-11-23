@@ -108,7 +108,7 @@ projr_yml_check <- function(profile = NULL) {
 }
 
 .yml_dir_check_label_path <- function(yml_label, label, profile) {
-  .assert_string(yml_label[["path"]], TRUE, nm = paste0("directories.", label, ".path"))
+  .assert_string(yml_label[["path"]], required = label != "data", nm = paste0("directories.", label, ".path"))
   .yml_dir_check_label_path_restricted(yml_label, label, profile)
 
   yml_label
@@ -116,8 +116,6 @@ projr_yml_check <- function(profile = NULL) {
 
 .yml_dir_check_label_path_restricted <- function(yml_label, label, profile) {
   restricted <- c("man", "R", "tests")
-  # Raw observations may live under data/site-a and data/site-b.
-  if (!label %in% .yml_dir_get_label_raw(profile)) restricted <- c("data", restricted)
   if (label %in% c(.yml_dir_get_label_in(profile), .yml_dir_get_label_output(profile))) {
     .assert_path_not_sub(.path_resolve_root(yml_label[["path"]]), .path_get(restricted))
   }
@@ -342,15 +340,8 @@ projr_yml_check <- function(profile = NULL) {
 # ----------------------
 
 .yml_scripts_check <- function(profile) {
-  # YAML reads an explicit empty sequence ([]) as an empty list.
-  build <- .yml_scripts_get(profile)
-  if (length(build) && !is.character(build)) {
-    stop("build.scripts must be a character vector")
-  }
-  dev <- .yml_dev_get_scripts(profile)
-  if (length(dev) && !is.character(dev)) {
-    stop("dev.scripts must be a character vector")
-  }
+  .yml_scripts_get(profile)
+  .yml_dev_get_scripts(profile)
   invisible(TRUE)
 }
 

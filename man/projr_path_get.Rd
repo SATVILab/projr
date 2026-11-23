@@ -14,7 +14,7 @@ projr_path_get(
 }
 \arguments{
 \item{label}{character.
-A directory label declared under \code{directories} in the active project configuration.}
+The built-in \code{data} label or a directory label declared in the active configuration.}
 
 \item{...}{Specifies sub-path of directory returned.}
 

@@ -194,8 +194,11 @@ Scripts are selected in this priority order:
 4. Automatic detection from the project configuration and top-level scripts
 
 The `scripts` argument and YAML settings accept paths and glob patterns.
-Prefix a pattern with `!` to exclude matching scripts. Pass `scripts = ""`
-to skip running scripts.
+In a YAML scripts list, add an item such as `- exclude: scratch.R` to skip
+matching files. In R, use a string such as `"!scratch.R"`. A selection
+containing only exclusions filters automatic discovery. An empty selection
+(`scripts: []` in YAML or `scripts = character()` in R) skips script execution
+and document rendering.
 
 ### Document rendering
 
@@ -282,7 +285,8 @@ For production builds, projr updates:
 
 - roxygen2 `.Rd` files (if roxygen comments exist)
 - `CITATION.cff`, `codemeta.json`, `inst/CITATION` (version numbers)
-- `README.Rmd` (rendered if it exists)
+- `README.md`, rendered from the root `README.Rmd` when present. You can commit
+  the Markdown and its figures in `README_files/` together.
 - `.projr/BUILDLOG.md` (with a change summary)
 - `CHANGELOG.md` (if configured)
 

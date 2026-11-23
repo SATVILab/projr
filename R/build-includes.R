@@ -56,15 +56,6 @@
   ordered
 }
 
-# Resolve existing symlink ancestors even when the configured directory is new.
-.build_include_real_path <- function(path) {
-  if (file.exists(path)) {
-    return(as.character(fs::path_real(path)))
-  }
-  if (fs::link_exists(path)) stop("Broken link in directory include: ", path, call. = FALSE)
-  file.path(.build_include_real_path(dirname(path)), basename(path))
-}
-
 .build_include_check_paths <- function(directories, roots) {
   for (target in names(directories)) {
     sources <- directories[[target]][["include"]]
@@ -102,9 +93,10 @@
   if (!any(lengths(lapply(directories, `[[`, "include")))) {
     return(invisible(TRUE))
   }
+  if ("data" %in% names(directories)) directories[["data"]][["path"]] <- "data"
   roots <- lapply(directories, function(directory) {
     path <- directory[["path"]]
-    if (!is.null(path)) .build_include_real_path(.path_resolve_root(.template_expand(path)))
+    if (!is.null(path)) .path_resolve_links(.path_resolve_root(.template_expand(path)))
   })
   .build_include_check_paths(directories, roots)
 }
@@ -113,7 +105,7 @@
   labels <- unique(c(names(plan), unlist(plan, use.names = FALSE)))
   roots <- lapply(stats::setNames(labels, labels), function(label) {
     path <- projr_path_get_dir(label, safe = !output_run, format = "absolute", create = FALSE)
-    .build_include_real_path(path)
+    .path_resolve_links(path)
   })
   .build_include_check_paths(directories, roots)
   for (target in names(plan)) {

@@ -51,7 +51,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 
 .yml_merge <- function(yml_projr_root_default,
                        yml_projr_profile,
-                       yml_projr_local) {
+                       yml_projr_local, parents = character()) {
   nm_vec <- names(yml_projr_root_default) |>
     c(names(yml_projr_profile), names(yml_projr_local)) |>
     unique()
@@ -59,6 +59,10 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     elem_default <- yml_projr_root_default[[nm]]
     elem_profile <- yml_projr_profile[[nm]]
     elem_local <- yml_projr_local[[nm]]
+    if (nm == "scripts" && length(parents) == 1L && parents %in% c("build", "dev")) {
+      # A profile chooses one ordered script sequence, including an explicit [].
+      return(elem_local %||% elem_profile %||% elem_default)
+    }
     # return early if highest-precedence element
     # is not a list.
     # Otherwise, make any lower-precedence elements
@@ -102,7 +106,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     }
     # carry on if no return has been made
     # because the highest-precedence element was not a list
-    .yml_merge(elem_default, elem_profile, elem_local)
+    .yml_merge(elem_default, elem_profile, elem_local, c(parents, nm))
   }) |>
     stats::setNames(nm_vec)
 }
