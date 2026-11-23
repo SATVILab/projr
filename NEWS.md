@@ -4,9 +4,9 @@
   alone, including after a failed render. You can run a development build
   before creating either file. A dev build run inside a production README
   also keeps the outer build’s archive at its production version.
-* A selection containing only exclusions, such as
-  `build.scripts: ["!scratch.R"]`, uses automatic discovery and skips the
-  matching files. Quote the leading `!` in YAML.
+* Use `- exclude: scratch.R` in a `build.scripts` or `dev.scripts` list
+  to skip a file or glob. With only exclusions, projr discovers the usual
+  scripts and documents and skips the matches. Quoted `"!scratch.R"` also works.
 * Manual rules in `.gitignore` and `.Rbuildignore` survive a refresh.
   Initialization keeps the original ignore file outside the managed section
   and adds editable rules for `.vdoc.*`, `.DS_Store` and `Thumbs.db`.

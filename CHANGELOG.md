@@ -4,8 +4,9 @@
 
 * Reserve version initialization, version transitions and rollback for production
   builds. Use a development cache when no version exists.
-* Apply exclusion-only selections to the renderer's automatic project inputs
-  and to the automatically discovered R scripts.
+* Accept `exclude: pattern` items alongside paths in YAML script lists. Apply
+  exclusions across the selection. An exclusion-only list filters the renderer’s
+  automatic project inputs and the automatically discovered R scripts.
 * Preserve manual ignore patterns and their line endings during managed updates.
   Seed editable ignore rules when initializing a project.
 * Include the README renderer and, for a README that loads its own package,
