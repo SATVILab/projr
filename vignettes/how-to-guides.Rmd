@@ -178,7 +178,7 @@ projr_content_update(label = c("raw-data", "output"))
 projr_content_update(label = "raw-data", type = "local", title = "backup")
 ```
 
-By default, projr looks for each label’s configured source, then a build destination containing that label. To reuse a templated archive from an earlier build, pass the concrete path or tag recorded in `BUILDLOG.md` as `destination`.
+By default, projr looks for each label’s configured source, then a build destination containing that label. To reuse a templated archive from an earlier build, pass the concrete path or tag recorded in `.projr/BUILDLOG.md` as `destination`.
 
 ---
 

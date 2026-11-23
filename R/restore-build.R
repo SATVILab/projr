@@ -8,7 +8,7 @@
 #' @inheritParams projr_content_update
 #' @param version Character. An exact production build version. By default projr
 #'   reads the checkout's version. On the follow-up development commit it uses
-#'   the most recent completed build in the checkout's `BUILDLOG.md`.
+#'   the most recent completed build in the checkout's `.projr/BUILDLOG.md`.
 #' @param destination Character. Concrete GitHub release tag in the checkout's
 #'   repository. The default is `"archive"`. For templated releases, use the
 #'   tag recorded in the build log.

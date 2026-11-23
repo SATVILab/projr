@@ -25,7 +25,7 @@
   append_txt <- .buildlog_read()[-c(1, 2)]
   c(init_txt, add_txt, append_txt) |>
     .buildlog_write()
-  .path_get("BUILDLOG.md") |>
+  .path_get(".projr", "BUILDLOG.md") |>
     .newline_append()
 }
 
@@ -297,7 +297,8 @@
 }
 
 .buildlog_read <- function() {
-  path_buildlog <- .path_get("BUILDLOG.md")
+  path_buildlog <- .path_get(".projr", "BUILDLOG.md")
+  if (!file.exists(path_buildlog)) path_buildlog <- .path_get("BUILDLOG.md")
   if (!file.exists(path_buildlog)) {
     return(c("# BUILDLOG", ""))
   }
@@ -305,6 +306,7 @@
 }
 
 .buildlog_write <- function(txt) {
-  path_buildlog <- .path_get("BUILDLOG.md")
+  path_buildlog <- .path_get(".projr", "BUILDLOG.md")
+  fs::dir_create(dirname(path_buildlog))
   writeLines(txt, path_buildlog)
 }

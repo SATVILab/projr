@@ -58,7 +58,7 @@ test_that("loading the installed package and running a first build confine their
     "library(projr)",
     "stopifnot(!length(list.files(all.files = TRUE, no.. = TRUE)))",
     "projr_build_patch('First build', project = project)",
-    "stopifnot(file.exists('_projr.yml'), file.exists('BUILDLOG.md'))"
+    "stopifnot(file.exists('_projr.yml'), file.exists('.projr/BUILDLOG.md'))"
   ), script)
   exe <- file.path(R.home("bin"), "Rscript")
   output <- system2(exe, c("--vanilla", shQuote(script), shQuote(project)), stdout = TRUE, stderr = TRUE)

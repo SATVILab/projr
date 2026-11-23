@@ -283,7 +283,7 @@ For production builds, projr updates:
 - roxygen2 `.Rd` files (if roxygen comments exist)
 - `CITATION.cff`, `codemeta.json`, `inst/CITATION` (version numbers)
 - `README.Rmd` (rendered if it exists)
-- `BUILDLOG.md` (with a change summary)
+- `.projr/BUILDLOG.md` (with a change summary)
 - `CHANGELOG.md` (if configured)
 
 Example BUILDLOG entry:
