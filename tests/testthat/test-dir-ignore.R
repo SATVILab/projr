@@ -55,11 +55,24 @@ test_that("directory ignore paths are relative to the project root", {
     for (path in paths) {
       expect_equal(as.character(.ignore_diryml_path_get("raw", list(path = path))), "reports/archive")
     }
-    for (path in c(".", dir_test, "../outside", "Z:/foreign/data")) {
+    for (path in c(".", dir_test, "../outside", "Z:/foreign/data", "//foreign.example/share/data")) {
       expect_length(.ignore_diryml_path_get("raw", list(path = path)), 0L)
     }
     expect_false(dir.exists("reports/archive"))
   })
+})
+
+test_that("absolute ignore paths may use an alias for the checkout's parent", {
+  skip_if(.is_test_select())
+  scratch <- withr::local_tempdir()
+  parent <- file.path(scratch, "source")
+  project <- file.path(parent, "study")
+  fs::dir_create(project)
+  alias <- file.path(scratch, "linked")
+  skip_if_not(suppressWarnings(file.symlink(parent, alias)), "Directory symlink unavailable")
+  path <- file.path(alias, "study", "future", "output-@uuid")
+  expect_identical(.ignore_project_relative(path, normalizePath(project, winslash = "/")), "future/output-@uuid")
+  expect_false(dir.exists(path))
 })
 
 test_that("directory ignore rules cover configured paths and respect each ignore type", {

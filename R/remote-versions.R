@@ -451,7 +451,8 @@
   if (type != "github") {
     versions <- sub("-empty$", "", sub("^v", "", fn))
     # Compare numerically and keep the exact directory name, including a dev hyphen.
-    return(versions[[which.max(numeric_version(versions))]])
+    numbers <- numeric_version(versions)
+    return(versions[[match(max(numbers), numbers)]])
   }
   fn <- .remote_version_latest_filter(fn, type, label)
   .remote_version_latest_extract(fn, label)

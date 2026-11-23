@@ -174,7 +174,7 @@ projr_path_get_cache_build <- function(..., create = FALSE, profile = NULL) {
 
 .cache_path_for_caller <- function(path) {
   if (fs::is_absolute_path(path)) return(path)
-  .path_force_rel(.path_resolve_root(path), getwd())
+  .path_force_rel(.path_resolve_root(path), normalizePath(".", winslash = "/"))
 }
 
 

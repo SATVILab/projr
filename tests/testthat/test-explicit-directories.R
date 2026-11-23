@@ -27,7 +27,7 @@ test_that("a project starts with a default config and uses only declared directo
 
 test_that("profile directories, staged outputs, and ignores are rooted at _projr.yml", {
   skip_if(.is_test_select())
-  project <- withr::local_tempdir()
+  project <- normalizePath(withr::local_tempdir(), winslash = "/")
   config <- file.path(project, ".projr", "config")
   nested <- file.path(project, "scripts", "reports")
   fs::dir_create(c(config, nested))
@@ -48,11 +48,11 @@ test_that("profile directories, staged outputs, and ignores are rooted at _projr
   )
   expect_no_error(projr_yml_check("b"))
   safe <- projr_path_get("output", "tables", "monthly", "table.csv")
-  expect_identical(as.character(fs::path_abs(safe)), file.path(project, "scratch/projr/v1.0.0-1/output/tables/monthly/table.csv"))
+  expect_identical(safe, "../../scratch/projr/v1.0.0-1/output/tables/monthly/table.csv")
   cache <- projr_path_get_cache_build_dir("assets", create = TRUE)
   expect_identical(projr_path_get_cache_build_dir("assets", profile = "b"), cache)
   expect_true(dir.exists(cache))
-  expect_identical(as.character(fs::path_abs(cache)), file.path(project, "scratch/projr/v1.0.0-1/assets"))
+  expect_identical(cache, "../../scratch/projr/v1.0.0-1/assets")
   writeLines(c("Package: report", "Version: 1.0.0-1"), file.path(project, "DESCRIPTION"))
   expect_no_error(projr_ignore_auto())
   expect_false(file.exists(".gitignore"))
@@ -72,7 +72,7 @@ test_that("profile directories, staged outputs, and ignores are rooted at _projr
 
 test_that("safe documentation stays in the configured cache for external final paths", {
   skip_if(.is_test_select())
-  project <- withr::local_tempdir()
+  project <- normalizePath(withr::local_tempdir(), winslash = "/")
   destination <- withr::local_tempdir()
   withr::local_dir(project)
   config <- list(directories = list(docs = list(path = destination), cache = list(path = "staging")))
