@@ -108,7 +108,7 @@ projr_yml_check <- function(profile = NULL) {
 }
 
 .yml_dir_check_label_path <- function(yml_label, label, profile) {
-  .assert_string(yml_label[["path"]], TRUE, nm = paste0("directories.", label, ".path"))
+  .assert_string(yml_label[["path"]], required = label != "data", nm = paste0("directories.", label, ".path"))
   .yml_dir_check_label_path_restricted(yml_label, label, profile)
 
   yml_label
@@ -116,8 +116,6 @@ projr_yml_check <- function(profile = NULL) {
 
 .yml_dir_check_label_path_restricted <- function(yml_label, label, profile) {
   restricted <- c("man", "R", "tests")
-  # Raw observations may live under data/site-a and data/site-b.
-  if (!label %in% .yml_dir_get_label_raw(profile)) restricted <- c("data", restricted)
   if (label %in% c(.yml_dir_get_label_in(profile), .yml_dir_get_label_output(profile))) {
     .assert_path_not_sub(.path_resolve_root(yml_label[["path"]]), .path_get(restricted))
   }

@@ -31,9 +31,8 @@
   if (clear_output == "never") {
     return(invisible(FALSE))
   }
-  # docs handled separately
-  label_vec <- .yml_dir_get_label_out(NULL) |>
-    setdiff(.yml_dir_get_label_docs(NULL))
+  # Package data can also contain source datasets maintained by hand.
+  label_vec <- .yml_dir_get_label_output(NULL)
   for (i in seq_along(label_vec)) {
     .build_clear_pre_output_label(label_vec[[i]], clear_output)
   }

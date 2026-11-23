@@ -842,6 +842,15 @@
   .path_get(path)
 }
 
+# Resolve existing ancestors even when the final directory does not exist yet.
+.path_resolve_links <- function(path, allow_broken = FALSE) {
+  if (file.exists(path)) return(as.character(fs::path_real(path)))
+  if (!allow_broken && fs::link_exists(path)) stop("Broken link: ", path, call. = FALSE)
+  parent <- dirname(path)
+  if (parent == path) return(as.character(path))
+  file.path(.path_resolve_links(parent, allow_broken), basename(path))
+}
+
 .path_can_relativise <- function(path, root = .path_get()) {
   # Compare the filesystem roots, including the share name for UNC paths.
   roots <- lapply(fs::path_split(fs::path_abs(c(path, root))), function(parts) {

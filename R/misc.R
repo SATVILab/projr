@@ -474,13 +474,12 @@ with_dir <- function(new, code) {
   dots_vec_chr
 }
 
-#' @title `projr` drop-in replacement for usethis::use_data
-#'
+#' @title Save package datasets
 #' @description
-#' Save package datasets in the staged build cache by default. For datasets
-#' intended for package users, declare the `data` label under `directories`
-#' with the final path (normally `data` in an R package). Internal datasets
-#' use the package's `R/sysdata.rda` convention.
+#' Stage datasets for the current build. Production builds collect public datasets
+#' in the project's `data/` directory and internal datasets in `R/sysdata.rda`.
+#' The `data` label is built in. When using this helper, reserve `data/` and
+#' its subdirectories for package datasets in the active configuration.
 #' @param ... Unquoted names of existing objects to save.
 #' @param internal If `FALSE`, saves each object in its own `.rda`
 #'   file in the `data/` directory. These data files bypass the usual
@@ -502,7 +501,7 @@ with_dir <- function(new, code) {
 #' @param safe logical.
 #' Whether to save data to a temporary directory
 #' (in `<cache>/"projr"/v<version>/data/`)
-#' or the configured final data directory.
+#' or directly to the package directory.
 #' Default is the temporary directory (TRUE).
 #'
 #' @details
@@ -532,6 +531,7 @@ projr_use_data <- function(
   # copied across from usethis::use_data,
   # except that we adjust output directory
   # based on whether it's an output run or not
+  .use_data_check_paths()
   objs <- .usethis_get_objs_from_dots(.usethis_dots(...))
   if (internal) {
     directory <- if (safe) {
@@ -545,7 +545,7 @@ projr_use_data <- function(
   } else {
     directory <- projr_path_get_dir("data", safe = safe, format = "absolute")
     paths_project <- as.character(fs::path(directory, objs, ext = "rda"))
-    if (!safe) {
+    if (!safe && file.exists(.path_get("DESCRIPTION"))) {
       desc <- .usethis_proj_desc()
       if (!desc$has_fields("LazyData")) {
         desc$set(LazyData = "true")
@@ -572,6 +572,25 @@ projr_use_data <- function(
     )
   )
   invisible(paths_project)
+}
+
+# Check only when package datasets are requested. Other analyses may use data/
+# or its subdirectories for their own inputs or outputs.
+.use_data_check_paths <- function() {
+  directories <- .yml_dir_get(NULL)
+  root <- .path_get()
+  data <- .path_resolve_links(file.path(root, "data"), allow_broken = TRUE)
+  for (label in setdiff(names(directories), "data")) {
+    path <- directories[[label]][["path"]]
+    if (is.null(path)) next
+    path <- fs::path_abs(.template_expand(path), start = root)
+    if (.Platform$OS.type != "windows" && !.path_can_relativise(path, root)) next
+    actual <- .path_resolve_links(path, allow_broken = TRUE)
+    if (.path_can_relativise(actual, data) && fs::path_has_parent(actual, data)) {
+      stop("projr_use_data() needs the package data/ directory. Configured label '",
+           label, "' uses ", path, ".", call. = FALSE)
+    }
+  }
 }
 
 .usethis_get_objs_from_dots <- function(.dots) {

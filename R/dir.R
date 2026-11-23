@@ -4,8 +4,8 @@
 #' ignores it if requested by `_projr.yml`.
 #' If the path is relative, then it is calculated with respect to the project directory, but returned relative to the current working directory.
 #' @param label character.
-#' A directory label declared under `directories` in the active project configuration.
-#' Each label must have a `path`, which may be inherited from another profile.
+#' The built-in `data` label or a directory label declared under `directories`.
+#' For other labels, the active configuration supplies the `path`.
 #' @param ... Specifies sub-directory of directory returned.
 #' Passed to `file.path`.
 #' @param create logical.
@@ -66,7 +66,7 @@ projr_path_get_dir <- function(label, ...,
 #' if requested by `_projr.yml`.
 #'
 #' @param label character.
-#' A directory label declared under `directories` in the active project configuration.
+#' The built-in `data` label or a directory label declared in the active configuration.
 #' @param ... Specifies sub-path of directory returned.
 #' @param create logical.
 #' If \code{TRUE}, then the parent directory

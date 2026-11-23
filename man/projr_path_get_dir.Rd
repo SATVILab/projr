@@ -14,8 +14,8 @@ projr_path_get_dir(
 }
 \arguments{
 \item{label}{character.
-A directory label declared under \code{directories} in the active project configuration.
-Each label must have a \code{path}, which may be inherited from another profile.}
+The built-in \code{data} label or a directory label declared under \code{directories}.
+For other labels, the active configuration supplies the \code{path}.}
 
 \item{...}{Specifies sub-directory of directory returned.
 Passed to \code{file.path}.}

@@ -55,7 +55,7 @@
   key <- digest::digest(enc2utf8(root), algo = "sha256", serialize = FALSE)
   file <- file.path(user_config, "build-approvals", key)
   # A checkout cannot grant itself permission using files under its own root.
-  actual <- .build_include_real_path(fs::path_abs(file))
+  actual <- .path_resolve_links(fs::path_abs(file))
   if (!fs::path_has_parent(actual, root)) file
 }
 
