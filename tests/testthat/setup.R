@@ -32,6 +32,14 @@ withr::local_envvar(
   .local_envir = teardown_env()
 )
 
+# Run the fast offline suite under a standard R CMD check. CI can select its
+# own test mode or use NOT_CRAN=true to run the full suite.
+if (!nzchar(Sys.getenv("R_PKG_TEST_CRAN")) &&
+    nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_")) &&
+    !.is_env_var_true("NOT_CRAN")) {
+  withr::local_envvar(c(R_PKG_TEST_CRAN = "true"), .local_envir = teardown_env())
+}
+
 # Credential packages can cache tokens outside HOME. Keep discovery deterministic;
 # individual auth tests can install a narrower mock inside their own scope.
 if (requireNamespace("gh", quietly = TRUE)) {
@@ -60,36 +68,15 @@ if (requireNamespace("codemeta", quietly = TRUE)) {
   )
 }
 
-# cffr 1.4.2 fetches repository indexes on first load. Seed its cache offline,
-# then restore the imported function copied while utils was temporarily mocked.
+# cffr reads a source package index on its first load and requires a URL for
+# CRAN. Give R a cached, empty index for a dedicated fixture repository.
 local({
-  original_available_packages <- utils::available.packages
-  loaded <- testthat::with_mocked_bindings(
-    requireNamespace("cffr", quietly = TRUE),
-    available.packages = function(...) {
-      matrix(
-        character(),
-        nrow = 0L,
-        ncol = 2L,
-        dimnames = list(NULL, c("Package", "Repository"))
-      )
-    },
-    .package = "utils"
-  )
-  if (loaded) {
-    imports <- parent.env(asNamespace("cffr"))
-    was_locked <- bindingIsLocked("available.packages", imports)
-    if (was_locked) {
-      unlockBinding("available.packages", imports)
-    }
-    assign("available.packages", original_available_packages, envir = imports)
-    if (was_locked) {
-      lockBinding("available.packages", imports)
-    }
-    stopifnot(identical(
-      get("available.packages", envir = imports, inherits = FALSE),
-      original_available_packages
-    ))
-  }
-  stopifnot(identical(utils::available.packages, original_available_packages))
+  repo <- "https://projr-fixture.invalid"
+  withr::local_options(list(repos = c(CRAN = repo), pkgType = "source"))
+  withr::local_envvar(c(R_PACKAGES_CACHE_USER_DIR = "false", R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE = "3600"))
+  index <- utils::URLencode(utils::contrib.url(repo, "source"), reserved = TRUE)
+  cache <- file.path(tempdir(), paste0("repos_", index, ".rds"))
+  saveRDS(matrix(character(), nrow = 0L, ncol = 0L), cache)
+  withr::defer(unlink(cache))
+  requireNamespace("cffr", quietly = TRUE)
 })
