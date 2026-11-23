@@ -1,5 +1,18 @@
 # Technical changelog
 
+## 0.6.1
+
+* Reserve version initialization, version transitions and rollback for production
+  builds. Use a development cache when no version exists.
+* Apply exclusion-only selections to the renderer's automatic project inputs
+  and to the automatically discovered R scripts.
+* Preserve manual ignore patterns and their line endings during managed updates.
+  Seed editable ignore rules when initializing a project.
+* Include the README renderer and, for a README that loads its own package,
+  `pkgbuild` in the production prerequisite check.
+* Migrate the root build log into `.projr/` using the same conflict checks
+  as other project bookkeeping. Older checkouts support read-only lookups.
+
 ## 0.6.0
 
 * Development and production build functions accept `project`. Interactive

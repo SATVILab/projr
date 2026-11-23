@@ -1,3 +1,18 @@
+# projr 0.6.1
+
+* Development builds leave `VERSION` and the package version in `DESCRIPTION`
+  alone, including after a failed render. You can run a development build
+  before creating either file.
+* A selection containing only exclusions, such as
+  `build.scripts: ["!scratch.R"]`, uses automatic discovery and skips the
+  matching files. Quote the leading `!` in YAML.
+* Manual rules in `.gitignore` and `.Rbuildignore` survive a refresh.
+  Initialization adds an editable rule for `.vdoc.*` temporary files.
+* Production builds check the packages needed for a root `README.Rmd`
+  before running analysis scripts.
+* The tracked build history is now `.projr/BUILDLOG.md`. Older checkouts
+  keep their entries when the log moves. `CHANGELOG.md` stays at the root.
+
 # projr 0.6.0
 
 ## Changes for existing projects
