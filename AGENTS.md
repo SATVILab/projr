@@ -147,7 +147,10 @@ package names before modifying the lockfile.
   renderer-generated output and intermediates at their project-relative
   paths, including beside nested documents. Install predictable rules
   before rendering and retain ignore rules for newly created
-  intermediates after a failed render.
+  intermediates after a failed render. The root `README.Rmd` renders to
+  `README.md`. Keep that Markdown and its `README_files/` figures
+  trackable, and predict `README.html` only when another document
+  produces it.
 - Collect project outputs from the configured safe documentation
   directory. Collect standalone outputs and their companion assets
   together in the configured documentation directory. When names
