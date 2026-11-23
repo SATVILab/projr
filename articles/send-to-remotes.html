@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,13 +86,31 @@ folders</li>
 <code>raw-data</code>, <code>cache</code>, <code>output</code>, or
 <code>docs</code>. GitHub also provides a source archive for each
 release tag, accessible with <code>content: code</code>.</p>
+<p>With the development version of projr, put the address of a named
+archive under <code>remotes</code> and select it under
+<code>build</code>. This example makes reports available in a GitHub
+release named <code>reports</code> in the analysis repository.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">docs</span><span class="kw">]</span></span></code></pre></div>
+<p>To pause uploads, remove <code>reports</code> from
+<code>build.github</code>. Readers can still get previously published
+reports with
+<code>projr_get_github(remote = "reports", label = "docs")</code> from a
+project where that name is registered. See the <a href="configuration.html#saving-artifacts">configuration reference</a>
+for local archives, separate GitHub repositories, and the all-label
+selection. The inline build configurations below are also supported.</p>
 <div class="section level2">
 <h2 id="github-destinations">GitHub Destinations<a class="anchor" aria-label="anchor" href="#github-destinations"></a>
 </h2>
 <p>Configure a GitHub remote for the checkout and a credential with
 write access to releases in that repository. Run
 <code><a href="../reference/instr_auth.html">projr_instr_auth_github()</a></code> for setup.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add a GitHub release for raw data</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"raw-data-@version"</span>,</span>
@@ -105,12 +123,12 @@ write access to releases in that repository. Run
 <span>  content <span class="op">=</span> <span class="st">"output"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>YAML equivalent:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">    </span><span class="fu">"raw-data-@version"</span><span class="kw">:</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="at">    </span><span class="fu">"output-@version"</span><span class="kw">:</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">    </span><span class="fu">"raw-data-@version"</span><span class="kw">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-data</span><span class="kw">]</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="at">    </span><span class="fu">"output-@version"</span><span class="kw">:</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span></code></pre></div>
 <p>Parameters:</p>
 <ul>
 <li>
@@ -134,7 +152,7 @@ creation.</li>
 </h2>
 <p>Choose a writable local or mounted folder. Relative paths resolve
 from the project root.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Archive to local directory</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_dest_add.html">projr_yml_dest_add_local</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"local-backup"</span>,</span>
@@ -149,12 +167,12 @@ from the project root.</p>
 <span>  path <span class="op">=</span> <span class="st">"/mnt/shared/projects/my-project/data"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>YAML equivalent:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">    </span><span class="fu">local-backup</span><span class="kw">:</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="at">      </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"local-backup"</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">"~/project-archive/output"</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="at">    </span><span class="fu">local-backup</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="at">      </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"local-backup"</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output</span><span class="kw">]</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">"~/project-archive/output"</span></span></code></pre></div>
 <p>Parameters:</p>
 <ul>
 <li>
@@ -329,7 +347,7 @@ it has stopped before removing its lock asset.</p>
 <div class="section level3">
 <h3 id="comprehensive-github-setup">Comprehensive GitHub setup<a class="anchor" aria-label="anchor" href="#comprehensive-github-setup"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Raw data: archive, only when changed</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"raw-data-@version"</span>,</span>
@@ -363,7 +381,7 @@ it has stopped before removing its lock asset.</p>
 <div class="section level3">
 <h3 id="local-archive-setup">Local archive setup<a class="anchor" aria-label="anchor" href="#local-archive-setup"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Raw data to local archive</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_dest_add.html">projr_yml_dest_add_local</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"raw-data-archive"</span>,</span>
@@ -391,7 +409,7 @@ it has stopped before removing its lock asset.</p>
 </h3>
 <p>projr uploads to all configured remotes during each production
 build.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># GitHub for public sharing</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"output-@version"</span>,</span>
@@ -420,7 +438,7 @@ build.</p>
 <h2 id="build-workflow">Build Workflow<a class="anchor" aria-label="anchor" href="#build-workflow"></a>
 </h2>
 <p>Remotes activate automatically during production builds:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># does NOT upload to remotes</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># uploads (0.1.0 -&gt; 0.1.1)</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_minor</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># uploads (0.1.0 -&gt; 0.2.0)</span></span>
@@ -436,7 +454,7 @@ build.</p>
 <li>Run post-build hooks</li>
 </ol>
 <p>Check and validate your configuration:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_yml_get.html">projr_yml_get</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">build</span><span class="op">$</span><span class="va">github</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_get.html">projr_yml_get</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">build</span><span class="op">$</span><span class="va">local</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_check.html">projr_yml_check</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -471,7 +489,7 @@ uploads).</li>
 <div class="section level2">
 <h2 id="quick-reference">Quick Reference<a class="anchor" aria-label="anchor" href="#quick-reference"></a>
 </h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Minimal GitHub remote</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"output-@version"</span>,</span>

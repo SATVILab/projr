@@ -27,7 +27,7 @@ Install projr and its GitHub tools once in R.
 
 ``` r
 
-install.packages(c("remotes", "gh", "httr"))
+install.packages(c("remotes", "gh", "httr"))  # projr 0.6.1 needs httr separately
 remotes::install_github("SATVILab/projr@*release")
 ```
 
@@ -137,6 +137,28 @@ against the recorded file hashes.
 [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
 then runs the analysis locally so you can inspect the result without
 publishing another version.
+
+## Get the finished result
+
+Someone who just needs the result can download it directly. This
+download function was added after 0.6.1. To try it before the next
+release, install `remotes::install_github("SATVILab/projr@main")`. Then
+run the following in any folder, replacing `owner/repo` with your
+analysis repository.
+
+``` r
+
+files <- projr::projr_get_github(repo = "owner/repo", tag = "archive",
+                                 label = "output", out = "download")
+readLines(file.path(files[["output"]], "mean.txt"))
+# [1] "4"
+```
+
+This checks the saved files and puts them in `download/output/`. To
+download an earlier build, include its version, for example
+`version = "0.1.0"`. The [guide to retrieving
+files](https://satvilab.github.io/projr/articles/restore-artifacts.md)
+also covers local projects and named archives.
 
 ## Keep existing folder names
 

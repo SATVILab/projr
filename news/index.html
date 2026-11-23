@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,14 @@
       <small>Source: <a href="https://github.com/SATVILab/projr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="projr-development-version">projr (development version)<a class="anchor" aria-label="anchor" href="#projr-development-version"></a></h2>
+<ul><li>Download reports or inputs from a completed build with <code><a href="../reference/projr_get.html">projr_get_github()</a></code>, or copy them from a local analysis with <code><a href="../reference/projr_get.html">projr_get_local()</a></code>. Choose the labels and version you need. projr verifies the files before copying them into the folder you choose.</li>
+<li>Installing projr now brings in <code>httr</code>, which it uses to download and upload GitHub release files. An older project pinned to projr 0.6.1 can add the missing package with <code>renv::install("httr")</code>.</li>
+<li>
+<code><a href="../reference/projr_restore.html">projr_restore()</a></code> can recover missing files for an older build from a later upload when the release records an identical directory snapshot. It tries the requested version and earlier matches first and verifies every file.</li>
+<li>Name archives under <code>remotes</code> in <code>_projr.yml</code>. Select them under <code>build</code> when you want to publish. You can keep an archive available to readers after you stop uploading new builds to it.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.1" id="projr-061">projr 0.6.1<a class="anchor" aria-label="anchor" href="#projr-061"></a></h2>
 <ul><li>Development builds leave <code>VERSION</code> and the package version in <code>DESCRIPTION</code> alone, including after a failed render. You can run a development build before creating either file. A dev build run inside a production README also keeps the outer build’s archive at its production version.</li>

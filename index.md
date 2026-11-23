@@ -29,7 +29,7 @@ the package in R.
 
 ``` r
 
-install.packages(c("remotes", "gh", "httr"))
+install.packages(c("remotes", "gh", "httr"))  # projr 0.6.1 needs httr separately
 remotes::install_github("SATVILab/projr@*release")
 library(projr)
 ```
@@ -95,5 +95,6 @@ their paths in
 their build
 order.](https://satvilab.github.io/projr/articles/scripts-and-hooks.md)
 
-[Restoring files ↗Select a version or retrieve data from another
-archive.](https://satvilab.github.io/projr/articles/restore-artifacts.md)
+[Getting files ↗Download finished reports or restore the inputs for a
+specific
+build.](https://satvilab.github.io/projr/articles/restore-artifacts.md)

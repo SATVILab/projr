@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -497,25 +497,80 @@ use <code><a href="../reference/projr_manifest_query.html">projr_manifest_change
 <div class="section level2">
 <h2 id="saving-artifacts">Saving artifacts<a class="anchor" aria-label="anchor" href="#saving-artifacts"></a>
 </h2>
-<p>Give a destination a name under <code>build.local</code> or
-<code>build.github</code>. Its <code>content</code> lists the labels to
-send. For example, this saves the assembled deliverable locally and
-publishes the figures to a GitHub release.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<p>The <code>remotes</code> section was added after projr 0.6.1. To use
+it before the next release, install
+<code>remotes::install_github("SATVILab/projr@main")</code>.</p>
+<p>Use <code>remotes</code> to give an archive a name and record where
+it lives. Use <code>build</code> to select which archives a production
+build writes to. This example keeps a complete local archive called
+<code>shared</code> and sends just the figures to a GitHub repository.
+The project declares <code>output-figures</code> under
+<code>directories</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> ../team-archives/study</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-delivery</span><span class="kw">]</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="at">      </span><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="at">    </span><span class="fu">figures</span><span class="kw">:</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="at">      </span><span class="fu">tag</span><span class="kw">:</span><span class="at"> </span><span class="st">"figures-@branch"</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-figures</span><span class="kw">]</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="at">      </span><span class="fu">structure</span><span class="kw">:</span><span class="at"> latest</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="at">      </span><span class="fu">send</span><span class="kw">:</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="at">        </span><span class="fu">inspect</span><span class="kw">:</span><span class="at"> manifest</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="at">        </span><span class="fu">strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span></code></pre></div>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="at">      </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> research-team/study-results</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="at">      </span><span class="fu">tag</span><span class="kw">:</span><span class="at"> </span><span class="st">"figures-@branch"</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="at">      </span><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="at">      </span><span class="fu">send</span><span class="kw">:</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="at">        </span><span class="fu">inspect</span><span class="kw">:</span><span class="at"> manifest</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="at">        </span><span class="fu">strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-figures</span><span class="kw">]</span></span></code></pre></div>
+<p>For a name declared under <code>remotes</code>, the matching entry
+under <code>build</code> has three forms.</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Entry under <code>build.github</code> or
+<code>build.local</code>
+</th>
+<th>What a production build sends</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Omit the name</td>
+<td>Nothing to this archive. Its saved files remain available to
+readers.</td>
+</tr>
+<tr class="even">
+<td>
+<code>reports: {}</code> or a bare <code>reports:</code>
+</td>
+<td>All declared raw, output and docs labels. Cache is included only
+when explicitly selected.</td>
+</tr>
+<tr class="odd">
+<td><code>reports: {content: [output-figures]}</code></td>
+<td>Only the listed labels.</td>
+</tr>
+</tbody>
+</table>
+<p>Put the address, layout and transfer settings under
+<code>remotes</code> and only <code>content</code> in the matching build
+entry. Readers can ask for any label actually saved for a build, even
+after its publishing selection changes. Existing configurations that
+define a destination entirely under <code>build</code> still work.</p>
+<p>For GitHub, <code>repo</code> defaults to the repository that
+produced the build. The name under <code>remotes.github</code> supplies
+the release tag and title unless <code>tag</code> supplies a different
+name. For example, <code>reports: {}</code> under
+<code>remotes.github</code> registers a release named
+<code>reports</code> in the producer’s repository.
+<code>repo: research-team/study-results</code> sends the files to a
+separate repository. A release such as <code>figures-main</code> can
+hold files from several project versions.</p>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -531,9 +586,9 @@ publishes the figures to a GitHub release.</p>
 <td>Local archive path, relative to the project root or absolute.</td>
 </tr>
 <tr class="even">
-<td><code>content</code></td>
-<td>Declared labels to archive. GitHub also provides its built-in source
-archive for <code>code</code>.</td>
+<td><code>repo</code></td>
+<td>GitHub repository in <code>owner/repo</code> form. Defaults to the
+repository where the analysis is built.</td>
 </tr>
 <tr class="odd">
 <td><code>structure</code></td>
@@ -548,12 +603,10 @@ without the label subdirectory. A dedicated path per label avoids
 overlapping payloads.</td>
 </tr>
 <tr class="odd">
-<td>
-<code>tag</code>, <code>title</code>
-</td>
-<td>GitHub release tag and displayed title resolve to the same string.
-The mapping key supplies the name when an explicit name is omitted. A
-literal <code>archive</code> shares one release across versions.</td>
+<td><code>tag</code></td>
+<td>GitHub release name, used for both the Git tag and the displayed
+release title. Defaults to the registered name. A literal
+<code>archive</code> shares one release across versions.</td>
 </tr>
 <tr class="even">
 <td><code>branch</code></td>
@@ -591,6 +644,10 @@ or list the labels for which it is preferred.</td>
 </tr>
 </tbody>
 </table>
+<p>In an older inline <code>build.github</code> entry,
+<code>title</code> can also supply the release name. Under
+<code>remotes.github</code>, the mapping key names the destination and
+<code>tag</code> sets the release name.</p>
 <p>For a one-off production archive, pass labels to
 <code>archive_local</code> or <code>archive_github</code>.
 <code>TRUE</code> chooses the available archive labels.
@@ -631,6 +688,11 @@ renderers, paths and release operations.</td>
 </tr>
 </tbody>
 </table>
+<p>The build supplies the values for all three placeholders. For
+example, <code>figures-@branch</code> uses the branch of the analysis
+being built even when the release is hosted in a separate repository.
+The optional <code>branch</code> setting selects the commit for a new
+GitHub tag in that destination repository.</p>
 <p>Quote a YAML string that begins with <code>@</code>. A placeholder
 ends at the end of the string or before a hyphen, underscore, period,
 ordinary space or path separator. For instance,

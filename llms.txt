@@ -29,7 +29,7 @@ the package in R.
 
 ``` r
 
-install.packages(c("remotes", "gh", "httr"))
+install.packages(c("remotes", "gh", "httr"))  # projr 0.6.1 needs httr separately
 remotes::install_github("SATVILab/projr@*release")
 library(projr)
 ```
@@ -95,8 +95,9 @@ their paths in
 their build
 order.](https://satvilab.github.io/projr/articles/scripts-and-hooks.md)
 
-[Restoring files ↗Select a version or retrieve data from another
-archive.](https://satvilab.github.io/projr/articles/restore-artifacts.md)
+[Getting files ↗Download finished reports or restore the inputs for a
+specific
+build.](https://satvilab.github.io/projr/articles/restore-artifacts.md)
 
 # Package index
 
@@ -124,6 +125,10 @@ Main functions for project workflow
   : Build dev project
 - [`projr_build_check_packages()`](https://satvilab.github.io/projr/reference/projr_build_check_packages.md)
   : Check if required packages for build are available
+- [`projr_get()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  [`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  [`projr_get_github()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  : Download directories from another projr analysis
 - [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
   : Restore the files used by a checked-out build
 - [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_content_update.md)

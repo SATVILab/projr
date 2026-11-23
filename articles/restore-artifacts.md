@@ -1,34 +1,77 @@
 # Restoring Artifacts
 
-projr can restore versioned project artifacts (raw data, outputs,
-documents) from remote sources. This is useful when setting up on a new
-machine, collaborating, or recovering archived data.
+Use
+[`projr_get_github()`](https://satvilab.github.io/projr/reference/projr_get.md)
+or
+[`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md)
+to copy files for a completed build into a folder of your choice. To
+rerun an analysis, use
+[`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+in its checkout, then run
+[`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md).
 
-- [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
-  – restore the inputs of a checked-out version from a GitHub archive
-  release
-- [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
-  – clone a repository and restore artifacts
-- [`projr_restore_repo_wd()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
-  – clone into the current directory and restore
-- [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
-  – restore artifacts in an existing local project
+## Get files from a completed build
 
-## Quick start
+The `projr_get` functions were added after projr 0.6.1. Install
+`remotes::install_github("SATVILab/projr@main")` to try them before the
+next release. These examples work outside a projr project. The first
+downloads reports from a GitHub Release. The second copies results from
+an analysis on disk and works without Git or a network connection.
 
 ``` r
 
 library(projr)
 
-# Clone and restore (most common)
-projr_restore_repo("owner/repo")
+reports <- projr_get_github(repo = "owner/study@analysis",
+                            label = "docs", version = "1.2.3", out = "received")
+list.files(reports[["docs"]])
 
-# Restore artifacts in an existing project
-projr_content_update()
-
-# Restore only raw data
-projr_content_update(label = "raw-data")
+results <- projr_get_local(path = "../study", label = "output", out = "received")
+list.files(results[["output"]])
 ```
+
+In the GitHub example, `analysis` is the branch containing the study
+code and `1.2.3` is the build you want. Omit the branch to use the
+repository’s default branch. When you know the release address, use its
+repository and tag directly. For example, this reads from the release
+named `reports` in a separate repository.
+
+``` r
+
+projr_get_github(repo = "owner/study-results", tag = "reports",
+                 label = "docs", version = "1.2.3", out = "received")
+```
+
+Omit `version` to select the most recent completed build recorded at the
+source. Supply one label or a vector of labels, such as
+`c("raw-data", "docs")`. With `label = NULL`, projr looks up the labels
+recorded for that build in the source manifest. A historical copy
+requires files matching the recorded paths and hashes.
+
+Each label gets its own subfolder, such as `received/docs/`. A relative
+`out` starts in your working directory. Its default is `"."`. Downloads
+to the same folder use a small `.projr-get.lock` file to take turns. The
+returned character vector gives the absolute path of each subfolder,
+named by label. projr stages and verifies the files before installing
+them. It keeps matching files and reports conflicting local changes or
+extra files. Set `overwrite = TRUE` when you want projr to replace the
+contents of the requested subfolders.
+
+Inside a project, you can read a named archive from its `remotes`
+configuration. For example, the following reads the local archive called
+`shared` in the [configuration
+reference](https://satvilab.github.io/projr/articles/configuration.html#saving-artifacts).
+
+``` r
+
+projr_get_local(remote = "shared", label = "output-figures", out = "received")
+```
+
+Use either `remote` or the direct address (`path` for local projects,
+`repo` for GitHub). A registered GitHub archive can likewise be selected
+with `projr_get_github(remote = "reports", ...)`. If the type is stored
+in a variable, `projr_get(type, ...)` accepts `"local"` and `"github"`
+and forwards the remaining arguments to the corresponding function.
 
 ## Rebuild a checked-out version
 
@@ -47,13 +90,15 @@ projr_restore()
 projr_build_dev()
 ```
 
-projr selects the version recorded in the checkout. When that version
-reused a directory snapshot, it can download the earlier archive with
-the same paths and hashes. It recovers missing manifest data from the
-release and verifies the complete file list and MD5 hashes before
-installing any downloaded files. If the checkout lacks both
-`DESCRIPTION` and `VERSION`, projr can recover the version from its
-`.projr/BUILDLOG.md`. You can also supply `version = "1.2.3"`.
+projr first tries the archive for the checked-out version, then earlier
+archives that share its directory snapshot. If those files are missing,
+a later upload can supply them when the release manifest records the
+same snapshot and every downloaded path and hash matches the requested
+build. projr recovers missing manifest data from the release and
+verifies the complete file list and MD5 hashes before installing any
+downloaded files. If the checkout lacks both `DESCRIPTION` and
+`VERSION`, projr can recover the version from its `.projr/BUILDLOG.md`.
+You can also supply `version = "1.2.3"`.
 
 A partially populated input directory is filled when its existing files
 match. To replace local edits or remove extra files, supply
@@ -175,6 +220,11 @@ successful `projr_build_*()` run first.
 
 ## Authentication
 
+GitHub downloads use the R package `httr`, which the development version
+of projr installs automatically. If you restore an older renv project
+pinned to projr 0.6.1 and see a missing-`httr` error, run
+`renv::install("httr")` in that project, then retry the download.
+
 For private GitHub artifacts, use a credential with access to the
 project. Run
 [`projr_instr_auth_github()`](https://satvilab.github.io/projr/reference/instr_auth.md)
@@ -202,8 +252,15 @@ payload, including an explicitly recorded empty directory.
 
 ## Configuring remotes
 
-Before artifacts can be restored, they must be archived during builds.
-Use
+To publish files for other readers, define a named archive under
+`remotes` and select its labels under `build`, as shown in the
+[configuration
+reference](https://satvilab.github.io/projr/articles/configuration.html#saving-artifacts).
+A registered archive remains readable when it is absent from the current
+build settings.
+
+For an existing configuration that keeps the address and publishing
+settings together under `build`, use
 [`projr_yml_dest_add_github()`](https://satvilab.github.io/projr/reference/projr_yml_dest_add_github.md)
 or
 [`projr_yml_dest_add_local()`](https://satvilab.github.io/projr/reference/projr_yml_dest_add.md)

@@ -24,6 +24,10 @@ Main functions for project workflow
   : Build dev project
 - [`projr_build_check_packages()`](https://satvilab.github.io/projr/reference/projr_build_check_packages.md)
   : Check if required packages for build are available
+- [`projr_get()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  [`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  [`projr_get_github()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  : Download directories from another projr analysis
 - [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
   : Restore the files used by a checked-out build
 - [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_content_update.md)

@@ -35,9 +35,10 @@ projr_restore(
 
 - destination:
 
-  Character. Concrete GitHub release tag in the checkout's repository.
-  The default is `"archive"`. For templated releases, use the tag
-  recorded in the build log.
+  Character. A registered GitHub remote title or a concrete release tag
+  in the checkout's repository. Defaults to `"archive"`. For a
+  registered title, use the repository and release tag for the selected
+  build.
 
 - clear:
 

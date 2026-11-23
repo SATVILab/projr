@@ -63,10 +63,12 @@ Use
 inside an existing checkout to restore its recorded inputs from a GitHub
 archive release. Resolve the completed production version from the
 checkout, fetch missing directory snapshots from the release, and verify
-every filename and hash in a staging directory before installing it. A
-deduplicated version may use an earlier asset only when the directory
-snapshot matches. Preserve user changes unless `clear = TRUE`. The
-existing
+every filename and hash in a staging directory before installing it. Try
+the exact version and earlier matching assets first. When they are
+unavailable, a later upload may supply the files only if the release
+index records the same directory snapshot and its downloaded file list
+and hashes match the requested build. Preserve user changes unless
+`clear = TRUE`. The existing
 [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
 retains its latest-version behavior.
 
@@ -234,6 +236,36 @@ files.
   available to Git and R source packages by default. A `data` label can
   explicitly select either ignore type for that folder.
 
+### Named archives and retrieving files
+
+- Define reusable local and GitHub archives under
+  `remotes.<type>.<title>`. Store the address, layout and sending
+  options there. A registered title omitted from `build.<type>` remains
+  readable. A bare title or empty mapping under `build.<type>` publishes
+  all eligible raw, output and docs directory labels. An explicit
+  `content` list selects the labels to publish and can include cache.
+  Preserve existing inline build destinations and one-off archive
+  arguments.
+- For GitHub, default the destination repository to the producer’s
+  repository and the tag and title to the configured name. An explicit
+  `repo` or `tag` overrides its respective default. Expand templates
+  using the producer’s build context. Keep the source branch,
+  destination repository, concrete release tag and requested build
+  version distinct.
+- [`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  accepts a local analysis path or a current-project remote name.
+  [`projr_get_github()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  accepts a producer repository (optionally qualified with `@branch`) or
+  a registered remote name, and an optional release tag. Direct reads
+  work outside a project. Local reads require neither Git nor a network
+  connection.
+- Use the source manifest and available files to retrieve labels from a
+  completed build, independently of the current publishing selection.
+  Default to the latest completed build, accept an exact version and
+  verify filenames and hashes before installing files under
+  `out/<label>/`. Require `overwrite = TRUE` to replace conflicting
+  contents. Return the absolute output paths named by label.
+
 ### Destination and directory templates
 
 - Expand `@version`, `@branch`, and `@uuid` in configured directory
@@ -270,26 +302,27 @@ files.
 
 ### Core R package dependencies (Imports)
 
-| Package     | Purpose                                           |
-|-------------|---------------------------------------------------|
-| `renv`      | Reproducible dependency management                |
-| `yaml`      | Read/write `_projr.yml`                           |
-| `jsonlite`  | JSON serialisation                                |
-| `rprojroot` | Reliable project-root detection                   |
-| `desc`      | Read/write `DESCRIPTION`                          |
-| `fs`        | File-system operations                            |
-| `digest`    | SHA-256 snapshot IDs and historical MD5 hashing   |
-| `uuid`      | Random UUIDv4 identifiers for build templates     |
-| `filelock`  | Serialize concurrent updates to project manifests |
-| `cli`       | Console output                                    |
-| `glue`      | String interpolation                              |
+| Package | Purpose |
+|----|----|
+| `renv` | Reproducible dependency management |
+| `yaml` | Read/write `_projr.yml` |
+| `jsonlite` | JSON serialisation |
+| `httr` | GitHub release downloads and uploads, including reads from a restored renv library |
+| `rprojroot` | Reliable project-root detection |
+| `desc` | Read/write `DESCRIPTION` |
+| `fs` | File-system operations |
+| `digest` | SHA-256 snapshot IDs and historical MD5 hashing |
+| `uuid` | Random UUIDv4 identifiers for build templates |
+| `filelock` | Serialize concurrent updates to project manifests |
+| `cli` | Console output |
+| `glue` | String interpolation |
 
 ### Suggested / optional dependencies
 
-`gert`, `gh`, `gitcreds`, `credentials` (Git/GitHub), `httr` (GitHub
-Releases API), `osfr` (OSF), `rmarkdown`, `quarto`, `bookdown`, `knitr`
-(document rendering), `testthat` ≥ 3.0 (testing), `devtools`, `usethis`,
-`styler`, `roxygen2` (development).
+`gert`, `gh`, `gitcreds`, `credentials` (Git/GitHub), `osfr` (OSF),
+`rmarkdown`, `quarto`, `bookdown`, `knitr` (document rendering),
+`testthat` ≥ 3.0 (testing), `devtools`, `usethis`, `styler`, `roxygen2`
+(development).
 
 ### What NOT to use
 

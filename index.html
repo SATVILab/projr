@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,7 +85,7 @@ Keep inputs in <code>_raw_data/</code> and write results to <code>_output/</code
 </h2>
 <p>Open a local clone of a GitHub repository where you can push commits and create releases. Install projr and its publishing tools once, then load the package in R.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"remotes"</span>, <span class="st">"gh"</span>, <span class="st">"httr"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"remotes"</span>, <span class="st">"gh"</span>, <span class="st">"httr"</span><span class="op">)</span><span class="op">)</span>  <span class="co"># projr 0.6.1 needs httr separately</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"SATVILab/projr@*release"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satvilab.github.io/projr/">projr</a></span><span class="op">)</span></span></code></pre></div>
 <p>For a specific version, use its tag, such as <code>SATVILab/projr@v0.6.1</code>. To install the current development code, use <code>SATVILab/projr@main</code>. <a href="https://github.com/SATVILab/projr/releases" class="external-link">Downloadable source packages</a></p>
@@ -129,7 +129,7 @@ Keep inputs in <code>_raw_data/</code> and write results to <code>_output/</code
 <a class="projr-guide" href="articles/scripts-and-hooks.html"><span class="projr-guide-title">Scripts and documents <span aria-hidden="true">↗</span></span><span>Choose R, Quarto and R Markdown files and set their build order.</span></a>
 </div>
 <div>
-<a class="projr-guide" href="articles/restore-artifacts.html"><span class="projr-guide-title">Restoring files <span aria-hidden="true">↗</span></span><span>Select a version or retrieve data from another archive.</span></a>
+<a class="projr-guide" href="articles/restore-artifacts.html"><span class="projr-guide-title">Getting files <span aria-hidden="true">↗</span></span><span>Download finished reports or restore the inputs for a specific build.</span></a>
 </div>
 </div>
 </div>

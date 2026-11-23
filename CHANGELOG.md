@@ -1,5 +1,19 @@
 # Technical changelog
 
+## Development version
+
+- Resolve registered GitHub and local destinations from `remotes`. A
+  build selects a registered destination by name and can restrict its
+  `content`. A GitHub destination can specify its own repository and
+  release tag.
+- Add
+  [`projr_get()`](https://satvilab.github.io/projr/reference/projr_get.md),
+  [`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  and
+  [`projr_get_github()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  for versioned reads into label-specific folders. Stage the files and
+  verify the directory snapshot before replacing any local contents.
+
 ## 0.6.1
 
 - Reserve version initialization, version transitions and rollback for

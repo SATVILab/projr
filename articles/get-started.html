@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,7 @@ input files you archive will be available to people who can read that
 repository.</p>
 <p>Install projr and its GitHub tools once in R.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"remotes"</span>, <span class="st">"gh"</span>, <span class="st">"httr"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"remotes"</span>, <span class="st">"gh"</span>, <span class="st">"httr"</span><span class="op">)</span><span class="op">)</span>  <span class="co"># projr 0.6.1 needs httr separately</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"SATVILab/projr@*release"</span><span class="op">)</span></span></code></pre></div>
 <p>If this is your first time publishing a release from R, create a
 fine-grained GitHub token for this repository with read and write access
@@ -181,21 +181,40 @@ and checks their contents against the recorded file hashes.
 inspect the result without publishing another version.</p>
 </div>
 <div class="section level2">
+<h2 id="get-the-finished-result">Get the finished result<a class="anchor" aria-label="anchor" href="#get-the-finished-result"></a>
+</h2>
+<p>Someone who just needs the result can download it directly. This
+download function was added after 0.6.1. To try it before the next
+release, install
+<code>remotes::install_github("SATVILab/projr@main")</code>. Then run
+the following in any folder, replacing <code>owner/repo</code> with your
+analysis repository.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">files</span> <span class="op">&lt;-</span> <span class="fu">projr</span><span class="fu">::</span><span class="fu"><a href="../reference/projr_get.html">projr_get_github</a></span><span class="op">(</span>repo <span class="op">=</span> <span class="st">"owner/repo"</span>, tag <span class="op">=</span> <span class="st">"archive"</span>,</span>
+<span>                                 label <span class="op">=</span> <span class="st">"output"</span>, out <span class="op">=</span> <span class="st">"download"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">files</span><span class="op">[[</span><span class="st">"output"</span><span class="op">]</span><span class="op">]</span>, <span class="st">"mean.txt"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># [1] "4"</span></span></code></pre></div>
+<p>This checks the saved files and puts them in
+<code>download/output/</code>. To download an earlier build, include its
+version, for example <code>version = "0.1.0"</code>. The <a href="restore-artifacts.html">guide to retrieving files</a> also covers
+local projects and named archives.</p>
+</div>
+<div class="section level2">
 <h2 id="keep-existing-folder-names">Keep existing folder names<a class="anchor" aria-label="anchor" href="#keep-existing-folder-names"></a>
 </h2>
 <p>If your analysis already uses <code>data/original/</code> and
 <code>results/</code>, you can keep both names. Before the first build,
 save this as <code>_projr.yml</code> at the project root. If a build
 already created the file, edit the corresponding paths in it.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data</span><span class="kw">:</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> data/original</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> results</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="at">  </span><span class="fu">cache</span><span class="kw">:</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _tmp</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="at">  </span><span class="fu">docs</span><span class="kw">:</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> docs</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> data/original</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="at">  </span><span class="fu">output</span><span class="kw">:</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> results</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="at">  </span><span class="fu">cache</span><span class="kw">:</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _tmp</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="at">  </span><span class="fu">docs</span><span class="kw">:</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> docs</span></span></code></pre></div>
 <p>The labels on the left tell projr what each folder is for. Paths in
 the configuration start at the project root. The cache holds temporary
 build files and <code>docs</code> collects rendered reports. When you
@@ -210,9 +229,9 @@ script uses the configured path directly.</p>
 <p>If you keep an experimental script called <code>scratch.R</code>
 beside <code>analysis.R</code>, add this setting to the existing
 <code>build</code> section of <code>_projr.yml</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">exclude</span><span class="kw">:</span><span class="at"> scratch.R</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">exclude</span><span class="kw">:</span><span class="at"> scratch.R</span></span></code></pre></div>
 <p>With just this exclusion, projr still finds and runs
 <code>analysis.R</code> and any other scripts or documents it would
 normally select.</p>
