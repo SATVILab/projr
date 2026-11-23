@@ -124,14 +124,13 @@ test_that("projr_build_check_packages handles GitHub remote packages", {
 
       result <- projr_build_check_packages()
 
-      # Check if piggyback and gh are in required or available
+      # Check the packages used by the GitHub API backend.
       # They might be installed or missing depending on environment
       expect_type(result$available, "logical")
 
       if (!result$available) {
-        # If missing, should include at least one of piggyback or gh
         expect_true(
-          any(c("piggyback", "gh") %in% result$missing)
+          any(c("httr", "gh") %in% result$missing)
         )
       }
     }
@@ -454,7 +453,8 @@ test_that(".build_check_packages_citations detects codemeta requirement", {
       projr::projr_yml_cite_set(codemeta = TRUE)
 
       pkg_needed <- .build_check_packages_citations()
-      expect_true("codemetar" %in% pkg_needed)
+      expect_true("codemeta" %in% pkg_needed)
+      expect_identical(.build_cite_get_yml(), "codemeta")
     }
   )
 })
@@ -473,7 +473,7 @@ test_that(".build_check_packages_citations detects both cff and codemeta", {
 
       pkg_needed <- .build_check_packages_citations()
       expect_true("cffr" %in% pkg_needed)
-      expect_true("codemetar" %in% pkg_needed)
+      expect_true("codemeta" %in% pkg_needed)
       expect_length(pkg_needed, 2)
     }
   )
