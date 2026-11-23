@@ -49,6 +49,17 @@ if (requireNamespace("gitcreds", quietly = TRUE)) {
   )
 }
 
+# CodeMeta looks up dependency origins in two online source-package indexes.
+if (requireNamespace("codemeta", quietly = TRUE)) {
+  testthat::local_mocked_bindings(
+    available_source_packages = function(...) {
+      matrix(character(), nrow = 0L, ncol = 1L, dimnames = list(NULL, "Package"))
+    },
+    .package = "codemeta",
+    .env = teardown_env()
+  )
+}
+
 # cffr 1.4.2 fetches repository indexes on first load. Seed its cache offline,
 # then restore the imported function copied while utils was temporarily mocked.
 local({
