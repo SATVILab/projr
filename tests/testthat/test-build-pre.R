@@ -435,45 +435,6 @@ test_that(".build_version_set_pre sets version correctly", {
 })
 
 # =============================================================================
-# .build_doc_output_dir_update tests
-# =============================================================================
-
-test_that(".build_doc_output_dir_update returns safe path when output_run=FALSE", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-      result <- .build_doc_output_dir_update(output_run = FALSE)
-      # Should return a safe (versioned cache) path
-      expect_true(grepl("_tmp/projr", result))
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-test_that(".build_doc_output_dir_update returns unsafe path when output_run=TRUE", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-      result <- .build_doc_output_dir_update(output_run = TRUE)
-      # Should return unsafe (final) docs path
-      expect_true(grepl("docs", result))
-      expect_false(grepl("_tmp/projr", result))
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-# =============================================================================
 # .build_ensure_dev_version tests
 # =============================================================================
 

@@ -393,7 +393,7 @@ test_that(".build_readme_rmd_render_detect_pkg_use detects library calls", {
     path = dir_test,
     code = {
       # Create README.Rmd with library call
-      pkg_name <- projr_name_get()
+      pkg_name <- read.dcf("DESCRIPTION", fields = "Package")[[1L]]
       writeLines(c(
         "---",
         "title: Test",
@@ -403,6 +403,8 @@ test_that(".build_readme_rmd_render_detect_pkg_use detects library calls", {
 
       result <- .build_readme_rmd_render_detect_pkg_use()
       expect_true(result)
+      writeLines(paste0("library(package = '", pkg_name, "')"), "README.Rmd")
+      expect_true(.build_readme_rmd_render_detect_pkg_use())
     }
   )
 })
@@ -415,7 +417,7 @@ test_that(".build_readme_rmd_render_detect_pkg_use detects :: usage", {
     path = dir_test,
     code = {
       # Create README.Rmd with :: usage
-      pkg_name <- projr_name_get()
+      pkg_name <- read.dcf("DESCRIPTION", fields = "Package")[[1L]]
       writeLines(c(
         "---",
         "title: Test",
@@ -511,4 +513,40 @@ test_that(".build_version_set_post reverts version on failure", {
       expect_identical(projr_version_get(), initial_version)
     }
   )
+})
+
+test_that("a README renders with the current project package in a temporary library", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  skip_if_not_installed("pkgbuild")
+  skip_if_not_installed("rmarkdown")
+  skip_if_not(rmarkdown::pandoc_available())
+  project <- withr::local_tempdir()
+  library <- withr::local_tempdir()
+  withr::local_libpaths(library, action = "prefix")
+  usethis::with_project(project, {
+    writeLines("directories: {cache: {path: cache}}", "_projr.yml")
+    writeLines(c(
+      "Package: projrReadmeFixture",
+      "Version: 1.2.3",
+      "Title: README Fixture",
+      "Description: Render this fixture from source.",
+      "Author: Test User",
+      "Maintainer: Test User <user@example.invalid>",
+      "License: MIT"
+    ), "DESCRIPTION")
+    writeLines("export(greeting)", "NAMESPACE")
+    dir.create("R")
+    writeLines("greeting <- function() 'from the checked-out package'", "R/example.R")
+    writeLines(c(
+      "---", "title: Example", "---", "",
+      "```{r}", "library(projrReadmeFixture)", "projrReadmeFixture::greeting()",
+      "writeLines(find.package('projrReadmeFixture'), 'render-library')", "```"
+    ), "README.Rmd")
+    expect_true(.build_readme_rmd_render(TRUE))
+    expect_true(any(grepl("from the checked-out package", readLines("README.md"), fixed = TRUE)))
+    expect_identical(list.files(library, all.files = TRUE, no.. = TRUE), character())
+    expect_false(dir.exists(readLines("render-library")))
+    expect_false("projrReadmeFixture" %in% loadedNamespaces())
+  }, quiet = TRUE, force = TRUE)
 })

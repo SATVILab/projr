@@ -83,9 +83,12 @@ test_that("safe documentation stays in the configured cache for external final p
   for (engine in c("_quarto.yml", "_bookdown.yml")) {
     yaml <- file.path(project, engine)
     writeLines(if (engine == "_quarto.yml") "project: {}" else "book_filename: report", yaml)
+    bytes <- readBin(yaml, "raw", n = file.size(yaml))
     safe <- projr_path_get_dir("docs", format = "absolute")
     expect_identical(as.character(safe), file.path(project, "staging/projr/v1.0.0/docs"))
     expect_true(dir.exists(safe))
+    expect_identical(readBin(yaml, "raw", n = file.size(yaml)), bytes)
+    withr::with_dir(project, .build_engines_override_project(.engines_get()))
     settings <- yaml::read_yaml(yaml)
     rendered <- if (engine == "_quarto.yml") settings$project[["output-dir"]] else settings$output_dir
     expect_identical(rendered, "staging/projr/v1.0.0/docs")

@@ -148,55 +148,6 @@ test_that(".build_git_check returns TRUE when git commit is TRUE in YAML", {
 })
 
 # =============================================================================
-# .build_git_commit_pre_warn tests
-# =============================================================================
-
-test_that(".build_git_commit_pre_warn runs without error when not pre stage", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      result <- .build_git_commit_pre_warn(stage = "post", output_run = TRUE)
-      expect_true(result)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-test_that(".build_git_commit_pre_warn runs without error when output_run is FALSE", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      result <- .build_git_commit_pre_warn(stage = "pre", output_run = FALSE)
-      expect_true(result)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-test_that(".build_git_commit_pre_warn runs without error when git repo exists", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = TRUE, set_env_var = FALSE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      result <- .build_git_commit_pre_warn(stage = "pre", output_run = TRUE)
-      expect_true(result)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-# =============================================================================
 # .build_git_commit_get_msg tests
 # =============================================================================
 

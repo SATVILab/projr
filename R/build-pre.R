@@ -235,10 +235,6 @@
   .cli_debug("Updating ignore files")
   .build_ignore(output_run, archive_local)
 
-  # ensure that docs directory is the unsafe directory.
-  # will copy docs across upon success.
-  .build_doc_output_dir_update(FALSE)
-
   # ensure that pre-build, we are on dev version
   .cli_debug("Ensuring development version")
   .build_ensure_dev_version()
@@ -250,11 +246,6 @@
   # set the version pre-run
   .cli_step("Setting build version to {version_run_on_list$desc[['run']]}")
   .build_version_set_pre(version_run_on_list)
-
-  # ensure that docs directory is the unsafe directory.
-  # will copy docs across upon success.
-  .build_doc_output_dir_update(FALSE)
-
 
   # empty output directories
   # (docs, output and data)
@@ -419,12 +410,6 @@
 .build_version_set_pre <- function(version_run_on_list) {
   projr_version_set(version_run_on_list$desc[["run"]])
   invisible(TRUE)
-}
-
-.build_doc_output_dir_update <- function(output_run) {
-  if ("docs" %in% names(.yml_dir_get(NULL))) {
-    invisible(.dir_get_label("docs", safe = !output_run))
-  }
 }
 
 .build_ensure_dev_version <- function() {

@@ -22,6 +22,10 @@
     return(invisible(FALSE))
   }
 
+  if (strict && !nzchar(.auth_get_github_pat_find())) {
+    stop("Publishing a GitHub release requires a token with write access to the destination repository.", call. = FALSE)
+  }
+
   for (x in tags) {
     if (!.remote_check_exists("github", id = x)) {
       .cli_debug(
