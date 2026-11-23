@@ -23,7 +23,8 @@ Quarto or Bookdown project renders before automatically detected R scripts.
 Without a project, scripts are detected in the project root and run
 alphabetically.
 
-Explicit selections run in order, with each glob expanded alphabetically.
+Explicit selections run in order, with each glob expanded alphabetically. Listing an R script or
+standalone document twice runs it twice. A repeated project document is an error.
 If a selection includes Quarto or Bookdown project documents, those
 documents render together at the position of the last selected project
 document. The project YAML is restored before the build returns to the

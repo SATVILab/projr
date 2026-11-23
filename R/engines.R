@@ -14,7 +14,7 @@
     scripts <- if (automatic_project) .scripts_get_inc_all_r() else .scripts_get_inc_all()
     scripts <- scripts[!dir.exists(scripts)]
   }
-  scripts <- setdiff(scripts, c("README.Rmd", as.character(.path_get("README.Rmd"))))
+  scripts <- scripts[!scripts %in% c("README.Rmd", as.character(.path_get("README.Rmd")))]
 
   engine_by_extension <- c(qmd = "quarto_document", rmd = "rmd", r = "r")
   extensions <- tolower(tools::file_ext(scripts))
@@ -32,6 +32,14 @@
     chapters <- which(extensions == extension)
     if (length(chapters) > 0L) {
       project_scripts <- as.character(fs::path_rel(scripts[chapters], start = .path_get()))
+      repeated <- unique(project_scripts[duplicated(project_scripts)])
+      if (length(repeated)) {
+        renderer <- if (project == "quarto_project") "Quarto" else "Bookdown"
+        stop(renderer, " projects do not support repeated renders of individual documents: ",
+          paste(repeated, collapse = ", "),
+          call. = FALSE
+        )
+      }
       if (any(startsWith(project_scripts, "../"))) {
         stop("Project documents must be inside the project directory.", call. = FALSE)
       }

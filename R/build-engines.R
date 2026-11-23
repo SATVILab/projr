@@ -1,4 +1,5 @@
 .build_engines <- function(engines, version_run_on_list, args_engine) {
+  collected <- list()
   for (index in seq_along(engines)) {
     engine <- names(engines)[[index]]
     standalone <- engine %in% c("quarto_document", "rmd")
@@ -10,7 +11,10 @@
       collect_paths = standalone
     )
     if (standalone) {
-      engines[[index]] <- outputs
+      # Re-render each occurrence, then copy a shared output or asset only once.
+      script <- engines[[index]]
+      engines[[index]] <- setdiff(outputs, collected[[script]])
+      collected[[script]] <- union(collected[[script]], outputs)
       names(engines)[[index]] <- "document_output"
     }
   }

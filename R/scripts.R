@@ -31,7 +31,7 @@
   scripts_vec_inc <- .scripts_get_inc(scripts)
   scripts_vec_exc <- .scripts_get_exc(scripts)
 
-  setdiff(scripts_vec_inc, scripts_vec_exc)
+  scripts_vec_inc[!scripts_vec_inc %in% scripts_vec_exc]
 }
 
 .scripts_get_exc <- function(scripts) {
@@ -85,17 +85,22 @@
 
 .scripts_expand_patterns <- function(patterns, required = FALSE) {
   root <- .path_get()
-  matches <- lapply(patterns, function(pattern) {
-    path <- as.character(fs::path_abs(path.expand(pattern), start = root))
-    matched <- if (file.exists(path)) path else Sys.glob(path)
+  paths <- as.character(fs::path_abs(path.expand(patterns), start = root))
+  literal <- file.exists(paths)
+  matches <- lapply(seq_along(paths), function(i) {
+    matched <- if (literal[i]) paths[i] else Sys.glob(paths[i])
     matched <- matched[!dir.exists(matched)]
     if (required) {
       matched <- matched[tolower(tools::file_ext(matched)) %in% c("qmd", "rmd", "r")]
       if (length(matched) == 0L) {
-        stop("Script '", pattern, "' does not exist or match any supported files.", call. = FALSE)
+        stop("Script '", patterns[i], "' does not exist or match any supported files.", call. = FALSE)
       }
     }
     sort(matched)
   })
-  unique(as.character(unlist(matches, use.names = FALSE)))
+  files <- as.character(unlist(matches, use.names = FALSE))
+  keep <- !duplicated(files)
+  explicit <- rep(literal, lengths(matches))
+  keep[explicit] <- keep[explicit] | duplicated(files[explicit])
+  files[keep]
 }
