@@ -207,7 +207,7 @@ projr_content_update <- function(label = NULL,
 }
 
 .content_update_label <- function(label, pos, type, .title, destination = NULL, clear = FALSE) {
-  if (!.content_update_label_check_non_empty(label)) {
+  if (!.content_update_label_recorded(label)) {
     return(invisible(FALSE))
   }
   # get source remote (type and title)
@@ -267,26 +267,16 @@ projr_content_update <- function(label = NULL,
     empty = FALSE
   )
   if (!remote_exists) {
-    .cli_debug("Remote source does not exist for ", label)
-    if (source_vec[["type"]] == "github") {
-      .cli_debug("Checking GitHub direct for empty asset for ", label)
-      remote_empty_exists <- .remote_final_check_exists(
-        source_vec[["type"]], yml_title[["id"]], label,
-        yml_title[["structure"]], yml_title[["path"]],
-        yml_title[["path-append-label"]], version_remote,
-        TRUE
-      )
-      if (remote_empty_exists) {
-        .cli_debug("Remote source is empty for ", label)
-        return(invisible(FALSE))
-      } else {
-        .cli_debug("Empty remote source does not exist for ", label)
-        return(invisible(FALSE))
-      }
-    } else {
-      .cli_debug("Remote source does not exist for ", label)
-      return(invisible(FALSE))
+    empty <- .remote_final_check_exists(
+      source_vec[["type"]], yml_title[["id"]], label,
+      yml_title[["structure"]], yml_title[["path"]],
+      yml_title[["path-append-label"]], version_remote, empty = TRUE
+    )
+    if (empty && clear) {
+      .dir_clear(projr_path_get_dir(label, safe = FALSE, format = "absolute"))
+      return(invisible(TRUE))
     }
+    return(invisible(FALSE))
   }
 
   # Restore directly into the project directory rather than the cache build area
@@ -303,18 +293,12 @@ projr_content_update <- function(label = NULL,
   invisible(TRUE)
 }
 
-.content_update_label_check_non_empty <- function(label) {
-  manifest <- .manifest_read_project(label = label)
-  fn_vec <- unique(manifest[["fn"]])
-  label_recorded_and_unused <- .is_len_1(fn_vec) && fn_vec == ""
-  label_unrecorded <- .is_len_0(fn_vec)
-  nothing_to_restore <- label_recorded_and_unused || label_unrecorded
-  if (nothing_to_restore) {
-    .cli_info("No files kept in {label}")
-    .cli_info("Skipping restore for {label}")
-    return(invisible(FALSE))
+.content_update_label_recorded <- function(label) {
+  directory <- .path_get("_projr", "manifests")
+  if (.manifest_store_ready(directory)) {
+    return(nrow(.manifest_store_index(directory, label)) > 0L)
   }
-  invisible(TRUE)
+  nrow(.manifest_read_project(label = label)) > 0L
 }
 
 .content_update_label_get_source <- function(pos, label, type, .title) {

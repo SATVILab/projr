@@ -485,6 +485,15 @@ test_that("upload and restore from `latest` local remotes", {
       )
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(fn_vec, character(0L))
+      expect_true(result)
+
+      # A missing archive is different from a recorded empty directory.
+      unlink(file.path(remote_base, c("raw-data", "raw-data-empty")), recursive = TRUE)
+      writeLines("keep", projr_path_get("raw-data", "newfile.txt"))
+      expect_false(projr_content_update(
+        label = "raw-data", type = "local", title = "test-local-latest", clear = TRUE
+      ))
+      expect_identical(readLines(projr_path_get("raw-data", "newfile.txt")), "keep")
 
       # Cleanup
       unlink(remote_base, recursive = TRUE)
