@@ -27,6 +27,18 @@
   store <- file.path(stage, "manifests")
   repo <- .gh_repo_get()
   tag <- .remote_misc_github_tag_format(remote[["tag"]])
+  # GitHub atomically accepts only one asset with a given name per release.
+  # Claim it before reading the ZIP so a second writer can retry against our update.
+  lock_file <- file.path(stage, "projr-manifest.lock")
+  writeLines(uuid::UUIDgenerate(), lock_file)
+  claim <- tryCatch(
+    .gh_release_asset_upload_httr(repo, tag, lock_file, overwrite = FALSE),
+    error = function(e) {
+      stop("Could not claim projr-manifest.lock on ", repo, " at ", tag,
+           ". Retry after the active writer finishes. ", conditionMessage(e), call. = FALSE)
+    }
+  )
+  on.exit(.gh_release_asset_delete_id(repo, claim$id), add = TRUE)
   previous <- .remote_manifest_download(repo, tag, store)
   .manifest_store_write(manifest, store, file.path(store, "manifest.csv"))
 

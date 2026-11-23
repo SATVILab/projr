@@ -415,13 +415,17 @@
   }
 
   assetid <- .gh_httr_get_assetid(
-    repo = .gh_repo_get(),
+    repo = repo,
     tag = tag,
     asset_name = fn,
     api_url = api_url,
     token = token
   )
 
+  .gh_release_asset_delete_id(repo, assetid, api_url, token)
+}
+
+.gh_release_asset_delete_id <- function(repo, assetid, api_url = NULL, token = NULL) {
   base <- .github_api_base(api_url)
   url <- sprintf("%s/repos/%s/releases/assets/%s", base, repo, assetid)
 

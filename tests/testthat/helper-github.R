@@ -24,32 +24,29 @@
   ), class = "response")
 }
 
-# Each fixture has its own releases and one asset slot per release. Intercept
+# Each fixture has its own releases and monotonically assigned asset IDs. Intercept
 # httr before transport so unknown routes fail without opening a connection.
 .test_local_github_releases <- function(tags, env = parent.frame()) {
   api <- "https://fixture.invalid"
   repo <- "fixture/project"
   withr::local_envvar(c(GITHUB_API_URL = api, GITHUB_PAT = "fixture-token"), .local_envir = env)
   testthat::local_mocked_bindings(.gh_repo_get = function() repo, .package = "projr", .env = env)
-  files <- file.path(withr::local_tempdir(.local_envir = env), seq_along(tags))
-  asset_names <- rep(NA_character_, length(tags))
-  fail_upload <- FALSE
+  directory <- withr::local_tempdir(.local_envir = env)
+  assets <- data.frame(id = integer(), name = character(), release = integer(), url = character())
+  next_id <- 100L
+  fail_upload <- NULL
   releases <- paste0(api, "/repos/", repo, "/releases")
   release_urls <- paste0(releases, "/", seq_along(tags))
   upload_urls <- paste0(release_urls, "/assets")
-  asset_urls <- paste0(releases, "/assets/", 100L + seq_along(tags))
 
   handle <- function(req) {
     url <- sub("[?].*$", "", req$url)
     index <- match(url, paste0(releases, "/tags/", tags))
     if (req$method == "GET" && !is.na(index)) {
-      assets <- if (file.exists(files[index])) {
-        list(list(id = 100L + index, name = asset_names[index], url = asset_urls[index]))
-      } else {
-        list()
-      }
+      owned <- which(assets$release == index)
+      entries <- lapply(owned, function(i) as.list(assets[i, c("id", "name", "url")]))
       return(.test_github_response(200, list(
-        id = index, assets = assets, upload_url = paste0(upload_urls[index], "{?name,label}")
+        id = index, assets = entries, upload_url = paste0(upload_urls[index], "{?name,label}")
       )))
     }
     if (req$method == "GET" && startsWith(url, paste0(releases, "/tags/"))) {
@@ -58,34 +55,41 @@
     index <- match(url, upload_urls)
     if (req$method == "POST" && !is.na(index)) {
       bytes <- req$options$readfunction(req$options$postfieldsize_large + 1)
-      if (fail_upload) {
-        fail_upload <<- FALSE
+      name <- httr::parse_url(req$url)$query$name
+      if (identical(name, fail_upload)) {
+        fail_upload <<- NULL
         return(.test_github_response(503))
       }
-      asset_names[index] <<- httr::parse_url(req$url)$query$name
-      writeBin(bytes, files[index])
-      return(.test_github_response(201, list(id = 100L + index, name = asset_names[index])))
+      if (any(assets$release == index & assets$name == name)) return(.test_github_response(422))
+      next_id <<- next_id + 1L
+      item <- data.frame(id = next_id, name = name, release = index, url = paste0(releases, "/assets/", next_id))
+      assets <<- rbind(assets, item)
+      writeBin(bytes, file.path(directory, next_id))
+      return(.test_github_response(201, as.list(item[c("id", "name", "url")])))
     }
-    index <- match(url, asset_urls)
-    if (!is.na(index) && file.exists(files[index])) {
+    index <- match(url, assets$url)
+    if (!is.na(index)) {
+      file <- file.path(directory, assets$id[index])
       if (req$method == "GET") {
-        file.copy(files[index], req$output$path, overwrite = TRUE)
+        file.copy(file, req$output$path, overwrite = TRUE)
         return(.test_github_response(200))
       }
       if (req$method == "DELETE") {
-        file.remove(files[index])
+        assets <<- assets[-index, , drop = FALSE]
+        file.remove(file)
         return(.test_github_response(204))
       }
     }
     index <- match(url, release_urls)
     if (req$method == "DELETE" && !is.na(index)) {
       tags[index] <<- NA_character_
-      unlink(files[index])
+      unlink(file.path(directory, assets$id[assets$release == index]))
+      assets <<- assets[assets$release != index, , drop = FALSE]
       return(.test_github_response(204))
     }
     stop("Unexpected fixture request: ", req$method, " ", req$url)
   }
   previous <- httr::set_callback("request", handle)
   withr::defer(httr::set_callback("request", previous), envir = env)
-  invisible(function() fail_upload <<- TRUE)
+  invisible(function(name) fail_upload <<- name)
 }
