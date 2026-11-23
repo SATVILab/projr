@@ -160,7 +160,8 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
   if (!is.null(version)) {
     version <- .version_v_add(version)
   } else if (file.exists(.path_get("VERSION")) || file.exists(.path_get("DESCRIPTION"))) {
-    if (!("dev" %in% .version_format_list_get(NULL)$component) || !.build_is_current_version_dev()) {
+    components <- .version_format_list_get(NULL)$component
+    if (!"dev" %in% components || length(.version_current_vec_get()) != length(components)) {
       return(.version_get_v())
     }
   }
