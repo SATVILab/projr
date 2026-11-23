@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2-10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,77 +38,34 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-
+      <small>Source: <a href="https://github.com/SATVILab/projr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="projr-060">projr 0.6.0<a class="anchor" aria-label="anchor" href="#projr-060"></a></h2>
+<div class="section level3">
+<h3 id="changes-for-existing-projects-0-6-0">Changes for existing projects<a class="anchor" aria-label="anchor" href="#changes-for-existing-projects-0-6-0"></a></h3>
+<ul><li>The first interactive build of a checkout asks once for permission to run its scripts and hooks, write configured files, and perform the requested Git or archive operations. For an unattended build, pass the checkout root as <code>project</code>. From that root, use <code>projr_build(project = ".", archive_github = TRUE)</code> to publish.</li>
+<li>Use <code>build.scripts</code> and <code>dev.scripts</code> to select scripts in project YAML. In <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code>, replace <code>file =</code> with <code>scripts =</code>. An empty selection skips scripts and rendering.</li>
+<li>Declare a path under <code>directories</code> for each label your project uses. Configured paths resolve from the project root, including when code runs in a subdirectory. A first build creates a starter <code>_projr.yml</code> if needed. It uses <code>_raw_data/</code> for inputs and <code>_output/</code> for results.</li>
+<li>Project metadata now lives under <code>.projr/</code>. You can keep the base <code>_projr.yml</code> at the project root or put it in <code>.projr/config/</code> alongside named profiles. Directory histories live in <code>.projr/manifests/</code>, and detailed build logs live in <code>.projr/logs/</code>.</li>
+<li>A production build imports history from an existing root <code>manifest.csv</code>. Each directory now has its own human-readable version index and file lists. Repeated directory contents reuse the earliest matching snapshot.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="building-and-restoring-an-analysis-0-6-0">Building and restoring an analysis<a class="anchor" aria-label="anchor" href="#building-and-restoring-an-analysis-0-6-0"></a></h3>
+<ul><li>Use <code>projr_build(archive_github = TRUE)</code> to publish versioned inputs and outputs to a GitHub release. In a fresh copy of the project, check out the desired build and call <code><a href="../reference/projr_restore.html">projr_restore()</a></code> to recover its raw inputs. Restore verifies file paths and hashes before replacing local files.</li>
+<li>Combine R scripts, standalone documents and one Quarto or Bookdown project in a single build. An explicit selection renders the project at its last selected document. With automatic selection, the project renders first, followed by top-level R scripts in alphabetical order.</li>
+<li>Native hashing streams file contents and defaults to one worker. Set <code>settings.hashing.cores</code> to increase parallelism or select <code>settings.hashing.approach: legacy</code> to use the previous hashing method. Both approaches produce compatible file hashes.</li>
+<li>A receiving output directory can include other declared directories. A destination name can use <code>@version</code>, <code>@branch</code> or <code>@uuid</code> to separate archived builds.</li>
+<li>Production builds detect an existing <code>renv</code> project and record package versions before and after rendering. Set <code>build.renv</code> to <code>true</code> to start a lockfile or <code>false</code> to skip snapshots.</li>
+<li>Build progress shows the steps projr actually attempts. When a render or Git push fails, the detailed build log records where it stopped.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.8.9002" id="projr-0089002">projr 0.0.8.9002<a class="anchor" aria-label="anchor" href="#projr-0089002"></a></h2>
-<div class="section level3">
-<h3 id="breaking-changes-0-0-8-9002">Breaking Changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-0-8-9002"></a></h3>
-<div class="section level4">
-<h4 id="cran-compliance-removed-automatic-package-installation-0-0-8-9002">CRAN Compliance: Removed Automatic Package Installation<a class="anchor" aria-label="anchor" href="#cran-compliance-removed-automatic-package-installation-0-0-8-9002"></a></h4>
-<ul><li><p><strong>Removed automatic package installation from all package code</strong> to comply with CRAN policy that prohibits writing to user filespace during checks.</p></li>
-<li><p><strong>Pre-build package validation</strong>: Builds now check for all required packages (build engines, remote destinations) BEFORE starting the build process. If packages are missing, you get a clear error with a copy-paste installation command for all missing packages at once.</p></li>
-<li><p><strong>Improved error messages</strong>: When running interactively and a package is needed but not installed, projr provides clear, actionable error messages with exact installation commands. No automatic installation occurs to ensure CRAN compliance.</p></li>
-<li><p><code>.dep_install_only()</code> and <code>.renv_lockfile_read()</code> no longer automatically install missing packages. Instead, they throw clear, informative errors with installation instructions when required packages are missing.</p></li>
-<li><p>Users must now manually install required optional dependencies before using features that depend on them. The error messages provide exact installation commands.</p></li>
-<li>
-<p>This change affects functions that previously auto-installed packages like:</p>
-<ul><li>Build engines (quarto, rmarkdown, bookdown)</li>
-<li>Remote destinations (piggyback for GitHub, osfr for OSF)</li>
-<li>GitHub operations (requires <code>gh</code> package)</li>
-<li>Git operations in test mode (requires <code>gert</code> package)<br></li>
-<li>License creation (requires <code>usethis</code> package)</li>
-<li>Documentation generation (requires <code>roxygen2</code> package)</li>
-<li>And other optional features</li>
-</ul></li>
-<li><p><strong>For renv projects</strong>: Use <code><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">renv::install()</a></code> to install dependencies</p></li>
-<li><p><strong>For non-renv projects</strong>: Use <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> or <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">remotes::install_github()</a></code> as shown in error messages</p></li>
+<ul><li>Builds began checking for missing optional packages before rendering and reporting the installation commands for them.</li>
+<li>GitHub Releases gained diagnostic messages for uploads, downloads and retries.</li>
 </ul></div>
-</div>
-<div class="section level3">
-<h3 id="bug-fixes-and-improvements-0-0-8-9002">Bug Fixes and Improvements<a class="anchor" aria-label="anchor" href="#bug-fixes-and-improvements-0-0-8-9002"></a></h3>
-<div class="section level4">
-<h4 id="piggyback-github-releases-operations-0-0-8-9002">Piggyback (GitHub Releases) Operations<a class="anchor" aria-label="anchor" href="#piggyback-github-releases-operations-0-0-8-9002"></a></h4>
-<ul><li>
-<strong>Improved debug output</strong>: All piggyback operations (download, upload, delete, list) now provide detailed debug messages when <code>PROJR_OUTPUT_LEVEL="debug"</code> is set
-<ul><li>Shows repository and tag information</li>
-<li>Reports file names and sizes</li>
-<li>Displays success/failure status</li>
-<li>Shows error messages from piggyback operations (previously hidden by <code>suppressWarnings</code>/<code>suppressMessages</code>)</li>
-<li>Reports retry attempts with reasons</li>
-<li>Logs cache clearing operations</li>
-<li>Lists available vs. requested files</li>
-</ul></li>
-<li>
-<strong>Better error handling for manifest.csv and VERSION file operations</strong>:
-<ul><li>Added <code>tryCatch</code> blocks to handle download failures gracefully</li>
-<li>Added informative debug messages for download attempts, successes, and failures</li>
-<li>Fixed silent failures - now properly reports when files are not found or downloads fail</li>
-<li>Improved error messages to help diagnose issues</li>
-</ul></li>
-<li>
-<strong>Enhanced reliability</strong>:
-<ul><li>All retry logic now includes debug output explaining why retries are happening</li>
-<li>Piggyback operations provide better feedback about what’s happening under the hood</li>
-<li>Error messages from the <code>piggyback</code> package are no longer silently suppressed</li>
-</ul></li>
-</ul></div>
-<div class="section level4">
-<h4 id="usage-0-0-8-9002">Usage<a class="anchor" aria-label="anchor" href="#usage-0-0-8-9002"></a></h4>
-<p>To enable detailed debug output for piggyback operations:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Set environment variable before running builds</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Or pass directly to build functions</span></span>
-<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>output_level <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span></code></pre></div>
-<p>This will show detailed information about all GitHub release operations, making it much easier to diagnose issues with manifest.csv, VERSION file downloads, or release asset uploads.</p>
-<ul><li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
-</ul></div>
-</div>
-</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
