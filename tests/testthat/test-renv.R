@@ -108,13 +108,13 @@ test_that("projr_renv_restore validates github parameter", {
   # Test with non-logical github parameter
   expect_error(
     projr_renv_restore(github = "yes"),
-    "'github' must be a single logical value"
+    "github must be a non-NA flag"
   )
 
   # Test with multiple values
   expect_error(
     projr_renv_restore(github = c(TRUE, FALSE)),
-    "'github' must be a single logical value"
+    "github must be a non-NA flag"
   )
 })
 
@@ -131,13 +131,13 @@ test_that("projr_renv_restore validates non_github parameter", {
   # Test with non-logical non_github parameter
   expect_error(
     projr_renv_restore(non_github = "yes"),
-    "'non_github' must be a single logical value"
+    "non_github must be a non-NA flag"
   )
 
   # Test with multiple values
   expect_error(
     projr_renv_restore(non_github = c(TRUE, FALSE)),
-    "'non_github' must be a single logical value"
+    "non_github must be a non-NA flag"
   )
 })
 
@@ -154,13 +154,13 @@ test_that("projr_renv_restore validates biocmanager_install parameter", {
   # Test with non-logical biocmanager_install parameter
   expect_error(
     projr_renv_restore(biocmanager_install = "yes"),
-    "'biocmanager_install' must be a single logical value"
+    "biocmanager_install must be a non-NA flag"
   )
 
   # Test with multiple values
   expect_error(
     projr_renv_restore(biocmanager_install = c(TRUE, FALSE)),
-    "'biocmanager_install' must be a single logical value"
+    "biocmanager_install must be a non-NA flag"
   )
 })
 
@@ -208,7 +208,7 @@ test_that("projr_renv_update validates parameters", {
   # Test with invalid parameters (same validation as restore)
   expect_error(
     projr_renv_update(github = "yes"),
-    "'github' must be a single logical value"
+    "github must be a non-NA flag"
   )
 
   expect_error(
@@ -230,7 +230,7 @@ test_that("projr_renv_restore_and_update validates parameters", {
   # Test with invalid parameters
   expect_error(
     projr_renv_restore_and_update(github = "yes"),
-    "'github' must be a single logical value"
+    "github must be a non-NA flag"
   )
 
   expect_error(
@@ -317,13 +317,13 @@ test_that(".check_renv_params validates github parameter correctly", {
   # Invalid github - not logical
   expect_error(
     .check_renv_params("yes", TRUE, FALSE),
-    "'github' must be a single logical value"
+    "github must be a non-NA flag"
   )
 
   # Invalid github - multiple values
   expect_error(
     .check_renv_params(c(TRUE, FALSE), TRUE, FALSE),
-    "'github' must be a single logical value"
+    "github must be a non-NA flag"
   )
 })
 
@@ -334,13 +334,13 @@ test_that(".check_renv_params validates non_github parameter correctly", {
   # Invalid non_github - not logical
   expect_error(
     .check_renv_params(TRUE, "yes", FALSE),
-    "'non_github' must be a single logical value"
+    "non_github must be a non-NA flag"
   )
 
   # Invalid non_github - multiple values
   expect_error(
     .check_renv_params(TRUE, c(TRUE, FALSE), FALSE),
-    "'non_github' must be a single logical value"
+    "non_github must be a non-NA flag"
   )
 })
 
@@ -351,13 +351,13 @@ test_that(".check_renv_params validates biocmanager_install parameter correctly"
   # Invalid biocmanager_install - not logical
   expect_error(
     .check_renv_params(TRUE, TRUE, "yes"),
-    "'biocmanager_install' must be a single logical value"
+    "biocmanager_install must be a non-NA flag"
   )
 
   # Invalid biocmanager_install - multiple values
   expect_error(
     .check_renv_params(TRUE, TRUE, c(TRUE, FALSE)),
-    "'biocmanager_install' must be a single logical value"
+    "biocmanager_install must be a non-NA flag"
   )
 })
 
@@ -798,4 +798,11 @@ test_that(".renv_restore_or_update_impl calls wrappers correctly", {
       biocmanager_install = FALSE
     )
   })
+})
+
+test_that("renv package source flags reject missing logicals", {
+  skip_if(.is_test_select())
+  expect_error(.check_renv_params(NA, TRUE, TRUE), "github must be a non-NA flag")
+  expect_error(.check_renv_params(TRUE, NA, TRUE), "non_github must be a non-NA flag")
+  expect_error(.check_renv_params(TRUE, TRUE, NA), "biocmanager_install must be a non-NA flag")
 })
