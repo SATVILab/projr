@@ -1,6 +1,6 @@
 test_that("package data paths are fixed, root-relative and read-only on lookup", {
   skip_if(.is_test_select())
-  project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
+  project <- fs::path_real(.test_setup_project(git = FALSE, rm_engine = TRUE))
   usethis::with_project(project, {
     config <- projr_yml_get("default")
     config$directories$cache$path <- "build-cache"
