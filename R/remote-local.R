@@ -23,22 +23,26 @@
     "local", id, label, structure, path, path_append_label,
     version, FALSE, empty
   )
-  exists <- dir.exists(remote_final)
-  if (exists) {
-    .cli_debug(
-      "Local remote: Final remote exists at '{remote_final}'"
-    )
-  } else {
-    .cli_debug(
-      "Local remote: Final remote does not exist at '{remote_final}'"
-    )
-  }
-  exists
+  .remote_final_check_exists_direct_local(remote_final)
 }
 
 .remote_final_check_exists_direct_local <- function(remote) {
   .assert_string(remote, TRUE)
   exists <- dir.exists(remote)
+  empty_label <- attr(remote, "empty_label")
+  if (exists && isTRUE(attr(remote, "label_at_root"))) {
+    has_files <- length(.remote_file_ls_local(remote)) > 0L
+    if (is.null(empty_label)) return(has_files)
+    if (has_files) return(FALSE)
+    # The shared root's latest manifest confirms an empty build, including for
+    # legacy destinations. A missing payload alone cannot authorize a restore.
+    root <- as.character(remote)
+    latest <- .remote_get_version_latest_label_non_project_file(root, "local", empty_label)
+    return(length(latest) > 0L && identical(.remote_get_manifest("local", root, empty_label, latest)$fn, ""))
+  }
+  if (exists && !is.null(empty_label)) {
+    exists <- !fs::link_exists(remote) && !length(list.files(remote, all.files = TRUE, no.. = TRUE))
+  }
   if (exists) {
     .cli_debug(
       "Local remote: Direct remote exists at '{remote}'"
@@ -118,7 +122,8 @@
   )
   # An unlabeled latest destination shares its root with release metadata.
   # Archive readers also need to know when versions live directly at that root.
-  if (!path_append_label && !isTRUE(empty) && (pre || structure == "latest")) {
+  if (!pre && isTRUE(empty)) attr(path_dir, "empty_label") <- label
+  if (!path_append_label && (pre || structure == "latest")) {
     attr(path_dir, "label_at_root") <- TRUE
   }
   # Don't automatically create directory here - it will be created when files
@@ -141,7 +146,8 @@
   # An existing valid manifest identifies a managed destination. Refuse to
   # adopt an unrelated VERSION, CHANGELOG, or manifests directory on first use.
   legacy <- file.path(root, "manifest.csv")
-  if (!.manifest_store_ready(file.path(root, "manifests"))) {
+  store <- file.path(root, "manifests")
+  if (!.manifest_store_ready(store) && !file.exists(file.path(store, "FORMAT"))) {
     legacy_managed <- file.exists(legacy) && !dir.exists(legacy) &&
       identical(names(.manifest_read(legacy)), names(.zero_tbl_get_manifest()))
     if (!legacy_managed) {
@@ -180,8 +186,16 @@
     path = remote_empty
   )
 
+  if (isTRUE(attr(remote_empty, "label_at_root"))) {
+    # The sender publishes this version's empty manifest in the shared root.
+    .dir_create(remote_empty)
+    return(remote_empty)
+  }
   # Check if it already exists
-  if (dir.exists(remote_empty)) {
+  if (file.exists(remote_empty) || fs::link_exists(remote_empty)) {
+    if (!.remote_final_check_exists_direct_local(remote_empty)) {
+      stop("The local empty marker path is already occupied: ", remote_empty, call. = FALSE)
+    }
     .cli_debug(
       "remote_final_empty_get_local: Already exists at '{path}'",
       path = remote_empty
@@ -205,6 +219,7 @@
 # local
 .remote_final_rm_if_empty_local <- function(remote) {
   .assert_string(remote, TRUE)
+  if (isTRUE(attr(remote, "label_at_root"))) return(invisible(FALSE))
   if (!dir.exists(remote)) {
     .cli_debug(
       "Local remote: Directory '{remote}' does not exist, returning FALSE"
@@ -238,7 +253,7 @@
   if (!dir.exists(remote)) {
     return(invisible(FALSE))
   }
-  unlink(remote, recursive = TRUE)
+  unlink(remote, recursive = TRUE, expand = FALSE)
   invisible(TRUE)
 }
 
@@ -248,6 +263,10 @@
 
 .remote_final_rm_local <- function(remote) {
   .assert_string(remote, TRUE)
+  if (isTRUE(attr(remote, "label_at_root"))) return(invisible(FALSE))
+  if (!is.null(attr(remote, "empty_label")) && !.remote_final_check_exists_direct_local(remote)) {
+    return(invisible(FALSE))
+  }
   if (!dir.exists(remote)) {
     .cli_debug(
       "Local remote: Directory '{remote}' does not exist, cannot remove, returning FALSE"
@@ -257,7 +276,7 @@
   .cli_debug(
     "Local remote: Removing directory '{remote}'"
   )
-  unlink(remote, recursive = TRUE)
+  unlink(remote, recursive = TRUE, expand = FALSE)
   invisible(TRUE)
 }
 
@@ -289,7 +308,7 @@
 .remote_file_get_all_local <- function(remote,
                                        path_dir_save_local) {
   .assert_string(remote, TRUE)
-  if (grepl("-empty$", remote)) {
+  if (!is.null(attr(remote, "empty_label"))) {
     .cli_debug(
       "Local remote: Remote is by definition empty, no files to get, returning character(0L)" # nolint
     )
@@ -313,7 +332,7 @@
                                    fn,
                                    path_dir_save_local) {
   .assert_string(remote, TRUE)
-  if (grepl("-empty$", remote)) {
+  if (!is.null(attr(remote, "empty_label"))) {
     .cli_debug(
       "Local remote: Remote is empty, no files to get, returning character(0L)" # nolint
     )
@@ -335,7 +354,9 @@
 
 .remote_file_ls_local <- function(remote) {
   .assert_string(remote, TRUE)
-  .path_filter_spec(.file_ls(path_dir = remote), .remote_local_metadata_pattern(remote))
+  pattern <- .remote_local_metadata_pattern(remote)
+  if (is.null(pattern)) return(.file_ls(path_dir = remote))
+  .hash_dir_files(remote, pattern)
 }
 
 # ========================

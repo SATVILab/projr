@@ -1588,8 +1588,8 @@
     "Purging remote destination"
   )
   .remote_final_empty(type, remote_dest_full)
-  # remote_dest_full becomes this now,
-  # as it will no longer exist
+  # An old full directory must not mask its replacement empty marker.
+  if (type == "local") .remote_final_rm_if_empty_local(remote_dest_full)
   NULL
 }
 

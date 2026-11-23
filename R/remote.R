@@ -474,7 +474,7 @@
     .assert_in(label, .opt_dir_get_label_send(NULL), TRUE)
   }
 
-  if (pre) return(path %||% character())
+  if (pre || (!path_append_label && structure == "latest")) return(path %||% character())
 
   args_list <- list()
   if (!is.null(path)) {
