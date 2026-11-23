@@ -273,3 +273,92 @@ test_that("docs path lookups and R-only builds leave the renderer configuration 
     }
   }, quiet = TRUE, force = TRUE)
 })
+
+test_that("exclusions alone filter the automatic plan from YAML and the scripts argument", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(rm_engine = TRUE, git = FALSE)
+  usethis::with_project(project,
+    {
+      file.create("keep.qmd", "first.R", "keep.Rmd", "scratch.R", "_private.R", "post-hook.R")
+      config <- .yml_get("default")
+      config$build$scripts <- "!scratch.R"
+      config$build$hooks <- list(post = "post-hook.R")
+      .yml_set(config)
+      steps <- .engines_get(.scripts_get(NULL, "patch", NULL))
+      expect_identical(basename(unlist(steps)), sort(c("keep.qmd", "first.R", "keep.Rmd")))
+
+      writeLines("project: {type: website}", "_quarto.yml")
+      dir.create("nested")
+      file.create("nested/chapter.qmd")
+      steps <- .engines_get(.scripts_get(NULL, NULL, NULL))
+      expect_identical(names(steps), c("quarto_project", "r"))
+      expect_null(steps[[1L]])
+      expect_identical(basename(steps[[2L]]), "first.R")
+      expect_null(attr(steps, "excluded_documents"))
+
+      steps <- .engines_get(.scripts_get("!*.R", NULL, NULL))
+      expect_identical(steps, list(quarto_project = NULL))
+      writeLines(c("build:", "  scripts:", "    - !scratch.R"), "_projr.yml")
+      expect_error(.scripts_get(NULL, "patch", NULL), "Quote exclusions")
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
+
+for (project_type in c("bookdown", "quarto_book")) {
+  test_that(paste(project_type, "renders its remaining project documents before R scripts"), {
+    skip_if(.is_test_cran())
+    skip_if(.is_test_select())
+    project <- .test_setup_project(rm_engine = TRUE, git = FALSE)
+    usethis::with_project(project,
+      {
+        quarto <- project_type == "quarto_book"
+        extension <- if (quarto) "qmd" else "Rmd"
+        chapters <- paste0(c("index", "nested/keep", "nested/draft"), ".", extension)
+        dir.create("nested")
+        writeLines(c("---", "title: Test", "---", "", "# Introduction"), chapters[1])
+        writeLines(c(
+          "# Kept chapter", "", "```{r}",
+          "cat('chapter\\n', file = 'order.txt', append = TRUE)", "```"
+        ), chapters[2])
+        writeLines(c("# Draft", "", "```{r}", "stop('excluded chapter')", "```"), chapters[3])
+        writeLines("cat('R\\n', file = 'order.txt', append = TRUE)", "after.R")
+        writeLines("stop('excluded R script')", "scratch.R")
+        if (quarto) {
+          config_file <- "_quarto.yml"
+          yaml::write_yaml(list(
+            project = list(type = "book", `execute-dir` = "project"),
+            book = list(title = "Test", chapters = list(chapters[1], list(part = "Results", chapters = chapters[2:3])))
+          ), config_file)
+        } else {
+          config_file <- "_bookdown.yml"
+          yaml::write_yaml(list(rmd_files = list(html = chapters[1]), rmd_subdir = "nested"), config_file)
+          writeLines("bookdown::gitbook: default", "_output.yml")
+        }
+        original <- readBin(config_file, "raw", file.size(config_file))
+        config <- .yml_get("default")
+        config$build$scripts <- c("!scratch.R", "!nested/draft.*")
+        writeLines(sprintf("saveRDS(yaml::read_yaml('%s'), 'during-render.rds')", config_file), "check-config.R")
+        config$dev$hooks <- list(post = "check-config.R")
+        .yml_set(config)
+        projr_build_dev()
+        expect_identical(readLines("order.txt"), c("chapter", "R"))
+        during <- readRDS("during-render.rds")
+        if (quarto) {
+          expect_identical(during$book$chapters[[2]]$part, "Results")
+          expect_identical(during$book$chapters[[2]]$chapters, chapters[2])
+        } else {
+          expect_identical(during$rmd_files, list(html = chapters[1:2]))
+        }
+        expect_identical(readBin(config_file, "raw", file.size(config_file)), original)
+        unlink("order.txt")
+        projr_build_dev(scripts = c("!index.*", "!nested/*", "!scratch.R"))
+        expect_identical(readLines("order.txt"), "R")
+        expect_identical(readBin(config_file, "raw", file.size(config_file)), original)
+      },
+      force = TRUE,
+      quiet = TRUE
+    )
+  })
+}

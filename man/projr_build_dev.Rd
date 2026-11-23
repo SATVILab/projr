@@ -22,7 +22,8 @@ character vector or \code{""} to skip running scripts. The default, \code{NULL},
 checks \code{dev.scripts} and then \code{build.scripts}. If neither is set, a
 Quarto or Bookdown project renders before automatically detected R scripts.
 Without a project, scripts are detected in the project root and run
-alphabetically.
+alphabetically. When every entry is an exclusion, use these automatic rules
+and skip the matching files. Quote exclusions in YAML, such as \code{"!scratch.R"}.
 
 Explicit selections run in order, with each glob expanded alphabetically. Listing an R script or
 standalone document twice runs it twice. A repeated project document is an error.
