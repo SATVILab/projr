@@ -18,7 +18,8 @@
   }
   # Helpers can also be loaded outside testthat. Keep fixture approvals in the
   # disposable test config directory established by setup.R.
-  if (fs::path_has_parent(tools::R_user_dir("projr", "config"), tempdir())) {
+  config <- Sys.getenv("R_USER_CONFIG_DIR")
+  if (dir.exists(config) && fs::path_has_parent(fs::path_real(config), fs::path_real(tempdir()))) {
     .build_project_approve(path_dir_test)
   }
   invisible(path_dir_test)
