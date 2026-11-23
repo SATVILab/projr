@@ -465,7 +465,8 @@
   .assert_flag(path_append_label, TRUE)
   .assert_in_single(structure, .opt_remote_get_structure(), TRUE)
   if (path_append_label) {
-    .assert_in_single(label, .opt_dir_get_label_send(NULL), TRUE)
+    .assert_string(label, TRUE)
+    .assert_directory_labels(label)
   }
 
   if (pre || (!path_append_label && structure == "latest")) return(path %||% character())
@@ -516,7 +517,8 @@
   .assert_flag(path_append_label, TRUE)
   .assert_in_single(structure, .opt_remote_get_structure(), TRUE)
   if (path_append_label) {
-    .assert_in_single(label, .opt_dir_get_label_send(NULL), TRUE)
+    .assert_string(label, TRUE)
+    .assert_directory_labels(label)
   }
   path_rel <- if (!is.null(path) && !identical(path, "")) path else character()
 
