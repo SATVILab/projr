@@ -6,7 +6,10 @@ on:
     branches:
       - main        # or your default branch, e.g. master
     paths:
-      - 'vignettes/**'          # any file under vignettes/
+      - 'index.md'
+      - '_pkgdown.yml'
+      - 'pkgdown/**'
+      - 'vignettes/**'
       - '.github/workflows/pkgdown.yaml'  # optional: rerun if you edit this workflow
 
 name: pkgdown.yaml
