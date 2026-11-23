@@ -30,6 +30,22 @@ test_that("builds preserve manual ignore bytes around a regenerated block", {
   })
 })
 
+test_that("projr_init keeps the original gitignore together outside the managed section", {
+  skip_if(.is_test_select())
+  project <- withr::local_tempdir()
+  usethis::with_project(project, {
+    original <- "# local rules  \r\ncache/\n!cache/example.csv\r\ncache/private/\ncache/"
+    bytes <- charToRaw(original)
+    writeBin(bytes, ".gitignore")
+    projr_init(git = FALSE, github = FALSE, dir = FALSE, readme = FALSE)
+    projr_ignore_auto()
+    sections <- .ignore_path_get_list(".gitignore")
+    expect_true(all(c(".vdoc.*", ".DS_Store", "Thumbs.db") %in% sections$start))
+    expect_identical(tail(readBin(".gitignore", "raw", file.size(".gitignore")), length(bytes)), bytes)
+    expect_identical(sections$end[-1L], c("# local rules  ", "cache/", "!cache/example.csv", "cache/private/", "cache/"))
+  }, force = TRUE, quiet = TRUE)
+})
+
 test_that("a first build seeds removable editor ignores outside the managed block", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
