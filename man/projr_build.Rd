@@ -70,7 +70,8 @@ at which the commit was made.}
 \item{args_engine}{list.
 Arguments passed to the
 rendering engine
-(\code{rmarkdown::render}, \code{quarto::render} or \code{bookdown::render_book}).}
+(\code{rmarkdown::render}, \code{quarto::quarto_render} or \code{bookdown::render_book}).
+Quarto renders in the foreground so subsequent scripts and hooks see the completed output.}
 
 \item{profile}{character.
 \code{projr} profile to use. Will set the environment variable

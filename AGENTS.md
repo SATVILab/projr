@@ -23,7 +23,7 @@ File hashing uses the top-level `settings.hash-engine` key. Its default, `cpp`, 
 ### Build script selection and rendering
 
 - `projr_build_dev(scripts = ...)` takes precedence over `dev.scripts`, then `build.scripts`. Production builds use `build.scripts`. Both use the merged active configuration. An explicit empty selection (`character()` in R or `[]` in YAML) skips rendering and script execution.
-- Resolve paths and glob patterns in `_projr.yml` from the project root. Keep each renderer's default code execution directory and honor its native options, including Quarto's `execute-dir` and R Markdown's `knit_root_dir`.
+- Resolve paths and glob patterns in `_projr.yml` from the project root. Keep each renderer's default code execution directory and honor its native options, including Quarto's `execute-dir` and R Markdown's `knit_root_dir`. Run Quarto synchronously so output collection and post-build hooks see the completed render in RStudio.
 - Run explicitly selected scripts in the listed order. Sort matches alphabetically within each glob, apply `!` exclusions across the selection, and keep the first occurrence of each path.
 - Build a Quarto or Bookdown project once at the position of its last selected project document. Store selected documents in Quarto's `project.render` or `book.chapters`, or Bookdown's `rmd_files`. Standalone documents and R scripts retain their positions around that build.
 - An explicit R-only selection runs those scripts without rendering the project. A document for the other engine renders as a standalone document. A directory with both project configurations is ambiguous and should report an error.

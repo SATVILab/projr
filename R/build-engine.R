@@ -47,10 +47,17 @@
   paste0("Error rendering bookdown project ", err_msg)
 }
 
+.build_quarto_render <- function(args) {
+  # A background RStudio job would return before outputs and hooks are ready.
+  # Older quarto releases always render synchronously and have no as_job argument.
+  if ("as_job" %in% names(formals(quarto::quarto_render))) args$as_job <- FALSE
+  do.call(quarto::quarto_render, args)
+}
+
 .build_engine_quarto_project <- function(args_engine) {
   .dep_install("quarto")
   .cli_debug("Rendering Quarto project")
-  x_return <- try(do.call(quarto::quarto_render, args_engine))
+  x_return <- try(.build_quarto_render(args_engine))
   err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
   if (is.null(err_msg)) {
     return(NULL)
@@ -64,9 +71,7 @@
   .cli_debug("Rendering {length(fn_vec)} Quarto document(s)")
   for (x in fn_vec) {
     .cli_debug("Rendering: {x}")
-    x_return <- try(
-      do.call(quarto::quarto_render, list(input = x) |> append(args_engine))
-    )
+    x_return <- try(.build_quarto_render(c(list(input = x), args_engine)))
     if (.is_try_error(x_return)) {
       break
     }

@@ -63,7 +63,8 @@
 #' @param args_engine list.
 #' Arguments passed to the
 #' rendering engine
-#' (`rmarkdown::render`, `quarto::render` or `bookdown::render_book`).
+#' (`rmarkdown::render`, `quarto::quarto_render` or `bookdown::render_book`).
+#' Quarto renders in the foreground so subsequent scripts and hooks see the completed output.
 #' @param clear_output character.
 #' When to clear output directories: "pre" (before build, default),
 #' "post" (after build), or "never".
@@ -188,7 +189,8 @@ projr_build_patch <- function(msg = NULL,
 #' @param args_engine list.
 #' Arguments passed to the
 #' rendering engine
-#' (`rmarkdown::render`, `quarto::render` or `bookdown::render_book`).
+#' (`rmarkdown::render`, `quarto::quarto_render` or `bookdown::render_book`).
+#' Quarto renders in the foreground so subsequent scripts and hooks see the completed output.
 #' @param profile character.
 #' `projr` profile to use. Will set the environment variable
 #' .PROFILE` to this value at the start of the build,
