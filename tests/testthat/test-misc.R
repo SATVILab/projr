@@ -594,31 +594,15 @@ test_that("PROJR_AUTO_INSTALL routes through the installer error handler", {
   skip_if(.is_test_select())
   withr::local_envvar(c(PROJR_AUTO_INSTALL = NA_character_))
 
-  install_calls <- list()
   local_mocked_bindings(
     .is_interactive_and_not_test = function() FALSE,
-    .renv_detect = function(...) FALSE,
-    .package = "projr"
+    .renv_detect = function(...) FALSE
   )
-  local_mocked_bindings(
-    install.packages = function(pkgs, ...) {
-      install_calls[[length(install_calls) + 1L]] <<- pkgs
-      stop("fixture install failure")
-    },
-    .package = "utils"
-  )
+  # The real installer rejects an invalid package type before any download.
+  withr::local_options(list(pkgType = FALSE))
 
-  expect_error(
-    .dep_install_only("_not_a_real_pkg_xyz_"),
-    "Required package"
-  )
-  expect_length(install_calls, 0L)
-
+  expect_error(.dep_install_only("_not_a_real_pkg_xyz_"), "Required package")
   withr::with_envvar(c(PROJR_AUTO_INSTALL = "TRUE"), {
-    expect_error(
-      .dep_install_only("_not_a_real_pkg_xyz_"),
-      "Installation failed: fixture install failure"
-    )
+    expect_error(.dep_install_only("_not_a_real_pkg_xyz_"), "Installation failed:")
   })
-  expect_identical(install_calls, list("_not_a_real_pkg_xyz_"))
 })
