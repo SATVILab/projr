@@ -437,3 +437,31 @@ test_that("Issue scenario: build.scripts used as fallback for dev builds", {
     }
   )
 })
+
+test_that("repeated literal scripts run in order and project documents reject repeats", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(rm_engine = TRUE, git = FALSE)
+  usethis::with_project(project, {
+    writeLines('cat("a\\n", file = "order.txt", append = TRUE)', "a.R")
+    writeLines('cat("b\\n", file = "order.txt", append = TRUE)', "b.R")
+    selection <- c("[ab].R", "a.R", "b.R", "a.R")
+    expect_identical(basename(.scripts_get_final(selection)), c("a.R", "b.R", "a.R"))
+    projr_build_dev(scripts = c("a.R", "b.R", "a.R"))
+    expect_identical(readLines("order.txt"), c("a", "b", "a"))
+
+    writeLines(c(
+      "---", "title: Repeat", "output: html_document", "---",
+      "```{r}", 'cat("rmd\\n", file = "order.txt", append = TRUE)', "```"
+    ), "report.Rmd")
+    projr_build_dev(scripts = c("report.Rmd", "report.Rmd"))
+    expect_identical(tail(readLines("order.txt"), 2L), c("rmd", "rmd"))
+    expect_true(file.exists(file.path(projr_path_get_dir("docs", safe = TRUE), "report.html")))
+
+    writeLines("rmd_files: [report.Rmd]", "_bookdown.yml")
+    expect_error(.engines_get(.scripts_get_final(rep("report.Rmd", 2))), "Bookdown.*repeated renders.*report[.]Rmd")
+    unlink("_bookdown.yml")
+    writeLines(c("project:", "  type: website"), "_quarto.yml")
+    file.create("chapter.qmd")
+    expect_error(.engines_get(.scripts_get_final(rep("chapter.qmd", 2))), "Quarto.*repeated renders.*chapter[.]qmd")
+  })
+})
