@@ -19,6 +19,7 @@ The package uses YAML configuration (`_projr.yml`) for project settings.
 - `settings.hashing.approach` selects `cpp` (default) or `legacy`.
 - `settings.hashing.cores` is the maximum number of workers used for file hashing. It defaults to one.
 - `directories` - Directory labels, paths, ignore settings
+- `build.renv` - Snapshot mode for production builds. `auto` detects renv, `true` requests snapshots, and `false` disables them.
 - `build.git` - Git commit, push, add-untracked settings
 - `build.restrictions` - Build restrictions (e.g., branch restrictions)
 - `build.scripts` - Scripts to build (overrides auto-detection)

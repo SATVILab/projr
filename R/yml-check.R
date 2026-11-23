@@ -236,12 +236,7 @@ projr_yml_check <- function(profile = NULL) {
 # ----------------------
 
 .yml_build_check_renv <- function(profile) {
-  yml_renv <- .yml_build_get(profile)[["renv"]]
-  if (is.null(yml_renv)) {
-    return(invisible(TRUE))
-  }
-  .assert_flag(yml_renv)
-  invisible(TRUE)
+  .yml_renv_check_value(.yml_renv_get(profile))
 }
 
 # build: local

@@ -11,6 +11,8 @@
   .cli_debug("Checking build restrictions")
   .build_check_restrictions(output_run)
 
+  .build_renv_snapshot(output_run)
+
   # set and check authorisation is available
   .cli_debug("Checking environment variables")
   .build_env_check(output_run)
@@ -243,10 +245,6 @@
 
 .build_pre_document <- function(output_run, archive_local) {
   # get version for DESCRIPTION and bookdown from run onwards
-  # snapshot if need be
-  .cli_debug("Snapshotting renv")
-  .build_renv_snapshot(output_run)
-
   # make sure everything is ignored that should be ignored
   # (including docs directory)
   .cli_debug("Updating ignore files")

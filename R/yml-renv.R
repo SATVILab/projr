@@ -9,19 +9,18 @@
 #' `projr_yml_renv_set` sets renv snapshot options for the project.
 #'
 #' The option controls whether `renv::snapshot()` is called
-#' before and after project builds.
+#' before and after production rendering.
 #'
-#' If the setting is not present in `_projr.yml`,
-#' then the default is `TRUE` (renv snapshots are performed).
-#'
-#' @param renv logical.
-#' Whether to snapshot renv before and after builds.
+#' @param renv Logical or `"auto"`. The default, `"auto"`, snapshots projects
+#' with a renv lockfile or activation script. `TRUE` also allows a first
+#' lockfile using the current libraries. `FALSE` skips both snapshots.
 #' If `NULL`, then setting is not changed.
 #' Default is `NULL`.
 #' @param simplify_default logical.
 #' If `TRUE`, then if the setting is the same as the default
-#' (which is `TRUE`),
-#' then the setting is removed from `_projr.yml`.
+#' (which is `"auto"`),
+#' then the setting is removed from the default profile. Named profiles
+#' retain an explicit `"auto"` override.
 #' Default is `TRUE`.
 #' @param profile character.
 #' Profile to add the setting to.
@@ -36,14 +35,14 @@
 #'
 #' @examples
 #' \dontrun{
-#' # enable renv snapshots (default)
+#' # require renv snapshots
 #' projr_yml_renv_set(TRUE)
 #'
 #' # disable renv snapshots
 #' projr_yml_renv_set(FALSE)
 #'
 #' # revert to default (removes setting from YAML)
-#' projr_yml_renv_set(TRUE, simplify_default = TRUE)
+#' projr_yml_renv_set("auto", simplify_default = TRUE)
 #' }
 #' @export
 projr_yml_renv_set <- function(renv = NULL,
@@ -59,15 +58,13 @@ projr_yml_renv_set <- function(renv = NULL,
 }
 
 .yml_renv_set_check <- function(renv, simplify_default, profile) {
-  .assert_flag(renv)
+  .yml_renv_check_value(renv)
   .assert_flag(simplify_default, TRUE)
   .assert_string(profile)
 }
 
 .yml_renv_set_impl <- function(renv, simplify_default, profile) {
-  # If setting to TRUE and simplify_default is TRUE, remove from YAML
-  # (since TRUE is the default)
-  if (isTRUE(renv) && simplify_default) {
+  if (identical(renv, "auto") && simplify_default && (is.null(profile) || identical(profile, "default"))) {
     .yml_renv_set(NULL, profile)
     return(invisible(FALSE))
   }
@@ -77,16 +74,16 @@ projr_yml_renv_set <- function(renv = NULL,
 }
 
 .yml_renv_get <- function(profile) {
-  yml_build <- .yml_build_get(profile)
-
-  # Default to TRUE if not set
-  if (is.null(yml_build[["renv"]])) {
-    return(TRUE)
-  }
-
-  yml_build[["renv"]]
+  .yml_build_get(profile)[["renv"]] %||% "auto"
 }
 
 .yml_renv_set <- function(yml_renv, profile) {
   .yml_build_set_nm(yml_renv, "renv", profile)
+}
+
+.yml_renv_check_value <- function(value) {
+  if (!is.null(value) && !identical(value, "auto") && !isTRUE(value) && !isFALSE(value)) {
+    stop('build.renv must be "auto", TRUE, or FALSE.', call. = FALSE)
+  }
+  invisible(TRUE)
 }

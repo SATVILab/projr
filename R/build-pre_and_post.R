@@ -7,12 +7,77 @@
   if (!.build_renv_snapshot_check(output_run)) {
     return(invisible(FALSE))
   }
-  renv::snapshot(prompt = FALSE)
+  project <- as.character(.path_get())
+  packages <- .build_renv_packages(project)
+  # renv's missing-package menu can be interactive even with prompt = FALSE.
+  # Carry the caller's libraries and renv options into a noninteractive R.
+  write_snapshot <- function(project, packages, libraries, opts) {
+    .libPaths(libraries)
+    options(opts)
+    renv::snapshot(project = project, packages = packages, library = libraries, prompt = FALSE)
+    TRUE
+  }
+  environment(write_snapshot) <- baseenv()
+  opts <- options()
+  opts <- opts[startsWith(names(opts), "renv.") | names(opts) == "repos"]
+  xfun::Rscript_call(write_snapshot, list(project, packages, .libPaths(), opts), options = "--vanilla")
   invisible(TRUE)
 }
 
 .build_renv_snapshot_check <- function(output_run) {
-  output_run && !.is_test() && .renv_detect() && .yml_renv_get(NULL)
+  if (!output_run || .is_test()) {
+    return(FALSE)
+  }
+  setting <- .yml_renv_get(NULL)
+  if (!identical(setting, "auto")) {
+    return(setting)
+  }
+  .renv_detect() || file.exists(.path_get("renv", "activate.R"))
+}
+
+.build_renv_packages <- function(project) {
+  type <- renv::settings$snapshot.type(project = project)
+  if (type == "all") {
+    return(NULL)
+  }
+  description <- file.path(project, "DESCRIPTION")
+  if (type == "custom") {
+    filter <- getOption("renv.snapshot.filter")
+    if (is.character(filter)) filter <- eval(str2lang(filter), envir = .GlobalEnv)
+    if (!is.function(filter)) stop("A custom renv snapshot needs a renv.snapshot.filter function.")
+    packages <- filter(project)
+  } else {
+    path <- if (type == "explicit") description else project
+    packages <- if (file.exists(path)) {
+      renv::dependencies(
+        path = path, root = project, dev = renv::settings$snapshot.dev(project = project),
+        progress = FALSE, errors = renv::config$dependency.errors()
+      )$Package
+    }
+  }
+  packages <- unique(c(packages, "renv"))
+  ignored <- renv::settings$ignored.packages(project = project)
+  if (file.exists(description)) {
+    desc <- read.dcf(description, fields = c("Package", "Config/renv/snapshot/include-self"))[1L, ]
+    include <- desc[["Config/renv/snapshot/include-self"]]
+    include_self <- if (is.na(include)) {
+      identical(desc[["Package"]], "renv") || file.exists(file.path(project, "inst", "golem-config.yml"))
+    } else {
+      include %in% c("TRUE", "True", "true", "T", "1")
+    }
+    if (isTRUE(getOption("renv.snapshot.ignore.self", !include_self))) {
+      ignored <- c(ignored, desc[["Package"]])
+    }
+  }
+  required <- setdiff(packages, ignored)
+  missing <- setdiff(required, basename(find.package(required, lib.loc = .libPaths(), quiet = TRUE)))
+  if (length(missing)) {
+    stop("Missing renv snapshot dependencies: ", paste(sort(missing), collapse = ", "),
+      ". Install them in the project library before building. See renv::dependencies() for their sources.",
+      call. = FALSE
+    )
+  }
+  packages
 }
 
 # commit

@@ -7,15 +7,17 @@
 projr_yml_renv_set(renv = NULL, simplify_default = TRUE, profile = "default")
 }
 \arguments{
-\item{renv}{logical.
-Whether to snapshot renv before and after builds.
+\item{renv}{Logical or \code{"auto"}. The default, \code{"auto"}, snapshots projects
+with a renv lockfile or activation script. \code{TRUE} also allows a first
+lockfile using the current libraries. \code{FALSE} skips both snapshots.
 If \code{NULL}, then setting is not changed.
 Default is \code{NULL}.}
 
 \item{simplify_default}{logical.
 If \code{TRUE}, then if the setting is the same as the default
-(which is \code{TRUE}),
-then the setting is removed from \verb{_projr.yml}.
+(which is \code{"auto"}),
+then the setting is removed from the default profile. Named profiles
+retain an explicit \code{"auto"} override.
 Default is \code{TRUE}.}
 
 \item{profile}{character.
@@ -33,20 +35,17 @@ and written to \verb{_projr-<profile>.yml}.}
 \code{projr_yml_renv_set} sets renv snapshot options for the project.
 
 The option controls whether \code{renv::snapshot()} is called
-before and after project builds.
-
-If the setting is not present in \verb{_projr.yml},
-then the default is \code{TRUE} (renv snapshots are performed).
+before and after production rendering.
 }
 \examples{
 \dontrun{
-# enable renv snapshots (default)
+# require renv snapshots
 projr_yml_renv_set(TRUE)
 
 # disable renv snapshots
 projr_yml_renv_set(FALSE)
 
 # revert to default (removes setting from YAML)
-projr_yml_renv_set(TRUE, simplify_default = TRUE)
+projr_yml_renv_set("auto", simplify_default = TRUE)
 }
 }

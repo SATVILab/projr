@@ -324,19 +324,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 }
 
 .renv_lockfile_path_get <- function() {
-  # taken from renv:::renv_paths_lockfile.
-  # we're not finding the lockfile when testing on
-  # GH to add dependencies, so we're gonna our
-  # own .path_get to get the project root
-  override <- Sys.getenv("RENV_PATHS_LOCKFILE", unset = NA)
-  if (!is.na(override)) {
-    last <- substr(override, nchar(override), nchar(override))
-    if (last %in% c("/", "\\")) {
-      override <- paste0(override, "renv.lock")
-    }
-    return(override)
-  }
-  .path_get("renv.lock")
+  renv::paths$lockfile(project = as.character(.path_get()))
 }
 
 # taken from withr-with_dir
