@@ -19,7 +19,8 @@ the way it does.
   [`projr_build()`](https://satvilab.github.io/projr/reference/projr_build.md)
   does everything
 - **Sensible defaults**: Most projects work out-of-the-box
-- **Convention over configuration**: Standard directory structure
+- **Starter configuration**: A new project starts with explicit
+  directory paths
 - **Gradual complexity**: Start simple, customise as needed
 
 **Anti-pattern**: Complex build systems requiring extensive

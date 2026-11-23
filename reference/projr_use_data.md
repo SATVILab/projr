@@ -1,15 +1,9 @@
 # `projr` drop-in replacement for usethis::use_data
 
-usethis::use_data always saves data to `data/`, which conflicts with the
-temporary directories used by .build_dev\` and makes it difficult to
-restore after failed output builds.
-
-.use_data`is a drop-in replacement for`usethis::use_data`, which saves data to the temporary directory when `safe
-= TRUE\`. This makes it easier to restore the project after a failed
-output build.
-
-The only other difference is that
-.use_data`invisibly returns the path to the saved data file, whereas`usethis::use_data`returns`TRUE\`.
+Save package datasets in the staged build cache by default. For datasets
+intended for package users, declare the `data` label under `directories`
+with the final path (normally `data` in an R package). Internal datasets
+use the package's `R/sysdata.rda` convention.
 
 ## Usage
 
@@ -72,8 +66,8 @@ projr_use_data(
 - safe:
 
   logical. Whether to save data to a temporary directory (in
-  `<cache>/"projr"/v<version>/data/`) or "data/". Default is the
-  temporary directory (TRUE).
+  `<cache>/"projr"/v<version>/data/`) or the configured final data
+  directory. Default is the temporary directory (TRUE).
 
 ## Details
 

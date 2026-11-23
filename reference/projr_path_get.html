@@ -84,13 +84,7 @@ if requested by <code>_projr.yml</code>.</p>
 
 <dl><dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
 <dd><p>character.
-One of <code>"raw_data"</code>, <code>"cache"</code>,<code>"output"</code>,
-<code>"archive"</code> and <code>"docs"</code>.
-Class of directory to return.
-The <code>"docs"</code> option returns the path to
-the output directory from <code><a href="https://pkgs.rstudio.com/bookdown/reference/render_book.html" class="external-link">bookdown::render_book</a></code>
-(as specified in <code>"_bookdown.yml"</code>),
-whereas the others returns paths as specified in <code>"_projr.yml"</code>.</p></dd>
+A directory label declared under <code>directories</code> in the active project configuration.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -118,13 +112,9 @@ If <code>"absolute"</code>, then the path returned is absolute.</p></dd>
 
 <dt id="arg-safe">safe<a class="anchor" aria-label="anchor" href="#arg-safe"></a></dt>
 <dd><p>logical.
-If <code>TRUE</code>, then the output directory
-is set to be <code>"&lt;path_to_cache&gt;.output"</code>
-instead of <code>&lt;path_to_output&gt;</code> (as specified in <code>_projr.yml</code>).
-The only time that this should be set to <code>TRUE</code>
-should be when .build_output<code> is being run, as otherwise "development" or test runs will add to, delete or overwrite fabciles from the previous run of .build_output</code>.
-Default is <code>TRUE</code>.
-Do not change this unless you know what you are doing.</p></dd>
+When <code>TRUE</code> (the default), stage outputs, documentation and package data under
+the configured cache for the current build version. When <code>FALSE</code>, return
+their configured final paths. Inputs and cache directories use their configured paths.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -136,7 +136,8 @@ dynamically managed ignore entries.</p></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Manually unignore files and directories</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Manually unignore files and directories</span></span></span>
 <span class="r-in"><span><span class="fu">projr_unignore_manual</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"output"</span>, <span class="st">"tempfile.log"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Specifically unignore directories</span></span></span>
@@ -144,6 +145,7 @@ dynamically managed ignore entries.</p></div>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Specifically unignore files</span></span></span>
 <span class="r-in"><span><span class="fu">projr_unignore_manual_file</span><span class="op">(</span><span class="st">"README.md"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

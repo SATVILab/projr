@@ -17,9 +17,14 @@ handles the infrastructure.
 projr_build()
 ```
 
+The first build writes `_projr.yml` at the project root. The starter
+declares `raw-data`, `output`, `cache`, and `docs`. If a base
+configuration already exists at the root or in `_projr/config/`, its
+declared paths apply.
+
 This one function:
 
-- Clears `_output` directory
+- Clears configured output directories
 - Renders all documents (R Markdown, Quarto, Bookdown)
 - Versions raw data, outputs, and project
 - Manages Git/GitHub commits (if configured)

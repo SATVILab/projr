@@ -80,9 +80,10 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Put raw data in _raw_data/, outputs in _output/, analysis docs in project root:</span></span>
 <span><span class="fu"><a href="reference/projr_build.html">projr_build</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>The first build writes <code>_projr.yml</code> at the project root. The starter declares <code>raw-data</code>, <code>output</code>, <code>cache</code>, and <code>docs</code>. If a base configuration already exists at the root or in <code>_projr/config/</code>, its declared paths apply.</p>
 <p>This one function:</p>
 <ul>
-<li>Clears <code>_output</code> directory</li>
+<li>Clears configured output directories</li>
 <li>Renders all documents (R Markdown, Quarto, Bookdown)</li>
 <li>Versions raw data, outputs, and project</li>
 <li>Manages Git/GitHub commits (if configured)</li>

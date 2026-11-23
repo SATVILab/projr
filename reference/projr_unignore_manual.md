@@ -73,6 +73,7 @@ dynamically managed ignore entries.
 ## Examples
 
 ``` r
+if (FALSE) { # \dontrun{
 # Manually unignore files and directories
 projr_unignore_manual(c("output", "tempfile.log"))
 
@@ -81,4 +82,5 @@ projr_unignore_manual_dir("data")
 
 # Specifically unignore files
 projr_unignore_manual_file("README.md")
+} # }
 ```

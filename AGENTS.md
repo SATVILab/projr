@@ -24,6 +24,17 @@ Key architectural patterns:
   `_projr/config/`. A root file takes precedence over a nested file of
   the same name. Update the selected file in place and interpret
   configured paths relative to the project root.
+- **Directory paths**: Require a default configuration at the root or in
+  `_projr/config/`. On the first build, write the starter at the project
+  root if both supported locations lack a base YAML. The starter
+  disables Git outside a repository and disables pushing for a
+  repository with no upstream. Keep existing configurations intact. Use
+  only directory labels declared with a path in the merged active
+  configuration. The initialization template declares conventional paths
+  explicitly. Require a cache when staging outputs and a docs directory
+  when rendering documents. Resolve configured paths, safe build paths
+  and ignore rules from the project root, including when called from a
+  nested renderer working directory.
 - **Manifest tracking**: Production builds record each hashed directory
   independently under `_projr/manifests/<label>/`. Its `versions.csv`
   maps project versions to the earliest matching directory version and
@@ -344,8 +355,11 @@ pkgdown::check_pkgdown()
 - Indent with **2 spaces**.
 - Use the **native pipe** `|>`, not `%>%`.
 - Keep functions focused and modular.
-- Validate all inputs at the top of functions using `.assert_*()`
-  helpers from `R/check.R`.
+- Validate public inputs before modifying files or contacting a remote.
+  Use the shared `.assert_*()` helpers from `R/check.R`. Use
+  `.assert_flag()` for scalar switches, `.assert_in_single()` for a
+  single choice and `.assert_count()` for whole-number counts. Optional
+  NULL arguments pass validation.
 
 ### Documentation (roxygen2)
 
@@ -391,6 +405,10 @@ Internal functions (`.` prefix) must **not** have `@export`.
   tests.
 - Add `skip_if(.is_test_cran())` to any test that is slow or hits the
   network.
+- Keep Git test identities in temporary fixture repositories and scope
+  author and committer environment variables to the test session. When
+  project initialization needs a Git identity, write it to the project
+  repository.
 - Wrap tests that need a temporary project in
   [`usethis::with_project()`](https://usethis.r-lib.org/reference/proj_utils.html).
 

@@ -82,6 +82,7 @@ the automated ignore management system of `projr`.
 ## Examples
 
 ``` r
+if (FALSE) { # \dontrun{
 # Manually ignore files and directories
 projr_ignore(c("output", "tempfile.log"))
 
@@ -90,4 +91,5 @@ projr_ignore_dir("data")
 
 # Specifically ignore files
 projr_ignore_file("README.md")
+} # }
 ```

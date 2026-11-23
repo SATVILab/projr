@@ -29,7 +29,8 @@ projr_yml_dest_add_github(
 
   character vector. Labels of directories to include in the upload.
   Options are the labels of directories in the active `projr`
-  configuration, as well as "docs", "data" and "code".
+  configuration, or `code` for the source archive GitHub provides with a
+  release tag.
 
 - structure:
 

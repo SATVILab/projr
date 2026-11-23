@@ -205,7 +205,13 @@ remote sources.
 
 ## 6. Define directories and labels
 
-Default labels:
+The first build writes a starter `_projr.yml` if the project has no base
+configuration. On that first build, projr disables Git operations
+outside a repository and disables pushing in a repository without an
+upstream. Existing configurations keep their Git settings. You can also
+create the starter with
+[`projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md).
+It declares these paths:
 
 - `raw-data` → `_raw_data`
 - `cache` → `_tmp`
@@ -232,9 +238,12 @@ directories:
     path: docs
 ```
 
-Labels must start with `raw`, `cache`, `output`, or `docs`. Each label
-maps to a single, unique path. Directories are created automatically on
-build.
+Declare the labels your project uses, with one path per label. A profile
+can inherit that path from the default configuration. Relative paths
+start at the project root even when a nested document runs from its own
+directory. Staging outputs requires a cache label, and rendering
+documents requires `docs`. Use `safe = FALSE` to retrieve a declared
+final output path.
 
 ``` r
 

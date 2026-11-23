@@ -16,8 +16,9 @@ Supported remote types:
 - Local directories – local, network-mounted, or cloud-synced folders
 - OSF (Open Science Framework) – not covered in this vignette
 
-Content types you can archive: `raw-data`, `cache`, `output`, `docs`,
-`code`.
+Archive labels declared under `directories`, such as `raw-data`,
+`cache`, `output`, or `docs`. GitHub also provides a source archive for
+each release tag, accessible with `content: code`.
 
 ## GitHub Destinations
 
@@ -65,8 +66,8 @@ Parameters:
   commit a newly created release should target. Use `branch: "@branch"`
   for the current checkout’s branch. A missing branch or a conflicting
   existing Git tag stops release creation.
-- `content` – directory label to archive (`raw-data`, `cache`, `output`,
-  `docs`, `code`).
+- `content` – directory label to archive (for example, `raw-data` or
+  `output`).
 
 Note: GitHub has a 2 GB limit per release asset. For larger datasets,
 use local remotes or split across multiple releases.

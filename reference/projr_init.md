@@ -31,7 +31,7 @@ projr_init(
   readme_rmd = TRUE,
   desc = FALSE,
   license = NULL,
-  projr_yml = FALSE,
+  projr_yml = TRUE,
   lit_doc = NULL
 )
 
@@ -128,8 +128,9 @@ projr_init_ignore()
 
 - projr_yml:
 
-  Logical. If `TRUE`, creates a `projr.yml` configuration file. Defaults
-  to `FALSE`.
+  Logical. If `TRUE`, creates the required `_projr.yml` in a new
+  project. Defaults to `TRUE`. Existing project configuration is
+  preserved.
 
 - lit_doc:
 

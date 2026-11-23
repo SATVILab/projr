@@ -89,9 +89,10 @@ repository</li>
 folders</li>
 <li>OSF (Open Science Framework) – not covered in this vignette</li>
 </ul>
-<p>Content types you can archive: <code>raw-data</code>,
-<code>cache</code>, <code>output</code>, <code>docs</code>,
-<code>code</code>.</p>
+<p>Archive labels declared under <code>directories</code>, such as
+<code>raw-data</code>, <code>cache</code>, <code>output</code>, or
+<code>docs</code>. GitHub also provides a source archive for each
+release tag, accessible with <code>content: code</code>.</p>
 <div class="section level2">
 <h2 id="github-destinations">GitHub Destinations<a class="anchor" aria-label="anchor" href="#github-destinations"></a>
 </h2>
@@ -137,9 +138,8 @@ repository whose commit a newly created release should target. Use
 missing branch or a conflicting existing Git tag stops release
 creation.</li>
 <li>
-<code>content</code> – directory label to archive
-(<code>raw-data</code>, <code>cache</code>, <code>output</code>,
-<code>docs</code>, <code>code</code>).</li>
+<code>content</code> – directory label to archive (for example,
+<code>raw-data</code> or <code>output</code>).</li>
 </ul>
 <p>Note: GitHub has a 2 GB limit per release asset. For larger datasets,
 use local remotes or split across multiple releases.</p>

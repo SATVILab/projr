@@ -22,12 +22,9 @@ projr_path_get_dir(
 
 - label:
 
-  character. One of `"raw"`, `"cache"`,`"output"`, `"archive"` and
-  `"docs"`. Class of directory to return. The `"docs"` option returns
-  the path to the output directory from
-  [`bookdown::render_book`](https://pkgs.rstudio.com/bookdown/reference/render_book.html)
-  (as specified in `"_bookdown.yml"`), whereas the others returns paths
-  as specified in `"_projr.yml"`.
+  character. A directory label declared under `directories` in the
+  active project configuration. Each label must have a `path`, which may
+  be inherited from another profile.
 
 - ...:
 
@@ -49,13 +46,10 @@ projr_path_get_dir(
 
 - safe:
 
-  logical. If `TRUE`, then the output directory is set to be
-  `"<path_to_cache>.output"` instead of `<path_to_output>` (as specified
-  in `_projr.yml`). The only time that this should be set to `TRUE`
-  should be when
-  .build_output` is being run, as otherwise "development" or test runs will add to, delete or overwrite fabciles from the previous run of .build_output`.
-  Default is `TRUE`. Do not change this unless you know what you are
-  doing.
+  logical. When `TRUE` (the default), stage outputs, documentation and
+  package data under the configured cache for the current build version.
+  When `FALSE`, return their configured final paths. Inputs and cache
+  directories use their configured paths.
 
 ## Value
 

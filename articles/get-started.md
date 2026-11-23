@@ -117,7 +117,13 @@ To update content from archives in an existing project:
 projr_content_update()
 ```
 
-### Default directories
+### Directories in the starter configuration
+
+The first build or
+[`projr_init()`](https://satvilab.github.io/projr/reference/projr_init.md)
+writes these paths into `_projr.yml`. When using an existing
+configuration, declare each directory you use. Profiles can inherit
+paths from the base configuration.
 
 | Label      | Path        | Purpose                               |
 |------------|-------------|---------------------------------------|
@@ -130,7 +136,7 @@ Access directories programmatically:
 
 ``` r
 
-projr_path_get_dir("output")             # actual path: _output
+projr_path_get_dir("output", safe = FALSE) # final path: _output
 projr_path_get_dir("output", safe = TRUE) # cache path: _tmp/projr/v0.1.0/output
 ```
 

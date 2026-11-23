@@ -244,7 +244,12 @@ remote sources.</p>
 <div class="section level2">
 <h2 id="define-directories-and-labels">6. Define directories and labels<a class="anchor" aria-label="anchor" href="#define-directories-and-labels"></a>
 </h2>
-<p>Default labels:</p>
+<p>The first build writes a starter <code>_projr.yml</code> if the
+project has no base configuration. On that first build, projr disables
+Git operations outside a repository and disables pushing in a repository
+without an upstream. Existing configurations keep their Git settings.
+You can also create the starter with <code><a href="../reference/projr_init.html">projr_init()</a></code>. It
+declares these paths:</p>
 <ul>
 <li>
 <code>raw-data</code> → <code>_raw_data</code>
@@ -275,9 +280,12 @@ remote sources.</p>
 <span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _output/figures</span></span>
 <span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="at">  </span><span class="fu">docs</span><span class="kw">:</span></span>
 <span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> docs</span></span></code></pre></div>
-<p>Labels must start with <code>raw</code>, <code>cache</code>,
-<code>output</code>, or <code>docs</code>. Each label maps to a single,
-unique path. Directories are created automatically on build.</p>
+<p>Declare the labels your project uses, with one path per label. A
+profile can inherit that path from the default configuration. Relative
+paths start at the project root even when a nested document runs from
+its own directory. Staging outputs requires a cache label, and rendering
+documents requires <code>docs</code>. Use <code>safe = FALSE</code> to
+retrieve a declared final output path.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_path_get.html">projr_path_get</a></span><span class="op">(</span><span class="st">"raw-data-public"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_path_get.html">projr_path_get</a></span><span class="op">(</span><span class="st">"output-figures"</span>, <span class="st">"plot.png"</span><span class="op">)</span></span></code></pre></div>

@@ -12,8 +12,9 @@ projr_yml_check(profile = NULL)
 
 - profile:
 
-  character(). Profile whose file needs to be checked. If not supplied,
-  then the merged profile is used. Default is NULL.
+  character(). Profile to validate with its inherited and local
+  settings. If not supplied, then the merged profile is used. Default is
+  NULL.
 
 ## Value
 
