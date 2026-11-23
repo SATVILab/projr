@@ -51,7 +51,16 @@
   # Development checkouts have no installed namespace for child renderers.
   if (!file.exists(file.path(driver, "Meta", "package.rds"))) {
     driver_lib <- file.path(scratch, "driver")
-    fs::dir_create(driver_lib)
+    # R CMD INSTALL can write native objects in its source directory.
+    source_copy <- file.path(scratch, "source", "projr")
+    fs::dir_create(c(driver_lib, source_copy))
+    parts <- file.path(
+      driver,
+      c("DESCRIPTION", "NAMESPACE", "LICENSE", "R", "inst", "src", "man")
+    )
+    if (!all(file.copy(parts, source_copy, recursive = TRUE))) {
+      stop("Could not stage the development replay driver.", call. = FALSE)
+    }
     output <- suppressWarnings(system2(
       file.path(R.home("bin"), "R"),
       shQuote(c(
@@ -59,11 +68,12 @@
         "INSTALL",
         "--no-test-load",
         "--no-multiarch",
+        "--preclean",
         "--no-byte-compile",
         "--no-docs",
         "-l",
         driver_lib,
-        driver
+        source_copy
       )),
       stdout = TRUE,
       stderr = TRUE
