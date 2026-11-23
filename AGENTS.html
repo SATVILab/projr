@@ -80,6 +80,12 @@
 <li>Collect project outputs from the configured safe documentation directory. Collect standalone outputs and their companion assets together in the configured documentation directory. When names collide, keep the affected documents in their project-relative subdirectories and report any remaining conflicts before collecting outputs.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="including-directories-in-an-output">Including directories in an output<a class="anchor" aria-label="anchor" href="#including-directories-in-an-output"></a></h3>
+<ul><li>Set <code>directories.&lt;receiving output&gt;.include</code> to declared raw, docs or output labels. Copy each complete directory to a subdirectory named for its source label, including nested outputs in dependency order.</li>
+<li>Collect development copies in the build cache and production copies in the configured output before hashing or archiving it. Preserve existing source-side <code>output</code> settings. A request made in both places copies once.</li>
+<li>Reserve the receiving subdirectory for the included label. Reject cycles, conflicting files or links, and directory paths that would copy recursively or clear the source.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="directory-ignores-across-profiles">Directory ignores across profiles<a class="anchor" aria-label="anchor" href="#directory-ignores-across-profiles"></a></h3>
 <ul><li>When updating <code>.gitignore</code>, combine directory rules from active and inactive profiles per literal project-relative path. Apply the same logic to <code>.Rbuildignore</code> when the project root contains <code>DESCRIPTION</code>. Include a path for each ignore type enabled by any contributing profile.</li>
 <li>

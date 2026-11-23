@@ -237,6 +237,34 @@ directories:
 If `clear_output = "post"`, the final directories are cleared before
 copying.
 
+An output directory can include other declared directories by label. For
+example, to publish a bundle of raw measurements, rendered reports and
+tables, configure the receiving output:
+
+``` yaml
+directories:
+  cache:
+    path: _tmp
+  raw-measurements:
+    path: inputs/measurements
+  docs:
+    path: reports
+  output-tables:
+    path: tables
+  output-bundle:
+    path: publication
+    include: [raw-measurements, docs, output-tables]
+```
+
+This creates `publication/raw-measurements/`, `publication/docs/` and
+`publication/output-tables/`. Development builds collect the same layout
+in the build cache. The receiving output’s manifest and archive include
+the copies. An included output may have its own includes. projr finishes
+those first and reports circular includes during configuration checks.
+Reserve each included label’s subdirectory for projr. When you retain
+previous output, projr refreshes those subdirectories and preserves
+their siblings.
+
 #### Post-build manifest
 
 1.  Hashes files in `output` and `docs` directories

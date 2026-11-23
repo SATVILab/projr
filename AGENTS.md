@@ -98,6 +98,19 @@ configurations remain readable.
   subdirectories and report any remaining conflicts before collecting
   outputs.
 
+### Including directories in an output
+
+- Set `directories.<receiving output>.include` to declared raw, docs or
+  output labels. Copy each complete directory to a subdirectory named
+  for its source label, including nested outputs in dependency order.
+- Collect development copies in the build cache and production copies in
+  the configured output before hashing or archiving it. Preserve
+  existing source-side `output` settings. A request made in both places
+  copies once.
+- Reserve the receiving subdirectory for the included label. Reject
+  cycles, conflicting files or links, and directory paths that would
+  copy recursively or clear the source.
+
 ### Directory ignores across profiles
 
 - When updating `.gitignore`, combine directory rules from active and
