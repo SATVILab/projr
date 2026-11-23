@@ -44,7 +44,7 @@ test_that("manifest snapshots preserve literal CSV fields, empty labels and port
     list.dirs(store, recursive = FALSE, full.names = FALSE),
     c(.path_encode_component("../CON"), "_61ux", "docs")
   )
-  expect_identical(readLines(file.path(store, ".gitattributes")), "files-*.csv -text")
+  expect_identical(readLines(file.path(store, ".gitattributes")), c("files-*.csv -text", "versions.csv -text"))
   empty_index <- .manifest_store_index(store, "docs")
   empty_path <- file.path(store, "docs", paste0("files-", empty_index$snapshot, ".csv"))
   expect_identical(readLines(empty_path), '"fn","hash"')
@@ -163,7 +163,7 @@ test_that("concurrent writers preserve both versions of a shared directory", {
   expect_identical(unique(index$directory_version), "v1")
 })
 
-test_that("a Git checkout preserves the snapshot checksum with autocrlf enabled", {
+test_that("a Git checkout preserves snapshot and index bytes with autocrlf enabled", {
   skip_if(.is_test_select())
   skip_if(Sys.which("git") == "")
   repo <- withr::local_tempdir()
@@ -171,15 +171,18 @@ test_that("a Git checkout preserves the snapshot checksum with autocrlf enabled"
   expect_equal(system2("git", c("init", "--quiet")), 0L)
   store <- file.path(".projr", "manifests")
   dir.create(store, recursive = TRUE)
-  writeLines("*.md text", file.path(store, ".gitattributes"))
+  writeLines(c("*.md text", "files-*.csv -text"), file.path(store, ".gitattributes"))
   rows <- data.frame(label = "docs", fn = "report.pdf", version = "v1", hash = "001")
   .manifest_store_write(rows, store, NULL)
-  expect_identical(readLines(file.path(store, ".gitattributes")), c("*.md text", "files-*.csv -text"))
+  expect_identical(readLines(file.path(store, ".gitattributes")), c("*.md text", "files-*.csv -text", "versions.csv -text"))
   snapshot <- list.files(file.path(store, "docs"), pattern = "^files-", full.names = TRUE)
   git <- function(args) system2("git", c("-c", "core.autocrlf=true", args))
-  expect_equal(git(c("add", "--", snapshot)), 0L)
-  unlink(snapshot)
-  expect_equal(git(c("checkout-index", "--", snapshot)), 0L)
+  files <- c(snapshot, file.path(store, "docs", "versions.csv"))
+  checksums <- tools::md5sum(files)
+  expect_equal(git(c("add", "--", files)), 0L)
+  unlink(files)
+  expect_equal(git(c("checkout-index", "--", files)), 0L)
+  expect_identical(tools::md5sum(files), checksums)
   expect_identical(.manifest_store_read(store), rows)
 })
 
