@@ -192,7 +192,8 @@ not.</p>
 <p><strong>How projr achieves this:</strong></p>
 <ul>
 <li>
-<strong>Automatic versioning</strong>: Every build is versioned</li>
+<strong>Automatic versioning</strong>: Each production build records
+a version</li>
 <li>
 <strong>Manifests</strong>: Inputs-outputs linkage is automatic</li>
 <li>
@@ -563,15 +564,15 @@ code</li>
 <div class="section level4">
 <h4 id="why-route-dev-builds-to-cache">Why route dev builds to cache?<a class="anchor" aria-label="anchor" href="#why-route-dev-builds-to-cache"></a>
 </h4>
-<p><strong>Decision</strong>: Dev builds write to
-<code>_tmp/projr/v&lt;version&gt;/</code> not <code>_output</code></p>
+<p>Development builds stage outputs in the cache. The default path is
+<code>_tmp/projr/dev/</code> for a new project and
+<code>_tmp/projr/v&lt;version&gt;/</code> when the checkout already has
+a version.</p>
 <p><strong>Rationale</strong>:</p>
 <ul>
 <li>
 <strong>Safety</strong>: Can’t accidentally overwrite released
 outputs</li>
-<li>
-<strong>Isolation</strong>: Multiple dev builds don’t conflict</li>
 <li>
 <strong>Cleanup</strong>: Cache can be deleted without losing
 work</li>

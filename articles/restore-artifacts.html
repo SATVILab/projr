@@ -121,7 +121,7 @@ the same paths and hashes. It recovers missing manifest data from the
 release and verifies the complete file list and MD5 hashes before
 installing any downloaded files. If the checkout lacks both
 <code>DESCRIPTION</code> and <code>VERSION</code>, projr can recover the
-version from its <code>BUILDLOG.md</code>. You can also supply
+version from its <code>.projr/BUILDLOG.md</code>. You can also supply
 <code>version = "1.2.3"</code>.</p>
 <p>A partially populated input directory is filled when its existing
 files match. To replace local edits or remove extra files, supply
@@ -239,7 +239,7 @@ local destination needs read access to the folder.</p>
 </h2>
 <p>When a build expands <code>@branch</code> or <code>@uuid</code> in a
 destination, copy the concrete tag or path from its
-<code>BUILDLOG.md</code>. Select the configuration by its
+<code>.projr/BUILDLOG.md</code>. Select the configuration by its
 <code>title</code> and supply the earlier location as
 <code>destination</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">

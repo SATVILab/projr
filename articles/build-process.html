@@ -185,7 +185,7 @@ missing dependency stops the build with its name.</li>
 <div class="section level4">
 <h4 id="version-calculation">Version calculation<a class="anchor" aria-label="anchor" href="#version-calculation"></a>
 </h4>
-<p>projr tracks three version numbers during a build:</p>
+<p>projr tracks three version numbers during a production build:</p>
 <ul>
 <li>Pre-run version: the version before the build starts</li>
 <li>Run version: the version during the build</li>
@@ -196,8 +196,8 @@ missing dependency stops the build with its name.</li>
   0.0.1-1 → 0.0.2 → 0.0.2-1 (success)
   0.0.1-1 → 0.0.2 → 0.0.1-1 (failure)
 
-Dev build from release (auto-bumps):
-  0.0.1 → 0.0.1-1
+Dev build from release:
+  0.0.1 → 0.0.1
 
 Dev build from dev (no change):
   0.0.1-1 → 0.0.1-1</code></pre>
@@ -405,7 +405,7 @@ index</li>
 <li>
 <code>README.Rmd</code> (rendered if it exists)</li>
 <li>
-<code>BUILDLOG.md</code> (with a change summary)</li>
+<code>.projr/BUILDLOG.md</code> (with a change summary)</li>
 <li>
 <code>CHANGELOG.md</code> (if configured)</li>
 </ul>

@@ -116,7 +116,7 @@ that tracks dependencies in a binary database or in-memory cache.
 
 **How projr achieves this:**
 
-- **Automatic versioning**: Every build is versioned
+- **Automatic versioning**: Each production build records a version
 - **Manifests**: Inputs-outputs linkage is automatic
 - **renv integration**: Optional package version locking
 - **Archiving**: Automatic upload to GitHub Releases or a local archive
@@ -406,12 +406,13 @@ request a one-off archive when calling a production build.
 
 #### Why route dev builds to cache?
 
-**Decision**: Dev builds write to `_tmp/projr/v<version>/` not `_output`
+Development builds stage outputs in the cache. The default path is
+`_tmp/projr/dev/` for a new project and `_tmp/projr/v<version>/` when
+the checkout already has a version.
 
 **Rationale**:
 
 - **Safety**: Can’t accidentally overwrite released outputs
-- **Isolation**: Multiple dev builds don’t conflict
 - **Cleanup**: Cache can be deleted without losing work
 
 **Alternative considered**: Use `_output` with flag to prevent

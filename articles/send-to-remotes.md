@@ -118,8 +118,8 @@ Local destination names and paths and GitHub release names accept
 `@branch`, `@version`, and `@uuid`. For example,
 `archives/@branch/@version-@uuid` keeps a separate local archive for
 each build. Find the concrete title and destination in the **Resolved
-archive destinations** section of `BUILDLOG.md`. When restoring an
-earlier build, give
+archive destinations** section of `.projr/BUILDLOG.md`. When restoring
+an earlier build, give
 [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
 its configured `title` and pass the recorded tag or path as
 `destination`.

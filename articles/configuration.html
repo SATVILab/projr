@@ -409,12 +409,16 @@ development component, a dot separator before it, and a final
 </tr>
 </tbody>
 </table>
-<p>Use <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code> to iterate. Its <code>bump</code>
-and <code>old_dev_remove</code> arguments control the development
-version and removal of its older working directories. Use
-<code><a href="../reference/projr_build.html">projr_build_patch()</a></code>, <code><a href="../reference/projr_build.html">projr_build_minor()</a></code> or
-<code><a href="../reference/projr_build.html">projr_build_major()</a></code> to choose the component for a versioned
-build. <code>msg</code> records a build description.
+<p>Use <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code> to iterate. It preserves the
+current project version and can run before the project has one. An
+unversioned project stages its working files in
+<code>&lt;cache&gt;/projr/dev/</code>. The <code>@version</code>
+placeholder requires a version set by a production build or by
+<code><a href="../reference/projr_version_set.html">projr_version_set()</a></code>. Use
+<code>old_dev_remove = FALSE</code> to keep older working directories.
+Use <code><a href="../reference/projr_build.html">projr_build_patch()</a></code>, <code><a href="../reference/projr_build.html">projr_build_minor()</a></code>
+or <code><a href="../reference/projr_build.html">projr_build_major()</a></code> to choose the component for a
+versioned build. <code>msg</code> records a build description.
 <code>clear_output</code> accepts <code>"pre"</code>,
 <code>"post"</code> or <code>"never"</code>. Production builds default
 to <code>"pre"</code> and development builds to <code>"never"</code>.
@@ -609,10 +613,10 @@ to projr.</p>
 <code><a href="../reference/projr_restore.html">projr_restore()</a></code> in the checkout. It uses the release named
 <code>archive</code> by default and restores the declared raw directory
 labels. It reads the checkout’s production version, or the most recent
-completed build in its <code>BUILDLOG.md</code> when on the follow-up
-development commit. Supply <code>version = "1.2.3"</code> for a specific
-build or <code>destination</code> for another release tag. It verifies
-every selected directory’s paths and MD5s before installing any
+completed build in its <code>.projr/BUILDLOG.md</code> when on the
+follow-up development commit. Supply <code>version = "1.2.3"</code> for
+a specific build or <code>destination</code> for another release tag. It
+verifies every selected directory’s paths and MD5s before installing any
 downloads. Local changes and extra files stop the restore unless you
 explicitly allow replacement with <code>clear = TRUE</code>.</p>
 <p>In a checkout with manifest history, run
@@ -627,8 +631,11 @@ the label. <code>clear = TRUE</code> can remove existing local files,
 including when the archive records an empty version.</p>
 <p>If a destination contained <code>@uuid</code>, find its concrete path
 or release tag in the <strong>Resolved archive destinations</strong>
-section of that build’s <code>BUILDLOG.md</code>. Pass it back as
-<code>destination</code> to restore from the same place later.</p>
+section of that build’s <code>.projr/BUILDLOG.md</code>. In an older
+checkout, projr can read a root <code>BUILDLOG.md</code>. The next build
+or restore moves that history into <code>.projr/</code>. The changelog
+stays at the root. Pass it back as <code>destination</code> to restore
+from the same place later.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">projr</span><span class="fu">::</span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span></span>
 <span>  label <span class="op">=</span> <span class="st">"output-delivery"</span>, pos <span class="op">=</span> <span class="st">"dest"</span>, type <span class="op">=</span> <span class="st">"local"</span>, title <span class="op">=</span> <span class="st">"shared"</span>,</span>

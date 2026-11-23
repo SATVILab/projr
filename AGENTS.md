@@ -169,9 +169,11 @@ package names before modifying the lockfile.
 Store package bookkeeping under `.projr/` (optional configuration in
 `config/`, versioned directory histories in `manifests/`, and untracked
 build diagnostics and history in `logs/`). Keep the first-build starter
-at the project root as `_projr.yml`. A build or restore may move
-recognized legacy state from `_projr/`; ordinary reads must work without
-moving files.
+at the project root as `_projr.yml`. Keep the tracked production history
+in `.projr/BUILDLOG.md` and the changelog in `CHANGELOG.md` at the root.
+A build or restore may move recognized legacy state from `_projr/` and
+an older root `BUILDLOG.md`. Ordinary reads must work without moving
+files.
 
 ### Directory ignores across profiles
 
@@ -206,7 +208,7 @@ moving files.
   uses the commit SHA.
 - Generate directory ignore patterns from the current YAML templates,
   including local archives. Keep the template in YAML and record the
-  concrete archive destination in `BUILDLOG.md` for restore.
+  concrete archive destination in `.projr/BUILDLOG.md` for restore.
 - Store local release histories in `<destination>/manifests/` for every
   layout. With `path-append-label: false` and `structure: latest`, keep
   the root’s `manifests/`, `manifest.csv`, `VERSION`, and `CHANGELOG.md`

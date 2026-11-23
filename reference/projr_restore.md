@@ -30,7 +30,8 @@ projr_restore(
 
   Character. An exact production build version. By default projr reads
   the checkout's version. On the follow-up development commit it uses
-  the most recent completed build in the checkout's `BUILDLOG.md`.
+  the most recent completed build in the checkout's
+  `.projr/BUILDLOG.md`.
 
 - destination:
 

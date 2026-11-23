@@ -120,7 +120,7 @@ Creates GitHub releases or local archive directories as configured in
 
 #### Version calculation
 
-projr tracks three version numbers during a build:
+projr tracks three version numbers during a production build:
 
 - Pre-run version: the version before the build starts
 - Run version: the version during the build
@@ -132,8 +132,8 @@ Version transitions:
       0.0.1-1 → 0.0.2 → 0.0.2-1 (success)
       0.0.1-1 → 0.0.2 → 0.0.1-1 (failure)
 
-    Dev build from release (auto-bumps):
-      0.0.1 → 0.0.1-1
+    Dev build from release:
+      0.0.1 → 0.0.1
 
     Dev build from dev (no change):
       0.0.1-1 → 0.0.1-1
@@ -315,7 +315,7 @@ For production builds, projr updates:
 - roxygen2 `.Rd` files (if roxygen comments exist)
 - `CITATION.cff`, `codemeta.json`, `inst/CITATION` (version numbers)
 - `README.Rmd` (rendered if it exists)
-- `BUILDLOG.md` (with a change summary)
+- `.projr/BUILDLOG.md` (with a change summary)
 - `CHANGELOG.md` (if configured)
 
 Example BUILDLOG entry:

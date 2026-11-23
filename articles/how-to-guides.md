@@ -62,10 +62,10 @@ projr_build_dev(scripts = "analysis.Rmd")
 projr_build_dev(scripts = c("methods.Rmd", "results.Rmd"))
 ```
 
-Dev builds route outputs to the cache at `_tmp/projr/v<version>/`
-instead of `_output`. Always use
+On a new project, dev builds stage outputs in `_tmp/projr/dev/`. Once
+the project has a version, they use `_tmp/projr/v<version>/`. Use
 [`projr_path_get()`](https://satvilab.github.io/projr/reference/projr_path_get.md)
-so paths resolve correctly in both dev and final builds:
+to get the output path in development and production builds.
 
 ``` r
 
@@ -184,8 +184,8 @@ projr_content_update(label = "raw-data", type = "local", title = "backup")
 
 By default, projr looks for each label’s configured source, then a build
 destination containing that label. To reuse a templated archive from an
-earlier build, pass the concrete path or tag recorded in `BUILDLOG.md`
-as `destination`.
+earlier build, pass the concrete path or tag recorded in
+`.projr/BUILDLOG.md` as `destination`.
 
 ------------------------------------------------------------------------
 

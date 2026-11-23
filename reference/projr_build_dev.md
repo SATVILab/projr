@@ -1,8 +1,8 @@
 # Build dev project
 
-Builds project to output, which means recording the input and output
-data hashes, building the actual bookdown document and saving and
-archiving selected output.
+Runs the selected scripts and renders documents for development.
+Development builds preserve the project's version and can run before its
+first versioned build. Staged outputs are available in the build cache.
 
 ## Usage
 
@@ -35,13 +35,12 @@ projr_build_dev(
   it twice. A repeated project document is an error. If a selection
   includes Quarto or Bookdown project documents, those documents render
   together at the position of the last selected project document. The
-  project YAML is restored before the build returns to the development
-  version.
+  project YAML is restored after rendering and post-build hooks.
 
 - bump:
 
-  logical. Whether to increment dev version for build. Default is
-  `FALSE`.
+  logical. Retained for compatibility. Supplying `TRUE` warns and runs a
+  development build with the project's existing version, if any.
 
 - old_dev_remove:
 

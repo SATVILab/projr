@@ -118,10 +118,11 @@ documents before creating a versioned release.</p>
 <span><span class="co"># Build specific documents only</span></span>
 <span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>scripts <span class="op">=</span> <span class="st">"analysis.Rmd"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>scripts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"methods.Rmd"</span>, <span class="st">"results.Rmd"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Dev builds route outputs to the cache at
-<code>_tmp/projr/v&lt;version&gt;/</code> instead of
-<code>_output</code>. Always use <code><a href="../reference/projr_path_get.html">projr_path_get()</a></code> so paths
-resolve correctly in both dev and final builds:</p>
+<p>On a new project, dev builds stage outputs in
+<code>_tmp/projr/dev/</code>. Once the project has a version, they use
+<code>_tmp/projr/v&lt;version&gt;/</code>. Use
+<code><a href="../reference/projr_path_get.html">projr_path_get()</a></code> to get the output path in development and
+production builds.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># In your R Markdown or scripts:</span></span>
 <span><span class="va">fig_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_path_get.html">projr_path_get</a></span><span class="op">(</span><span class="st">"output"</span>, <span class="st">"figures"</span>, <span class="st">"plot.png"</span><span class="op">)</span></span>
@@ -211,7 +212,7 @@ build.</p>
 <p>By default, projr looks for each label’s configured source, then a
 build destination containing that label. To reuse a templated archive
 from an earlier build, pass the concrete path or tag recorded in
-<code>BUILDLOG.md</code> as <code>destination</code>.</p>
+<code>.projr/BUILDLOG.md</code> as <code>destination</code>.</p>
 <hr>
 </div>
 <div class="section level2">

@@ -200,8 +200,12 @@ documents.
 
 Use
 [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
-to iterate. Its `bump` and `old_dev_remove` arguments control the
-development version and removal of its older working directories. Use
+to iterate. It preserves the current project version and can run before
+the project has one. An unversioned project stages its working files in
+`<cache>/projr/dev/`. The `@version` placeholder requires a version set
+by a production build or by
+[`projr_version_set()`](https://satvilab.github.io/projr/reference/projr_version_set.md).
+Use `old_dev_remove = FALSE` to keep older working directories. Use
 [`projr_build_patch()`](https://satvilab.github.io/projr/reference/projr_build.md),
 [`projr_build_minor()`](https://satvilab.github.io/projr/reference/projr_build.md)
 or
@@ -318,7 +322,7 @@ To reproduce a checked-out build published to GitHub, run
 in the checkout. It uses the release named `archive` by default and
 restores the declared raw directory labels. It reads the checkout’s
 production version, or the most recent completed build in its
-`BUILDLOG.md` when on the follow-up development commit. Supply
+`.projr/BUILDLOG.md` when on the follow-up development commit. Supply
 `version = "1.2.3"` for a specific build or `destination` for another
 release tag. It verifies every selected directory’s paths and MD5s
 before installing any downloads. Local changes and extra files stop the
@@ -337,8 +341,10 @@ version.
 
 If a destination contained `@uuid`, find its concrete path or release
 tag in the **Resolved archive destinations** section of that build’s
-`BUILDLOG.md`. Pass it back as `destination` to restore from the same
-place later.
+`.projr/BUILDLOG.md`. In an older checkout, projr can read a root
+`BUILDLOG.md`. The next build or restore moves that history into
+`.projr/`. The changelog stays at the root. Pass it back as
+`destination` to restore from the same place later.
 
 ``` r
 
