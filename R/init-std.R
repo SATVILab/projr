@@ -89,6 +89,7 @@ projr_init <- function(
 
   # desc
   .init_desc_std(desc)
+  .init_ignore_starter(.path_get())
 
   # initial VERSION file
   if (

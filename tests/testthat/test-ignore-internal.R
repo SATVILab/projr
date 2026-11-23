@@ -61,23 +61,6 @@ test_that(".ignore_path_read suppresses warnings", {
 })
 
 # ==============================================================================
-# .ignore_get_list_empty() tests
-# ==============================================================================
-
-test_that(".ignore_get_list_empty returns correct empty list structure", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  result <- .ignore_get_list_empty()
-
-  expect_type(result, "list")
-  expect_named(result, c("start", "content", "end"))
-  expect_identical(result$start, character(0))
-  expect_identical(result$content, character(0))
-  expect_identical(result$end, character(0))
-})
-
-# ==============================================================================
 # .ignore_path_get_check() tests
 # ==============================================================================
 
@@ -507,7 +490,7 @@ test_that(".ignore_path_get_list parses file with projr section correctly", {
   )
 })
 
-test_that(".ignore_path_get_list returns empty list for non-existent file", {
+test_that(".ignore_path_get_list frames the first rule for a new file", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
@@ -520,9 +503,9 @@ test_that(".ignore_path_get_list returns empty list for non-existent file", {
 
       expect_type(result, "list")
       expect_named(result, c("start", "content", "end"))
-      expect_identical(result$start, character(0))
+      expect_match(result$start, match_str_top)
       expect_identical(result$content, character(0))
-      expect_identical(result$end, character(0))
+      expect_match(result$end, match_str_bottom)
     }
   )
 })
@@ -595,8 +578,7 @@ test_that(".ignore_path_write writes content to file", {
 
       expect_true(file.exists(".gitignore"))
       written_content <- readLines(".gitignore")
-      # .newline_append adds empty string at end
-      expect_identical(written_content, c(test_content, ""))
+      expect_identical(written_content, test_content)
       expect_identical(result, ".gitignore")
     }
   )
@@ -636,8 +618,7 @@ test_that(".ignore_path_write creates file if it doesn't exist", {
       .ignore_path_write(c("content"), "newfile.txt")
 
       expect_true(file.exists("newfile.txt"))
-      # .newline_append adds empty string at end
-      expect_identical(readLines("newfile.txt"), c("content", ""))
+      expect_identical(readLines("newfile.txt"), "content")
     }
   )
 })
@@ -656,8 +637,7 @@ test_that(".ignore_path_write overwrites existing file", {
       .ignore_path_write(c("new1", "new2", "new3"), ".gitignore", refresh_directories = FALSE)
 
       result <- readLines(".gitignore")
-      # .newline_append adds empty string at end
-      expect_identical(result, c("new1", "new2", "new3", ""))
+      expect_identical(result, c("new1", "new2", "new3"))
       expect_false(any(grepl("old", result)))
     }
   )
@@ -674,8 +654,7 @@ test_that(".ignore_path_write handles empty character vector", {
 
       expect_true(file.exists(".gitignore"))
       result <- readLines(".gitignore")
-      # .newline_append adds empty string even for empty input
-      expect_identical(result, "")
+      expect_identical(result, character())
     }
   )
 })
