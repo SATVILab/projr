@@ -39,7 +39,8 @@ Key architectural patterns:
   independently under `.projr/manifests/<label>/`. Its `versions.csv`
   maps project versions to the earliest matching directory version and
   the SHA-256 of a file list. Each distinct list of relative paths and
-  MD5 hashes is stored once.
+  MD5 hashes is stored once. In file history queries, an unchanged file
+  keeps the version where it first appeared or most recently changed.
 - **Remote destinations**: A unified dispatcher pattern (`R/remote.R`)
   routes file operations to local, GitHub, or OSF backends.
 - **Internal vs. exported functions**: Internal helpers use a `.` prefix

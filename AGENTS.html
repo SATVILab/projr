@@ -55,7 +55,7 @@
 <li>
 <strong>Directory paths</strong>: Require a default configuration at the root or in <code>.projr/config/</code>. On the first build, write the starter at the project root if both supported locations lack a base YAML. The starter disables Git outside a repository and disables pushing for a repository with no upstream. Keep existing configurations intact. Use only directory labels declared with a path in the merged active configuration. The initialization template declares conventional paths explicitly. Require a cache when staging outputs and a docs directory when rendering documents. Resolve configured paths, safe build paths and ignore rules from the project root, including when called from a nested renderer working directory.</li>
 <li>
-<strong>Manifest tracking</strong>: Production builds record each hashed directory independently under <code>.projr/manifests/&lt;label&gt;/</code>. Its <code>versions.csv</code> maps project versions to the earliest matching directory version and the SHA-256 of a file list. Each distinct list of relative paths and MD5 hashes is stored once.</li>
+<strong>Manifest tracking</strong>: Production builds record each hashed directory independently under <code>.projr/manifests/&lt;label&gt;/</code>. Its <code>versions.csv</code> maps project versions to the earliest matching directory version and the SHA-256 of a file list. Each distinct list of relative paths and MD5 hashes is stored once. In file history queries, an unchanged file keeps the version where it first appeared or most recently changed.</li>
 <li>
 <strong>Remote destinations</strong>: A unified dispatcher pattern (<code>R/remote.R</code>) routes file operations to local, GitHub, or OSF backends.</li>
 <li>

@@ -318,6 +318,13 @@ For production builds, projr updates:
 - `.projr/BUILDLOG.md` (with a change summary)
 - `CHANGELOG.md` (if configured)
 
+To show readers how to run
+[`projr_build()`](https://satvilab.github.io/projr/reference/projr_build.md)
+or
+[`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+in `README.Rmd`, put the commands in a plain R code block or use an R
+chunk with `eval = FALSE` so rendering the README only displays them.
+
 Example BUILDLOG entry:
 
 ``` markdown
