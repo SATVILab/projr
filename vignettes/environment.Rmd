@@ -72,7 +72,6 @@ PROJR_CLEAR_OUTPUT=never
 
 ```bash
 GITHUB_PAT=ghp_your_github_token_here
-OSF_PAT=your_osf_token_here
 ```
 
 ## Loading Variables
@@ -118,7 +117,7 @@ automatically.
 
 | Variable | Values | Default | Notes |
 |----------|--------|---------|-------|
-| `PROJR_OUTPUT_LEVEL` | `none`, `std`, `debug` | `none` (dev) / `std` (prod) | Case-sensitive |
+| `PROJR_OUTPUT_LEVEL` | `none`, `std`, `debug` | `std` | Case-sensitive |
 | `PROJR_CLEAR_OUTPUT` | `pre`, `post`, `never` | `pre` | Case-sensitive |
 | `PROJR_LOG_DETAILED` | `TRUE`/`FALSE` | `TRUE` | Case-insensitive |
 | `PROJR_AUTO_INSTALL` | `TRUE`/`FALSE` | Unset | Case-insensitive |
@@ -142,8 +141,7 @@ Sys.setenv(PROJR_LOG_DETAILED = "FALSE")
 projr_build_dev()
 ```
 
-Build function parameters (e.g., `output_level`, `clear_output`) override
-these environment variables when explicitly provided.
+An explicit `clear_output` build argument takes precedence over `PROJR_CLEAR_OUTPUT`. Set console verbosity with `PROJR_OUTPUT_LEVEL`.
 
 ### Profiles
 
@@ -158,21 +156,19 @@ these environment variables when explicitly provided.
 |----------|---------|
 | `GITHUB_PAT` | GitHub API operations (checked first) |
 | `GITHUB_TOKEN` | GitHub API fallback (checked after `GITHUB_PAT`) |
-| `OSF_PAT` | OSF remote destinations |
 
 Falls back to `gitcreds` if neither GitHub variable is set. Store tokens
 in `_environment.local` only — never commit them.
 
 ```{r eval=FALSE}
 projr_instr_auth_github()  # setup instructions
-projr_instr_auth_osf()     # setup instructions
 ```
 
 ## Precedence
 
 From highest to lowest priority:
 
-1. Build function parameters (`output_level = "std"`)
+1. Applicable build arguments (for example, `clear_output = "post"`)
 2. System/session environment (`Sys.setenv(...)`)
 3. `_environment.local`
 4. `_environment-<QUARTO_PROFILE>`

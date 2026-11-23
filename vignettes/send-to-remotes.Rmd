@@ -22,17 +22,13 @@ Supported remote types:
 
 - GitHub Releases -- version-controlled releases on your GitHub repository
 - Local directories -- local, network-mounted, or cloud-synced folders
-- OSF (Open Science Framework) -- not covered in this vignette
 
 Archive labels declared under `directories`, such as `raw-data`, `cache`, `output`, or `docs`. GitHub also provides a source archive for each release tag, accessible with `content: code`.
 
 ## GitHub Destinations
 
-Prerequisites:
-
-- Git repository connected to GitHub
-- GitHub PAT with `repo` scope (run `projr_instr_auth_github()` for setup)
-- Token stored in `_environment.local` (git-ignored): `GITHUB_PAT=ghp_...`
+Configure a GitHub remote for the checkout and a credential with write access
+to releases in that repository. Run `projr_instr_auth_github()` for setup.
 
 ```{r eval=FALSE}
 # Add a GitHub release for raw data
@@ -65,12 +61,9 @@ Parameters:
 - `branch` optionally sets the branch in the GitHub repository whose commit a newly created release should target. Use `branch: "@branch"` for the current checkout's branch. A missing branch or a conflicting existing Git tag stops release creation.
 - `content` -- directory label to archive (for example, `raw-data` or `output`).
 
-Note: GitHub has a 2 GB limit per release asset. For larger datasets, use local remotes or split across multiple releases.
-
 ## Local Destinations
 
-No authentication required. Parent directories must exist before the first build.
-Use absolute paths for clarity; relative paths resolve from the project root.
+Choose a writable local or mounted folder. Relative paths resolve from the project root.
 
 ```{r eval=FALSE}
 # Archive to local directory
@@ -133,7 +126,6 @@ When to create a new version on the remote.
 |:------|:----------|
 | `"if-change"` (default) | Upload only when content changed since last version |
 | `"always"` | Upload every build, even if unchanged |
-| `"never"` | Disable uploads without removing configuration |
 
 ### send_strategy
 
@@ -285,8 +277,7 @@ projr_yml_get()$build$local
 projr_yml_check()
 ```
 
-If remotes aren't uploading, verify you are running a production build (not `projr_build_dev()`),
-`send_cue` is not `"never"`, and authentication is configured for GitHub destinations.
+If a destination has no new files, check its configured labels and whether they changed during a production build. For GitHub, also check release write access.
 
 ## Best Practices
 

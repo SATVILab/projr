@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
   mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
 </script>
 
-This vignette explains the internal workflow for sending content to remote destinations during builds. It describes the three main stages that occur when projr uploads artifacts to GitHub releases, local directories, or OSF nodes.
+This vignette explains the internal workflow for sending content to remote destinations during builds. It describes the three main stages that occur when projr uploads artifacts to GitHub releases or local directories.
 
 ## Overview
 
@@ -108,7 +108,6 @@ flowchart TD
     SyncPurge --> BuildActions
     
     BuildActions --> CheckCue{send_cue?}
-    CheckCue -->|never| SkipSend[Skip upload]
     CheckCue -->|always| ProceedSend[Proceed with upload]
     CheckCue -->|if-change| CheckChanges{Any changes?}
     
@@ -259,7 +258,7 @@ The destination send process is triggered during post-build operations:
 5. **Dev Version Bump** - Increment to next dev version
 
 For each configured destination in `_projr.yml`:
-- Check if `send_cue` condition is met (always, if-change, never)
+- Check if `send_cue` condition is met (always, if-change)
 - Get remotes and determine comparison version
 - Build upload/removal plan based on `send_strategy` and `send_inspect`
 - Execute plan if approved by cue logic
@@ -275,7 +274,6 @@ The workflow behavior is controlled by parameters in `_projr.yml`:
 **send_cue** (when to upload):
 - `always` - Upload every build
 - `if-change` - Only upload if content changed
-- `never` - Skip upload
 
 **send_strategy** (how to upload):
 - `sync-diff` - Upload changed/new files, remove deleted files

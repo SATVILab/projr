@@ -78,7 +78,7 @@ projr_yml_dir_license_set("Apache-2.0", "docs")
 projr_yml_dir_license_set("CC0", "raw-data")
 ```
 
-### YAMLConfiguration Format
+### YAML configuration
 
 Licenses can be specified in simple or full format in `_projr.yml`:
 
