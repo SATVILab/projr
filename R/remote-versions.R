@@ -476,27 +476,19 @@
   if (structure != "archive") {
     return(character(0L))
   }
-  remote_pre_down <- switch(type,
-    "local" = {
-      if (is.null(remote_pre)) {
-        return(character(0L))
-      }
-      dir_vec <- .dir_ls(remote_pre, recursive = FALSE)
-      if (is.null(dir_vec) || .is_len_0(dir_vec) || !label %in% dir_vec) {
-        return(character(0L))
-      }
-      file.path(remote_pre, label)
-    },
-    "github" = remote_pre
-  )
-  if (is.null(remote_pre)) {
-    return(character(0L))
+  if (!length(remote_pre)) return(character())
+  directory <- remote_pre
+  if (type == "local" && !isTRUE(attr(remote_pre, "label_at_root"))) {
+    directory <- file.path(remote_pre, label)
   }
-  remote_final_vec_basename <- .remote_ls_final(
-    type, remote_pre_down
-  )
-  .remote_version_latest_get(remote_final_vec_basename, type, label) |>
-    .version_v_rm()
+  if (type == "local" && !dir.exists(directory)) return(character())
+  filenames <- .remote_ls_final(type, directory)
+  if (type == "local") {
+    filenames <- grep("^v?[0-9]+([.-][0-9]+)*(-empty)?$", filenames, value = TRUE)
+  }
+  if (!length(filenames)) return(character())
+  version <- .remote_version_latest_get(filenames, type, label)
+  if (length(version)) .version_v_rm(version) else character()
 }
 
 #' @title Determine the newest version represented by filenames
@@ -505,7 +497,7 @@
 #' @param fn Character vector of filenames to inspect.
 #' @param type Remote backend identifier (some parsing differs for GitHub).
 #' @param label Label associated with the filenames (used for GitHub assets).
-#' @return Version object or character string depending on backend.
+#' @return The newest version name or an empty character vector.
 #' @keywords internal
 #' @noRd
 .remote_version_latest_get <- function(fn, type, label) {
@@ -513,10 +505,9 @@
     return(character(0L))
   }
   if (type != "github") {
-    fn <- vapply(fn, .version_v_rm, character(1L))
-    # Strip -empty suffix for local remotes (not needed for GitHub .zip files)
-    fn <- gsub("-empty$", "", fn)
-    return(fn |> package_version() |> max())
+    versions <- sub("-empty$", "", sub("^v", "", fn))
+    # Compare numerically and keep the exact directory name, including a dev hyphen.
+    return(versions[[which.max(numeric_version(versions))]])
   }
   fn <- .remote_version_latest_filter(fn, type, label)
   .remote_version_latest_extract(fn, label)

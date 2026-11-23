@@ -220,9 +220,7 @@ test_that(".remote_version_latest_get finds latest version from local files", {
   fn_vec <- c("v0.0.1", "v0.0.2", "v0.1.0", "v1.0.0")
   result <- .remote_version_latest_get(fn_vec, "local", "output")
 
-  # Should return package_version object
-  expect_s3_class(result, "package_version")
-  expect_identical(as.character(result), "1.0.0")
+  expect_identical(result, "1.0.0")
 })
 
 test_that(".remote_version_latest_get handles empty suffixes", {
@@ -233,8 +231,7 @@ test_that(".remote_version_latest_get handles empty suffixes", {
   fn_vec <- c("v0.0.1", "v0.0.2-empty", "v0.1.0")
   result <- .remote_version_latest_get(fn_vec, "local", "output")
 
-  expect_s3_class(result, "package_version")
-  expect_identical(as.character(result), "0.1.0")
+  expect_identical(result, "0.1.0")
 })
 
 test_that(".remote_version_latest_get handles errors gracefully for non-versions", {

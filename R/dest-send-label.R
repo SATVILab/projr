@@ -42,6 +42,15 @@
   yml_title <- .yml_dest_get_title_complete( # nolint
     title, type, NULL, archive_type, always_archive
   )
+  if (type == "local") {
+    if (yml_title[["path-append-label"]] && tolower(label) == "manifests") {
+      stop("The local destination reserves 'manifests' for directory histories.", call. = FALSE)
+    }
+    if (!yml_title[["path-append-label"]] && yml_title[["structure"]] == "latest") {
+      root <- .remote_final_get_local(yml_title$id, FALSE, label, "latest", pre = TRUE, empty = FALSE)
+      .remote_local_check_payload(path_dir_local, root)
+    }
+  }
   remote_list <- .dsl_get_remotes(
     type, yml_title[["id"]], yml_title[["path"]],
     yml_title[["path-append-label"]],
@@ -1579,8 +1588,8 @@
     "Purging remote destination"
   )
   .remote_final_empty(type, remote_dest_full)
-  # remote_dest_full becomes this now,
-  # as it will no longer exist
+  # An old full directory must not mask its replacement empty marker.
+  if (type == "local") .remote_final_rm_if_empty_local(remote_dest_full)
   NULL
 }
 
