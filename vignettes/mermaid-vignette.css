@@ -8,7 +8,7 @@
   overflow-x: auto;
 }
 
-pre.mermaid {
+pre.mermaid svg {
   display: block;
-  text-align: center;
+  margin-inline: auto;
 }

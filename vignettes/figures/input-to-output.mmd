@@ -1,0 +1,28 @@
+---
+config:
+  theme: base
+  themeCSS: ".edgeLabel .label { translate: 0 -13px; } .edgeLabel .labelBkg { fill: transparent; }"
+  htmlLabels: false
+  flowchart:
+    htmlLabels: false
+    useMaxWidth: false
+    padding: 8
+    rankSpacing: 26
+  themeVariables:
+    fontFamily: "Arial, sans-serif"
+    fontSize: 16px
+    lineColor: "#426861"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart LR
+  accTitle: From raw inputs to results and an optional archive
+  accDescr: projr_build() runs your analysis using _raw_data/ and saves the results in _output/. The dotted arrow shows the optional step of archiving both folders in a GitHub release.
+  raw("_raw_data/")
+  output("_output/")
+  archive("GitHub<br/>release")
+  raw -->|"projr_build()"| output
+  output -.-> archive
+  classDef folder fill:#e5f3ed,stroke:#08765e,color:#103d32,stroke-width:1.5px;
+  classDef remote fill:#f2f5f4,stroke:#637e7b,color:#173a36;
+  class raw,output folder;
+  class archive remote;
