@@ -31,15 +31,7 @@
   # loop over types of remotes
   type_vec <- .dest_send_get_type(archive_github, archive_local)
 
-  .cli_debug(
-    "Starting destination send process for {length(type_vec)} remote type(s): {paste(type_vec, collapse = ', ')}"
-  )
-
   for (type in type_vec) {
-    .cli_debug(
-      "Processing remote type: {type}"
-    )
-
     # force archive_type to FALSE if it
     # there is a destination with title "archive"
     # of the same type as `type`.
@@ -317,10 +309,6 @@
                              always_archive) {
   force(title)
 
-  .cli_debug(
-    "Destination '{title}' (type: {type}): Checking if send is needed"
-  )
-
   may_send <- .dest_send_title_check(
     title, type, bump_component, archive_type, always_archive
   )
@@ -332,20 +320,17 @@
     return(invisible(FALSE))
   }
 
-  target <- .yml_dest_get_title_complete(title, type, NULL, archive_type, always_archive)
-  .cli_info("Sending {type} destination '{target$title}' to {target$id}")
   content_vec <- .dest_send_title_get_content(
     title, type, archive_type
-  )
-
-  .cli_debug(
-    "Destination '{title}': Send APPROVED - Processing {length(content_vec)} content label(s): {paste(content_vec, collapse = ', ')}"
   )
 
   # GitHub provides source archives on the release tag itself.
   if (type == "github" && !"code" %in% names(.yml_dir_get(NULL))) {
     content_vec <- setdiff(content_vec, "code")
   }
+  if (!length(content_vec)) return(invisible(TRUE))
+  target <- .yml_dest_get_title_complete(title, type, NULL, archive_type, always_archive)
+  .cli_info("Updating {type} destination '{target$id}'")
   for (x in content_vec) {
     .dest_send_label(
       x, title, type, .build_get_output_run(bump_component),

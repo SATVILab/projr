@@ -148,9 +148,6 @@
 
   if (.is_try_error(result)) {
     if (!is.null(branch)) stop(attr(result, "condition"))
-    .cli_debug(
-      "GitHub release: Failed to create GitHub release '{tag}'"
-    )
     return(invisible(character()))
   }
 
@@ -208,7 +205,7 @@
   if (inherits(result, "try-error")) {
     error_msg <- attr(result, "condition")$message
     .cli_debug(
-      "GitHub release: pb_release_create() failed for tag '{tag}': {error_msg}"
+      "Could not create GitHub release '{tag}' in '{repo}': {error_msg}"
     )
   }
 
@@ -600,7 +597,7 @@
   }
   if (grepl("-empty\\.zip$", remote[["fn"]])) {
     .cli_debug(
-      "GitHub release: Remote is by definition empty, no files to get, returning character(0L)", # nolint
+      "GitHub release '{remote[['tag']]}' has an empty archive marker '{remote[['fn']]}'"
     )
     return(invisible(path_dir_save_local))
   }
@@ -622,12 +619,7 @@
         "GitHub release: Unzipping {basename(path_zip)} to {path_dir_save_local}"
       )
       tryCatch(
-        {
-          utils::unzip(path_zip, exdir = path_dir_save_local)
-          .cli_debug(
-            "GitHub release: Successfully unzipped {basename(path_zip)}"
-          )
-        },
+        utils::unzip(path_zip, exdir = path_dir_save_local),
         error = function(e) {
           .cli_debug(
             "GitHub release: Failed to unzip {basename(path_zip)}: {e$message}"
@@ -657,7 +649,7 @@
   }
   if (grepl("-empty\\.zip$", remote[["fn"]])) {
     .cli_debug(
-      "GitHub release: Remote is by definition empty, no files to get, returning character(0L)", # nolint
+      "GitHub release '{remote[['tag']]}' has an empty archive marker '{remote[['fn']]}'"
     )
     return(character(0L))
   }

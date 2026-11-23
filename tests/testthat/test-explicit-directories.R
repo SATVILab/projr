@@ -150,7 +150,10 @@ test_that("GitHub supplies its source archive without a local code directory", {
   projr_yml_dest_add_github("release", "code", send_cue = "always")
   expect_no_error(projr_yml_check())
   expect_false(dir.exists("code"))
-  testthat::local_mocked_bindings(.dest_send_label = function(...) stop("unexpected local payload"))
+  testthat::local_mocked_bindings(
+    .dest_send_label = function(...) stop("unexpected local payload"),
+    .cli_info = function(...) stop("unexpected send announcement")
+  )
   expect_true(.dest_send_title("release", "github", "patch", FALSE, FALSE))
   expect_error(projr_path_get_dir("code"), "not found")
   expect_error(projr_yml_dest_add_local("archive", "code", "backup"), "code")

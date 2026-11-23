@@ -128,21 +128,14 @@
 #' @noRd
 .remote_write_changelog <- function(type,
                                     remote_pre) {
-  .cli_debug(
-    "Writing CHANGELOG file to {type} remote"
-  )
+  if (type == "project") return(invisible(TRUE))
   remote <- if (type == "github") {
     remote_pre[["fn"]] <- "CHANGELOG.zip"
     remote_pre
   } else {
     remote_pre
   }
-  switch(type,
-    "project" = NULL,
-    .remote_file_add(
-      type, remote, .path_get(), "CHANGELOG.md"
-    )
-  )
+  .remote_file_add(type, remote, .path_get(), "CHANGELOG.md")
   invisible(TRUE)
 }
 
@@ -163,11 +156,10 @@
 .remote_write_version_file <- function(type,
                                        remote_pre,
                                        version_file) {
-  .cli_debug(
-    "Writing VERSION file to {type} remote"
-  )
+  if (type == "project") return(invisible(TRUE))
 
   path_dir_save <- .dir_create_tmp_random()
+  on.exit(unlink(path_dir_save, recursive = TRUE), add = TRUE)
   writeLines(version_file, file.path(path_dir_save, "VERSION"))
   remote <- if (type == "github") {
     remote_pre[["fn"]] <- "VERSION.zip"
@@ -175,21 +167,7 @@
   } else {
     remote_pre
   }
-  switch(type,
-    "project" = NULL,
-    .remote_file_add(
-      type,
-      remote,
-      path_dir_save,
-      "VERSION"
-    )
-  )
-
-  .cli_debug(
-    "Successfully wrote VERSION file to {type} remote"
-  )
-
-  unlink(path_dir_save, recursive = TRUE)
+  .remote_file_add(type, remote, path_dir_save, "VERSION")
   invisible(TRUE)
 }
 
@@ -267,29 +245,8 @@
 #' @noRd
 .remote_get_version_file <- function(type,
                                      remote_pre) {
-  .cli_debug(
-    "Getting VERSION file from {type} remote"
-  )
-
-  result <- switch(type,
-    "project" = character(0L),
-    .remote_get_version_file_non_project(
-      type,
-      remote_pre
-    )
-  )
-
-  if (length(result) > 0) {
-    .cli_debug(
-      "Retrieved VERSION file from {type} remote ({length(result)} line(s))"
-    )
-  } else {
-    .cli_debug(
-      "No VERSION file found on {type} remote"
-    )
-  }
-
-  result
+  if (type == "project") return(character())
+  .remote_get_version_file_non_project(type, remote_pre)
 }
 
 
@@ -304,9 +261,7 @@
                                                  remote_pre) {
   path_dir_save <- .dir_create_tmp_random()
 
-  .cli_debug(
-    "Attempting to download VERSION file from {type} remote"
-  )
+  on.exit(unlink(path_dir_save, recursive = TRUE), add = TRUE)
 
   remote <- if (type == "github") {
     remote_pre[["fn"]] <- "VERSION.zip"
@@ -325,28 +280,16 @@
       )
     },
     error = function(e) {
-      .cli_debug(
-        "Error downloading VERSION file from {type} remote: {e$message}"
-      )
-      character(0L)
+      .cli_debug("Could not read VERSION from {type} destination: {conditionMessage(e)}")
+      NULL
     }
   )
-
-  if (length(path_version) == 0 || !file.exists(path_version)) {
-    .cli_debug(
-      "VERSION file not found on {type} remote"
-    )
-    unlink(path_dir_save, recursive = TRUE)
-    return(character(0L))
+  if (is.null(path_version)) return(character())
+  if (!length(path_version) || !file.exists(path_version)) {
+    .cli_debug("VERSION is absent from {type} destination")
+    return(character())
   }
-
-  .cli_debug(
-    "Successfully downloaded VERSION file from {type} remote"
-  )
-
-  version_file <- .remote_get_version_file_read(path_version)
-  unlink(path_dir_save, recursive = TRUE)
-  version_file
+  .remote_get_version_file_read(path_version)
 }
 
 #' @title Read VERSION contents from disk

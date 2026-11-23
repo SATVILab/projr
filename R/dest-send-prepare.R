@@ -13,29 +13,16 @@
   type_vec <- .dest_send_get_type(archive_github, archive_local)
 
   if (!"github" %in% type_vec) {
-    .cli_debug(
-      "GitHub release preparation: Skipped (no GitHub destinations)"
-    )
     return(invisible(FALSE))
   }
 
   targets <- .dest_github_targets(archive_github, always_archive, NULL)
   tags <- names(targets)
   if (.is_len_0(tags)) {
-    .cli_debug(
-      "GitHub release preparation: No tags required (from config)"
-    )
     return(invisible(FALSE))
   }
 
-  .cli_debug(
-    "GitHub release preparation: Starting for {length(tags)} tag(s)"
-  )
-
   for (x in tags) {
-    .cli_debug(
-      "GitHub release preparation: Preparing tag '{x}'"
-    )
     if (!.remote_check_exists("github", id = x)) {
       .cli_debug(
         "GitHub release preparation: Creating missing tag '{x}'"
