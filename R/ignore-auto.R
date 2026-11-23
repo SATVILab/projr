@@ -162,6 +162,11 @@ projr_ignore_auto <- function() {
   .ignore_auto_ext_rbuild()
   .ignore_auto_ext_git()
 }
+# The README renderer writes Markdown regardless of the format in its YAML.
+.ignore_auto_readme_keep <- function() {
+  c("README.md", if (file.exists(.path_get("README.Rmd"))) "README.html")
+}
+
 .ignore_auto_ext_rbuild <- function() {
   pattern <- c(
     "\\.log",
@@ -212,7 +217,7 @@ projr_ignore_auto <- function() {
     path = .path_get(),
     pattern = pattern
   ) |>
-    setdiff("README.md")
+    setdiff(.ignore_auto_readme_keep())
   .ignore_auto_file_rbuild(path_vec)
 }
 
@@ -262,7 +267,7 @@ projr_ignore_auto <- function() {
     setdiff(
       c(
         "manifest.csv", "CHANGELOG.md", "BUILDLOG.md", "NEWS.md", "CONTRIBUTING.md",
-        "LICENSE", "LICENSE.md", "README.md", "codemeta.json",
+        "LICENSE", "LICENSE.md", .ignore_auto_readme_keep(), "codemeta.json",
         "CITATION.cff"
       )
     )
@@ -369,7 +374,9 @@ projr_ignore_auto <- function() {
     return(invisible(FALSE))
   }
 
-  outputs <- as.character(unlist(lapply(scripts, function(script) {
+  readme <- file.path(root, "README.Rmd")
+  documents <- setdiff(scripts, readme)
+  outputs <- as.character(unlist(lapply(documents, function(script) {
     frontmatter <- tryCatch(.build_frontmatter_get(script), error = function(error) list())
     if (tolower(tools::file_ext(script)) == "qmd") {
       .build_copy_docs_quarto_paths_get(frontmatter, script)
@@ -384,6 +391,11 @@ projr_ignore_auto <- function() {
   intermediates <- as.vector(outer(stems, .ignore_auto_document_suffixes(), paste0))
   source_stems <- tools::file_path_sans_ext(scripts)
   directories <- c(outputs[endsWith(outputs, "_files")], paste0(source_stems, "_files"), paste0(source_stems, "_cache"))
+  if (file.exists(readme)) {
+    # Keep the publication and linked figures even if another document shares its stem.
+    files <- setdiff(files, file.path(root, "README.md"))
+    directories <- setdiff(directories, file.path(root, "README_files"))
+  }
   quarto <- scripts[tolower(tools::file_ext(scripts)) == "qmd"]
   if (length(quarto) > 0L) {
     directories <- c(directories, file.path(unique(c(root, dirname(quarto))), ".quarto"))

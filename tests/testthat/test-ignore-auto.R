@@ -740,6 +740,63 @@ test_that(".ignore_auto_build_tex_rqmd returns FALSE without source files", {
 # Build content directory handling
 # ==============================================================================
 
+test_that("a rendered root README and its linked figures can be committed", {
+  skip_if(.is_test_select())
+  skip_if(.is_test_cran())
+  skip_if_not_installed("rmarkdown")
+  skip_if_not(rmarkdown::pandoc_available())
+  skip_if(Sys.which("git") == "")
+  project <- .test_setup_project(rm_engine = TRUE)
+  usethis::with_project(project,
+    {
+      writeLines(c("---", "output: html_document", "---", "", "```{r scatter}", "plot(1:3)", "```"), "README.Rmd")
+      writeLines("Hand-written HTML", "README.html")
+      dir.create("reports")
+      file.copy("README.Rmd", "reports/README.Rmd")
+      config <- .yml_get("default")
+      config$build$scripts <- "reports/README.Rmd"
+      .yml_set(config, "default")
+
+      # These README rules came from an earlier automatic refresh.
+      writeLines(c(
+        "/README_files/private.png", "# Start of projr section",
+        "# End of configured directory rules", "/README.html", "/README_files/", "# End of projr section"
+      ), ".gitignore")
+      writeLines(c(
+        "# Start of projr section", "# End of configured directory rules",
+        "^README\\.html$", "^README_files/", "^README_files$", "# End of projr section"
+      ), ".Rbuildignore")
+
+      withr::with_dir("reports", projr_ignore_auto())
+      .build_readme_rmd_render(TRUE)
+      figure <- list.files("README_files", "[.]png$", recursive = TRUE, full.names = TRUE)
+      expect_length(figure, 1L)
+      expect_true(any(grepl(figure, readLines("README.md"), fixed = TRUE)))
+      expect_identical(readLines("README.html"), "Hand-written HTML")
+
+      ignored <- function(path) system2("git", c("check-ignore", "--no-index", "--quiet", "--", path)) == 0L
+      kept <- c("README.Rmd", "README.md", "README.html", figure)
+      expect_false(any(vapply(kept, ignored, logical(1))))
+      expect_true(all(vapply(c(
+        "README_files/private.png", "README.knit.md", "README_cache/cache",
+        "reports/README.html", "reports/README_files/dependency.js"
+      ), ignored, logical(1))))
+      patterns <- readLines(".Rbuildignore")
+      expect_false(any(vapply(patterns, function(p) any(grepl(p, c("README.html", "README.md", figure))), logical(1))))
+      expect_identical(system2("git", c("add", "--", kept)), 0L)
+      expect_setequal(system2("git", c("ls-files", "--", kept), stdout = TRUE), kept)
+
+      writeLines(c("---", "format: {html: default, gfm: default}", "---"), "README.qmd")
+      projr_ignore_auto()
+      expect_true(ignored("README.html"))
+      expect_false(ignored("README.md"))
+      expect_false(ignored(figure))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
 test_that("automatic document ignores are anchored to nested paths", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
