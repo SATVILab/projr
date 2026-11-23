@@ -93,6 +93,9 @@ The build validates the environment before starting:
 6. If push is enabled, the GitHub remote must exist and the local branch must not be behind
 
 Run `projr_build_check_packages()` at any time to check package requirements.
+Production builds also check for `rmarkdown` when the project contains
+`README.Rmd`, even if the selected scripts are all R files or the list is empty.
+A README that uses the project package also requires `pkgbuild`.
 
 ### Remote destination preparation
 
