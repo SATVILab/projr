@@ -1,28 +1,17 @@
-#' @title Get active `projr` settings and checks for validity
+#' @title Read project settings
 #'
 #' @description
-#' Gets active `projr` settings, which merges settings and resolves conflicts
-#' between local (`_projr-local.yml`), profile (`_projr-<projr>.yml` or as
-#' <key>-<profile> keys in `_projr.yml`)
-#' and default (`_projr.yml`) settings.
-#' Where there are conflicts, local settings has highest precedence
-#' (i.e. are always preferred) and default settings have lowest precedence
-#' (i.e. are never preferred).
+#' With `profile = NULL`, local settings in `_projr-local.yml` override the
+#' active profile settings, which override the defaults in `_projr.yml`.
+#' Supply a profile name to read its own configuration.
 #'
-#' Note that an error is thrown if the active settings
-#' are invalid.
-#' @param profile character.
-#' \code{projr} profile to use.
-#' If \code{NULL}, then the active profile is used.
-#' Default is `NULL`.
-#' @param check logical.
-#' Whether to check the validity of the settings.
-#' Default is `FALSE`.
-#'
-#' @seealso.yml_get_unchecked.yml_check
-#'
-#' @return A named list, if the settings are valid.
-#'
+#' @param profile A profile name, or `NULL` for the merged active settings.
+#'   Use `"default"` to read the base configuration, `"local"` to read local
+#'   overrides, or a named profile to read `_projr-<profile>.yml`.
+#' @param check Whether to validate the settings and report an error if they
+#'   are invalid. Defaults to `FALSE`.
+#' @seealso [projr_yml_check()]
+#' @return A named list of project settings.
 #' @export
 projr_yml_get <- function(profile = NULL, check = FALSE) {
   .assert_flag(check, TRUE)
@@ -30,27 +19,10 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   .yml_get(profile)
 }
 
-#' @title Get active `projr` settings and do no check
-#'
-#' @description A list of the active `projr` settings,
-#' without doing any error checking.
-#' Gets active `projr` settings, which merges settings and resolves conflicts
-#' between local (`_projr-local.yml`), profile (`_projr-<projr>.yml` or as
-#' <key>-<profile> keys in `_projr.yml`)
-#' and default (`_projr.yml`) settings.
-#' Where there are conflicts, local settings has highest precedence
-#' (i.e. are always preferred) and default settings have lowest precedence
-#' (i.e. are never preferred).
-#' @param profile character.
-#' If supplied, the specific profile file to read in.
-#' "default" loads `_projr.yml`, but another value
-#' loads `_projr-<profile>.yml`.
-#' If NULL, then the active profile is used.
-#' It not supplied, then treated as `NULL`.
-#'
-#' @return A named list.
-#'
-#' @seealso.yml_get.yml_check
+#' @title Read project settings without validation
+#' @inherit projr_yml_get description return
+#' @param profile A profile name, or `NULL` for the merged active settings.
+#' @seealso [projr_yml_get()], [projr_yml_check()]
 .yml_get <- function(profile) {
   if (!is.null(profile)) {
     return(.yml_get_profile(profile))

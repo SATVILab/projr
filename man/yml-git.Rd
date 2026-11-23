@@ -58,12 +58,12 @@ If \code{TRUE}, then if the settings are the same as the default
 then the settings are removed from \verb{_projr.yml}.
 Default is \code{TRUE}.}
 
-\item{profile}{character.
-Profile to add the script to.
-If \verb{"default"`` (the default), the script is added to the default profile, which is }_projr.yml\verb{. If }NULL\verb{, then the active profile is used (i.e the merge of }_projr-local.yml\verb{, }_projr-\if{html}{\out{<profile>}}.yml\code{and}_projr.yml\verb{) and written to }_projr.yml\verb{. If another character vector, then the corresponding profile is used and written to }_projr-\if{html}{\out{<profile>}}.yml`.}
+\item{profile}{Profile to update. The default, \code{"default"}, updates
+\verb{_projr.yml}. A named profile updates \verb{_projr-<profile>.yml}.
+With \code{NULL}, read the merged active settings and write to \verb{_projr.yml}.}
 }
 \description{
-.yml_git_set` sets Git options for the project.
+\code{projr_yml_git_set()} sets Git options for the project.
 
 The options are:
 \itemize{
@@ -76,10 +76,10 @@ project builds.
 }
 The default is to leave all the settings unchanged.
 
-If these settings are not setting in \verb{_projr.yml},
+If these settings are absent from \verb{_projr.yml},
 then the default is to commit, add untracked files and push.
 
-.yml_git_set_default\verb{ sets all Git options to default (}TRUE`).
+\code{projr_yml_git_set_default()} sets all Git options to their default (\code{TRUE}).
 }
 \examples{
 \dontrun{

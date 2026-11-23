@@ -2,32 +2,21 @@
 % Please edit documentation in R/yml.R
 \name{.yml_get}
 \alias{.yml_get}
-\title{Get active \code{projr} settings and do no check}
+\title{Read project settings without validation}
 \usage{
 .yml_get(profile)
 }
 \arguments{
-\item{profile}{character.
-If supplied, the specific profile file to read in.
-"default" loads \verb{_projr.yml}, but another value
-loads \verb{_projr-<profile>.yml}.
-If NULL, then the active profile is used.
-It not supplied, then treated as \code{NULL}.}
+\item{profile}{A profile name, or \code{NULL} for the merged active settings.}
 }
 \value{
-A named list.
+A named list of project settings.
 }
 \description{
-A list of the active \code{projr} settings,
-without doing any error checking.
-Gets active \code{projr} settings, which merges settings and resolves conflicts
-between local (\verb{_projr-local.yml}), profile (\verb{_projr-<projr>.yml} or as
-\if{html}{\out{<key>}}-\if{html}{\out{<profile>}} keys in \verb{_projr.yml})
-and default (\verb{_projr.yml}) settings.
-Where there are conflicts, local settings has highest precedence
-(i.e. are always preferred) and default settings have lowest precedence
-(i.e. are never preferred).
+With \code{profile = NULL}, local settings in \verb{_projr-local.yml} override the
+active profile settings, which override the defaults in \verb{_projr.yml}.
+Supply a profile name to read its own configuration.
 }
 \seealso{
-.yml_get.yml_check
+\code{\link[=projr_yml_get]{projr_yml_get()}}, \code{\link[=projr_yml_check]{projr_yml_check()}}
 }
