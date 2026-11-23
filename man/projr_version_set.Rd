@@ -18,7 +18,8 @@ Defaults to \code{TRUE}.}
 Invisibly returns \code{TRUE} if successful.
 }
 \description{
-Sets the project version manually in the \code{DESCRIPTION} file and optionally in a \code{VERSION} file.
+Updates the \code{Version} field of \code{DESCRIPTION} when present. Otherwise,
+stores the project version in a root \code{VERSION} file.
 This is useful in cases where you need to increment the version manually, for example,
 if a collaborator has pushed changes and you want to manually set your version before merging.
 }

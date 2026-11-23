@@ -403,8 +403,7 @@ projr_build_dev <- function(scripts = NULL,
 }
 
 .build_ensure_version <- function() {
-  if (!file.exists(.path_get("VERSION")) &&
-    !file.exists(.path_get("DESCRIPTION"))) {
+  if (!.version_exists()) {
     projr_version_set("0.0.1")
   }
 }
