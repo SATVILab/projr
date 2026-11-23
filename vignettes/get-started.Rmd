@@ -15,7 +15,8 @@ fresh copy of the project.
 
 ## Start with a GitHub project
 
-Clone your GitHub repository and open its folder in R or RStudio. Use a
+Clone your GitHub repository (download a working copy with Git) and open
+its folder in R or RStudio. Use a
 repository where you can push commits and create releases. For a brand-new
 repository, add a README on GitHub before you clone it so the release
 has a commit to attach to. The input files
@@ -78,9 +79,18 @@ belong to it.
 
 ## Restore the inputs and run the analysis again
 
-Clone the repository into a new folder. To reproduce an older result,
-check out the Git commit for that build first. The build commits have
-messages such as `Build v0.1.0: Update measurements`.
+Clone the repository into a new folder. To reproduce the most recent
+build, open that copy as it is. For an older result, open a terminal in
+the new folder and list the saved builds.
+
+```sh
+git log --oneline --grep="^Build v"
+```
+
+Find the release version and description you want, such as
+`Build v0.1.0: Update measurements`. Copy the short identifier at the
+start of that line and run `git checkout --detach IDENTIFIER`, replacing
+`IDENTIFIER` with the one you copied. This loads the code for that build.
 
 Open that checkout in R to restore its inputs and run a local preview.
 
