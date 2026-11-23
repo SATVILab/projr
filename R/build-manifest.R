@@ -79,7 +79,7 @@
 
 .build_manifest_post_get_path <- function(output_run) {
   if (output_run) {
-    return(.path_get("_projr", "manifests"))
+    return(.path_get(".projr", "manifests"))
   }
   .dir_get_cache_auto_version("manifest.csv", profile = NULL)
 }

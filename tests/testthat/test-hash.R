@@ -509,7 +509,7 @@ test_that("hashing settings apply across profiles and share directory histories"
       expect_identical(.yml_settings_hashing(), list(approach = "legacy", cores = 1L))
       second <- .manifest_hash_label("raw-data", TRUE, "1.1")
       .manifest_store_write(second)
-      index <- .manifest_store_index(.path_get("_projr", "manifests"), "raw-data")
+      index <- .manifest_store_index(.path_get(".projr", "manifests"), "raw-data")
       expect_identical(index$directory_version, c("v1.0", "v1.0"))
       expect_length(unique(index$snapshot), 1L)
       expect_identical(first$hash, second$hash)

@@ -11,9 +11,9 @@ Configuration for autonomous coding agents (e.g., Google Jules, GitHub Copilot) 
 Key architectural patterns:
 
 - **Single build entry point**: `projr_build_patch/minor/major()` for production; `projr_build_dev()` for development.
-- **YAML-driven configuration**: Create `_projr.yml` at the project root by default. Also read default, named and local configuration files in `_projr/config/`. A root file takes precedence over a nested file of the same name. Update the selected file in place and interpret configured paths relative to the project root.
-- **Directory paths**: Require a default configuration at the root or in `_projr/config/`. On the first build, write the starter at the project root if both supported locations lack a base YAML. The starter disables Git outside a repository and disables pushing for a repository with no upstream. Keep existing configurations intact. Use only directory labels declared with a path in the merged active configuration. The initialization template declares conventional paths explicitly. Require a cache when staging outputs and a docs directory when rendering documents. Resolve configured paths, safe build paths and ignore rules from the project root, including when called from a nested renderer working directory.
-- **Manifest tracking**: Production builds record each hashed directory independently under `_projr/manifests/<label>/`. Its `versions.csv` maps project versions to the earliest matching directory version and the SHA-256 of a file list. Each distinct list of relative paths and MD5 hashes is stored once.
+- **YAML-driven configuration**: Create `_projr.yml` at the project root by default. Also read default, named and local configuration files in `.projr/config/`. A root file takes precedence over a nested file of the same name. Update the selected file in place and interpret configured paths relative to the project root.
+- **Directory paths**: Require a default configuration at the root or in `.projr/config/`. On the first build, write the starter at the project root if both supported locations lack a base YAML. The starter disables Git outside a repository and disables pushing for a repository with no upstream. Keep existing configurations intact. Use only directory labels declared with a path in the merged active configuration. The initialization template declares conventional paths explicitly. Require a cache when staging outputs and a docs directory when rendering documents. Resolve configured paths, safe build paths and ignore rules from the project root, including when called from a nested renderer working directory.
+- **Manifest tracking**: Production builds record each hashed directory independently under `.projr/manifests/<label>/`. Its `versions.csv` maps project versions to the earliest matching directory version and the SHA-256 of a file list. Each distinct list of relative paths and MD5 hashes is stored once.
 - **Remote destinations**: A unified dispatcher pattern (`R/remote.R`) routes file operations to local, GitHub, or OSF backends.
 - **Internal vs. exported functions**: Internal helpers use a `.` prefix (e.g., `.hash_file()`); exported functions use the `projr_` prefix (e.g., `projr_build_patch()`).
 
@@ -43,6 +43,8 @@ Production builds use `build.renv: auto` by default. Snapshot when the project h
 - Create declared output directories before production scripts run so scripts can write directly to their configured paths on the first build.
 - Collect development copies in the build cache and production copies in the configured output before hashing or archiving it. Preserve existing source-side `output` settings. A request made in both places copies once.
 - Reserve the receiving subdirectory for the included label. Reject cycles, conflicting files or links, and directory paths that would copy recursively or clear the source.
+
+Store package bookkeeping under `.projr/` (optional configuration in `config/`, versioned directory histories in `manifests/`, and untracked build diagnostics and history in `logs/`). Keep the first-build starter at the project root as `_projr.yml`. A build or restore may move recognized legacy state from `_projr/`; ordinary reads must work without moving files.
 
 ### Directory ignores across profiles
 

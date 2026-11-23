@@ -28,7 +28,7 @@ test_that("a project starts with a default config and uses only declared directo
 test_that("profile directories, staged outputs, and ignores are rooted at _projr.yml", {
   skip_if(.is_test_select())
   project <- withr::local_tempdir()
-  config <- file.path(project, "_projr", "config")
+  config <- file.path(project, ".projr", "config")
   nested <- file.path(project, "scripts", "reports")
   fs::dir_create(c(config, nested))
   yaml::write_yaml(list(directories = list(
@@ -101,7 +101,7 @@ test_that("both first-build entry points write a root starter and retain existin
   skip_if(.is_test_select())
   for (development in c(TRUE, FALSE)) {
     project <- withr::local_tempdir()
-    config <- file.path(project, "_projr", "config")
+    config <- file.path(project, ".projr", "config")
     nested <- file.path(project, "analyses", "report")
     fs::dir_create(c(config, nested))
     yaml::write_yaml(list(build = list(scripts = list())), file.path(config, "_projr-offline.yml"))

@@ -286,14 +286,13 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     paste0("_projr-", profile, ".yml")
   }
   root <- .path_get()
-  primary <- file.path(root, filename)
-  nested <- file.path(root, "_projr/config", filename)
-  if (!file.exists(primary) && file.exists(nested)) nested else primary
+  paths <- c(file.path(root, filename), file.path(root, c(".projr/config", "_projr/config"), filename))
+  paths[match(TRUE, file.exists(paths), nomatch = 1L)]
 }
 
 .yml_config_files <- function(root = .path_get()) {
   pattern <- "^_projr(-[[:alnum:]_-]+)?\\.yml$"
-  paths <- file.path(root, c("", "_projr/config"))
+  paths <- file.path(root, c("", ".projr/config", "_projr/config"))
   as.character(fs::path_rel(list.files(paths, pattern = pattern, full.names = TRUE), root))
 }
 

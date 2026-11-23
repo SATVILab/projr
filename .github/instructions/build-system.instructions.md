@@ -49,7 +49,7 @@ Guidelines for working with the projr build system, including build processes, l
 ### Log Directory Structure
 
 ```
-cache/projr/log/
+.projr/logs/
 ├── output/                    # Production build logs
 │   ├── history/builds.md      # All build records, newest first
 │   └── output/YYYY-MMM-DD/    # Daily log folders
@@ -96,7 +96,7 @@ When `PROJR_OUTPUT_LEVEL="debug"`, detailed messages include:
 
 ### Purpose
 
-Tracks file hashes independently for each directory under `_projr/manifests/`.
+Tracks file hashes independently for each directory under `.projr/manifests/`.
 
 ### Manifest Structure
 

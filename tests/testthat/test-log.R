@@ -1,4 +1,4 @@
-# Test detailed projr logging system (cache/projr/log/)
+# Test detailed projr logging system (.projr/logs/)
 
 test_that(".log_dir_get_base returns correct path", {
   skip_if(.is_test_cran())
@@ -15,8 +15,7 @@ test_that(".log_dir_get_base returns correct path", {
       expect_equal(length(log_base), 1)
       expect_true(nzchar(log_base))
 
-      # Path should end with 'log'
-      expect_true(basename(log_base) == "log")
+      expect_equal(log_base, as.character(.path_get(".projr", "logs")))
     }
   )
 })

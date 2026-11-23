@@ -38,7 +38,7 @@
 #' These functions restore artefact directories from remote sources:
 #'
 #' - `projr_content_update()` restores artefacts in an existing local project without any cloning required.
-#'   Reads directory histories in `_projr/manifests/` or a legacy root `manifest.csv`.
+#'   Reads directory histories in `.projr/manifests/` or a legacy root `manifest.csv`.
 #' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path),
 #'   then restores artefacts from that repository's remote sources.
 #' - `projr_restore_repo_wd()` clones directly into the current working directory, then restores artefacts.
@@ -93,7 +93,7 @@ projr_content_update <- function(label = NULL,
   .assert_flag(clear, TRUE)
 
   .title <- title
-  if (!.manifest_store_ready(.path_get("_projr", "manifests")) &&
+  if (!.manifest_store_ready(.manifest_project_dir()) &&
       !file.exists(.path_get("manifest.csv"))) {
     msg <- "No project manifest found. Build the project before restoring." # nolint
     msg <- if (clear) paste0(msg, " No files cleared.") else msg
@@ -238,7 +238,7 @@ projr_content_update <- function(label = NULL,
 }
 
 .content_update_label_recorded <- function(label) {
-  directory <- .path_get("_projr", "manifests")
+  directory <- .manifest_project_dir()
   if (.manifest_store_ready(directory)) {
     return(nrow(.manifest_store_index(directory, label)) > 0L)
   }

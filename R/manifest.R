@@ -149,7 +149,7 @@
 }
 
 .manifest_read_project <- function(label = NULL, version = NULL, fn = NULL) {
-  path_dir <- .path_get("_projr", "manifests")
+  path_dir <- .manifest_project_dir()
   if (.manifest_store_ready(path_dir)) {
     return(.manifest_store_read(path_dir, label, version, fn))
   }
@@ -273,7 +273,7 @@
   # get lowest version available, if version_comp not provided
   version_comp <-
     .manifest_get_version_earliest_match_get_version_comp(version_comp)
-  store <- .path_get("_projr", "manifests")
+  store <- .manifest_project_dir()
   if (.manifest_store_ready(store)) {
     index <- .manifest_store_index(store, label)
     versions <- package_version(sub("^v", "", index$version))

@@ -39,7 +39,7 @@ test_that("a clone restores the checked-out build from its implicit GitHub archi
     expect_identical(readLines("_reference/key.txt"), "constant")
     unlink(c("_raw_data", "_reference"), recursive = TRUE)
     expect_equal(system2("git", c("checkout", "--quiet", "--detach", first_build)), 0L)
-    unlink(c("_projr/manifests", "manifest.csv", "_output"), recursive = TRUE)
+    unlink(c(".projr/manifests", "manifest.csv", "_output"), recursive = TRUE)
     projr_restore()
     expect_identical(readLines("_raw_data/data.txt"), "first")
     expect_identical(readLines("_reference/key.txt"), "constant")
@@ -69,7 +69,7 @@ test_that("restore verifies an earlier matching archive before replacing local f
       legacy <- tempfile()
       utils::write.csv(rows, legacy, row.names = FALSE)
       legacy_snapshot <- .restore_build_snapshot(tempfile(), legacy, "raw-data", "v0.0.3")
-      current_snapshot <- .restore_build_snapshot(.path_get("_projr", "manifests"), legacy, "raw-data", "v0.0.3")
+      current_snapshot <- .restore_build_snapshot(.path_get(".projr", "manifests"), legacy, "raw-data", "v0.0.3")
       expect_identical(legacy_snapshot$id, current_snapshot$id)
       expect_identical(legacy_snapshot$versions, c("v0.0.1", "v0.0.3"))
       archive <- tempfile(fileext = ".zip")
@@ -118,7 +118,7 @@ test_that("restore recovers a missing immutable file list and VERSION from recor
       .remote_write_manifest("github", c(tag = "archive"), rbind(earlier, rows))
       unlink(c(
         .path_get("VERSION"), .path_get("DESCRIPTION"),
-        Sys.glob(.path_get("_projr", "manifests", "raw-data", "files-*.csv"))
+        Sys.glob(.path_get(".projr", "manifests", "raw-data", "files-*.csv"))
       ))
       writeLines(c("# BUILDLOG", "", "#### v0.0.2: Published"), .path_get("BUILDLOG.md"))
       expect_true(projr_restore("raw-data"))
