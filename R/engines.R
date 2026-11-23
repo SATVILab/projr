@@ -9,10 +9,12 @@
     stop("Both Quarto and Bookdown projects are present.", call. = FALSE)
   }
 
-  automatic_project <- is.null(scripts) && length(project) > 0L
-  if (is.null(scripts)) {
+  automatic <- is.null(scripts) || all(startsWith(scripts, "!"))
+  automatic_project <- automatic && length(project) > 0L
+  if (automatic) {
+    excluded <- if (length(scripts)) .scripts_get_exc(scripts) else character()
     scripts <- if (automatic_project) .scripts_get_inc_all_r() else .scripts_get_inc_all()
-    scripts <- scripts[!dir.exists(scripts)]
+    scripts <- setdiff(scripts[!dir.exists(scripts)], excluded)
   }
   scripts <- scripts[!scripts %in% c("README.Rmd", as.character(.path_get("README.Rmd")))]
 
@@ -25,7 +27,11 @@
   steps <- stats::setNames(as.list(scripts), engines)
 
   if (automatic_project) {
-    return(c(stats::setNames(list(NULL), project), steps))
+    steps <- c(stats::setNames(list(NULL), project), steps)
+    types <- if (project == "bookdown") c("rmd", "md") else c("qmd", "rmd", "md", "ipynb")
+    documents <- excluded[tolower(tools::file_ext(excluded)) %in% types]
+    if (length(documents)) attr(steps, "excluded_documents") <- documents
+    return(steps)
   }
   if (length(project) > 0L) {
     extension <- if (project == "quarto_project") "qmd" else "rmd"

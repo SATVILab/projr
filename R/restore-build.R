@@ -38,7 +38,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
   labels <- unique(label)
   .assert_in(labels, declared, TRUE)
   version <- .restore_build_version(version)
-  missing_version <- !file.exists(.path_get("DESCRIPTION")) && !file.exists(.path_get("VERSION"))
+  missing_version <- !.version_exists()
   if (missing_version && is.na(Sys.getenv("PROJR_BUILD_VERSION", unset = NA_character_))) {
     # Resolve @version in directory paths before the recovered VERSION is installed.
     Sys.setenv(PROJR_BUILD_VERSION = version)
@@ -159,8 +159,9 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
 .restore_build_version <- function(version) {
   if (!is.null(version)) {
     version <- .version_v_add(version)
-  } else if (file.exists(.path_get("VERSION")) || file.exists(.path_get("DESCRIPTION"))) {
-    if (!("dev" %in% .version_format_list_get(NULL)$component) || !.build_is_current_version_dev()) {
+  } else if (.version_exists()) {
+    components <- .version_format_list_get(NULL)$component
+    if (!"dev" %in% components || length(.version_current_vec_get()) != length(components)) {
       return(.version_get_v())
     }
   }

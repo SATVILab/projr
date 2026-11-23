@@ -48,20 +48,40 @@
     return(function() invisible(NULL))
   }
 
-  original <- readBin(path, "raw", n = file.size(path))
-  function() {
-    if (!is.null(original)) {
-      writeBin(original, path)
-      original <<- NULL
+  originals <- list()
+  restore <- function(save = NULL) {
+    if (is.null(save)) {
+      for (path in names(originals)) writeBin(originals[[path]], path)
+      originals <<- list()
+    } else if (is.null(originals[[save]])) {
+      originals[[save]] <<- readBin(save, "raw", n = file.size(save))
     }
     invisible(NULL)
   }
+  restore(save = as.character(fs::path_real(path)))
+  restore
 }
 
-.build_engines_override_project <- function(engines) {
-  if (any(names(engines) %in% c("quarto_project", "bookdown"))) {
-    .dir_set_docs_safe(.dir_get_label_safe_path("docs"), "docs")
+.build_engines_override_project <- function(engines, restore = .build_engines_backup_project(engines),
+                                            quarto_profile = NULL) {
+  project <- intersect(names(engines), c("quarto_project", "bookdown"))
+  if (!length(project)) {
+    return(engines)
   }
+
+  excluded <- attr(engines, "excluded_documents", exact = TRUE)
+  if (length(excluded)) {
+    excluded <- as.character(fs::path_rel(excluded, start = .path_get()))
+    render <- if (project == "quarto_project") {
+      .build_quarto_exclude(excluded, restore, quarto_profile)
+    } else {
+      .build_bookdown_exclude(excluded)
+    }
+    if (!render) {
+      return(engines[names(engines) != project])
+    }
+  }
+  .dir_set_docs_safe(.dir_get_label_safe_path("docs"), "docs")
   if (!is.null(engines[["quarto_project"]])) {
     scripts <- as.list(engines[["quarto_project"]])
     config <- .yml_quarto_get()
@@ -77,5 +97,120 @@
     config[["rmd_subdir"]] <- FALSE
     .yml_bd_set(config)
   }
-  invisible(NULL)
+  invisible(engines)
+}
+
+.build_quarto_exclude <- function(excluded, restore, profile) {
+  # Ask Quarto which files the project would render, including nested inputs and globs.
+  root <- .path_get()
+  .dep_install("quarto")
+  inspection <- quarto::quarto_inspect(root, profile = profile)
+  inputs <- inspection$files$input
+  inputs <- as.character(fs::path_rel(as.character(unlist(inputs, use.names = FALSE)), start = root))
+  if (!any(inputs %in% excluded)) {
+    return(TRUE)
+  }
+  inputs <- setdiff(inputs, excluded)
+  if (!length(inputs)) {
+    return(FALSE)
+  }
+
+  book <- identical(inspection$config$project$type, "book")
+  if (book && !any(startsWith(inputs, "index."))) {
+    stop("Quarto books require an index page when other chapters are selected.", call. = FALSE)
+  }
+  main <- as.character(fs::path_real(.path_get("_quarto.yml")))
+  # Quarto merges render lists and book chapters across the active YAML files.
+  # An excluded chapter in an include or profile can override the root selection.
+  files <- inspection$files$config
+  for (path in unique(as.character(fs::path_real(files[file.exists(files)])))) {
+    original <- yaml::read_yaml(path, handlers = list(seq = identity))
+    config <- original
+    if (path == main) {
+      config$project$render <- as.list(inputs)
+    } else if (length(config$project$render)) {
+      patterns <- unlist(config$project$render, use.names = FALSE)
+      if (!all(startsWith(patterns, "!") | fs::path_norm(patterns) %in% inputs)) config$project$render <- NULL
+    }
+    if (book) {
+      for (field in c("chapters", "appendices")) {
+        if (!is.null(config$book[[field]])) {
+          config$book[[field]] <- .build_quarto_filter_chapters(config$book[[field]], excluded)
+        }
+      }
+      references <- config$book$references
+      if (!is.null(references) && !length(.build_quarto_filter_chapters(list(references), excluded))) {
+        config$book$references <- NULL
+      }
+    }
+    if (!identical(config, original)) {
+      if (!fs::path_has_parent(path, fs::path_real(root))) {
+        stop("Excluding project documents would change Quarto configuration outside the checkout: ", path,
+          call. = FALSE
+        )
+      }
+      restore(save = path)
+      yaml::write_yaml(config, path)
+    }
+  }
+  TRUE
+}
+
+.build_quarto_filter_chapters <- function(chapters, excluded) {
+  result <- list()
+  for (chapter in chapters) {
+    if (is.list(chapter)) {
+      if (!is.null(chapter$chapters)) {
+        chapter$chapters <- .build_quarto_filter_chapters(chapter$chapters, excluded)
+        if (!length(chapter$chapters)) {
+          # A part with its own file can still render after all its children are excluded.
+          if (!is.null(chapter$part) && file.exists(chapter$part) &&
+            !fs::path_norm(chapter$part) %in% excluded) {
+            result <- c(result, list(chapter$part))
+          }
+          next
+        }
+      }
+      # A part may have its own introductory document. Keep its remaining children.
+      if (!is.null(chapter$part) && fs::path_norm(chapter$part) %in% excluded) {
+        result <- c(result, chapter$chapters)
+        next
+      }
+      if (!is.null(chapter$href) && fs::path_norm(chapter$href) %in% excluded) next
+    } else if (fs::path_norm(chapter) %in% excluded) {
+      next
+    }
+    result <- c(result, list(chapter))
+  }
+  result
+}
+
+.build_bookdown_exclude <- function(excluded) {
+  config <- .yml_bd_get()
+  pattern <- if (isTRUE(config$include_md)) "[.]R?md$" else "[.]Rmd$"
+  chapters <- config$rmd_files %||% list.files(pattern = pattern, ignore.case = TRUE)
+  subdir <- config$rmd_subdir
+  # Bookdown adds discovered subdirectory files even when rmd_files is set.
+  extra <- if (isTRUE(subdir) || is.character(subdir)) {
+    dirs <- if (isTRUE(subdir)) "." else subdir
+    files <- fs::path_norm(list.files(dirs, pattern, recursive = TRUE, full.names = TRUE, ignore.case = TRUE))
+    files[dirname(files) != "."]
+  }
+  groups <- if (is.null(names(chapters))) list(chapters) else chapters
+  groups <- lapply(groups, function(group) {
+    files <- as.character(fs::path_norm(unique(c(unlist(group, use.names = FALSE), extra))))
+    files <- files[!startsWith(basename(files), "_")]
+    setdiff(files, paste0(config$book_filename %||% "_main", c(".md", ".Rmd")))
+  })
+  if (!any(unlist(groups, use.names = FALSE) %in% excluded)) {
+    return(TRUE)
+  }
+  groups <- lapply(groups, function(group) as.list(setdiff(group, excluded)))
+  if (!any(lengths(groups))) {
+    return(FALSE)
+  }
+  config$rmd_files <- if (is.null(names(groups))) groups[[1L]] else groups
+  config$rmd_subdir <- FALSE
+  .yml_bd_set(config)
+  TRUE
 }

@@ -89,14 +89,10 @@ projr_init <- function(
 
   # desc
   .init_desc_std(desc)
+  .init_ignore_starter(.path_get())
 
   # initial VERSION file
-  if (
-    !file.exists(.path_get("VERSION")) &&
-      !file.exists(.path_get("DESCRIPTION"))
-  ) {
-    projr_version_set("0.0.1")
-  }
+  .build_ensure_version()
 
   # directories
   .init_dir_std(dir)
