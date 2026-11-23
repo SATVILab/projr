@@ -198,6 +198,14 @@ choose the component for a versioned build. `msg` records a build description.
 builds to `"never"`. Pass `clear_output = NULL` to read `PROJR_CLEAR_OUTPUT`. For console and file logging, profile
 environment files, and authentication, see `vignette("environment")`.
 
+If you add a package `DESCRIPTION` to an existing renv analysis, renv can
+choose a new library when the next R session starts. When that library is
+empty apart from renv, builds reuse the populated analysis library for this
+checkout. The build and its renderers use the same packages. A populated new
+library takes precedence, and explicit renv library settings are respected.
+A missing renderer dependency stops the build with the package names and the
+installation command for the project library.
+
 ## Hashing and history
 
 ```yaml

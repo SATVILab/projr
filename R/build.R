@@ -290,6 +290,8 @@ projr_build_dev <- function(scripts = NULL,
   # set and unset environment variables
   .env_set(unset = TRUE)
   on.exit(.env_unset(), add = TRUE, after = FALSE)
+  restore_library <- .build_renv_library_start()
+  on.exit(restore_library(), add = TRUE, after = FALSE)
   output_run <- .build_get_output_run(bump_component)
   version_run_on_list <- if (output_run) {
     .build_ensure_version()
