@@ -37,11 +37,15 @@
 #' }
 #' }
 projr_build_check_packages <- function(profile = NULL) {
+  restore_library <- .build_renv_library_start()
+  on.exit(restore_library())
   scripts <- .scripts_get(NULL, "patch", profile)
-  .build_check_packages(profile, names(.engines_get(scripts)))
+  engines <- .engines_get(scripts)
+  missing <- .build_renv_missing_renderers(engines, inspect = FALSE)
+  .build_check_packages(profile, names(engines), missing)
 }
 
-.build_check_packages <- function(profile, engines) {
+.build_check_packages <- function(profile, engines, render_missing = character()) {
   # Collect all packages that will be needed during the build
   pkg_required <- character(0)
 
@@ -75,6 +79,13 @@ projr_build_check_packages <- function(profile = NULL) {
       logical(1)
     )
   ]
+
+  if (length(render_missing)) {
+    # A renderer can be installed and fail to load because an import is missing.
+    wrappers <- intersect(pkg_missing, c("quarto", "bookdown"))
+    installed <- basename(find.package(wrappers, lib.loc = .libPaths(), quiet = TRUE))
+    return(.build_renv_render_status(union(render_missing, setdiff(pkg_missing, installed))))
+  }
 
   # If all packages are available
   if (length(pkg_missing) == 0L) {
