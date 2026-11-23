@@ -260,6 +260,7 @@ projr_build_dev <- function(scripts = NULL,
   on.exit(unlink(tmp), add = TRUE)
   yaml::write_yaml(config, tmp)
   fs::file_copy(tmp, file.path(root, "_projr.yml"))
+  .init_ignore_starter(root)
   invisible(TRUE)
 }
 

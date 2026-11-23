@@ -1,3 +1,69 @@
+test_that("builds preserve manual ignore bytes around a regenerated block", {
+  skip_if(.is_test_select())
+  skip_if(.is_test_cran())
+  project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
+  usethis::with_project(project, {
+    prefix <- "\ufeff# Start of projr section follows my rules  \r\n.vdoc.*\n# Start of projr section\r\n"
+    suffix <- "# End of projr section\r\n!.vdoc.keep\n.vdoc.*"
+    paths <- c(".gitignore", ".Rbuildignore")
+    for (path in paths) writeBin(charToRaw(paste0(prefix, ".vdoc.*\n", suffix)), path)
+    projr_build_dev(project = project, scripts = character())
+    # Initialization of an existing project must also retain a repeated manual
+    # rule after a negation, even if a legacy managed block used the same rule.
+    projr_init_ignore()
+    for (path in paths) {
+      bytes <- readBin(path, "raw", file.size(path))
+      expect_identical(head(bytes, nchar(prefix, type = "bytes")), charToRaw(prefix))
+      expect_identical(tail(bytes, nchar(suffix, type = "bytes")), charToRaw(suffix))
+      expect_false(".vdoc.*" %in% .ignore_path_get_list(path)$content)
+    }
+    # A comment can mention a delimiter without declaring a managed block.
+    user_rules <- c("# Start of projr section example", ".vdoc.*", "# End of projr section example")
+    writeLines(user_rules, ".gitignore")
+    projr_ignore_auto()
+    expect_identical(head(readLines(".gitignore"), 3L), user_rules)
+
+    malformed <- c(charToRaw(".vdoc.*"), as.raw(0))
+    writeBin(malformed, ".gitignore")
+    expect_error(projr_ignore_auto(), "NUL byte")
+    expect_identical(readBin(".gitignore", "raw", length(malformed)), malformed)
+  })
+})
+
+test_that("a first build seeds removable editor ignores outside the managed block", {
+  skip_if(.is_test_select())
+  skip_if(.is_test_cran())
+  project <- withr::local_tempdir()
+  usethis::with_project(project, {
+    writeLines(c("Package: study", "Version: 0.1.0", "Title: Study"), "DESCRIPTION")
+    writeLines(c("# my rules", "!.vdoc.keep"), ".gitignore")
+    projr_build_dev(project = project, scripts = character())
+    rules <- c(.gitignore = ".vdoc.*", .Rbuildignore = "(^|/)\\.vdoc\\.")
+    if (nzchar(Sys.which("git"))) {
+      repo <- withr::local_tempdir()
+      file.copy(".gitignore", repo)
+      withr::with_dir(repo, {
+        expect_equal(system2("git", c("init", "--quiet")), 0L)
+        expect_equal(system2("git", c("check-ignore", "--quiet", "nested/.vdoc.session")), 0L)
+        expect_equal(system2("git", c("check-ignore", "--quiet", "nested/.vdoc.keep")), 1L)
+      })
+    }
+    expect_match("nested/.vdoc.session", rules[[".Rbuildignore"]])
+    for (path in names(rules)) {
+      rule <- rules[[path]]
+      sections <- .ignore_path_get_list(path)
+      expect_true(rule %in% sections$start)
+      expect_false(rule %in% sections$content)
+      lines <- readLines(path)
+      writeLines(lines[lines != rule], path)
+    }
+    projr_ignore_auto()
+    projr_init_ignore()
+    projr_build_dev(project = project, scripts = character())
+    for (path in names(rules)) expect_false(rules[[path]] %in% readLines(path))
+  }, force = TRUE, quiet = TRUE)
+})
+
 # Tests for R/ignore-auto.R
 # Focus on increasing test coverage for internal helper functions
 
