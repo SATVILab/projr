@@ -205,7 +205,7 @@
 # --------------------
 .build_version_set_post <- function(version_run_on_list,
                                     success) {
-  if (success) {
+  if (success || is.null(version_run_on_list)) {
     return(invisible(FALSE))
   }
   projr_version_set(version_run_on_list$desc[["failure"]])

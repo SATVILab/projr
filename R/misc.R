@@ -792,7 +792,7 @@ projr_use_data <- function(
     "## Change Log",
     "",
     "Summary of updates is included below.",
-    "For more detailed run information, including scripts run and configurations used, see [BUILDLOG.md](BUILDLOG.md).",
+    "For more detailed run information, including scripts run and configurations used, see [.projr/BUILDLOG.md](.projr/BUILDLOG.md).",
     "",
     "```{r, echo=FALSE, results='asis'}",
     'if (file.exists("CHANGELOG.md")) {',
@@ -858,7 +858,7 @@ projr_use_data <- function(
     "",
     "See [CHANGELOG.md](./CHANGELOG.md) for a summary of updates.",
     "",
-    "For detailed run information, including scripts run and configurations used, see [BUILDLOG.md](./BUILDLOG.md).",
+    "For detailed run information, including scripts run and configurations used, see [.projr/BUILDLOG.md](.projr/BUILDLOG.md).",
     ""
   )
 }

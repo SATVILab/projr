@@ -235,17 +235,19 @@
   .cli_debug("Updating ignore files")
   .build_ignore(output_run, archive_local)
 
-  # ensure that pre-build, we are on dev version
-  .cli_debug("Ensuring development version")
-  .build_ensure_dev_version()
+  if (output_run) {
+    .cli_debug("Ensuring development version")
+    .build_ensure_dev_version()
+  }
 }
 
 .build_pre_setup_for_output_run <- function(version_run_on_list,
                                             output_run,
                                             clear_output) {
-  # set the version pre-run
-  .cli_step("Setting build version to {version_run_on_list$desc[['run']]}")
-  .build_version_set_pre(version_run_on_list)
+  if (output_run) {
+    .cli_step("Setting build version to {version_run_on_list$desc[['run']]}")
+    .build_version_set_pre(version_run_on_list)
+  }
 
   # empty output directories
   # (docs, output and data)
@@ -264,18 +266,6 @@
     bump_component <- version_vec[length(version_vec) - 1]
   }
   bump_component
-}
-
-.build_is_current_version_dev <- function() {
-  # Return FALSE if no version file exists yet (not a dev version)
-  if (!file.exists(.path_get("VERSION")) && !file.exists(.path_get("DESCRIPTION"))) {
-    return(FALSE)
-  }
-
-  version_vec_current <- .version_current_vec_get(dev_force = FALSE)
-  version_format <- .version_format_list_get(NULL)[["component"]]
-  # If current version vector length matches format length, it has dev component
-  length(version_vec_current) == length(version_format)
 }
 
 .build_output_get_msg <- function(msg) {

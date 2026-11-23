@@ -18,7 +18,7 @@ Must be NULL or a non-empty character vector with valid directory labels.}
 
 \item{version}{Character. An exact production build version. By default projr
 reads the checkout's version. On the follow-up development commit it uses
-the most recent completed build in the checkout's \code{BUILDLOG.md}.}
+the most recent completed build in the checkout's \code{.projr/BUILDLOG.md}.}
 
 \item{destination}{Character. Concrete GitHub release tag in the checkout's
 repository. The default is \code{"archive"}. For templated releases, use the

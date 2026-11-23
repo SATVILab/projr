@@ -187,8 +187,11 @@ nested source documents.
 | `metadata.version-format` | Defaults to `major.minor.patch-dev`. Supported formats also allow `major.minor` or `major` before the development component, a dot separator before it, and a final `1` or `9000` in place of `dev`. |
 | `parameters` | Project-specific values available inside scripts, for example `parameters: {seed: 42}` and `projr_par_get("seed")`. |
 
-Use `projr_build_dev()` to iterate. Its `bump` and `old_dev_remove` arguments
-control the development version and removal of its older working directories.
+Use `projr_build_dev()` to iterate. It preserves the current project version
+and can run before the project has one. An unversioned project stages its
+working files in `<cache>/projr/dev/`. The `@version` placeholder requires
+a version set by a production build or by `projr_version_set()`.
+Use `old_dev_remove = FALSE` to keep older working directories.
 Use `projr_build_patch()`, `projr_build_minor()` or `projr_build_major()` to
 choose the component for a versioned build. `msg` records a build description.
 `clear_output` accepts `"pre"`, `"post"` or `"never"`. Production builds default to `"pre"` and development
@@ -291,7 +294,7 @@ to projr.
 To reproduce a checked-out build published to GitHub, run `projr_restore()`
 in the checkout. It uses the release named `archive` by default and restores
 the declared raw directory labels. It reads the checkout's production version,
-or the most recent completed build in its `BUILDLOG.md` when on the follow-up
+or the most recent completed build in its `.projr/BUILDLOG.md` when on the follow-up
 development commit. Supply `version = "1.2.3"` for a specific build or
 `destination` for another release tag. It verifies every selected directory's
 paths and MD5s before installing any downloads. Local changes and extra files
@@ -307,7 +310,9 @@ for the label. `clear = TRUE` can remove existing local files, including when
 the archive records an empty version.
 
 If a destination contained `@uuid`, find its concrete path or release tag in
-the **Resolved archive destinations** section of that build's `BUILDLOG.md`.
+the **Resolved archive destinations** section of that build's `.projr/BUILDLOG.md`.
+In an older checkout, projr can read a root `BUILDLOG.md`. The next build
+or restore moves that history into `.projr/`. The changelog stays at the root.
 Pass it back as `destination` to restore from the same place later.
 
 ```r

@@ -70,6 +70,31 @@ test_that(".buildlog_read works with empty file", {
   )
 })
 
+test_that("legacy build history stays readable and migrates without losing entries", {
+  skip_if(.is_test_select())
+  project <- withr::local_tempdir()
+  usethis::with_project(project, {
+    writeLines("build: {git: false}", "_projr.yml")
+    log <- c("# BUILDLOG", "", "#### v1.2.0: Old build")
+    writeLines(log, "BUILDLOG.md")
+    writeLines("# Project changes", "CHANGELOG.md")
+    expect_identical(.buildlog_read(), log)
+    expect_false(dir.exists(".projr"))
+
+    fs::dir_create(".projr")
+    writeLines("other history", ".projr/BUILDLOG.md")
+    expect_error(.project_state_upgrade(project), "Reconcile")
+    expect_identical(readLines("BUILDLOG.md"), log)
+    expect_identical(readLines(".projr/BUILDLOG.md"), "other history")
+    file.remove(".projr/BUILDLOG.md")
+
+    expect_true(.project_state_upgrade(project))
+    expect_false(file.exists("BUILDLOG.md"))
+    expect_identical(readLines(".projr/BUILDLOG.md"), log)
+    expect_identical(readLines("CHANGELOG.md"), "# Project changes")
+  }, force = TRUE, quiet = TRUE)
+})
+
 test_that(".buildlog_write creates file correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -82,7 +107,7 @@ test_that(".buildlog_write creates file correctly", {
       .buildlog_write(test_content)
 
       # Verify file exists
-      path_buildlog <- .path_get("BUILDLOG.md")
+      path_buildlog <- .path_get(".projr/BUILDLOG.md")
       expect_true(file.exists(path_buildlog))
 
       # Verify content
@@ -394,7 +419,7 @@ test_that(".build_buildlog_add works correctly for output builds", {
       )
 
       # Verify file was created
-      path_buildlog <- .path_get("BUILDLOG.md")
+      path_buildlog <- .path_get(".projr/BUILDLOG.md")
       expect_true(file.exists(path_buildlog))
 
       # Verify content
@@ -425,7 +450,7 @@ test_that(".build_buildlog_add returns FALSE for dev builds", {
       expect_false(result)
 
       # Verify no buildlog file was created
-      path_buildlog <- .path_get("BUILDLOG.md")
+      path_buildlog <- .path_get(".projr/BUILDLOG.md")
       if (file.exists(path_buildlog)) {
         content <- .buildlog_read()
         # Should not contain dev build message

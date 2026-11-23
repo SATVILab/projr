@@ -95,7 +95,7 @@ test_that("a local build records its templated archive and restores from the rec
     version_dir <- list.dirs("archives", recursive = TRUE, full.names = TRUE)
     archived <- version_dir[dirname(version_dir) %in% version_dir & grepl("/v1[.]2[.]3-[^/]+$", version_dir)]
     expect_length(archived, 1L)
-    expect_true(any(grepl(archived, readLines("BUILDLOG.md"), fixed = TRUE)))
+    expect_true(any(grepl(archived, readLines(".projr/BUILDLOG.md"), fixed = TRUE)))
     expect_identical(.yml_dest_get_title(title, "local", NULL)[["path"]], path)
     original <- list.files("_raw_data", recursive = TRUE)
     expected <- tools::md5sum(file.path("_raw_data", original))

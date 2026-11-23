@@ -105,6 +105,25 @@ test_that("projr_build_check_packages detects missing rmarkdown package", {
   )
 })
 
+test_that("production preflight includes the separate README render", {
+  skip_if(.is_test_select())
+  project <- withr::local_tempdir()
+  usethis::with_project(project, {
+    writeLines("build: {scripts: []}", "_projr.yml")
+    writeLines("# Static README", "README.md")
+    expect_length(.build_check_packages_engine(engines = "r"), 0L)
+
+    writeLines("# Rendered README", "README.Rmd")
+    expect_identical(.build_check_packages_engine(engines = character()), "rmarkdown")
+    expect_setequal(.build_check_packages_engine(engines = "quarto_document"), c("quarto", "rmarkdown"))
+
+    writeLines("Package: example", "DESCRIPTION")
+    expect_identical(.build_check_packages_engine(engines = "rmd"), "rmarkdown")
+    writeLines("example::result()", "README.Rmd")
+    expect_setequal(.build_check_packages_engine(engines = "r"), c("rmarkdown", "pkgbuild"))
+  }, force = TRUE, quiet = TRUE)
+})
+
 test_that("projr_build_check_packages handles GitHub remote packages", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
