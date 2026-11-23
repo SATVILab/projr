@@ -119,6 +119,13 @@ package names before modifying the lockfile.
   before switching to the dev version and on failure. Render Bookdown in
   a fresh R session so a preceding standalone render cannot supply
   another book’s configuration.
+- Keep path lookups with `create = FALSE` read-only. Stage the
+  renderer’s output directory only when the build includes that project.
+  Preserve its original YAML bytes for both automatic and explicit
+  project selections.
+- Package startup must leave files alone. Keep ordinary build writes in
+  the project, its configured paths or the R session’s temporary
+  directory. User-wide R settings belong to explicit setup commands.
 - Keep source documents and their directories trackable. Ignore
   renderer-generated output and intermediates at their project-relative
   paths, including beside nested documents. Install predictable rules

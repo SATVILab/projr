@@ -109,6 +109,26 @@ happens at each step.</p>
 <hr>
 </div>
 <div class="section level3">
+<h3 id="files-a-build-can-change">Files a build can change<a class="anchor" aria-label="anchor" href="#files-a-build-can-change"></a>
+</h3>
+<p>Loading projr leaves project files alone. Calling a build runs the
+selected scripts and hooks, which can write files just as they do when
+run directly. The first build also creates a starter configuration if
+the project has none. Builds update the project version, generated
+ignore rules, build cache and logs. Production builds also record change
+history and can replace published documents and outputs.</p>
+<p>Review the configured directories and destinations before building an
+unfamiliar project. An absolute path can point outside the checkout. To
+keep existing output when preparing a build, set
+<code>clear_output = "never"</code>. Renderers can still replace their
+own output files. Set <code>build.git: false</code> to disable automatic
+commits and pushes, and <code>build.renv: false</code> to disable
+dependency snapshots. If a package README uses the project package,
+projr installs the checked-out version into a temporary library for that
+render. Calling <code><a href="../reference/projr_init_renviron.html">projr_init_renviron()</a></code> separately adds
+optional defaults to the user’s R environment file.</p>
+</div>
+<div class="section level3">
 <h3 id="stage-1-pre-build">Stage 1: Pre-Build<a class="anchor" aria-label="anchor" href="#stage-1-pre-build"></a>
 </h3>
 <div class="section level4">
