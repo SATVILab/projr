@@ -3,6 +3,9 @@
 # ==========================
 
 .build_pre_check <- function(output_run, engines = NULL) {
+  if (any(names(engines) %in% c("quarto_project", "bookdown", "quarto_document", "rmd"))) {
+    .yml_dir_get_path("docs", NULL)
+  }
   # Check required packages are available BEFORE starting build
   .cli_debug("Checking required packages")
   .build_check_packages_available(output_run, engines)
@@ -437,8 +440,9 @@
 }
 
 .build_doc_output_dir_update <- function(output_run) {
-  # sets docs directory correctly whenever called
-  invisible(.dir_get_label("docs", safe = !output_run))
+  if ("docs" %in% names(.yml_dir_get(NULL))) {
+    invisible(.dir_get_label("docs", safe = !output_run))
+  }
 }
 
 .build_ensure_dev_version <- function() {

@@ -15,10 +15,10 @@ test_that(".build_clear_pre and _post works", {
       projr_path_get_dir("output", "a", safe = TRUE)
       projr_path_get_dir("output", "a", safe = FALSE)
       projr_path_get_dir("docs", "b")
-      projr_path_get_dir("project", "data", "c")
+      .dir_create(.path_get("data", "c"))
 
       path_docs <- projr_path_get_dir("docs", create = FALSE)
-      path_data <- projr_path_get_dir("project", "data", create = FALSE)
+      path_data <- .path_get("data")
 
       # Clear should work without errors
       expect_silent(.build_clear_pre(output_run = TRUE, clear_output = "pre"))
@@ -143,6 +143,7 @@ test_that("projr_build_copy_pkg works", {
       # package: TRUE
       .yml_dir_set_pkg(TRUE, "output", "default")
       # ensure there is something to build the package out of
+      projr_yml_dir_path_set("data", "data")
       x <- "1"
       projr_use_data(x, safe = FALSE)
       dir.create("inst", showWarnings = FALSE)
@@ -753,6 +754,7 @@ test_that(".build_copy_docs_rmd_fn_prefix/suffix/path_get works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       nm_list <- list(
         engine = "quarto_document",
         format = "book",
@@ -913,6 +915,7 @@ test_that("CHANGELOG.md is excluded from docs copying", {
   usethis::with_project(
     path = dir_test,
     code = {
+      .init_yml_std(TRUE)
       # Create a simple test scenario
       source_dir <- file.path(dir_test, "source")
       dest_dir <- file.path(dir_test, "dest")

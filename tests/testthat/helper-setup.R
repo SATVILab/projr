@@ -378,6 +378,7 @@
 # Minimal initialization for tests
 # Used in tests that need a basic projr setup
 .init <- function() {
+  .init_yml_std(TRUE)
   # Set up usethis project
   .init_usethis_std()
 
@@ -389,9 +390,6 @@
 
   # Initialize directories
   .init_dir_std(TRUE)
-
-  # Copy _projr.yml if not exists
-  .init_yml_std(TRUE)
 
   invisible(TRUE)
 }
@@ -399,6 +397,7 @@
 # Full initialization for tests
 # Used in tests that need a complete projr setup with all features
 .init_full <- function() {
+  .init_yml_std(TRUE)
   # Set up usethis project
   .init_usethis_std()
 
@@ -410,9 +409,6 @@
 
   # Initialize directories
   .init_dir_std(TRUE)
-
-  # Copy _projr.yml if not exists
-  .init_yml_std(TRUE)
 
   invisible(TRUE)
 }

@@ -33,8 +33,8 @@
 #'   Required when \code{license = "proprietary"}.
 #' @param last_name Character (for \code{projr_init_license}). Last name for proprietary license.
 #'   Required when \code{license = "proprietary"}.
-#' @param projr_yml Logical. If \code{TRUE}, creates a \code{projr.yml} configuration file.
-#'   Defaults to \code{FALSE}.
+#' @param projr_yml Logical. If \code{TRUE}, creates the required \code{_projr.yml} in a new project.
+#'   Defaults to \code{TRUE}. Existing project configuration is preserved.
 #' @param lit_doc Character or \code{NULL}. Specifies the type of literate documentation to create.
 #'   Supported values are \code{"bookdown"}, \code{"project"}, \code{"quarto"}, and \code{"rmd"}.
 #'   Defaults to \code{NULL}.
@@ -79,9 +79,11 @@ projr_init <- function(
   readme_rmd = TRUE,
   desc = FALSE,
   license = NULL,
-  projr_yml = FALSE,
+  projr_yml = TRUE,
   lit_doc = NULL
 ) {
+  .init_yml_std(projr_yml)
+
   # try prevent working directory errors
   .init_usethis_std()
 
@@ -109,9 +111,6 @@ projr_init <- function(
 
   # license
   .init_license_std(license)
-
-  # projr_yml
-  .init_yml_std(projr_yml)
 
   # lit docs
   .init_engine_std(lit_doc)
@@ -396,8 +395,7 @@ projr_init_git <- function(commit = TRUE) {
   if (!init_yml) {
     return(invisible(FALSE))
   }
-  if (file.exists(.path_get("projr.yml"))) {
-    .cli_info("projr.yml already exists, so skipping.")
+  if (!is.null(.path_project_root(required = FALSE))) {
     return(invisible(FALSE))
   }
   .init_yml_std_impl()

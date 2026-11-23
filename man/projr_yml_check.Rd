@@ -8,7 +8,7 @@ projr_yml_check(profile = NULL)
 }
 \arguments{
 \item{profile}{character().
-Profile whose file needs to be checked.
+Profile to validate with its inherited and local settings.
 If not supplied, then the merged profile is used.
 Default is NULL.}
 }

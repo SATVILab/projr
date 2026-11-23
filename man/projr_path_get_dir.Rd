@@ -14,13 +14,8 @@ projr_path_get_dir(
 }
 \arguments{
 \item{label}{character.
-One of \code{"raw"}, \code{"cache"},\code{"output"},
-\code{"archive"} and \code{"docs"}.
-Class of directory to return.
-The \code{"docs"} option returns the path to
-the output directory from \code{bookdown::render_book}
-(as specified in \code{"_bookdown.yml"}),
-whereas the others returns paths as specified in \code{"_projr.yml"}.}
+A directory label declared under \code{directories} in the active project configuration.
+Each label must have a \code{path}, which may be inherited from another profile.}
 
 \item{...}{Specifies sub-directory of directory returned.
 Passed to \code{file.path}.}
@@ -41,13 +36,9 @@ If \code{"relative"}, then the path returned is relative to the current working 
 If \code{"absolute"}, then the path returned is absolute.}
 
 \item{safe}{logical.
-If \code{TRUE}, then the output directory
-is set to be \code{"<path_to_cache>.output"}
-instead of \code{<path_to_output>} (as specified in \code{_projr.yml}).
-The only time that this should be set to \code{TRUE}
-should be when .build_output\verb{ is being run, as otherwise "development" or test runs will add to, delete or overwrite fabciles from the previous run of .build_output}.
-Default is \code{TRUE}.
-Do not change this unless you know what you are doing.}
+When \code{TRUE} (the default), stage outputs, documentation and package data under
+the configured cache for the current build version. When \code{FALSE}, return
+their configured final paths. Inputs and cache directories use their configured paths.}
 }
 \value{
 Character.

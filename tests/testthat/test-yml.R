@@ -37,7 +37,8 @@ test_that("basic yml functions work", {
       expect_identical(.yml_get_default_raw(), yml.min)
       unlink(file.path(dir_test, "_projr.yml"))
       unlink(file.path(dir_test, "_bookdown.yml"))
-      expect_identical(class(.yml_get_default_raw()), "list")
+      expect_error(.yml_get_default_raw(), "_projr.yml")
+      writeLines("{}", file.path(dir_test, "_projr.yml"))
       expect_identical(.yml_bd_get(), list())
     },
     quiet = TRUE,
@@ -223,8 +224,7 @@ test_that(".yml_get_default_raw reads yaml file", {
 
       # Test when file doesn't exist
       fs::file_move("_projr.yml", "_projr.yml.bak")
-      yml_empty <- .yml_get_default_raw()
-      expect_identical(yml_empty, list())
+      expect_error(.yml_get_default_raw(), "_projr.yml")
       fs::file_move("_projr.yml.bak", "_projr.yml")
     }
   )
@@ -360,6 +360,9 @@ test_that(".yml_get_profile_ind_raw reads raw profile file", {
 test_that(".yml_get_profile_list_min_3 pads to minimum 3", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+
+  withr::local_dir(withr::local_tempdir())
+  writeLines("{}", "_projr.yml")
 
   # Test with 1 profile
   profile_vec1 <- c("default")

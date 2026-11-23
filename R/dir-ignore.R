@@ -62,20 +62,7 @@
 
 .ignore_diryml_path_get <- function(label, directory = .yml_dir_get_label(label, NULL),
                                     root = .path_get()) {
-  path <- directory[["path"]] %||% .yml_dir_get_path_default(label)
-  if (label %in% c("project", "code")) {
-    return(character())
-  }
-  if (label == "data") path <- "data"
-  if (label == "docs" && is.null(path)) {
-    path <- if (file.exists(file.path(root, "_quarto.yml"))) {
-      .dir_get_docs_quarto_project_unset()
-    } else if (file.exists(file.path(root, "_bookdown.yml"))) {
-      .yml_bd_get_output_dir() %||% "_book"
-    } else {
-      "docs"
-    }
-  }
+  path <- directory[["path"]]
   .ignore_project_relative(path, root)
 }
 
@@ -104,7 +91,6 @@
   rules <- character()
   for (i in seq_along(directories)) {
     labels <- names(directories[[i]])
-    if (type == "git") labels <- union(labels, "docs")
     for (label in labels) {
       directory <- directories[[i]][[label]]
       path <- .ignore_diryml_path_get(label, directory, root)

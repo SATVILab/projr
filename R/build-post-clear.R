@@ -22,7 +22,7 @@
   # clear the output folders (output and data),
   # as these would still contain output from
   # previous runs as they're not cleared pre-run
-  label_vec <- c(.yml_dir_get_label_output(NULL), "data") |>
+  label_vec <- c(.yml_dir_get_label_output(NULL), intersect("data", names(.yml_dir_get(NULL)))) |>
     unique()
   .cli_debug("  Labels to clear: {paste(label_vec, collapse = ', ')}")
 
@@ -45,7 +45,7 @@
   # if not quarto projects or bookdown projects.
   # don't clear quarto projects or bookdown projects
   # as we save directly there.
-  if (output_run && .build_clear_post_safe_check_docs(engines)) {
+  if (output_run && "docs" %in% names(.yml_dir_get(NULL)) && .build_clear_post_safe_check_docs(engines)) {
     .cli_debug("  Clearing docs directory (engine allows it)")
 
     path_to_clear <- projr_path_get_dir("docs", safe = FALSE, create = FALSE)
@@ -123,18 +123,6 @@
   dir_vec <- path_dir |>
     .dir_ls(recursive = FALSE) |>
     setdiff("log")
-  for (i in seq_along(dir_vec)) {
-    path_dir <- projr_path_get_dir(
-      "cache", "projr", dir_vec[[i]],
-      create = FALSE
-    )
-    if (!file.exists(path_dir)) {
-      next
-    }
-    unlink(
-      path_dir,
-      recursive = TRUE, force = TRUE
-    )
-  }
+  unlink(file.path(path_dir, dir_vec), recursive = TRUE, force = TRUE, expand = FALSE)
   invisible(TRUE)
 }

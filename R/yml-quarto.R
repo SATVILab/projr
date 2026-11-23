@@ -160,6 +160,11 @@
 
 # Sub-function 2: Update the project block with the new output-dir.
 .yml_quarto_update_project_block <- function(project_block, path) {
+  if (grepl("^project:\\s*\\{", project_block[[1L]])) {
+    section <- yaml::yaml.load(paste(project_block, collapse = "\n"))
+    section$project[["output-dir"]] <- as.character(path)
+    return(strsplit(yaml::as.yaml(section), "\n", fixed = TRUE)[[1L]])
+  }
   output_dir_ind <- which(grepl("^\\s*output-dir:", project_block))
 
   if (length(output_dir_ind) > 0) {

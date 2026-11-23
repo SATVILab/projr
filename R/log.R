@@ -28,8 +28,8 @@
 #' @keywords internal
 .log_dir_get_base <- function() {
   # Get cache directory and append log subdirectory
-  cache_dir <- projr_path_get("cache", "projr", create = TRUE)
-  file.path(cache_dir, "log")
+  cache_dir <- .path_get_cache_auto_dir("projr", create = TRUE, profile = NULL)
+  file.path(.path_resolve_root(cache_dir), "log")
 }
 
 #' Get log directory for build type

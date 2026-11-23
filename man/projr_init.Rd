@@ -31,7 +31,7 @@ projr_init(
   readme_rmd = TRUE,
   desc = FALSE,
   license = NULL,
-  projr_yml = FALSE,
+  projr_yml = TRUE,
   lit_doc = NULL
 )
 
@@ -98,8 +98,8 @@ Defaults to \code{FALSE}.}
 \item{license}{Character. License type for \code{projr_init_license} (e.g. "ccby", "apache",
 "cc0", "proprietary").}
 
-\item{projr_yml}{Logical. If \code{TRUE}, creates a \code{projr.yml} configuration file.
-Defaults to \code{FALSE}.}
+\item{projr_yml}{Logical. If \code{TRUE}, creates the required \code{_projr.yml} in a new project.
+Defaults to \code{TRUE}. Existing project configuration is preserved.}
 
 \item{lit_doc}{Character or \code{NULL}. Specifies the type of literate documentation to create.
 Supported values are \code{"bookdown"}, \code{"project"}, \code{"quarto"}, and \code{"rmd"}.

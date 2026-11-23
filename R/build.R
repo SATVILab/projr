@@ -79,6 +79,7 @@ projr_build <- function(bump_component,
                         archive_local = FALSE,
                         always_archive = TRUE,
                         clear_output = NULL) {
+  .build_init_config()
   bump_component <- .build_output_get_bump_component(
     bump_component
   )
@@ -216,6 +217,7 @@ projr_build_dev <- function(scripts = NULL,
                             clear_output = "never") {
   .assert_flag(bump, TRUE)
   .assert_flag(old_dev_remove, TRUE)
+  .build_init_config()
   # NULL if FALSE and "dev" if TRUE
   bump_component <- .build_dev_get_bump_component(bump)
   .build(
@@ -226,6 +228,19 @@ projr_build_dev <- function(scripts = NULL,
     profile = profile,
     clear_output = clear_output
   )
+}
+
+.build_init_config <- function() {
+  if (!is.null(.path_project_root(required = FALSE))) return(invisible(FALSE))
+  # On the first build, locate the project before there is a projr marker.
+  markers <- rprojroot::criteria$is_vcs_root | rprojroot::has_file("VERSION") |
+    rprojroot::has_file("DESCRIPTION") | rprojroot::criteria$is_rstudio_project |
+    rprojroot::criteria$is_renv_project | rprojroot::criteria$is_quarto_project |
+    rprojroot::has_file("_bookdown.yml") | rprojroot::has_dir("_projr/config")
+  root <- tryCatch(rprojroot::find_root(markers), error = function(e) getwd())
+  starter <- system.file("project_structure", "_projr.yml", package = "projr", mustWork = TRUE)
+  fs::file_copy(starter, file.path(root, "_projr.yml"))
+  invisible(TRUE)
 }
 
 .build_dev_get_bump_component <- function(bump) {
