@@ -101,7 +101,7 @@ and overlapping paths that could erase an input are rejected.
 | `package` | On an output label, `true` also builds the R source package and copies it under `pkg/`. |
 | `source` | Preferred restore configuration by remote type. For example, `source: {local: shared}` selects a named local destination called `shared`. |
 | `license` | A license identifier such as `CC-BY`, or a mapping containing `type`, `authors` and `year`. See `vignette("directory-licenses")`. |
-| `ignore` | Defaults to true for declared directories. Controls both Git and R build rules. Accepts YAML booleans, `ignore`, `no-ignore`, or `manual`. |
+| `ignore` | Controls both Git and R build rules. Defaults to false for package datasets (`data`) and true for other declared directories, including `raw-data`. Accepts YAML booleans, `ignore`, `no-ignore`, or `manual`. |
 | `ignore-git`, `ignore-rbuild` | Set either type separately. When `ignore` is also supplied, the choices must agree. |
 | `ignore-even-if-inactive` | Defaults to true. Applies that profile’s enabled ignore types while a different profile is active. |
 

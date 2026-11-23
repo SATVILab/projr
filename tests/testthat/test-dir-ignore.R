@@ -24,6 +24,10 @@ test_that("directory Git rules respect file creation and preserve manual entries
 test_that("directory ignore settings resolve defaults and reject conflicts", {
   skip_if(.is_test_select())
   for (type in c("git", "rbuild")) {
+    expect_false(.ignore_get_setting("data", type, list()))
+    expect_true(.ignore_get_setting("raw-data", type, list()))
+    expect_true(.ignore_get_setting("DATA", type, list()))
+    expect_true(.ignore_get_setting("data", type, list(ignore = TRUE)))
     expect_true(.ignore_get_setting("output", type, list()))
     expect_true(.ignore_get_setting("output", type, list(ignore = TRUE)))
     expect_false(.ignore_get_setting("output", type, list(ignore = FALSE)))
@@ -55,6 +59,7 @@ test_that("directory ignore paths are relative to the project root", {
     for (path in paths) {
       expect_equal(as.character(.ignore_diryml_path_get("raw", list(path = path))), "reports/archive")
     }
+    expect_identical(.ignore_diryml_path_get("DATA", list(path = "other")), "other")
     for (path in c(".", dir_test, "../outside", "Z:/foreign/data", "//foreign.example/share/data")) {
       expect_length(.ignore_diryml_path_get("raw", list(path = path)), 0L)
     }
@@ -109,6 +114,59 @@ test_that("directory ignore rules cover configured paths and respect each ignore
     expect_false(rbuild_ignored("archivesold/copy"))
     expect_false(rbuild_ignored("results/output"))
     expect_false(dir.exists("archives+old"))
+  })
+})
+
+test_that("package data stays visible in Git and in an R source package", {
+  skip_if(.is_test_select())
+  skip_if(.is_test_cran())
+  skip_if_not_installed("pkgbuild")
+  dir_test <- .test_setup_project(rm_engine = TRUE)
+  usethis::with_project(dir_test, {
+    config <- list(directories = list(
+      data = list(path = "data"),
+      `raw-data` = list(path = "_raw_data")
+    ))
+    yaml::write_yaml(config, "_projr.yml")
+    desc::desc_set(
+      Version = "0.1.0", License = "GPL-3",
+      `Authors@R` = 'person("Test", "Author", email = "test@example.org", role = c("aut", "cre"))',
+      Maintainer = "Test Author <test@example.org>"
+    )
+    package_sample <- c(3, 1, 4)
+    projr_use_data(package_sample, safe = FALSE)
+    dir.create("_raw_data", showWarnings = FALSE)
+    writeLines("private", "_raw_data/observations.txt")
+    writeLines("private", "data/private.txt")
+    start <- "# Start of projr section"
+    marker <- "# End of configured directory rules"
+    end <- "# End of projr section"
+    writeLines(c("/data/private.txt", start, "/data/**", marker, end), ".gitignore")
+    writeLines(c("^data/private[.]txt$", start, "^data(/|$)", marker, end), ".Rbuildignore")
+
+    projr_ignore_auto()
+    ignored <- function(path) system2("git", c("check-ignore", "--quiet", "--", path)) == 0L
+    expect_false(ignored("data/package_sample.rda"))
+    expect_true(ignored("data/private.txt"))
+    expect_true(ignored("_raw_data/observations.txt"))
+    for (path in c(".gitignore", ".Rbuildignore")) expect_false(marker %in% readLines(path))
+    tarball <- pkgbuild::build(".", dest_path = withr::local_tempdir(), vignettes = FALSE, manual = FALSE, quiet = TRUE)
+    files <- utils::untar(tarball, list = TRUE)
+    expect_true("testProjr2/data/package_sample.rda" %in% files)
+    expect_false(any(endsWith(files, "/private.txt") | endsWith(files, "/observations.txt")))
+
+    config$directories$data <- list(path = "unused", `ignore-git` = TRUE)
+    yaml::write_yaml(config, "_projr.yml")
+    projr_ignore_file("new-rule")
+    expect_true(ignored("data/package_sample.rda"))
+    expect_false(ignored("unused/example.rda"))
+    expect_false("^data(/|$)" %in% readLines(".Rbuildignore"))
+
+    config$directories$data <- list(path = "data", `ignore-rbuild` = TRUE)
+    yaml::write_yaml(config, "_projr.yml")
+    projr_ignore_file("another-rule")
+    expect_false(ignored("data/package_sample.rda"))
+    expect_true("^data(/|$)" %in% readLines(".Rbuildignore"))
   })
 })
 

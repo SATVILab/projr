@@ -546,6 +546,10 @@ projr_ignore_auto <- function() {
   if (override) {
     ignore |> unique()
   } else {
-    c(content, ignore) |> unique()
+    # A path can be both a configured directory and a render or archive rule.
+    # Keep each contribution when refreshing just the configured directories.
+    split_at <- match("", content, nomatch = 0L)
+    other <- utils::tail(content, length(content) - split_at)
+    c(utils::head(content, split_at), unique(c(other, ignore)))
   }
 }
