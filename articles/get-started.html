@@ -203,6 +203,19 @@ use a different input path in the example, update
 <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code> to match, or read from
 <code>projr_path_get("raw-data", "measurements.csv")</code> so the
 script uses the configured path directly.</p>
+</div>
+<div class="section level2">
+<h2 id="skip-a-script">Skip a script<a class="anchor" aria-label="anchor" href="#skip-a-script"></a>
+</h2>
+<p>If you keep an experimental script called <code>scratch.R</code>
+beside <code>analysis.R</code>, add this setting to the existing
+<code>build</code> section of <code>_projr.yml</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">exclude</span><span class="kw">:</span><span class="at"> scratch.R</span></span></code></pre></div>
+<p>With just this exclusion, projr still finds and runs
+<code>analysis.R</code> and any other scripts or documents it would
+normally select.</p>
 <p>See the <a href="configuration.html">configuration reference</a> for
 all the settings, the <a href="build-process.html">build guide</a> for
 script execution, and the <a href="restore-artifacts.html">restore

@@ -217,8 +217,11 @@ Scripts are selected in this priority order:
     scripts
 
 The `scripts` argument and YAML settings accept paths and glob patterns.
-Prefix a pattern with `!` to exclude matching scripts. Pass
-`scripts = ""` to skip running scripts.
+In a YAML scripts list, add an item such as `- exclude: scratch.R` to
+skip matching files. In R, use a string such as `"!scratch.R"`. A
+selection containing only exclusions filters automatic discovery. An
+empty selection (`scripts: []` in YAML or `scripts = character()` in R)
+skips script execution and document rendering.
 
 #### Document rendering
 

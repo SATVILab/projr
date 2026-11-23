@@ -95,12 +95,16 @@ package names before modifying the lockfile.
   native options, including Quarto’s `execute-dir` and R Markdown’s
   `knit_root_dir`. Run Quarto synchronously so output collection and
   post-build hooks see the completed render in RStudio.
+- In `build.scripts` and `dev.scripts`, allow `- exclude: path-or-glob`
+  among path entries. Each exclusion takes one string. Quoted
+  `"!path-or-glob"` entries remain supported. Apply exclusions to the
+  whole selection, including automatic discovery when only exclusions
+  are supplied.
 - Run explicitly selected scripts in the listed order. Sort matches
-  alphabetically within each glob, apply `!` exclusions across the
-  selection, and keep repeated literal R scripts and standalone
-  documents in place. Overlapping glob matches run once. Quarto and
-  Bookdown projects reject explicit repeats of a project document
-  because they render each member only once.
+  alphabetically within each glob and keep repeated literal R scripts
+  and standalone documents in place. Overlapping glob matches run once.
+  Quarto and Bookdown projects reject explicit repeats of a project
+  document because they render each member only once.
 - Build a Quarto or Bookdown project once at the position of its last
   selected project document. Store selected documents in Quarto’s
   `project.render` or `book.chapters`, or Bookdown’s `rmd_files`.

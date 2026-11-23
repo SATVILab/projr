@@ -165,6 +165,21 @@ input path in the example, update
 read from `projr_path_get("raw-data", "measurements.csv")` so the script
 uses the configured path directly.
 
+## Skip a script
+
+If you keep an experimental script called `scratch.R` beside
+`analysis.R`, add this setting to the existing `build` section of
+`_projr.yml`.
+
+``` yaml
+build:
+  scripts:
+    - exclude: scratch.R
+```
+
+With just this exclusion, projr still finds and runs `analysis.R` and
+any other scripts or documents it would normally select.
+
 See the [configuration
 reference](https://satvilab.github.io/projr/articles/configuration.md)
 for all the settings, the [build

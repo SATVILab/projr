@@ -1,7 +1,7 @@
 # Get list of scripts to build for production builds
 
-Scripts go directly under build.scripts (no sub-keys allowed) Format:
-scripts: c("file1.qmd", "file2.qmd")
+Resolve included paths from the project root and retain exclusion
+patterns.
 
 ## Usage
 

@@ -312,18 +312,20 @@ production hooks are configured independently.</td>
 </tbody>
 </table>
 <p>A script selection accepts <code>.R</code>, <code>.Rmd</code> and
-<code>.qmd</code> paths or glob patterns. Quote exclusions such as
-<code>"!reports/draft.Rmd"</code>. Matches within a glob are
-alphabetical. Exclusions apply to the selection as a whole. If every
-entry is an exclusion, projr uses automatic discovery and skips the
-matching files. For example, <code>scripts: ["!scratch.R"]</code> builds
-the project first and then runs the other top-level R scripts. In a
-directory without a rendering project, the remaining documents and
-scripts run together alphabetically. Overlapping globs select each file
-once. Repeating a literal R script or standalone document runs it again.
-An explicit <code>scripts: []</code>, or
-<code>scripts = character()</code> in R, skips document rendering and
-script execution.</p>
+<code>.qmd</code> paths or glob patterns. To skip files, add an item
+such as <code>- exclude: reports/draft.Rmd</code> to either scripts
+list. Each <code>exclude</code> takes one path or glob pattern. Quoted
+strings such as <code>"!reports/draft.Rmd"</code> also work. Matches
+within a glob are alphabetical. Exclusions apply to the selection as a
+whole. If every entry is an exclusion, projr uses automatic discovery
+and skips the matching files. For example,
+<code>scripts: [{exclude: scratch.R}]</code> builds the project first
+and then runs the other top-level R scripts. In a directory without a
+rendering project, the remaining documents and scripts run together
+alphabetically. Overlapping globs select each file once. Repeating a
+literal R script or standalone document runs it again. An explicit
+<code>scripts: []</code>, or <code>scripts = character()</code> in R,
+skips document rendering and script execution.</p>
 <p>For example, suppose a Quarto project has the following
 selection.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>

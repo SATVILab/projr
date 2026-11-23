@@ -84,8 +84,9 @@ to run.</p>
 <div class="section level3">
 <h3 id="configuration-format">Configuration format<a class="anchor" aria-label="anchor" href="#configuration-format"></a>
 </h3>
-<p>Scripts are plain character vectors in <code>_projr.yml</code>. No
-sub-keys or nested structures are allowed.</p>
+<p>List the files you want to run in order under
+<code>build.scripts</code> or <code>dev.scripts</code> in
+<code>_projr.yml</code>. Paths start at the project root.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> prepare.R</span></span>
@@ -124,22 +125,43 @@ sub-keys or nested structures are allowed.</p>
 <p>When <code>dev.scripts</code> is set, it completely replaces
 <code>build.scripts</code> for dev builds. To include production scripts
 in dev builds, list them explicitly under <code>dev.scripts</code>.</p>
-<p>Use paths or glob patterns to select scripts. Prefix a pattern with
-<code>!</code> to exclude matches. An inclusion that matches no files
-causes an error before the build starts. Use
-<code>scripts = character()</code> in R or <code>scripts: []</code> in
-YAML to skip rendering and scripts.</p>
+</div>
+<div class="section level3">
+<h3 id="skip-files">Skip files<a class="anchor" aria-label="anchor" href="#skip-files"></a>
+</h3>
+<p>Add an <code>exclude:</code> item to skip a file or a group of files.
+For example, this runs the R scripts in <code>analysis/</code>
+alphabetically, skips <code>analysis/scratch.R</code>, and then renders
+<code>report.qmd</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> analysis/*.R</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> report.qmd</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">exclude</span><span class="kw">:</span><span class="at"> analysis/scratch.R</span></span></code></pre></div>
+<p>Each <code>exclude:</code> item takes one path or pattern. It applies
+to the whole list wherever you place it. If the list contains only
+exclusions, projr starts with automatic discovery and skips the matches.
+The quoted YAML entry <code>"!analysis/scratch.R"</code> also works. For
+a one-off selection in R, use a string such as
+<code>"!analysis/scratch.R"</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="execution-order">Execution order<a class="anchor" aria-label="anchor" href="#execution-order"></a>
+</h3>
+<p>An inclusion that matches no files causes an error before the build
+starts. Use <code>scripts = character()</code> in R or
+<code>scripts: []</code> in YAML to skip rendering and scripts.</p>
 <p>With an explicit selection, scripts run in the listed order. Each
 glob expands alphabetically. A file matched by overlapping globs runs
 once. Listing an R script or standalone document twice runs it twice.
 Quarto and Bookdown projects can render each project document only once,
 so projr reports an error if you explicitly list one twice. When a
 Quarto or Bookdown project has selected project documents, projr renders
-those documents together at the position of the last one in the list.
-Here <code>tables.R</code> appears between two project documents, so it
-runs before the project renders. The selected documents stay in the
-project’s YAML through post-build hooks, and projr restores that YAML
-before switching to the development version.</p>
+those documents together at the position of the last one in the list. In
+the first example, <code>tables.R</code> appears between two project
+documents, so it runs before the project renders. The selected documents
+stay in the project’s YAML through post-build hooks, and projr restores
+that YAML before switching to the development version.</p>
 <div class="float">
 <img src="figures/project-script-order.svg" alt="The example runs prepare.R, then tables.R, then renders analysis.qmd and report.qmd together, then runs summarize.R."><div class="figcaption">The example runs prepare.R, then tables.R, then
 renders analysis.qmd and report.qmd together, then runs
@@ -160,24 +182,24 @@ post-build R code.</p>
 <div class="section level3">
 <h3 id="example-separate-dev-and-production-scripts">Example: separate dev and production scripts<a class="anchor" aria-label="anchor" href="#example-separate-dev-and-production-scripts"></a>
 </h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># _projr.yml</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> full-analysis.qmd</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> supplementary.qmd</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> appendix.qmd</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> quick-test.qmd</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># _projr.yml</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> full-analysis.qmd</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> supplementary.qmd</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> appendix.qmd</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> quick-test.qmd</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># renders quick-test.qmd only</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># renders all three documents</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-one-off-builds">Example: one-off builds<a class="anchor" aria-label="anchor" href="#example-one-off-builds"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>scripts <span class="op">=</span> <span class="st">"exploratory-analysis.Rmd"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>scripts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reports/*.Rmd"</span>, <span class="st">"!reports/draft.Rmd"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -194,19 +216,19 @@ process.</p>
 keys are available: <code>pre</code> (before the build),
 <code>post</code> (after the build), and <code>both</code> (runs at both
 stages). File paths are relative to the project root.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/setup.R</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/download-data.R</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">    </span><span class="fu">post</span><span class="kw">:</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/cleanup.R</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">    </span><span class="fu">both</span><span class="kw">:</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/log-timestamp.R</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/dev-setup.R</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/setup.R</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/download-data.R</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="at">    </span><span class="fu">post</span><span class="kw">:</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/cleanup.R</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="at">    </span><span class="fu">both</span><span class="kw">:</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hooks/log-timestamp.R</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/dev-setup.R</span></span></code></pre></div>
 <p><code>build.hooks</code> are ignored in dev builds.
 <code>dev.hooks</code> are ignored in production builds. Unlike scripts,
 there is no fallback between them.</p>
@@ -241,7 +263,7 @@ the build stops.</p>
 <div class="section level3">
 <h3 id="managing-hooks-with-r">Managing hooks with R<a class="anchor" aria-label="anchor" href="#managing-hooks-with-r"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/yml-hooks.html">projr_yml_hooks_add</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"hooks/setup.R"</span>, stage <span class="op">=</span> <span class="st">"pre"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/yml-hooks.html">projr_yml_hooks_add_pre</a></span><span class="op">(</span><span class="st">"hooks/check-auth.R"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/yml-hooks.html">projr_yml_hooks_add_post</a></span><span class="op">(</span><span class="st">"hooks/cleanup.R"</span><span class="op">)</span></span>
@@ -255,7 +277,7 @@ the build stops.</p>
 <div class="section level3">
 <h3 id="example-data-preparation-hook">Example: data preparation hook<a class="anchor" aria-label="anchor" href="#example-data-preparation-hook"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># hooks/prepare-data.R</span></span>
 <span><span class="va">data_url</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"DATA_URL"</span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">data_url</span><span class="op">)</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"DATA_URL not set"</span><span class="op">)</span></span>
@@ -264,25 +286,25 @@ the build stops.</p>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"_raw_data/data.csv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Data preparation complete"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/prepare-data.R</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/prepare-data.R</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-separate-dev-and-production-hooks">Example: separate dev and production hooks<a class="anchor" aria-label="anchor" href="#example-separate-dev-and-production-hooks"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/prod-setup.R</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/dev-setup.R</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/prod-setup.R</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/dev-setup.R</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># hooks/dev-setup.R</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Setting up dev environment..."</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># hooks/prod-setup.R</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Setting up production environment..."</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"hooks/check-auth.R"</span><span class="op">)</span></span>

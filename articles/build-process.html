@@ -301,8 +301,12 @@ only)</li>
 scripts</li>
 </ol>
 <p>The <code>scripts</code> argument and YAML settings accept paths and
-glob patterns. Prefix a pattern with <code>!</code> to exclude matching
-scripts. Pass <code>scripts = ""</code> to skip running scripts.</p>
+glob patterns. In a YAML scripts list, add an item such as
+<code>- exclude: scratch.R</code> to skip matching files. In R, use a
+string such as <code>"!scratch.R"</code>. A selection containing only
+exclusions filters automatic discovery. An empty selection
+(<code>scripts: []</code> in YAML or <code>scripts = character()</code>
+in R) skips script execution and document rendering.</p>
 </div>
 <div class="section level4">
 <h4 id="document-rendering">Document rendering<a class="anchor" aria-label="anchor" href="#document-rendering"></a>

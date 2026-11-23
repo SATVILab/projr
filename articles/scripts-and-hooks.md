@@ -16,8 +16,8 @@ run.
 
 ### Configuration format
 
-Scripts are plain character vectors in `_projr.yml`. No sub-keys or
-nested structures are allowed.
+List the files you want to run in order under `build.scripts` or
+`dev.scripts` in `_projr.yml`. Paths start at the project root.
 
 ``` yaml
 build:
@@ -52,10 +52,31 @@ When `dev.scripts` is set, it completely replaces `build.scripts` for
 dev builds. To include production scripts in dev builds, list them
 explicitly under `dev.scripts`.
 
-Use paths or glob patterns to select scripts. Prefix a pattern with `!`
-to exclude matches. An inclusion that matches no files causes an error
-before the build starts. Use `scripts = character()` in R or
-`scripts: []` in YAML to skip rendering and scripts.
+### Skip files
+
+Add an `exclude:` item to skip a file or a group of files. For example,
+this runs the R scripts in `analysis/` alphabetically, skips
+`analysis/scratch.R`, and then renders `report.qmd`.
+
+``` yaml
+build:
+  scripts:
+    - analysis/*.R
+    - report.qmd
+    - exclude: analysis/scratch.R
+```
+
+Each `exclude:` item takes one path or pattern. It applies to the whole
+list wherever you place it. If the list contains only exclusions, projr
+starts with automatic discovery and skips the matches. The quoted YAML
+entry `"!analysis/scratch.R"` also works. For a one-off selection in R,
+use a string such as `"!analysis/scratch.R"`.
+
+### Execution order
+
+An inclusion that matches no files causes an error before the build
+starts. Use `scripts = character()` in R or `scripts: []` in YAML to
+skip rendering and scripts.
 
 With an explicit selection, scripts run in the listed order. Each glob
 expands alphabetically. A file matched by overlapping globs runs once.
@@ -63,11 +84,11 @@ Listing an R script or standalone document twice runs it twice. Quarto
 and Bookdown projects can render each project document only once, so
 projr reports an error if you explicitly list one twice. When a Quarto
 or Bookdown project has selected project documents, projr renders those
-documents together at the position of the last one in the list. Here
-`tables.R` appears between two project documents, so it runs before the
-project renders. The selected documents stay in the project’s YAML
-through post-build hooks, and projr restores that YAML before switching
-to the development version.
+documents together at the position of the last one in the list. In the
+first example, `tables.R` appears between two project documents, so it
+runs before the project renders. The selected documents stay in the
+project’s YAML through post-build hooks, and projr restores that YAML
+before switching to the development version.
 
 ![The example runs prepare.R, then tables.R, then renders analysis.qmd
 and report.qmd together, then runs

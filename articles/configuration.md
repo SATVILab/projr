@@ -151,12 +151,15 @@ after initialization.
 | `build.hooks`, `dev.hooks` | Each accepts `pre`, `post`, and `both`. Supply R script paths under the stage. Dev and production hooks are configured independently. |
 
 A script selection accepts `.R`, `.Rmd` and `.qmd` paths or glob
-patterns. Quote exclusions such as `"!reports/draft.Rmd"`. Matches
-within a glob are alphabetical. Exclusions apply to the selection as a
-whole. If every entry is an exclusion, projr uses automatic discovery
-and skips the matching files. For example, `scripts: ["!scratch.R"]`
-builds the project first and then runs the other top-level R scripts. In
-a directory without a rendering project, the remaining documents and
+patterns. To skip files, add an item such as
+`- exclude: reports/draft.Rmd` to either scripts list. Each `exclude`
+takes one path or glob pattern. Quoted strings such as
+`"!reports/draft.Rmd"` also work. Matches within a glob are
+alphabetical. Exclusions apply to the selection as a whole. If every
+entry is an exclusion, projr uses automatic discovery and skips the
+matching files. For example, `scripts: [{exclude: scratch.R}]` builds
+the project first and then runs the other top-level R scripts. In a
+directory without a rendering project, the remaining documents and
 scripts run together alphabetically. Overlapping globs select each file
 once. Repeating a literal R script or standalone document runs it again.
 An explicit `scripts: []`, or `scripts = character()` in R, skips

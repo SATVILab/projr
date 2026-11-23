@@ -30,7 +30,8 @@ projr_build_dev(
   renders before automatically detected R scripts. Without a project,
   scripts are detected in the project root and run alphabetically. When
   every entry is an exclusion, use these automatic rules and skip the
-  matching files. Quote exclusions in YAML, such as `"!scratch.R"`.
+  matching files. In a YAML scripts list, use an entry such as
+  `- exclude: scratch.R` or a quoted string such as `"!scratch.R"`.
 
   Explicit selections run in order, with each glob expanded
   alphabetically. Listing an R script or standalone document twice runs
