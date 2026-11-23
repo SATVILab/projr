@@ -10,11 +10,7 @@
     return(invisible(FALSE))
   }
 
-  # clear the output folders (output and data),
-  # as these would still contain output from
-  # previous runs as they're not cleared pre-run
-  label_vec <- c(.yml_dir_get_label_output(NULL), intersect("data", names(.yml_dir_get(NULL)))) |>
-    unique()
+  label_vec <- .yml_dir_get_label_output(NULL)
 
   for (x in label_vec) {
     path_to_clear <- projr_path_get_dir(x, safe = FALSE, create = FALSE)

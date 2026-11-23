@@ -262,11 +262,11 @@ test_that(".yml_dir_check_label_path_restricted validates restricted paths", {
       .yml_set(yml, "default")
       expect_error(projr_yml_check())
 
-      # Output label with restricted path "data" should fail
+      # An analysis can use data/ as its output directory.
       yml <- .yml_get("default")
       yml[["directories"]][["output"]][["path"]] <- "data"
       .yml_set(yml, "default")
-      expect_error(projr_yml_check())
+      expect_true(projr_yml_check())
 
       # Output label with valid path should pass
       yml <- .yml_get("default")

@@ -50,9 +50,7 @@
     return(invisible(FALSE))
   }
 
-  label_vec_output <- .yml_dir_get_label_output(NULL) |>
-    c(intersect("data", names(.yml_dir_get(NULL)))) |>
-    unique()
+  label_vec_output <- c(.yml_dir_get_label_output(NULL), "data")
 
   for (x in label_vec_output) {
     # Get source directory without creating it
@@ -78,6 +76,12 @@
     .cli_info("Copied {x} from {source_dir} to {dest_dir}")
   }
 
+  sysdata <- .dir_get_cache_auto_version("R", "sysdata.rda", profile = NULL)
+  if (file.exists(sysdata)) {
+    fs::dir_create(.path_get("R"))
+    fs::file_copy(sysdata, .path_get("R", "sysdata.rda"), overwrite = TRUE)
+    .cli_info("Copied internal package data to R/sysdata.rda")
+  }
   invisible(TRUE)
 }
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{projr_use_data}
 \alias{projr_use_data}
-\title{\code{projr} drop-in replacement for usethis::use_data}
+\title{Save package datasets}
 \usage{
 projr_use_data(
   ...,
@@ -45,14 +45,14 @@ R 3.6.0 and can only be read by R versions 3.5.0 and higher.}
 \item{safe}{logical.
 Whether to save data to a temporary directory
 (in \verb{<cache>/"projr"/v<version>/data/})
-or the configured final data directory.
+or directly to the package directory.
 Default is the temporary directory (TRUE).}
 }
 \description{
-Save package datasets in the staged build cache by default. For datasets
-intended for package users, declare the \code{data} label under \code{directories}
-with the final path (normally \code{data} in an R package). Internal datasets
-use the package's \code{R/sysdata.rda} convention.
+Stage datasets for the current build. Production builds collect public datasets
+in the project's \verb{data/} directory and internal datasets in \code{R/sysdata.rda}.
+The \code{data} label is built in. When using this helper, reserve \verb{data/} and
+its subdirectories for package datasets in the active configuration.
 }
 \details{
 Taken directly from the documentation for the original
