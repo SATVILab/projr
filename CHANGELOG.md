@@ -15,6 +15,9 @@
   Restore the caller’s library settings on exit.
 * Migrate the root build log into `.projr/` using the same conflict checks
   as other project bookkeeping. Older checkouts support read-only lookups.
+* Return the earliest version in the final run of matching file hashes
+  from `projr_manifest_file_last_change()`, including when a file has the same
+  hash in every build.
 
 ## 0.6.0
 

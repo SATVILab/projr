@@ -2,7 +2,8 @@
 
 * Development builds leave `VERSION` and the package version in `DESCRIPTION`
   alone, including after a failed render. You can run a development build
-  before creating either file.
+  before creating either file. A dev build run inside a production README
+  also keeps the outer build’s archive at its production version.
 * A selection containing only exclusions, such as
   `build.scripts: ["!scratch.R"]`, uses automatic discovery and skips the
   matching files. Quote the leading `!` in YAML.
@@ -16,6 +17,9 @@
   library. Quarto and its pre-build checks use the same project library.
 * The tracked build history is now `.projr/BUILDLOG.md`. Older checkouts
   keep their entries when the log moves. `CHANGELOG.md` stays at the root.
+* When a file has stayed the same since its first build,
+  `projr_manifest_file_last_change()` now reports the version where it first
+  appeared.
 
 # projr 0.6.0
 
