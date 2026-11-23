@@ -782,7 +782,10 @@ test_that("a rendered root README and its linked figures can be committed", {
         "reports/README.html", "reports/README_files/dependency.js"
       ), ignored, logical(1))))
       patterns <- readLines(".Rbuildignore")
-      expect_false(any(vapply(patterns, function(p) any(grepl(p, c("README.html", "README.md", figure))), logical(1))))
+      matches_readme <- function(pattern) {
+        any(grepl(pattern, c("README.html", "README.md", figure), perl = TRUE, ignore.case = TRUE))
+      }
+      expect_false(any(vapply(patterns[nzchar(patterns)], matches_readme, logical(1))))
       expect_identical(system2("git", c("add", "--", kept)), 0L)
       expect_setequal(system2("git", c("ls-files", "--", kept), stdout = TRUE), kept)
 
