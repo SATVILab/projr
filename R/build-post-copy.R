@@ -1,7 +1,8 @@
 .build_copy <- function(output_run,
                         bump_component,
                         version_run_on_list,
-                        engines = .engines_get()) {
+                        engines = .engines_get(),
+                        clear_output = "never") {
   .cli_debug("Starting .build_copy()")
   .cli_debug("  output_run: {output_run}")
   .cli_debug("  bump_component: {bump_component}")
@@ -13,34 +14,36 @@
   .build_copy_docs(output_run, engines)
   .cli_debug("Completed .build_copy_docs()")
 
-  # consider not copying output and data.
-  # will leave in cache directories otherwise
-  if (!.build_copy_check(output_run)) {
-    .cli_debug("Skipping output/data copy: check failed")
-    .cli_debug("Finished .build_copy() - early return")
-    return(invisible(FALSE))
+  copy_output <- .build_copy_check(output_run)
+  directories <- .yml_get(NULL)[["directories"]]
+  plan <- .yml_dir_include_plan(directories, NULL, legacy = copy_output)
+  for (target in names(plan)) {
+    sources <- directories[[target]][["include"]]
+    if (!length(sources)) next
+    # These paths were cleared for this build. Existing files belong to a script.
+    safe_paths <- if (output_run && clear_output != "never") c(TRUE, FALSE) else TRUE
+    for (safe in safe_paths) {
+      root <- projr_path_get_dir(target, safe = safe, create = FALSE, format = "absolute")
+      paths <- file.path(root, sources)
+      conflict <- paths[file.exists(paths) | fs::link_exists(paths)]
+      if (length(conflict)) {
+        stop("Rendered output conflicts with a directory include: ", conflict[1L], call. = FALSE)
+      }
+    }
   }
 
-  .cli_debug("Proceeding with output/data copy")
-
-  # copy directories with output configuration first
-  # (before copying outputs from temp to final)
-  .cli_debug("Calling .build_copy_dir()")
-  .build_copy_dir(output_run)
-  .cli_debug("Completed .build_copy_dir()")
-
-  # copy to unsafe directories
-  .cli_debug("Calling .build_copy_to_unsafe()")
-  .build_copy_to_unsafe(output_run)
-  .cli_debug("Completed .build_copy_to_unsafe()")
-
-  # package
-  .cli_debug("Calling .build_copy_pkg()")
-  .build_copy_pkg(output_run)
-  .cli_debug("Completed .build_copy_pkg()")
+  if (copy_output) {
+    # Without receiver-side includes, preserve the existing copy order.
+    if (!length(plan)) .build_copy_dir(output_run)
+    .build_copy_to_unsafe(output_run)
+    .build_copy_pkg(output_run)
+  }
+  # Include the source directories' licenses in every published copy.
+  .license_dir_create_all_post(output_run)
+  if (length(plan)) .build_copy_includes(plan, directories, output_run)
 
   .cli_debug("Finished .build_copy()")
-  invisible(TRUE)
+  invisible(copy_output)
 }
 
 .build_copy_check <- function(output_run) {
@@ -80,7 +83,7 @@
     }
 
     # Check if directory has any files
-    files_in_source <- list.files(source_dir, recursive = TRUE)
+    files_in_source <- list.files(source_dir, all.files = TRUE, no.. = TRUE)
     .cli_debug("    Files in source: {length(files_in_source)}")
     if (length(files_in_source) == 0) {
       .cli_debug("    Source directory is empty, skipping")

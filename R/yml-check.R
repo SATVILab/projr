@@ -83,6 +83,8 @@ projr_yml_check <- function(profile = NULL) {
   for (x in nm_vec) {
     .yml_dir_check_label(x, profile)
   }
+  .yml_dir_include_plan(.yml_get(profile)[["directories"]], profile)
+  invisible(TRUE)
 }
 
 # directory labels
@@ -94,7 +96,7 @@ projr_yml_check <- function(profile = NULL) {
     names(yml_label),
     c(
       "path", "ignore-git", "ignore-rbuild", "ignore", "ignore-even-if-inactive",
-      "output", "source", "license", "hash", "package"
+      "output", "include", "source", "license", "hash", "package"
     )
   )
   yml_label |>

@@ -517,9 +517,6 @@ projr_build_dev <- function(scripts = NULL,
     bump_component = bump_component,
     version_run_on_list = version_run_on_list
   )
-  # create licenses for output directories (output, docs, data)
-  .cli_debug("Creating licenses for output directories")
-  .license_dir_create_all_post(output_run)
 
   # hash raw-data and outputs, then save manifest table
   .cli_debug("Updating manifest (hashing outputs)")
@@ -559,7 +556,7 @@ projr_build_dev <- function(scripts = NULL,
 
   # copy outputs to (final) output and data directories
   .cli_debug("Calling .build_copy()")
-  .build_copy(output_run, bump_component, version_run_on_list, engines)
+  .build_copy(output_run, bump_component, version_run_on_list, engines, clear_output)
   .cli_debug("Completed .build_copy()")
 
   .cli_debug("Finished .build_post_finalise_artefacts()")
