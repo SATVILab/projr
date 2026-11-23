@@ -11,10 +11,6 @@
                                 error_classifier = NULL) {
   start_time <- proc.time()[3]
 
-  .cli_debug(
-    "{operation_name}: starting (max {max_attempts} attempts, max {max_total_time}s total)"
-  )
-
   delay <- initial_delay
   last_result <- NULL
 
@@ -49,9 +45,7 @@
     last_result <- fn()
 
     if (check_success(last_result)) {
-      .cli_debug(
-        "{operation_name}: succeeded on attempt {attempt}/{max_attempts}"
-      )
+      if (attempt > 1L) .cli_debug("{operation_name} succeeded on attempt {attempt}/{max_attempts}")
       return(last_result)
     }
 

@@ -297,6 +297,10 @@ test_that(".zip_file works", {
   expect_true(file.exists(zip_path))
   expect_true(grepl("\\.zip$", zip_path))
 
+  sinks <- sink.number()
+  expect_identical(.zip_file("missing.txt", temp_dir, "absent"), character())
+  expect_identical(sink.number(), sinks)
+
   unlink(temp_dir, recursive = TRUE)
   unlink(dirname(zip_path), recursive = TRUE)
 

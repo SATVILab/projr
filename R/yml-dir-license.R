@@ -217,9 +217,9 @@ projr_yml_dir_license_update <- function(labels = NULL, profile = "default") {
   }
 
   if (length(updated_labels) > 0) {
-    .cli_info("Updated LICENSE files for: {paste(updated_labels, collapse = ', ')}")
+    .cli_info("Updated license settings for: {paste(updated_labels, collapse = ', ')}")
   } else {
-    .cli_info("No directories with license configurations found")
+    .cli_debug("No directories with license configurations found")
   }
 
   invisible(updated_labels)
@@ -337,7 +337,7 @@ projr_license_create_manual <- function(type,
     .cli_info("Created LICENSE files for: {paste(created_labels, collapse = ', ')}")
     .cli_info("These licenses are not in YAML config and can be manually edited. They will not be overwritten during builds.")
   } else {
-    .cli_info("No LICENSE files created")
+    .cli_debug("No LICENSE files created")
   }
 
   invisible(created_labels)

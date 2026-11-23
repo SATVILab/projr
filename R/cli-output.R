@@ -3,8 +3,8 @@
 #
 # This module provides functions for managing CLI output during builds.
 # Three output levels are supported:
-# - "none": No additional messages (default for dev builds)
-# - "std": Standard messaging (default for output builds)
+# - "none": No progress messages
+# - "std": Standard progress messages (default)
 # - "debug": Verbose messaging for debugging
 
 # Output level detection
@@ -18,11 +18,13 @@
   # Check environment variable
   env_level <- Sys.getenv("PROJR_OUTPUT_LEVEL", unset = "")
   if (nzchar(env_level)) {
-    .assert_in(env_level, c("none", "std", "debug"))
+    # Assertion failures use this logger, so validate its setting directly.
+    if (!env_level %in% c("none", "std", "debug")) {
+      stop("PROJR_OUTPUT_LEVEL must be none, std, or debug.", call. = FALSE)
+    }
     return(env_level)
   }
 
-  # Default based on build type
   "std"
 }
 
@@ -132,7 +134,7 @@
   if (...length()) {
     .log_build_append(message_text, log_type)
   }
-  if (show) console_fn(message_text)
+  if (show) console_fn("{message_text}", .envir = environment())
 }
 
 .cli_info <- function(..., .envir = parent.frame()) {
@@ -172,7 +174,7 @@
     ...,
     log_type = "debug",
     console_level = "debug",
-    console_fn = function(msg) cli::cli_text("[DEBUG] ", msg),
+    console_fn = function(..., .envir) cli::cli_text("[DEBUG] ", ..., .envir = .envir),
     .envir = .envir
   )
 }
@@ -236,9 +238,10 @@
     return(invisible(NULL))
   }
   if (!is.null(id)) {
-    # cli::cli_process_done only accepts msg_done, not msg_failed
-    # Use msg_done for both success and failure (or msg_failed if msg_done is NULL)
-    msg <- if (!is.null(msg_done)) msg_done else msg_failed
-    cli::cli_process_done(id = id, msg_done = msg, .envir = .envir)
+    if (is.null(msg_done) && !is.null(msg_failed)) {
+      cli::cli_process_failed(id = id, msg_failed = msg_failed, .envir = .envir)
+    } else {
+      cli::cli_process_done(id = id, msg_done = msg_done, .envir = .envir)
+    }
   }
 }

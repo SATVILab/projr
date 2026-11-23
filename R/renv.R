@@ -35,7 +35,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   wd_old <- getwd()
   on.exit(setwd(wd_old), add = TRUE)
   setwd(working_dir)
-  cli::cli_alert_info(paste0("Working directory: ", working_dir))
+  .cli_debug("Testing renv in {working_dir}")
 
   .renv_rest_init()
   .renv_rest_activate()
@@ -194,11 +194,10 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   res <- .renv_rest_run_rscript(cmd, vanilla = TRUE)
 
   if (!res$success) {
-    cli::cli_alert_danger("renv::restore() failed.")
-    .cli_info("res$error")
+    cli::cli_alert_danger("renv::restore() failed: {res$error}")
     return(FALSE)
   } else {
-    cli::cli_alert_success("renv::restore() successful.")
+    .cli_success("Restored the renv environment")
   }
 
   res$success
@@ -243,8 +242,7 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   stderr_file <- tempfile("rscript_stderr_")
 
   if (message_path) {
-    cli::cli_alert_info(paste0("stdout_file: ", stdout_file))
-    cli::cli_alert_info(paste0("stderr_file: ", stderr_file))
+    .cli_debug("Rscript output: {stdout_file} (stdout), {stderr_file} (stderr)")
   }
 
   if (vanilla) {
@@ -454,7 +452,7 @@ projr_renv_restore <- function(github = TRUE,
   .check_renv_lockfile()
   .ensure_cli()
 
-  cli::cli_h1("Starting renv environment restoration")
+  .cli_info("Reading renv.lock for package restoration")
 
   package_list <- .renv_lockfile_pkg_get()
   .renv_restore_or_update_impl(
@@ -464,7 +462,6 @@ projr_renv_restore <- function(github = TRUE,
     restore = TRUE,
     biocmanager_install = biocmanager_install
   )
-  cli::cli_h1("renv environment restoration completed")
   invisible(TRUE)
 }
 
@@ -480,7 +477,7 @@ projr_renv_update <- function(github = TRUE,
   .check_renv_lockfile()
   .ensure_cli()
 
-  cli::cli_h1("Starting renv environment update")
+  .cli_info("Reading renv.lock for package updates")
 
   package_list <- .renv_lockfile_pkg_get()
   .renv_restore_or_update_impl(
@@ -490,7 +487,6 @@ projr_renv_update <- function(github = TRUE,
     restore = FALSE,
     biocmanager_install = biocmanager_install
   )
-  cli::cli_h1("renv environment update completed")
   invisible(TRUE)
 }
 
@@ -586,24 +582,8 @@ projr_renv_restore_and_update <- function(github = TRUE,
   # Wraps the restore/update operations for a given source type (CRAN, Bioconductor, GitHub).
   # If 'act' is TRUE, proceed. Otherwise, skip.
 
-  if (length(pkg) == 0L) {
-    cli::cli_alert_info("No {source} packages to process.")
-    return(invisible(FALSE))
-  }
-
-  if (act) {
-    action <- if (restore) "Restoring" else "Installing latest" # nolint: object_usage_linter.
-    cli::cli_alert_info("{action} {source} packages.")
-    .renv_restore_update_impl(
-      pkg,
-      restore,
-      biocmanager_install,
-      is_bioc = (source == "Bioconductor")
-    )
-  } else {
-    action <- if (restore) "restoring" else "installing"
-    cli::cli_alert_info("Skipping {action} {source} packages.")
-  }
+  if (!act || !length(pkg)) return(invisible(FALSE))
+  .renv_restore_update_impl(pkg, restore, biocmanager_install, is_bioc = (source == "Bioconductor"))
 }
 
 .renv_restore_update_impl <- function(pkg, restore, biocmanager_install, is_bioc) {
@@ -628,23 +608,21 @@ projr_renv_restore_and_update <- function(github = TRUE,
   pkg_names <- vapply(pkg, function(x) sub("^.*/", "", x), character(1), USE.NAMES = FALSE)
 
   if (restore) {
-    cli::cli_alert_info("Attempting to restore {pkg_type} packages: {.pkg {pkg_names}}")
+    .cli_info("Attempting to restore {pkg_type} packages: {paste(pkg_names, collapse = ', ')}")
     tryCatch(
       renv::restore(
         packages = pkg_names, transactional = FALSE, prompt = FALSE
       ),
       error = function(e) {
-        cli::cli_alert_danger("Failed to restore {pkg_type} packages: {.pkg {pkg_names}}. Error: {e$message}")
+        cli::cli_alert_danger("Failed to restore {pkg_type} packages: {paste(pkg_names, collapse = ', ')}. Error: {e$message}")
       }
     )
-    cli::cli_alert_info("Checking for packages that failed to restore.")
+
     .renv_restore_remaining(pkg_names)
   } else {
-    cli::cli_alert_info("Installing latest {pkg_type} packages: {.pkg {pkg_names}}")
     .renv_install(pkg, biocmanager_install, is_bioc)
   }
 
-  cli::cli_alert_info("Checking for packages that are still not installed.")
   .renv_install_remaining(pkg, biocmanager_install, is_bioc)
   invisible(TRUE)
 }
@@ -658,12 +636,11 @@ projr_renv_restore_and_update <- function(github = TRUE,
   pkg_remaining <- pkg[!pkg %in% installed_pkgs]
 
   if (length(pkg_remaining) == 0L) {
-    cli::cli_alert_success("All packages restored successfully.")
     return(invisible(FALSE))
   }
 
   cli::cli_alert_warning("Packages that failed to restore: {.pkg {pkg_remaining}}")
-  cli::cli_alert_info("Attempting to restore packages individually.")
+  .cli_info("Attempting to restore packages individually.")
 
   for (x in pkg_remaining) {
     if (!requireNamespace(x, quietly = TRUE)) {
@@ -686,28 +663,28 @@ projr_renv_restore_and_update <- function(github = TRUE,
   if (is_bioc) {
     if (biocmanager_install) {
       .ensure_biocmanager()
-      cli::cli_alert_info("Installing Bioconductor packages using BiocManager: {.pkg {pkg}}")
+      .cli_info("Installing Bioconductor packages using BiocManager: {paste(pkg, collapse = ', ')}")
       tryCatch(
         BiocManager::install(pkg, update = TRUE, ask = FALSE),
         error = function(e) {
-          cli::cli_alert_danger("Failed to install Bioconductor packages using BiocManager: {.pkg {pkg}}. Error: {e$message}")
+          cli::cli_alert_danger("Failed to install Bioconductor packages using BiocManager: {paste(pkg, collapse = ', ')}. Error: {e$message}")
         }
       )
     } else {
-      cli::cli_alert_info("Installing Bioconductor packages using renv: {.pkg {pkg}}")
+      .cli_info("Installing Bioconductor packages using renv: {paste(pkg, collapse = ', ')}")
       tryCatch(
         renv::install(paste0("bioc::", pkg), prompt = FALSE),
         error = function(e) {
-          cli::cli_alert_danger("Failed to install Bioconductor packages via renv: {.pkg {pkg}}. Error: {e$message}")
+          cli::cli_alert_danger("Failed to install Bioconductor packages via renv: {paste(pkg, collapse = ', ')}. Error: {e$message}")
         }
       )
     }
   } else {
-    cli::cli_alert_info("Installing packages: {.pkg {pkg}}")
+    .cli_info("Installing packages: {paste(pkg, collapse = ', ')}")
     tryCatch(
       renv::install(pkg, prompt = FALSE),
       error = function(e) {
-        cli::cli_alert_danger("Failed to install packages: {.pkg {pkg}}. Error: {e$message}")
+        cli::cli_alert_danger("Failed to install packages: {paste(pkg, collapse = ', ')}. Error: {e$message}")
       }
     )
   }
@@ -725,12 +702,11 @@ projr_renv_restore_and_update <- function(github = TRUE,
   pkg_remaining <- pkg[!pkg_names %in% installed_pkgs]
 
   if (length(pkg_remaining) == 0L) {
-    cli::cli_alert_success("All packages are installed.")
     return(invisible(FALSE))
   }
 
   cli::cli_alert_warning("Packages that are still missing: {.pkg {pkg_remaining}}")
-  cli::cli_alert_info("Attempting to install remaining packages.")
+  .cli_info("Attempting to install remaining packages.")
   .renv_install(pkg_remaining, biocmanager_install, is_bioc)
 
   # Extract package names for remaining packages
@@ -740,12 +716,12 @@ projr_renv_restore_and_update <- function(github = TRUE,
   ]
 
   if (length(pkg_still_missing) == 0L) {
-    cli::cli_alert_success("All remaining packages installed successfully.")
+    .cli_success("All remaining packages installed successfully.")
     return(invisible(TRUE))
   }
 
   cli::cli_alert_warning("Packages that failed to install: {.pkg {pkg_still_missing}}")
-  cli::cli_alert_info("Attempting to install missing packages individually.")
+  .cli_info("Attempting to install missing packages individually.")
 
   # Extract package names once for loop and final check
   pkg_still_missing_names <- vapply(pkg_still_missing, function(x) sub("^.*/", "", x), character(1), USE.NAMES = FALSE)
@@ -760,7 +736,7 @@ projr_renv_restore_and_update <- function(github = TRUE,
   ]
 
   if (length(pkg_final_missing) == 0L) {
-    cli::cli_alert_success("All packages installed successfully after individual attempts.")
+    .cli_success("All packages installed successfully after individual attempts.")
   } else {
     cli::cli_alert_danger("Some packages failed to install: {.pkg {pkg_final_missing}}")
   }
