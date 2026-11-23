@@ -167,6 +167,9 @@ Here `prepare.R` and `check-data.R` run first. Quarto builds `intro.qmd` and
 `summarise.R` runs. Projr temporarily sets Quarto's `project.render` (and `book.chapters` for a
 book), or Bookdown's `rmd_files`. It keeps the selected configuration
 through post-build hooks, then restores the original YAML, including on failure.
+For Quarto document exclusions this also covers active profile and included
+configuration files inside the checkout. A Quarto book needs its index page
+whenever it renders any remaining chapters.
 An R-only selection runs just those scripts. Documents for a different engine
 render individually in their listed positions. Choose one project configuration
 when both `_quarto.yml` and `_bookdown.yml` are present.
