@@ -7,9 +7,13 @@
   `build.scripts: ["!scratch.R"]`, uses automatic discovery and skips the
   matching files. Quote the leading `!` in YAML.
 * Manual rules in `.gitignore` and `.Rbuildignore` survive a refresh.
-  Initialization adds an editable rule for `.vdoc.*` temporary files.
+  Initialization keeps the original ignore file outside the managed section
+  and adds editable rules for `.vdoc.*`, `.DS_Store` and `Thumbs.db`.
 * Production builds check the packages needed for a root `README.Rmd`
   before running analysis scripts.
+* If adding a package `DESCRIPTION` makes renv select an empty library, builds
+  can still use the packages already installed in this checkout's analysis
+  library. Quarto and its pre-build checks use the same project library.
 * The tracked build history is now `.projr/BUILDLOG.md`. Older checkouts
   keep their entries when the log moves. `CHANGELOG.md` stays at the root.
 

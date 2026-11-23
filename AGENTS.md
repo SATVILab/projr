@@ -23,7 +23,7 @@ Use `projr_restore()` inside an existing checkout to restore its recorded inputs
 
 Set the file hashing approach and worker limit under `settings.hashing`. The defaults are `approach: cpp` and `cores: 1`. A positive whole-number core count can parallelize file hashing with either the C++ or historical `legacy` approach. Both preserve file ordering, identical MD5s and per-directory histories. Existing `settings.hash-engine` configurations remain readable.
 
-Production builds use `build.renv: auto` by default. Snapshot when the project has its renv lockfile or activation script. `true` can create the first lockfile using installed packages, and `false` disables snapshots. Check dependencies before remote preparation and rendering. Take the post-render snapshot noninteractively and report missing package names before modifying the lockfile.
+Production builds use `build.renv: auto` by default. Snapshot when the project has its renv lockfile or activation script. `true` can create the first lockfile using installed packages, and `false` disables snapshots. Check dependencies before remote preparation and rendering. Take the post-render snapshot noninteractively and report missing package names before modifying the lockfile. When adding DESCRIPTION makes renv choose an empty package library, builds may reuse the same checkout’s populated analysis library. Keep parent checks and render processes on the chosen project library and restore the calling session on exit.
 
 ### Build script selection and rendering
 

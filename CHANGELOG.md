@@ -10,6 +10,9 @@
   Seed editable ignore rules when initializing a project.
 * Include the README renderer and, for a README that loads its own package,
   `pkgbuild` in the production prerequisite check.
+* Use the checkout’s populated analysis library for render subprocesses when
+  a late package DESCRIPTION redirects renv to an empty project library.
+  Restore the caller’s library settings on exit.
 * Migrate the root build log into `.projr/` using the same conflict checks
   as other project bookkeeping. Older checkouts support read-only lookups.
 
