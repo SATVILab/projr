@@ -22,3 +22,6 @@
   documents in nested directories.
 * GitHub restore checks all selected directories against the requested build
   before installing downloaded files. Release templates resolve once per build.
+* Directory indexes and file lists keep their original bytes when checked out
+  with Git line-ending conversion enabled. Project-relative paths also work
+  when the operating system uses an alias for a checkout directory.

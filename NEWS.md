@@ -39,6 +39,11 @@
 * A receiving output directory can include other declared directories.
   A destination name can use `@version`, `@branch` or `@uuid` to separate
   archived builds.
+* Production builds detect an existing `renv` project and record package
+  versions before and after rendering. Set `build.renv` to `true` to start
+  a lockfile or `false` to skip snapshots.
+* Build progress shows the steps projr actually attempts. When a render or
+  Git push fails, the detailed build log records where it stopped.
 
 # projr 0.0.8.9002
 
