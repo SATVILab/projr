@@ -403,3 +403,15 @@ test_that("release preparation creates only the missing configured tags", {
     expect_setequal(created, c("first-new", "second-new"))
   })
 })
+
+test_that("an implicit GitHub archive checks credentials before publishing", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(git = FALSE)
+  usethis::with_project(project, {
+    local_mocked_bindings(.auth_get_github_pat_find = function(...) "")
+    expect_error(
+      .dest_prepare_github_releases("patch", TRUE, FALSE, FALSE, TRUE),
+      "Publishing a GitHub release requires a token"
+    )
+  })
+})
