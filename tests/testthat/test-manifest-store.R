@@ -109,22 +109,41 @@ test_that("a failed first import can be retried without altering the old manifes
   usethis::with_project(dir_test,
     {
       original <- data.frame(label = "output", fn = "report", version = "v1", hash = "001")
-      write.csv(original, "manifest.csv", row.names = FALSE)
-      expect_error(.manifest_store_write(transform(original, version = "invalid")), "version")
-      expect_false(.manifest_store_ready(.path_get("_projr", "manifests")))
-      expect_identical(.manifest_read_project(), original)
-      # Simulate an interruption after writing a now-removed directory's index
-      # but before publishing FORMAT. It must not leak into the retry.
+      prior <- rbind(original, transform(original, label = "abandoned", version = "v7"))
+      write.csv(prior, "manifest.csv", row.names = FALSE)
       store <- .path_get("_projr", "manifests")
-      .manifest_store_write(transform(original, label = "abandoned", version = "v7"))
-      unlink(file.path(store, "FORMAT"))
+      expect_error(.manifest_store_write(transform(original, version = "invalid")), "version")
+      expect_false(.manifest_store_ready(store))
+      expect_identical(readLines(file.path(store, "FORMAT")), "importing")
+      expect_true(file.exists(file.path(store, "abandoned", "versions.csv")))
+      expect_identical(.manifest_read_project(), prior)
+
+      # The interrupted import copied both labels. The retried import uses
+      # the corrected legacy CSV as its source of truth.
+      write.csv(original, "manifest.csv", row.names = FALSE)
       .manifest_store_write(transform(original, version = "v2"))
+      expect_identical(readLines(file.path(store, "FORMAT")), "1")
       expect_identical(.manifest_read_project()$version, c("v1", "v2"))
       expect_identical(.manifest_read_project(fn = "absent"), .zero_tbl_get_manifest())
       expect_identical(.manifest_read_project(fn = "report")$hash, rep("001", 2L))
     },
     force = TRUE
   )
+})
+
+test_that("a first import leaves pre-existing directory indexes intact", {
+  skip_if(.is_test_select())
+  store <- withr::local_tempdir()
+  directory <- file.path(store, "docs")
+  dir.create(directory)
+  existing <- file.path(directory, "versions.csv")
+  original <- charToRaw("version,description\r\n1,local history\r\n")
+  writeBin(original, existing)
+  rows <- data.frame(label = "docs", fn = "report", version = "v1", hash = "001")
+  expect_error(.manifest_store_write(rows, store, NULL), "existing index")
+  expect_identical(readBin(existing, "raw", n = file.size(existing)), original)
+  expect_false(file.exists(file.path(store, "FORMAT")))
+  expect_identical(list.files(directory), "versions.csv")
 })
 
 test_that("concurrent writers preserve both versions of a shared directory", {

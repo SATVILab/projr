@@ -4,7 +4,9 @@
   if (!file.exists(marker)) {
     return(FALSE)
   }
-  if (!identical(readLines(marker, warn = FALSE), "1")) {
+  format <- readLines(marker, warn = FALSE)
+  if (identical(format, "importing")) return(FALSE)
+  if (!identical(format, "1")) {
     stop("Unknown manifest format in ", marker, call. = FALSE)
   }
   TRUE
@@ -154,18 +156,27 @@
   on.exit(filelock::unlock(lock), add = TRUE)
   ready <- .manifest_store_ready(path_dir)
 
-  # Before FORMAT is published, a previous import may have stopped after a
-  # subset of indexes. The legacy CSV and this invocation define the retry.
   batches <- list(manifest)
   if (!ready && !is.null(legacy_path) && file.exists(legacy_path)) {
     batches <- list(.manifest_read(legacy_path), manifest)
   }
-  if (!ready) {
-    indexes <- file.path(list.dirs(path_dir, recursive = FALSE), "versions.csv")
-    fs::file_delete(indexes[file.exists(indexes)])
-  }
   tmp <- tempfile(".manifest-", tmpdir = path_dir)
   on.exit(unlink(tmp), add = TRUE)
+  marker <- file.path(path_dir, "FORMAT")
+  if (!ready) {
+    indexes <- file.path(list.dirs(path_dir, recursive = FALSE), "versions.csv")
+    indexes <- indexes[file.exists(indexes) | fs::link_exists(indexes)]
+    if (file.exists(marker)) {
+      # The importing marker identifies provisional indexes from a failed run.
+      fs::file_delete(indexes)
+    } else {
+      if (length(indexes)) {
+        stop("Cannot initialize manifest store with an existing index: ", indexes[1L], call. = FALSE)
+      }
+      writeLines("importing", tmp)
+      fs::file_move(tmp, marker)
+    }
+  }
   for (rows in batches) {
     columns <- names(.zero_tbl_get_manifest())
     if (!all(columns %in% names(rows))) stop("Missing manifest columns.", call. = FALSE)
@@ -192,7 +203,7 @@
   }
   if (!ready) {
     writeLines("1", tmp)
-    fs::file_move(tmp, file.path(path_dir, "FORMAT"))
+    fs::file_move(tmp, marker)
   }
   invisible(path_dir)
 }
