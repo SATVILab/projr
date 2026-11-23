@@ -4,10 +4,7 @@
 
 The option controls whether
 [`renv::snapshot()`](https://rstudio.github.io/renv/reference/snapshot.html)
-is called before and after project builds.
-
-If the setting is not present in `_projr.yml`, then the default is
-`TRUE` (renv snapshots are performed).
+is called before and after production rendering.
 
 ## Usage
 
@@ -19,14 +16,17 @@ projr_yml_renv_set(renv = NULL, simplify_default = TRUE, profile = "default")
 
 - renv:
 
-  logical. Whether to snapshot renv before and after builds. If `NULL`,
-  then setting is not changed. Default is `NULL`.
+  Logical or `"auto"`. The default, `"auto"`, snapshots projects with a
+  renv lockfile or activation script. `TRUE` also allows a first
+  lockfile using the current libraries. `FALSE` skips both snapshots. If
+  `NULL`, then setting is not changed. Default is `NULL`.
 
 - simplify_default:
 
   logical. If `TRUE`, then if the setting is the same as the default
-  (which is `TRUE`), then the setting is removed from `_projr.yml`.
-  Default is `TRUE`.
+  (which is `"auto"`), then the setting is removed from the default
+  profile. Named profiles retain an explicit `"auto"` override. Default
+  is `TRUE`.
 
 - profile:
 
@@ -41,13 +41,13 @@ projr_yml_renv_set(renv = NULL, simplify_default = TRUE, profile = "default")
 
 ``` r
 if (FALSE) { # \dontrun{
-# enable renv snapshots (default)
+# require renv snapshots
 projr_yml_renv_set(TRUE)
 
 # disable renv snapshots
 projr_yml_renv_set(FALSE)
 
 # revert to default (removes setting from YAML)
-projr_yml_renv_set(TRUE, simplify_default = TRUE)
+projr_yml_renv_set("auto", simplify_default = TRUE)
 } # }
 ```

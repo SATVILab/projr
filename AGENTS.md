@@ -52,6 +52,13 @@ historical `legacy` approach. Both preserve file ordering, identical
 MD5s and per-directory histories. Existing `settings.hash-engine`
 configurations remain readable.
 
+Production builds use `build.renv: auto` by default. Snapshot when the
+project has its renv lockfile or activation script. `true` can create
+the first lockfile using installed packages, and `false` disables
+snapshots. Check dependencies before remote preparation and rendering.
+Take the post-render snapshot noninteractively and report missing
+package names before modifying the lockfile.
+
 ### Build script selection and rendering
 
 - `projr_build_dev(scripts = ...)` takes precedence over `dev.scripts`,
@@ -66,7 +73,10 @@ configurations remain readable.
   post-build hooks see the completed render in RStudio.
 - Run explicitly selected scripts in the listed order. Sort matches
   alphabetically within each glob, apply `!` exclusions across the
-  selection, and keep the first occurrence of each path.
+  selection, and keep repeated literal R scripts and standalone
+  documents in place. Overlapping glob matches run once. Quarto and
+  Bookdown projects reject explicit repeats of a project document
+  because they render each member only once.
 - Build a Quarto or Bookdown project once at the position of its last
   selected project document. Store selected documents in Quarto’s
   `project.render` or `book.chapters`, or Bookdown’s `rmd_files`.

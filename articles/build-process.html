@@ -147,8 +147,12 @@ package requirements.</p>
 <h4 id="documentation-and-dependency-snapshot">Documentation and dependency snapshot<a class="anchor" aria-label="anchor" href="#documentation-and-dependency-snapshot"></a>
 </h4>
 <ul>
-<li>Captures <code>renv.lock</code>
-</li>
+<li>Records dependencies in <code>renv.lock</code> before rendering and
+again afterward. The default <code>build.renv: auto</code> detects an
+existing lockfile or <code>renv/activate.R</code>. Set
+<code>build.renv: true</code> to create the first lockfile from
+installed packages, or <code>false</code> to skip both snapshots. A
+missing dependency stops the build with its name.</li>
 <li>Updates <code>.gitignore</code> and <code>.Rbuildignore</code>
 </li>
 <li>Sets up docs directory paths</li>

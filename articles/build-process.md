@@ -79,7 +79,11 @@ Creates GitHub releases or local archive directories as configured in
 
 #### Documentation and dependency snapshot
 
-- Captures `renv.lock`
+- Records dependencies in `renv.lock` before rendering and again
+  afterward. The default `build.renv: auto` detects an existing lockfile
+  or `renv/activate.R`. Set `build.renv: true` to create the first
+  lockfile from installed packages, or `false` to skip both snapshots. A
+  missing dependency stops the build with its name.
 - Updates `.gitignore` and `.Rbuildignore`
 - Sets up docs directory paths
 

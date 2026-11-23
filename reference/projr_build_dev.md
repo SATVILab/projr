@@ -30,10 +30,12 @@ projr_build_dev(
   scripts are detected in the project root and run alphabetically.
 
   Explicit selections run in order, with each glob expanded
-  alphabetically. If a selection includes Quarto or Bookdown project
-  documents, those documents render together at the position of the last
-  selected project document. The project YAML is restored before the
-  build returns to the development version.
+  alphabetically. Listing an R script or standalone document twice runs
+  it twice. A repeated project document is an error. If a selection
+  includes Quarto or Bookdown project documents, those documents render
+  together at the position of the last selected project document. The
+  project YAML is restored before the build returns to the development
+  version.
 
 - bump:
 
