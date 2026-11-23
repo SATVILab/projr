@@ -401,7 +401,7 @@ test_that(".ignore_manual_path_add preserves existing projr section", {
       # Create gitignore with projr section
       initial_content <- c(
         "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of configured directory rules",
+        "",
         "auto_pattern",
         "# End of projr section"
       )

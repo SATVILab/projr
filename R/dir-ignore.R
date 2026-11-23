@@ -57,12 +57,12 @@
       call. = FALSE
     )
   }
-  flag(specific %||% general %||% TRUE)
+  flag(specific %||% general %||% !identical(label, "data"))
 }
 
 .ignore_diryml_path_get <- function(label, directory = .yml_dir_get_label(label, NULL),
                                     root = .path_get()) {
-  path <- directory[["path"]]
+  path <- if (identical(label, "data")) "data" else directory[["path"]]
   .ignore_project_relative(path, root)
 }
 
@@ -149,10 +149,12 @@
   outer <- .ignore_path_get_startend(indices[["top"]], indices[["bot"]], file_vec)
   content <- .ignore_path_get_content(indices[["top"]], indices[["bot"]], file_vec)
 
-  # The boundary lets manual edits refresh just the directory rules; a full
-  # automatic refresh also regenerates every other entry in the managed block.
-  marker <- "# End of configured directory rules"
-  boundary <- match(marker, content)
+  # The first group comes from YAML. Keep render and archive rules in the
+  # second group when a manual edit refreshes the configured directories.
+  boundary <- match("# End of configured directory rules", content)
+  if (is.na(boundary)) {
+    boundary <- match("", content)
+  }
   if (!reset && is.na(boundary) && length(content) > 0L) {
     # Older releases mixed directory and other rules. Regenerate the block
     # once and keep the caller's manual edits from either side of it.
@@ -162,5 +164,5 @@
   if (!is.na(boundary)) {
     content <- utils::tail(content, length(content) - boundary)
   }
-  c(outer$start, rules, marker, if (!reset) content, outer$end)
+  c(outer$start, rules, "", if (!reset) content, outer$end)
 }
