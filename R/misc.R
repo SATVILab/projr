@@ -81,7 +81,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   # don't install any already available
   # (we're not trying to force the latest version)
   dep_required <- dep[
-    vapply(dep, function(x) !requireNamespace(x, quietly = TRUE), logical(1))
+    vapply(basename(dep), function(pkg) !requireNamespace(pkg, quietly = TRUE), logical(1))
   ]
   if (.is_len_0(dep_required)) {
     return(invisible(TRUE))

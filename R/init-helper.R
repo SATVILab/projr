@@ -1093,17 +1093,10 @@ projr_init_renviron <- function() {
   }
   projr_yml_cite_set(codemeta = TRUE)
 
-  # Try to install and create codemeta.json
-  # May fail in CI environments without GitHub authentication
   result <- tryCatch(
-    {
-      .dep_install("cboettig/codemeta")
-      .cite_codemeta_set()
-      TRUE
-    },
+    .cite_codemeta_set(),
     error = function(e) {
-      .cli_info("Note: Could not install 'codemeta' package. Skipping codemeta.json creation.")
-      .cli_info("Error: {e$message}")
+      .cli_info("Could not create codemeta.json: {e$message}")
       FALSE
     }
   )
