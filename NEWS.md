@@ -2,6 +2,11 @@
 
 ## Changes for existing projects
 
+* The first interactive build of a checkout asks once for permission to run
+  its scripts and hooks, write configured files, and perform the requested
+  Git or archive operations. For an unattended build, pass the checkout
+  root as `project`. From that root, use
+  `projr_build(project = ".", archive_github = TRUE)` to publish.
 * Use `build.scripts` and `dev.scripts` to select scripts in project YAML.
   In `projr_build_dev()`, replace `file =` with `scripts =`. An empty
   selection skips scripts and rendering.

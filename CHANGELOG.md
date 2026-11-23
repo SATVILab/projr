@@ -2,6 +2,10 @@
 
 ## 0.6.0
 
+* Development and production build functions accept `project`. Interactive
+  approval is stored per canonical checkout path in the user’s projr
+  configuration directory. An explicit root in an unattended build grants
+  approval for that invocation. The check precedes the first project write.
 * The build records input and output directory snapshots in separate phases.
   Each label's `versions.csv` maps project versions to shared
   `files-<snapshot>.csv` lists. Empty directory versions are representable.
