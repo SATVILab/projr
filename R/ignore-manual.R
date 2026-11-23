@@ -237,7 +237,7 @@ projr_ignore_dir_rbuild <- function(ignore, force_create = TRUE) {
 
   c(
     .ignore_manual_path_add_get_updated_start(ignore, ignore_list$start),
-    ignore_list$content |> setdiff("") |> unique(),
+    ignore_list$content,
     ignore_list$end
   )
 }

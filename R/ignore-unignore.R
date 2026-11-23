@@ -183,7 +183,7 @@ projr_unignore_manual_dir_rbuild <- function(unignore) {
   # Append unignore patterns after the 'end' portion
   c(
     ignore_list[["start"]],
-    ignore_list$content |> setdiff("") |> unique(),
+    ignore_list$content,
     .unignore_manual_path_add_get_updated_end(unignore, ignore_list$end)
   )
 }

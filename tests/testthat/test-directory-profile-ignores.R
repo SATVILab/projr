@@ -150,6 +150,34 @@ test_that("a manual addition refreshes an older projr-managed ignore block", {
   })
 })
 
+test_that("manual ignore edits keep a build's nested render and failure rules", {
+  skip_if(.is_test_select())
+  skip_if(.is_test_cran())
+  skip_if_not_installed("rmarkdown")
+  project <- .test_setup_project(rm_engine = TRUE)
+  usethis::with_project(project, {
+    dir.create("reports")
+    writeLines(c("---", "title: Report", "output: html_document", "---"), "reports/report.Rmd")
+    writeLines(c(
+      'projr::projr_ignore_file("local-note.txt")',
+      'writeLines("intermediate", "reports/unexpected.tex")',
+      'stop("deliberate build failure")'
+    ), "fail.R")
+    expect_error(
+      projr_build_dev(project = project, scripts = c("fail.R", "reports/report.Rmd")),
+      "deliberate build failure"
+    )
+    rbuild <- readLines(".Rbuildignore")
+    for (file in c("report.tex", "unexpected.tex")) {
+      path <- file.path("reports", file)
+      expect_equal(system2("git", c("check-ignore", "--quiet", "--", path)), 0L)
+      expect_true(any(vapply(rbuild[nzchar(rbuild)], grepl, logical(1), x = path)))
+    }
+    projr_ignore_auto()
+    expect_true("/reports/unexpected.tex" %in% .ignore_path_get_list(".gitignore")$start)
+  })
+})
+
 test_that("templated directories and destinations cover parallel builds from the current YAML", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(rm_engine = TRUE)
@@ -184,6 +212,22 @@ test_that("templated directories and destinations cover parallel builds from the
       expect_false(ignored("results/feature_2fa/build-author-draft/plot"))
       expect_false(ignored("results/deep/nested/build-12345678-1234-4123-8123-000000000001/plot"))
     }
+    # The same generated path can belong to an archive and a directory.
+    # Moving the directory on a manual refresh must keep the archive rule.
+    settings <- projr_yml_get("default")
+    settings$directories$output$path <- settings$build$local$archive$path
+    .yml_set(settings)
+    projr_ignore_auto()
+    settings$directories$output$path <- "new-results"
+    .yml_set(settings)
+    projr_ignore_file("notes.txt")
+    for (ignored in list(git_ignored, rbuild_ignored)) {
+      expect_true(ignored("new-results/plot"))
+      expect_true(ignored("out+put/export-12345678-1234-4123-8123-000000000001/plot"))
+    }
+
+    settings$directories$output$path <- "results/@branch/build-@uuid"
+    .yml_set(settings)
     restore <- .template_context_start()
     on.exit(restore(), add = TRUE)
     path <- projr_path_get_dir("output", create = FALSE, safe = FALSE)
