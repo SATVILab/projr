@@ -418,8 +418,8 @@
 
 .yml_dest_set_title_check <- function(type, title, overwrite, profile) {
   if (!overwrite) {
-    yml_type <- .yml_dest_get_type(type, profile)
-    if (title %in% names(yml_type)) {
+    config <- .yml_get(profile)
+    if (title %in% c(names(config[["build"]][[type]]), names(config[["remotes"]][[type]]))) {
       stop(
         paste0("Title ", title, " already exists"),
         call. = FALSE

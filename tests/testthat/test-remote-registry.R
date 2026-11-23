@@ -23,6 +23,9 @@ test_that("registered remotes resolve independently of the selected publications
     expect_null(.yml_remote_definition("github", "missing"))
     expect_identical(.yml_dest_get_title_complete("reader", "github", NULL, FALSE, TRUE)$id, "reader")
     expect_identical(.buildlog_get_destinations(), character())
+    before <- readLines("_projr.yml")
+    expect_error(projr_yml_dest_add_local("backup", "docs", "new-path", overwrite = FALSE), "already exists")
+    expect_identical(readLines("_projr.yml"), before)
 
     config$build$local <- list(backup = list(content = "raw-data"))
     config$build$github <- list(shared = NULL)
