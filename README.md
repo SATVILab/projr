@@ -45,17 +45,20 @@ projr_restore()
 projr_build_dev()
 ```
 
+To check whether the production build produces the same files, run
+`projr_reproduce("owner/repo")` with your repository name.
+
 To download finished reports or results into a folder of your choice, see the
 [guide to retrieving files](https://satvilab.github.io/projr/articles/restore-artifacts.html#get-files-from-a-completed-build).
 
 ## Install
 
 ```r
-install.packages(c("remotes", "gh", "httr"))  # projr 0.6.1 needs httr separately
+install.packages(c("remotes", "gh"))
 remotes::install_github("SATVILab/projr@*release")
 ```
 
-For a specific version, use its tag, such as `SATVILab/projr@v0.6.1`.
+To install version 0.7.0 specifically, use the tag `SATVILab/projr@v0.7.0`.
 To install the current development code, use `SATVILab/projr@main`.
 [Downloadable source packages](https://github.com/SATVILab/projr/releases)
 

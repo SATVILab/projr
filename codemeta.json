@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/SATVILab/projr",
   "issueTracker": "https://github.com/SATVILab/projr/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -233,18 +233,6 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=devtools"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "httr",
-      "name": "httr",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=httr"
     },
     {
       "@type": "SoftwareApplication",
@@ -497,6 +485,18 @@
     },
     {
       "@type": "SoftwareApplication",
+      "identifier": "httr",
+      "name": "httr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=httr"
+    },
+    {
+      "@type": "SoftwareApplication",
       "identifier": "callr",
       "name": "callr",
       "provider": {
@@ -536,7 +536,7 @@
       "name": "projr: Facilitate Reproducible and Archived Projects",
       "identifier": "10.5281/zenodo.18402379",
       "url": "https://satvilab.github.io/projr/",
-      "description": "R package version 0.6.1",
+      "description": "R package version 0.7.0",
       "@id": "https://doi.org/10.5281/zenodo.18402379",
       "sameAs": "https://doi.org/10.5281/zenodo.18402379"
     }
