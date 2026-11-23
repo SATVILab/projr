@@ -1214,3 +1214,41 @@ test_that(".log_clear_output_by_date handles invalid date formats", {
     }
   )
 })
+
+test_that("each build writes to its own log from any working directory", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
+  usethis::with_project(project, {
+    withr::local_envvar(c(
+      PROJR_LOG_DETAILED = "true", PROJR_OUTPUT_LEVEL = "std", PROJR_BUILD_LOG = NA
+    ))
+    testthat::local_mocked_bindings(.log_file_get_most_recent = function() stop("scanned logs"))
+    outer <- .template_context_start()
+    withr::defer(outer())
+    first <- .log_build_init("dev")$log_file
+    inner <- .template_context_start()
+    second <- .log_build_init("dev")$log_file
+    expect_false(identical(first, second))
+    dir.create("reports")
+    child_path <- withr::with_dir("reports", system2(
+      file.path(R.home("bin"), "Rscript"),
+      c("--vanilla", "-e", shQuote('cat(Sys.getenv("PROJR_BUILD_LOG"))')),
+      stdout = TRUE
+    ))
+    expect_identical(child_path, as.character(fs::path_abs(second)))
+    withr::with_dir("reports", .cli_debug("inner message"))
+    .log_build_finalize(TRUE)
+    inner()
+    .log_build_section("outer section")
+    .cli_debug("outer message")
+    expect_true(any(grepl("inner message", readLines(second))))
+    expect_false(any(grepl("inner message", readLines(first))))
+    expect_true(all(vapply(c("outer section", "outer message"), function(text) {
+      any(grepl(text, readLines(first)))
+    }, logical(1))))
+    Sys.setenv(PROJR_LOG_DETAILED = "false")
+    expect_silent(.cli_debug(stop("evaluated hidden message")))
+    .log_build_append("disabled message")
+    expect_false(any(grepl("disabled message", readLines(first))))
+  }, force = TRUE)
+})

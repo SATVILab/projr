@@ -11,13 +11,13 @@
 #   |   |   +-- builds.md (all build records, newest first)
 #   |   +-- output/
 #   |       +-- YYYY-MMM-DD/
-#   |           +-- HH-MM-SS.qmd (detailed log for each build)
+#   |           +-- HH-MM-SS-UUID.qmd (detailed log for each build)
 #   +-- dev/
 #       +-- history/
 #       |   +-- builds.md
 #       +-- output/
 #           +-- YYYY-MMM-DD/
-#               +-- HH-MM-SS.qmd
+#               +-- HH-MM-SS-UUID.qmd
 
 # Get log directory paths
 # -----------------------
@@ -110,6 +110,15 @@
   toupper(env_val) %in% c("TRUE", "1", "YES", "Y")
 }
 
+# Only the process that initialized a log, and its children, can append to it.
+.log_build_file <- function() {
+  if (!.log_enabled()) {
+    return(NULL)
+  }
+  path <- Sys.getenv("PROJR_BUILD_LOG")
+  if (nzchar(path) && file.exists(path)) path
+}
+
 #' Initialize a build log file
 #'
 #' @param build_type Character. Either "output" or "dev".
@@ -122,11 +131,14 @@
                             msg = "") {
   # Check if detailed logging is enabled
   if (!.log_enabled()) {
+    Sys.unsetenv("PROJR_BUILD_LOG")
     return(NULL)
   }
 
   timestamp <- format(Sys.time(), "%H-%M-%S")
-  log_file <- .log_file_get_output(build_type, timestamp)
+  build_id <- Sys.getenv("PROJR_BUILD_UUID")
+  if (!nzchar(build_id)) build_id <- uuid::UUIDgenerate(use.time = FALSE)
+  log_file <- .log_file_get_output(build_type, paste(timestamp, build_id, sep = "-"))
 
   # Create header for the log file
   header <- c(
@@ -150,6 +162,7 @@
   )
 
   writeLines(header, log_file)
+  Sys.setenv(PROJR_BUILD_LOG = fs::path_abs(log_file))
 
   list(log_file = log_file, timestamp = timestamp)
 }
@@ -161,7 +174,7 @@
 #'
 #' @keywords internal
 .log_build_append <- function(message, level = "info") {
-  log_file <- .log_file_get_most_recent()
+  log_file <- .log_build_file()
   if (is.null(log_file)) {
     return(invisible(NULL))
   }
@@ -186,7 +199,7 @@
 #'
 #' @keywords internal
 .log_build_section <- function(section_name) {
-  log_file <- .log_file_get_most_recent()
+  log_file <- .log_build_file()
   if (is.null(log_file)) {
     return(invisible(NULL))
   }
@@ -202,7 +215,7 @@
 #'
 #' @keywords internal
 .log_build_finalize <- function(success = TRUE, start_time = NULL) {
-  log_file <- .log_file_get_most_recent()
+  log_file <- .log_build_file()
   if (is.null(log_file)) {
     return(invisible(NULL))
   }
@@ -259,7 +272,7 @@
   # Create new entry
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
   status <- if (success) "[OK]" else "[X]"
-  log_file <- .log_file_get_most_recent()
+  log_file <- .log_build_file()
 
   entry <- c(
     paste0("## ", timestamp, " ", status),
