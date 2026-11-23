@@ -286,20 +286,10 @@ test_that("manifest round-trip works for local remotes", {
 
       # Write manifest to local remote
       .remote_write_manifest("local", remote_dir, manifest)
-      expect_true(
-        "manifest.csv" %in% .remote_file_ls(
-          "local",
-          remote = remote_dir
-        )
-      )
-
-      # Read manifest back
-      manifest_retrieved <- .remote_get_manifest("local", remote_dir)
-
-      # Verify round-trip
-      expect_identical(nrow(manifest_retrieved), 2L)
-      expect_true("file1.txt" %in% manifest_retrieved$fn)
-      expect_true("file2.txt" %in% manifest_retrieved$fn)
+      expect_true(file.exists(file.path(remote_dir, "manifests", "FORMAT")))
+      expect_true(file.exists(file.path(remote_dir, "manifests", "output", "versions.csv")))
+      expect_false(file.exists(file.path(remote_dir, "manifest.csv")))
+      expect_identical(.remote_get_manifest("local", remote_dir), manifest)
 
       # Cleanup
       .remote_final_empty("local", remote = remote_dir)
@@ -495,6 +485,15 @@ test_that("upload and restore from `latest` local remotes", {
       )
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(fn_vec, character(0L))
+      expect_true(result)
+
+      # A missing archive is different from a recorded empty directory.
+      unlink(file.path(remote_base, c("raw-data", "raw-data-empty")), recursive = TRUE)
+      writeLines("keep", projr_path_get("raw-data", "newfile.txt"))
+      expect_false(projr_content_update(
+        label = "raw-data", type = "local", title = "test-local-latest", clear = TRUE
+      ))
+      expect_identical(readLines(projr_path_get("raw-data", "newfile.txt")), "keep")
 
       # Cleanup
       unlink(remote_base, recursive = TRUE)

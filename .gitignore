@@ -31,3 +31,6 @@ sonarqube.xml
 *.bak
 projr.Rproj
 .github/workflows/learning.yaml
+/src/*.o
+/src/*.so
+/src/*.dll

@@ -464,3 +464,41 @@ test_that(".zero_tbl_get_hash returns correct structure", {
     hash = character(0)
   ))
 })
+
+test_that("batch file hashing preserves caller names and reports unreadable files", {
+  skip_if(.is_test_select())
+  path <- withr::local_tempfile()
+  writeBin(as.raw(0:255), path)
+  files <- c(first = path, second = path)
+  expect_identical(.hash_file(files), stats::setNames(rep(unname(tools::md5sum(path)), 2), names(files)))
+  expect_identical(.hash_file(character()), stats::setNames(character(), character()))
+  expect_error(.hash_file(c(path, paste0(path, ".missing"))), "Could not hash file:.*[.]missing")
+})
+
+test_that("directory hashing keeps hidden files, nested paths and file order", {
+  skip_if(.is_test_select())
+  root <- withr::local_tempdir()
+  fs::dir_create(file.path(root, c("projr", "sub/projr", "sub/excluded")))
+  files <- c(".hidden", "sub/projr/keep", "a", "sub/.hidden", "projr/drop", "sub/excluded/drop")
+  fs::file_create(file.path(root, files))
+  all_files <- list.files(root, recursive = TRUE, all.files = TRUE)
+  filtered <- all_files[!grepl("^(projr|sub/excluded)/", all_files)]
+  expect_identical(.hash_dir(root, "1.2.3", c("projr", "sub/excluded"))$fn, filtered)
+  expect_identical(.hash_dir(root, "1.2.3")$fn, all_files)
+  expect_identical(.hash_dir(root, "1.2.3", ".*"), .zero_tbl_get_hash())
+  expect_error(.hash_dir(file.path(root, "absent"), "1.2.3"), "must exist")
+})
+
+test_that("directory hashing follows readable links and skips broken ones", {
+  skip_if(.is_test_select())
+  skip_on_os("windows")
+  root <- withr::local_tempdir()
+  fs::dir_create(file.path(root, "nested"))
+  writeLines("payload", file.path(root, "nested/file"))
+  file.symlink("nested", file.path(root, "linked-directory"))
+  file.symlink("nested/file", file.path(root, "linked-file"))
+  file.symlink("absent", file.path(root, "dangling"))
+  expected <- c("linked-directory/file", "linked-file", "nested/file")
+  expect_identical(.hash_dir(root, "2.0.0")$fn, expected)
+  expect_identical(.hash_dir(root, "2.0.0", "nested")$fn, expected[1:2])
+})

@@ -58,13 +58,77 @@ test_that("GitHub manifest and VERSION archives round-trip offline", {
   skip_if(.is_test_select())
   skip_if_not_installed("httr")
   tags <- basename(c(tempfile("manifest-"), tempfile("version-")))
-  .test_local_github_releases(tags)
+  fail_next_upload <- .test_local_github_releases(tags)
   dir_test <- .test_setup_project(git = FALSE)
   usethis::with_project(dir_test, {
-    manifest <- data.frame(label = "output", fn = "sample", version = "v1.0.0", hash = "abc")
-    .remote_write_manifest("github", c(tag = tags[1]), manifest)
-    expect_equal(.remote_get_manifest("github", c(tag = tags[1])), manifest)
+    remote <- c(tag = tags[1])
+    manifest <- data.frame(label = "raw-data", fn = "sample", version = "v1.0.0", hash = "abc")
+    stage <- withr::local_tempdir()
+    .manifest_write(manifest, file.path(stage, "manifest.csv"))
+    archive <- file.path(stage, "legacy.zip")
+    withr::with_dir(stage, utils::zip(archive, "manifest.csv", flags = "-q"))
+    .gh_release_asset_upload_httr(.gh_repo_get(), tags[1], archive, asset_name = "manifest.zip")
+    expect_identical(.remote_get_manifest("github", remote), manifest)
+
+    # Updating one label preserves the legacy label and all earlier build versions.
+    .remote_write_manifest("github", remote, transform(manifest, version = "v1.0.1"))
+    output <- data.frame(label = "output", fn = "result", version = "v1.0.1", hash = "def")
+    .remote_write_manifest("github", remote, output)
+    expected <- rbind(output, manifest, transform(manifest, version = "v1.0.1"))
+    expect_identical(.remote_get_manifest("github", remote), expected)
+    expect_identical(.remote_get_manifest("github", remote, "raw-data", "1.0.0"), manifest)
+    fail_next_upload("manifest.zip")
+    expect_error(.remote_write_manifest("github", remote, transform(output, hash = "changed")), "503")
+    expect_identical(.remote_get_manifest("github", remote), expected)
+    expect_identical(.remote_ls_final_github_httr(.gh_repo_get(), tags[1]), "manifest.zip")
+    zip_path <- .remote_file_get_all_github_httr(.gh_repo_get(), tags[1], "manifest.zip", stage)
+    # The two raw-data builds share the same content-addressed file list.
+    snapshot <- function(label, fn, hash) {
+      csv <- paste0('"fn","hash"\n"', fn, '","', hash, '"\n')
+      file.path(label, paste0("files-", digest::digest(csv, "sha256", serialize = FALSE), ".csv"))
+    }
+    expect_setequal(utils::unzip(zip_path, list = TRUE)$Name, c(
+      "FORMAT", "output/versions.csv", "raw-data/versions.csv",
+      snapshot("output", "result", "def"), snapshot("raw-data", "sample", "abc")
+    ))
+    # A provisional local import cannot serve as a published release history.
+    writeLines("importing", file.path(stage, "FORMAT"))
+    incomplete <- file.path(stage, "partial.zip")
+    withr::with_dir(stage, utils::zip(incomplete, "FORMAT", flags = "-q"))
+    .gh_release_asset_upload_httr(.gh_repo_get(), tags[1], incomplete, asset_name = "manifest.zip")
+    expect_error(.remote_get_manifest("github", remote), "Incomplete manifest.zip")
+    expect_error(.remote_write_manifest("github", remote, output), "Incomplete manifest.zip")
+    retained <- .remote_file_get_all_github_httr(.gh_repo_get(), tags[1], "manifest.zip", stage)
+    expect_identical(digest::digest(file = retained), digest::digest(file = incomplete))
+
     .remote_write_version_file("github", c(tag = tags[2]), "v1.2.3")
     expect_identical(.remote_get_version_file("github", c(tag = tags[2])), "v1.2.3")
   })
+})
+
+test_that("overlapping writes to one release preserve both directory histories on retry", {
+  skip_if(.is_test_select())
+  skip_if_not_installed("httr")
+  tags <- basename(c(tempfile("shared-"), tempfile("independent-")))
+  .test_local_github_releases(tags)
+  shared <- c(tag = tags[1])
+  independent <- c(tag = tags[2])
+  first <- data.frame(label = "raw-data", fn = "sample", version = "v1.0.0", hash = "a")
+  second <- transform(first, label = "output", hash = "b")
+  original_download <- .remote_manifest_download
+  overlap <- TRUE
+  testthat::local_mocked_bindings(.remote_manifest_download = function(...) {
+    if (overlap) {
+      overlap <<- FALSE
+      expect_error(.remote_write_manifest("github", shared, second), "Could not claim projr-manifest.lock")
+      expect_identical(.remote_ls_final_github_httr(.gh_repo_get(), tags[1]), "projr-manifest.lock")
+      .remote_write_manifest("github", independent, second)
+    }
+    original_download(...)
+  })
+  .remote_write_manifest("github", shared, first)
+  .remote_write_manifest("github", shared, second)
+  expect_identical(.remote_get_manifest("github", shared), rbind(second, first))
+  expect_identical(.remote_get_manifest("github", independent), second)
+  expect_identical(.remote_ls_final_github_httr(.gh_repo_get(), tags[1]), "manifest.zip")
 })

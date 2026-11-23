@@ -17,39 +17,6 @@ dir_test <- .test_setup_project(
 # Helper function tests
 # =============================================================================
 
-test_that(".dsl_get_fn_source returns files from manifest", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create content in output directory (not safe, so it gets hashed)
-      .test_content_setup_label(c("output"), safe = FALSE)
-
-      # Build to populate manifest
-      projr_build_patch()
-
-      # Get source files for current version
-      fn_source <- .dsl_get_fn_source("output")
-
-      # Should return character vector
-      expect_true(is.character(fn_source))
-
-      # If manifest has output entries, check them
-      manifest_all <- .manifest_read(file.path(.path_get(), "manifest.csv"))
-      output_entries <- manifest_all[manifest_all$label == "output" &
-        manifest_all$version == projr_version_get(), ]
-
-      if (nrow(output_entries) > 0) {
-        expect_true(length(fn_source) > 0)
-        # Should contain files from manifest
-        expect_true(all(fn_source %in% output_entries$fn))
-      }
-    }
-  )
-})
-
 test_that(".dsl_get_manifest_source filters by label and version", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -144,40 +111,17 @@ test_that(".dsl_gr_gvc_latest_file returns current version without v", {
 # Plan generation tests
 # =============================================================================
 
-test_that(".dsl_gpfn_upload_all returns list with fn_source", {
-  skip_if(.is_test_cran())
+test_that("upload-all selects the recorded files for this label and version", {
   skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create content and build
-      .test_content_setup_label(c("output"), safe = FALSE)
-      projr_build_patch()
-
-      # Get plan
-      plan <- .dsl_gpfn_upload_all("output")
-
-      # Should be a list
-      expect_true(is.list(plan))
-
-      # Should have fn_source
-      expect_true("fn_source" %in% names(plan))
-
-      # fn_source should be character vector
-      expect_true(is.character(plan$fn_source))
-
-      # Check if output was actually hashed in manifest
-      manifest_all <- .manifest_read(file.path(.path_get(), "manifest.csv"))
-      output_entries <- manifest_all[manifest_all$label == "output" &
-        manifest_all$version == projr_version_get(), ]
-
-      # Plan should match manifest entries
-      if (nrow(output_entries) > 0) {
-        expect_true(length(plan$fn_source) > 0)
-      }
-    }
-  )
+  usethis::with_project(dir_test, {
+    project_version <- .version_get_v()
+    rows <- data.frame(
+      label = c("raw-data", "output", "output"), fn = c("other", "old", "current"),
+      version = c(project_version, "v0.0.0", project_version), hash = "hash"
+    )
+    .manifest_store_write(rows)
+    expect_identical(.dsl_gpfn_upload_all("output"), list(fn_source = "current"))
+  })
 })
 
 test_that(".dsl_get_fn_dest returns empty for NULL remote_comp", {
@@ -578,45 +522,37 @@ test_that(".dsl_gpa_get_is_remote_dest_empty detects empty after removing all", 
 # Manifest helper tests
 # =============================================================================
 
-test_that(".dsl_gpa_manifest_rm_existing is callable with proper inputs", {
-  skip_if(.is_test_cran())
+test_that("send strategies update only the active directory version", {
   skip_if(.is_test_select())
+  usethis::with_project(dir_test, {
+    version <- .version_get_v()
+    remote <- withr::local_tempdir()
+    previous <- data.frame(label = "output", fn = c("changed", "kept"), version = version, hash = "old")
+    .remote_write_manifest("local", remote, rbind(
+      previous, transform(previous, label = "raw-data"), transform(previous, version = "v0.0.0")
+    ))
+    current <- transform(previous, fn = c("added", "changed"), hash = "new")
+    .manifest_store_write(current)
+    plan <- function(strategy) .dsl_gpa_manifest("local", remote, "output", strategy)
 
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create sample manifests with row names
-      current_version <- projr_version_get()
-      manifest_remote <- data.frame(
-        label = c("output", "output", "output"),
-        fn = c("file1.txt", "file2.txt", "file3.txt"),
-        version = rep(current_version, 3),
-        hash = c("hash1", "hash2", "hash3"),
-        stringsAsFactors = FALSE
-      )
-      rownames(manifest_remote) <- as.character(1:3)
+    expect_equal(plan("sync-diff"), current)
+    expect_equal(plan("sync-purge"), current)
+    uploaded <- plan("upload-all")
+    expect_identical(stats::setNames(uploaded$hash, uploaded$fn), c(added = "new", changed = "new", kept = "old"))
+    missing <- plan("upload-missing")
+    expect_identical(stats::setNames(missing$hash, missing$fn), c(changed = "old", kept = "old", added = "new"))
+  })
+})
 
-      manifest_append <- data.frame(
-        label = c("output"),
-        fn = c("file2.txt"), # This overlaps
-        version = current_version,
-        hash = "hash2_new",
-        stringsAsFactors = FALSE
-      )
-
-      # Call the function - testing that it runs without error
-      result <- .dsl_gpa_manifest_rm_existing(
-        manifest_remote, "output", manifest_append
-      )
-
-      # Result should be a data frame
-      expect_true(is.data.frame(result))
-
-      # Should have the expected columns
-      expect_true(all(c("label", "fn", "version", "hash") %in% names(result)))
-
-      # Should not error and return valid manifest structure
-      expect_true(nrow(result) >= 0)
-    }
-  )
+test_that("archive trust begins at the most recent uninterrupted run of matching snapshots", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(git = FALSE)
+  usethis::with_project(project, {
+    versions <- paste0("v1.0.", 0:3)
+    projr_version_set("1.0.3")
+    rows <- data.frame(label = "raw-data", fn = "sample", version = versions, hash = c("A", "B", "A", "A"))
+    .manifest_store_write(rows)
+    expect_equal(as.character(.manifest_get_version_earliest_match("raw-data", NULL)), "1.0.2")
+    expect_equal(as.character(.manifest_get_version_earliest_match("raw-data", "1.0.3")), "1.0.3")
+  })
 })

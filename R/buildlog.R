@@ -5,9 +5,9 @@
   if (!.build_buildlog_check(bump_component)) {
     return(invisible(FALSE))
   }
-  .buildlog_add(
-    msg, bump_component, version_run_on_list, total_time
-  )
+  summary <- .buildlog_get_change_summary(bump_component)
+  .build_change_summary_display(bump_component, summary)
+  .buildlog_add(msg, bump_component, version_run_on_list, total_time, summary)
 }
 .build_buildlog_check <- function(bump_component) {
   .build_get_output_run(bump_component)
@@ -16,10 +16,11 @@
 .buildlog_add <- function(msg,
                           bump_component,
                           version_run_on_list,
-                          total_time) {
+                          total_time,
+                          summary = .buildlog_get_change_summary(bump_component)) {
   init_txt <- c("# BUILDLOG", "")
   add_txt <- .buildlog_get_add(
-    msg, bump_component, version_run_on_list, total_time
+    msg, bump_component, version_run_on_list, total_time, summary
   )
   append_txt <- .buildlog_read()[-c(1, 2)]
   c(init_txt, add_txt, append_txt) |>
@@ -31,13 +32,13 @@
 .buildlog_get_add <- function(msg,
                               bump_component,
                               version_run_on_list,
-                              total_time) {
+                              total_time,
+                              summary = .buildlog_get_change_summary(bump_component)) {
   header_txt <- .buildlog_get_header(
     version_run_on_list, bump_component
   )
   desc_txt <- .buildlog_get_desc(msg)
   metadata_txt <- .buildlog_get_metadata(total_time)
-  change_summary_txt <- .buildlog_get_change_summary(bump_component)
   system_resources_txt <- .buildlog_get_system_resources()
   projr_yml_txt <- .buildlog_get_projr_yml()
   session_info_txt <- .buildlog_get_session_info()
@@ -45,7 +46,7 @@
     header_txt,
     desc_txt,
     metadata_txt,
-    change_summary_txt,
+    summary,
     .buildlog_get_destinations(),
     system_resources_txt,
     projr_yml_txt,

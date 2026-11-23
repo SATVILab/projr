@@ -90,12 +90,15 @@
   if (grepl("^([0-9a-f]{40}|[0-9a-f]{64})$", head)) {
     return(paste0("__detached-", head))
   }
-  branch <- .template_branch_raw(head)
-  bytes <- charToRaw(enc2utf8(branch))
+  .path_encode_component(.template_branch_raw(head))
+}
+
+.path_encode_component <- function(x) {
+  bytes <- charToRaw(enc2utf8(x))
   plain <- bytes %in% charToRaw("abcdefghijklmnopqrstuvwxyz0123456789-")
   # Preserve distinct names even on case-insensitive filesystems. Escape
   # underscores too, so a literal "_2f" cannot collide with an encoded slash.
-  if (grepl("^(con|prn|aux|nul|com[1-9]|lpt[1-9])$|^-", branch)) plain[1] <- FALSE
+  if (grepl("^(con|prn|aux|nul|com[1-9]|lpt[1-9])$|^-", x)) plain[1] <- FALSE
   encoded <- paste0("_", as.character(bytes))
   encoded[plain] <- rawToChar(bytes[plain], multiple = TRUE)
   paste0(encoded, collapse = "")

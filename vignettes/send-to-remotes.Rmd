@@ -153,9 +153,15 @@ How projr determines what already exists on the remote.
 
 | Value | Behaviour |
 |:------|:----------|
-| `"manifest"` (default) | Read `manifest.csv` on the remote (fast) |
+| `"manifest"` (default) | Read the remote manifest (fast) |
 | `"file"` | Download and hash actual remote files (slower, always accurate) |
 | `"none"` | Treat remote as empty (forces full upload) |
+
+Local archives keep their history in `manifests/`. A GitHub Release holds one
+`manifest.zip`. While an upload updates that ZIP, it claims
+`projr-manifest.lock` on the same release. If a second upload encounters the
+lock, retry it after the first upload finishes. If the first process was
+terminated, confirm that it has stopped before removing its lock asset.
 
 ## Complete Configuration Examples
 

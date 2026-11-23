@@ -2,16 +2,16 @@
 # ---------------------------
 
 .manifest_hash_label <- function(label,
-                                 output_run) {
+                                 output_run, version = NULL) {
   # output is always in safe directory
   # as hashing is done before copying over to final directory
   hash_tbl <- .hash_dir(
     path_dir = projr_path_get_dir(label, safe = !output_run),
-    dir_exc = .build_label_get_dir_exc(label)
+    version = version, dir_exc = .build_label_get_dir_exc(label)
   ) |>
     .manifest_hash_cache_filter(label)
   if (nrow(hash_tbl) == 0L) {
-    .empty_tbl_get_manifest(label, projr::projr_version_get())
+    .empty_tbl_get_manifest(label, version)
   } else {
     cbind(
       data.frame(label = rep(label, nrow(hash_tbl))),
@@ -65,10 +65,7 @@
 # ---------------------------
 
 .manifest_get_add_project <- function(manifest, label) { # nolint
-  manifest_project <- .manifest_read_project()
-  manifest_add <- manifest_project |>
-    .manifest_filter_label(label) |>
-    .manifest_filter_version(projr::projr_version_get())
+  manifest_add <- .manifest_read_project(label, .version_get_v())
   if (nrow(manifest_add) == 0L) {
     return(.empty_tbl_get_manifest(label, projr::projr_version_get()))
   }
@@ -107,10 +104,7 @@
 }
 
 .manifest_remove_duplicate <- function(manifest) { # nolint: object_length_linter, line_length_linter.
-  manifest[["string"]] <- Reduce(paste0, manifest)
-  manifest <- manifest[!duplicated(manifest[["string"]]), ]
-  manifest[["string"]] <- NULL
-  manifest
+  unique(manifest)
 }
 
 .manifest_write_impl <- function(manifest, path, overwrite) {
@@ -129,21 +123,29 @@
   invisible(path)
 }
 
-# .manifest_read <- function(path = NULL) {
 .manifest_read <- function(path = NULL) {
   if (!.is_string(path) || !file.exists(path)) {
     return(.zero_tbl_get_manifest())
   }
-  out_tbl <- utils::read.csv(
-    path,
-    stringsAsFactors = FALSE
-  )
-  rownames(out_tbl) <- NULL
-  out_tbl
+  if (dir.exists(path)) return(.manifest_store_read(path))
+  if (basename(path) == "versions.csv") {
+    index <- .manifest_store_read_index(path)
+    return(.manifest_store_expand(index, dirname(dirname(path))))
+  }
+  utils::read.csv(path, colClasses = "character", na.strings = character(),
+                  stringsAsFactors = FALSE)
 }
 
-.manifest_read_project <- function() {
-  .manifest_read(.path_get("manifest.csv"))
+.manifest_read_project <- function(label = NULL, version = NULL, fn = NULL) {
+  path_dir <- .path_get("_projr", "manifests")
+  if (.manifest_store_ready(path_dir)) {
+    return(.manifest_store_read(path_dir, label, version, fn))
+  }
+  rows <- .manifest_read(.path_get("manifest.csv"))
+  if (!is.null(label)) rows <- rows[rows$label %in% label, , drop = FALSE]
+  if (!is.null(version)) rows <- rows[rows$version %in% version, , drop = FALSE]
+  if (!is.null(fn)) rows <- rows[rows$fn %in% fn, , drop = FALSE]
+  rows
 }
 
 .manifest_get_path_dir <- function(path_dir) {
@@ -259,8 +261,23 @@
   # get lowest version available, if version_comp not provided
   version_comp <-
     .manifest_get_version_earliest_match_get_version_comp(version_comp)
-  manifest_project <- .remote_get_manifest_project() |>
-    .manifest_filter_label(label)
+  store <- .path_get("_projr", "manifests")
+  if (.manifest_store_ready(store)) {
+    index <- .manifest_store_index(store, label)
+    versions <- package_version(sub("^v", "", index$version))
+    current <- match(.version_get_v(), index$version)
+    if (is.na(current)) return(version_earliest_match)
+    eligible <- which(versions >= package_version(version_comp) & versions <= version_earliest_match)
+    if (!length(eligible)) return(version_earliest_match)
+    # An archive can be trusted back through consecutive unchanged builds.
+    # Reverting to earlier contents starts a new run for this comparison.
+    eligible <- eligible[order(versions[eligible], decreasing = TRUE)]
+    matches <- index$snapshot[eligible] == index$snapshot[current]
+    consecutive <- match(FALSE, matches, nomatch = length(matches) + 1L) - 1L
+    if (!consecutive) return(version_earliest_match)
+    return(versions[eligible[consecutive]])
+  }
+  manifest_project <- .manifest_read_project(label)
   rownames(manifest_project) <- NULL
   manifest_latest <- manifest_project |>
     .manifest_filter_version(projr_version_get())

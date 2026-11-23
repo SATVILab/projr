@@ -4,10 +4,15 @@
 \alias{.build_change_summary_get_debug}
 \title{Get change summary for debug output}
 \usage{
-.build_change_summary_get_debug(output_run)
+.build_change_summary_get_debug(
+  output_run,
+  summary = .build_change_summary_get(output_run)
+)
 }
 \arguments{
 \item{output_run}{Logical. Whether this is an output build.}
+
+\item{summary}{Change summary lines for this build.}
 }
 \value{
 List with 'has_changes' (logical) and 'message' (character vector).

@@ -172,7 +172,8 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
 
       # Copy project files (simulating a clone)
       dir.create(clone_dir)
-      files_to_copy <- c("_projr.yml", "manifest.csv", "VERSION", "_quarto.yml", "index.qmd")
+      fs::dir_copy("_projr", file.path(clone_dir, "_projr"))
+      files_to_copy <- c("_projr.yml", "VERSION", "_quarto.yml", "index.qmd")
       for (f in files_to_copy) {
         if (file.exists(f)) {
           fs::file_copy(f, file.path(clone_dir, f), overwrite = TRUE)
@@ -191,7 +192,7 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
       tryCatch({
         setwd(clone_dir)
         # The partial clone has a manifest but no copied local archives.
-        expect_true(file.exists("manifest.csv"))
+        expect_true(.manifest_store_ready(file.path("_projr", "manifests")))
         expect_false(projr_content_update(label = "raw-data", type = "local"))
       }, finally = {
         setwd(old_wd)

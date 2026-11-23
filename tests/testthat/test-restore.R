@@ -208,22 +208,14 @@ test_that("projr_content_update validates title parameter", {
 # Edge Case Tests
 # =============================================================================
 
-test_that("projr_content_update handles missing manifest.csv", {
+test_that("projr_content_update reports a missing project manifest", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
-    path = dir_test,
+    path = .test_setup_project(git = FALSE, set_env_var = TRUE),
     code = {
-      # Remove manifest if it exists
-      if (file.exists("manifest.csv")) {
-        file.remove("manifest.csv")
-      }
-
-      # Should error (empty message due to stop("", .call = FALSE))
-      expect_error(
-        projr_content_update()
-      )
+      expect_error(projr_content_update(), "No project manifest found")
     }
   )
 })
@@ -233,7 +225,7 @@ test_that("projr_content_update returns FALSE when no files to restore", {
   skip_if(.is_test_select())
 
   usethis::with_project(
-    path = dir_test,
+    path = .test_setup_project(git = FALSE, set_env_var = TRUE),
     code = {
       # Create manifest where raw-data label exists but has no files (empty marker)
       manifest <- data.frame(
@@ -258,7 +250,7 @@ test_that("projr_content_update handles empty directory", {
   skip_if(.is_test_select())
 
   usethis::with_project(
-    path = dir_test,
+    path = .test_setup_project(git = FALSE, set_env_var = TRUE),
     code = {
       # Create manifest with empty label
       manifest <- data.frame(

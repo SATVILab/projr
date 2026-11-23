@@ -82,22 +82,18 @@ test_that(".build_manifest_* works", {
       # now add output content
       .test_content_setup_label("output", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
-      # Pre (8 duplicates of previous) + output (4 files) + empty docs (1 duplicate) + prev (10)
-      # After dedup: prev (10) + output (4 new files) = 14
-      expect_identical(nrow(.manifest_read(path_manifest)), 14L)
+      # The retried version replaces the empty output snapshot.
+      expect_identical(nrow(.manifest_read(path_manifest)), 13L)
 
-      # now add doc content
       .test_content_setup_label("docs", safe = FALSE)
       path_manifest <- .build_manifest_post(TRUE)
-      # Pre (8 duplicates) + output (4 duplicates) + docs (4 files) + prev (14)
-      # After dedup: prev (14) + docs (4 new files) = 18
-      expect_identical(nrow(.manifest_read(path_manifest)), 18L)
+      expect_identical(nrow(.manifest_read(path_manifest)), 16L)
 
       # return table with empty directories
       invisible(.file_rm(.build_manifest_pre_path_get()))
       .dir_rm(projr_path_get_dir("docs", safe = FALSE))
       .dir_rm(projr_path_get_dir("output", safe = FALSE))
-      .file_rm(.path_get("manifest.csv"))
+      .dir_rm(.path_get("_projr", "manifests"))
       path_manifest <- .build_manifest_post(TRUE)
       # Empty docs (1) + empty output (1) = 2
       expect_identical(nrow(.manifest_read(path_manifest)), 2L)
@@ -964,9 +960,9 @@ test_that(".build_manifest_post_get_path returns cache path when output_run is F
   usethis::with_project(
     path = dir_test,
     code = {
-      # Test: output_run = TRUE returns project root manifest.csv
+      # Test: output_run = TRUE returns the project manifest directory
       path_output <- .build_manifest_post_get_path(TRUE)
-      expect_identical(path_output, .path_get("manifest.csv"))
+      expect_identical(path_output, .path_get("_projr", "manifests"))
 
       # Test: output_run = FALSE returns versioned cache directory path
       path_cache <- .build_manifest_post_get_path(FALSE)
@@ -975,20 +971,4 @@ test_that(".build_manifest_post_get_path returns cache path when output_run is F
       expect_false(identical(path_cache, path_output))
     }
   )
-})
-
-test_that(".build_manifest_pre_get_label_ind_check detects raw labels", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  # Note: This function appears to be unused legacy code, but testing for completeness
-
-  # Test: Returns TRUE for labels starting with "raw"
-  expect_true(.build_manifest_pre_get_label_ind_check("raw-data"))
-  expect_true(.build_manifest_pre_get_label_ind_check("raw"))
-  expect_true(.build_manifest_pre_get_label_ind_check("raw-anything"))
-
-  # Test: Returns NULL (implicitly) for non-raw labels
-  expect_null(.build_manifest_pre_get_label_ind_check("output"))
-  expect_null(.build_manifest_pre_get_label_ind_check("cache"))
-  expect_null(.build_manifest_pre_get_label_ind_check("docs"))
 })

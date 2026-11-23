@@ -242,7 +242,7 @@ When testing local remote functionality, test combinations of YML parameters:
 - `send_strategy = "upload-missing"` - Only uploads files not present on remote
 
 ### Send Inspect Options
-- `send_inspect = "manifest"` - Uses manifest.csv to track versions
+- `send_inspect = "manifest"` - Uses the remote directory history to track versions
 - `send_inspect = "file"` - Inspects actual files on remote
 - `send_inspect = "none"` - Treats remote as empty
 

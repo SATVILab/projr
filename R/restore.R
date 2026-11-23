@@ -38,7 +38,7 @@
 #' These functions restore artefact directories from remote sources:
 #'
 #' - `projr_content_update()` restores artefacts in an existing local project without any cloning required.
-#'   Requires a `manifest.csv` file in the project root.
+#'   Reads directory histories in `_projr/manifests/` or a legacy root `manifest.csv`.
 #' - `projr_restore_repo()` clones a GitHub repository into a subdirectory (or specified path),
 #'   then restores artefacts from that repository's remote sources.
 #' - `projr_restore_repo_wd()` clones directly into the current working directory, then restores artefacts.
@@ -54,7 +54,7 @@
 #'
 #' **Error Handling:**
 #' The functions handle errors gracefully:
-#' - Missing `manifest.csv` triggers an informative error
+#' - A missing project manifest triggers an informative error
 #' - Invalid labels or missing remote sources result in warning messages and skipped restoration
 #' - Git clone failures are caught and reported
 #' - Errors during restoration are caught per label, allowing partial success
@@ -145,11 +145,11 @@ projr_content_update <- function(label = NULL,
   }
 
   .title <- title
-  if (!file.exists(.path_get("manifest.csv"))) {
-    msg <- "No manifest.csv file found, so no builds have occurred, so nothing to restore." # nolint
+  if (!.manifest_store_ready(.path_get("_projr", "manifests")) &&
+      !file.exists(.path_get("manifest.csv"))) {
+    msg <- "No project manifest found. Build the project before restoring." # nolint
     msg <- if (clear) paste0(msg, " No files cleared.") else msg
-    .cli_debug(msg)
-    stop("", .call = FALSE)
+    stop(msg, call. = FALSE)
   }
 
   label <- .content_update_get_label(label)
@@ -207,7 +207,7 @@ projr_content_update <- function(label = NULL,
 }
 
 .content_update_label <- function(label, pos, type, .title, destination = NULL, clear = FALSE) {
-  if (!.content_update_label_check_non_empty(label)) {
+  if (!.content_update_label_recorded(label)) {
     return(invisible(FALSE))
   }
   # get source remote (type and title)
@@ -267,26 +267,16 @@ projr_content_update <- function(label = NULL,
     empty = FALSE
   )
   if (!remote_exists) {
-    .cli_debug("Remote source does not exist for ", label)
-    if (source_vec[["type"]] == "github") {
-      .cli_debug("Checking GitHub direct for empty asset for ", label)
-      remote_empty_exists <- .remote_final_check_exists(
-        source_vec[["type"]], yml_title[["id"]], label,
-        yml_title[["structure"]], yml_title[["path"]],
-        yml_title[["path-append-label"]], version_remote,
-        TRUE
-      )
-      if (remote_empty_exists) {
-        .cli_debug("Remote source is empty for ", label)
-        return(invisible(FALSE))
-      } else {
-        .cli_debug("Empty remote source does not exist for ", label)
-        return(invisible(FALSE))
-      }
-    } else {
-      .cli_debug("Remote source does not exist for ", label)
-      return(invisible(FALSE))
+    empty <- .remote_final_check_exists(
+      source_vec[["type"]], yml_title[["id"]], label,
+      yml_title[["structure"]], yml_title[["path"]],
+      yml_title[["path-append-label"]], version_remote, empty = TRUE
+    )
+    if (empty && clear) {
+      .dir_clear(projr_path_get_dir(label, safe = FALSE, format = "absolute"))
+      return(invisible(TRUE))
     }
+    return(invisible(FALSE))
   }
 
   # Restore directly into the project directory rather than the cache build area
@@ -303,19 +293,12 @@ projr_content_update <- function(label = NULL,
   invisible(TRUE)
 }
 
-.content_update_label_check_non_empty <- function(label) {
-  manifest <- .manifest_read(.path_get("manifest.csv")) |>
-    .manifest_filter_label(label)
-  fn_vec <- unique(manifest[["fn"]])
-  label_recorded_and_unused <- .is_len_1(fn_vec) && fn_vec == ""
-  label_unrecorded <- .is_len_0(fn_vec)
-  nothing_to_restore <- label_recorded_and_unused || label_unrecorded
-  if (nothing_to_restore) {
-    .cli_info("No files kept in {label}")
-    .cli_info("Skipping restore for {label}")
-    return(invisible(FALSE))
+.content_update_label_recorded <- function(label) {
+  directory <- .path_get("_projr", "manifests")
+  if (.manifest_store_ready(directory)) {
+    return(nrow(.manifest_store_index(directory, label)) > 0L)
   }
-  invisible(TRUE)
+  nrow(.manifest_read_project(label = label)) > 0L
 }
 
 .content_update_label_get_source <- function(pos, label, type, .title) {

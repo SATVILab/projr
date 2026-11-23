@@ -178,7 +178,7 @@
                              inspect,
                              cue) {
   # Useful for finding out information about final remotes,
-  # such as their contents or version (via manifest.csv
+  # such as their contents or version (via manifests
   # or VERSION files) or, in the case of archive remotes,
   # what versions are available.
   remote_pre <- .remote_final_get(
@@ -625,7 +625,7 @@
 #' @noRd
 .dsl_get_fn_source <- function(label) {
   fn_vec <- .dsl_get_manifest_source(label)[["fn"]]
-  fn_vec[!is.na(fn_vec)]
+  fn_vec[!is.na(fn_vec) & nzchar(fn_vec)]
 }
 
 #' @title Retrieve manifest rows for a label
@@ -636,9 +636,7 @@
 #' @keywords internal
 #' @noRd
 .dsl_get_manifest_source <- function(label) {
-  .remote_get_manifest("project") |>
-    .manifest_filter_label(label) |>
-    .manifest_filter_version(projr_version_get())
+  .remote_get_manifest("project", label = label, version = projr_version_get())
 }
 
 #' @title File listing helper for upload-missing
@@ -687,11 +685,9 @@
     return(.remote_file_ls(type, remote_comp))
   }
   # we now trust the manifest, so we use that
-  manifest_remote <- .remote_get_manifest(type, remote_pre) |>
-    .manifest_filter_version(version_comp) |>
-    .manifest_filter_label(label)
+  manifest_remote <- .remote_get_manifest(type, remote_pre, label, version_comp)
   fn_vec <- manifest_remote[["fn"]]
-  fn_vec[!is.na(fn_vec)]
+  fn_vec[!is.na(fn_vec) & nzchar(fn_vec)]
 }
 
 #' @title File comparison helper for sync strategies
@@ -790,9 +786,7 @@
                               label,
                               version = NULL) {
   version <- if (is.null(version)) projr_version_get() else version
-  .remote_get_manifest(type, remote_pre) |>
-    .manifest_filter_label(label) |>
-    .manifest_filter_version(version)
+  .remote_get_manifest(type, remote_pre, label, version)
 }
 
 
@@ -891,10 +885,7 @@
     ensure_remote_dest_exists, type, remote_pre, label
   )
 
-  manifest <- .dsl_gpa_manifest(
-    type, remote_pre, label,
-    rm_existing = TRUE
-  )
+  manifest <- .dsl_gpa_manifest(type, remote_pre, label, "upload-all")
 
   is_remote_dest_empty <-
     .dsl_gpa_get_is_remote_dest_empty(
@@ -1068,83 +1059,19 @@
   grepl("\\*$", label_regex)
 }
 
-#' @title Build manifest updates for a destination
-#' @description Combines existing remote manifest entries with the current
-#'   project manifest to reflect the new upload plan.
-#' @inheritParams .dsl_gpa_upload_all
-#' @param rm_existing Logical flag to remove any entries that will be overwritten.
-#' @param rm_existing_all Logical flag removing all current rows for the version
-#'   and label before appending.
-#' @param rm_adding Logical flag removing files from the append set if they are
-#'   unchanged (used by upload-missing).
-#' @return Tibble/data.frame representing the manifest that should be written to
-#'   the remote.
-#' @keywords internal
-#' @noRd
-.dsl_gpa_manifest <- function(type,
-                              remote_pre,
-                              label,
-                              rm_existing = FALSE,
-                              rm_existing_all = FALSE, # nolint
-                              rm_adding = FALSE) { # nolint
-  manifest_remote <- .remote_get_manifest(type, remote_pre)
-  manifest_append <- .manifest_get_add_project(manifest_remote, label)
-  # remove any entries in manifest_remote
-  # that are in manifest_append (as we are going to overwrite them)
-  if (rm_existing) {
-    manifest_remote <-
-      .dsl_gpa_manifest_rm_existing(
-        manifest_remote, label, manifest_append
-      )
-  }
-  if (rm_existing_all) {
-    manifest_remote <- manifest_remote |>
-      .manifest_filter_out_version_label(
-        projr_version_get(), label
-      )
-  }
-  if (rm_adding) {
-    manifest_remote_existing <- manifest_remote |>
-      .manifest_filter_label(label) |>
-      .manifest_filter_version(projr_version_get())
-    manifest_append <-
-      .dsl_gpa_manifest_rm_existing(
-        manifest_append, label, manifest_remote_existing
-      )
-  }
+# A send changes only the selected label at the current build version.
+# The store owns all earlier versions and the other labels in the destination.
+.dsl_gpa_manifest <- function(type, remote_pre, label, strategy) {
+  source <- .manifest_get_add_project(label = label)
+  if (strategy %in% c("sync-purge", "sync-diff")) return(source)
 
-  manifest_append |>
-    .manifest_append_previous_impl(manifest_remote)
+  previous <- .remote_get_manifest(type, remote_pre, label, projr_version_get())
+  # upload-missing preserves existing files, whereas upload-all overwrites
+  # matching filenames. Both keep extra files already at the destination.
+  rows <- if (strategy == "upload-missing") rbind(previous, source) else rbind(source, previous)
+  files <- rows[nzchar(rows$fn) & !duplicated(rows$fn), , drop = FALSE]
+  if (nrow(files)) files else source
 }
-
-#' @title Remove manifest rows that will be replaced
-#' @description Helper that strips any remote manifest rows overlapping with the
-#'   current append set, ensuring the resulting manifest has unique filenames.
-#' @param manifest_remote Existing remote manifest tibble.
-#' @inheritParams .dsl_gpa_upload_all
-#' @param manifest_append Manifest rows that will be appended.
-#' @return Remote manifest tibble with overlapping rows removed.
-#' @keywords internal
-#' @noRd
-.dsl_gpa_manifest_rm_existing <-
-  function(manifest_remote,
-           label,
-           manifest_append) {
-    manifest_remote_version_label <- manifest_remote |>
-      .manifest_filter_label(label) |>
-      .manifest_filter_version(projr_version_get())
-    rn_vec_init <- rownames(manifest_remote_version_label)
-    manifest_remote_version_label <- manifest_remote_version_label[
-      !manifest_remote_version_label[["fn"]] %in% manifest_append[["fn"]],
-    ]
-    manifest_remote_rm <- setdiff(
-      rownames(manifest_remote_version_label), rn_vec_init
-    )
-    manifest_remote <- manifest_remote[
-      !rownames(manifest_remote) %in% manifest_remote_rm,
-    ]
-    manifest_remote
-  }
 
 # upload_missing
 # ---------------------------
@@ -1180,10 +1107,7 @@
     ensure_remote_dest_exists, type, remote_pre, label
   )
 
-  manifest <- .dsl_gpa_manifest(
-    type, remote_pre, label,
-    rm_existing = TRUE
-  )
+  manifest <- .dsl_gpa_manifest(type, remote_pre, label, "upload-missing")
 
   is_remote_dest_empty <-
     .dsl_gpa_get_is_remote_dest_empty(
@@ -1331,10 +1255,7 @@
     type, remote_pre, label
   )
 
-  manifest <- .dsl_gpa_manifest(
-    type, remote_pre, label,
-    rm_existing = TRUE
-  )
+  manifest <- .dsl_gpa_manifest(type, remote_pre, label, "sync-purge")
 
   # don't know if we're not adding anything,
   # but we do know it's not empty if we're adding
@@ -1443,10 +1364,7 @@
     type, remote_pre, label
   )
 
-  manifest <- .dsl_gpa_manifest(
-    type, remote_pre, label,
-    rm_existing = TRUE
-  )
+  manifest <- .dsl_gpa_manifest(type, remote_pre, label, "sync-diff")
 
   is_remote_dest_empty <-
     .dsl_gpa_get_is_remote_dest_empty(
@@ -1543,7 +1461,7 @@
     is_zero_row <- nrow(manifest_remaining) == 0L
     is_empty_placeholder <- nrow(manifest_remaining) == 1 &&
       !is.na(manifest_remaining[["fn"]]) &&
-      manifest_remaining[["fn"]] == "projr-empty"
+      manifest_remaining[["fn"]] %in% c("", "projr-empty")
     is_empty <- is_zero_row || is_empty_placeholder
     return(is_empty)
   }

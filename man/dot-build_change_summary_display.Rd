@@ -4,7 +4,10 @@
 \alias{.build_change_summary_display}
 \title{Display change summary during build}
 \usage{
-.build_change_summary_display(bump_component)
+.build_change_summary_display(
+  bump_component,
+  summary = .build_change_summary_get(output_run)
+)
 }
 \arguments{
 \item{bump_component}{Character. Version bump component.}

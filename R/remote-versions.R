@@ -3,9 +3,8 @@
 # ========================
 
 #' @title Write manifest metadata to a remote
-#' @description Writes the supplied manifest tibble to a temporary directory and
-#'   uploads it to the destination remote, handling the GitHub asset naming
-#'   conventions when necessary.
+#' @description Updates per-directory histories in a local destination or in
+#'   the release's manifest.zip asset.
 #' @param type Character scalar identifying the remote backend (`project`,
 #'   `local`, or `github`).
 #' @param remote Backend-specific remote handle (final destination) that will
@@ -14,36 +13,102 @@
 #' @return Invisibly returns `TRUE` after the manifest is uploaded.
 #' @keywords internal
 #' @noRd
-.remote_write_manifest <- function(type,
-                                   remote,
-                                   manifest) {
-  .cli_debug(
-    "Writing manifest.csv to {type} remote"
-  )
-
-  path_dir_save <- .dir_create_tmp_random()
-  .manifest_write(manifest, file.path(path_dir_save, "manifest.csv"))
-  remote <- if (type == "github") {
-    remote[["fn"]] <- "manifest.zip"
-    remote
-  } else {
-    remote
-  }
-  switch(type,
-    "project" = NULL,
-    .remote_file_add(
-      type,
-      remote,
-      path_dir_save,
-      "manifest.csv"
+.remote_write_manifest <- function(type, remote, manifest) {
+  if (type == "project") return(invisible(TRUE))
+  if (type == "local") {
+    .manifest_store_write(
+      manifest, file.path(remote, "manifests"), file.path(remote, "manifest.csv")
     )
+    return(invisible(TRUE))
+  }
+  .assert_in(type, "github", TRUE)
+  stage <- .dir_create_tmp_random()
+  on.exit(unlink(stage, recursive = TRUE), add = TRUE)
+  store <- file.path(stage, "manifests")
+  repo <- .gh_repo_get()
+  tag <- .remote_misc_github_tag_format(remote[["tag"]])
+  # GitHub atomically accepts only one asset with a given name per release.
+  # Claim it before reading the ZIP so a second writer can retry against our update.
+  lock_file <- file.path(stage, "projr-manifest.lock")
+  writeLines(uuid::UUIDgenerate(), lock_file)
+  claim <- tryCatch(
+    .gh_release_asset_upload_httr(repo, tag, lock_file, overwrite = FALSE),
+    error = function(e) {
+      stop("Could not claim projr-manifest.lock on ", repo, " at ", tag,
+           ". Retry after the active writer finishes. ", conditionMessage(e), call. = FALSE)
+    }
   )
-  unlink(path_dir_save, recursive = TRUE)
+  on.exit(.gh_release_asset_delete_id(repo, claim$id), add = TRUE)
+  previous <- .remote_manifest_download(repo, tag, store)
+  .manifest_store_write(manifest, store, file.path(store, "manifest.csv"))
 
-  .cli_debug(
-    "Successfully wrote manifest.csv to {type} remote"
+  # Each release publishes a single archive, including all labels and versions.
+  # Keep the local writer's lock and any superseded legacy CSV out of the asset.
+  index <- .manifest_store_index(store)
+  directories <- vapply(unique(index$label), .path_encode_component, character(1))
+  files <- c(
+    "FORMAT", file.path(directories, "versions.csv"),
+    .remote_manifest_snapshots(index)
   )
+  zip_path <- file.path(stage, "new-manifest.zip")
+  status <- with_dir(store, utils::zip(zip_path, files, flags = "-q"))
+  if (status != 0L) stop("Could not create manifest.zip.", call. = FALSE)
+  tryCatch(
+    .gh_release_asset_upload_httr(repo, tag, zip_path, asset_name = "manifest.zip"),
+    error = function(e) {
+      # GitHub replaces assets by deleting the old file before the upload.
+      # Restore its original bytes if an interrupted upload left the slot empty.
+      if (previous && !"manifest.zip" %in% .remote_ls_final_github_httr(repo, tag)) {
+        .gh_release_asset_upload_httr(repo, tag, file.path(stage, "manifest.zip"), overwrite = FALSE)
+      }
+      stop(e)
+    }
+  )
+  invisible(TRUE)
+}
 
+# All snapshot paths are derived from validated index entries.
+.remote_manifest_snapshots <- function(index) {
+  directories <- vapply(unique(index$label), .path_encode_component, character(1))
+  unique(file.path(directories[index$label], paste0("files-", index$snapshot, ".csv")))
+}
+
+.remote_manifest_download <- function(repo, tag, store, label = NULL, version = NULL) {
+  if (!.remote_check_exists_github_httr(repo, tag) ||
+    !"manifest.zip" %in% .remote_ls_final_github_httr(repo, tag)) {
+    return(invisible(FALSE))
+  }
+  archive <- .remote_file_get_all_github_httr(repo, tag, "manifest.zip", dirname(store))
+  entries <- utils::unzip(archive, list = TRUE)$Name
+  fs::dir_create(store)
+  extract <- function(files) {
+    if (!length(files)) return(invisible(NULL))
+    if (!all(files %in% entries)) {
+      stop("Incomplete manifest.zip in release '", tag, "'.", call. = FALSE)
+    }
+    withCallingHandlers(
+      utils::unzip(archive, files = files, exdir = store),
+      warning = function(w) stop(conditionMessage(w), call. = FALSE)
+    )
+  }
+
+  if ("FORMAT" %in% entries) {
+    indexes <- grep("^[a-z0-9_-]+/versions[.]csv$", entries, value = TRUE)
+    if (!is.null(label)) {
+      indexes <- intersect(indexes, file.path(.path_encode_component(label), "versions.csv"))
+    }
+    extract(c("FORMAT", indexes))
+    if (!.manifest_store_ready(store)) {
+      stop("Incomplete manifest.zip in release '", tag, "'.", call. = FALSE)
+    }
+    index <- .manifest_store_index(store, label)
+    if (!is.null(version)) index <- index[index$version == version, , drop = FALSE]
+    extract(.remote_manifest_snapshots(index))
+  } else if ("manifest.csv" %in% entries) {
+    extract("manifest.csv")
+  } else {
+    stop("Unrecognized manifest.zip in release '", tag, "'.", call. = FALSE)
+  }
   invisible(TRUE)
 }
 
@@ -132,44 +197,30 @@
 # ========================
 
 #' @title Retrieve manifest data from a remote
-#' @description Downloads `manifest.csv` from the requested remote (or reads it
+#' @description Downloads manifest records from the requested remote (or reads them
 #'   from the current project) and returns it as a tibble.
 #' @param type Character scalar identifying the remote backend.
 #' @param remote_pre Backend-specific parent remote used when fetching from a
 #'   remote destination.
+#' @param label Optional directory label to read.
+#' @param version Optional build version to read, with or without a v prefix.
 #' @return Tibble containing manifest entries; empty tibble when unavailable.
 #' @keywords internal
 #' @noRd
-.remote_get_manifest <- function(type,
-                                 remote_pre) {
-  .cli_debug(
-    "Getting manifest.csv from {type} remote"
-  )
-
-  result <- switch(type,
-    "project" = .remote_get_manifest_project(),
-    .remote_get_manifest_non_project(
-      type,
-      remote_pre
-    )
-  )
-
-  .cli_debug(
-    "Retrieved manifest with {nrow(result)} row(s) from {type} remote"
-  )
-
-  result
+.remote_get_manifest <- function(type, remote_pre = NULL, label = NULL, version = NULL) {
+  if (!is.null(version)) version <- .version_v_add(version)
+  if (type == "project") return(.remote_get_manifest_project(label, version))
+  .remote_get_manifest_non_project(type, remote_pre, label, version)
 }
 
 #' @title Read the local project manifest
-#' @description Convenience helper that loads `manifest.csv` from the current
+#' @description Convenience helper that loads manifest history from the current
 #'   project root.
 #' @return Tibble containing the local manifest entries.
 #' @keywords internal
 #' @noRd
-.remote_get_manifest_project <- function() {
-  # just the actual project
-  .manifest_read(.path_get("manifest.csv"))
+.remote_get_manifest_project <- function(label = NULL, version = NULL) {
+  .manifest_read_project(label, version)
 }
 
 #' @title Retrieve manifest data from non-project remotes
@@ -179,75 +230,27 @@
 #' @return Tibble containing remote manifest rows (possibly empty).
 #' @keywords internal
 #' @noRd
-.remote_get_manifest_non_project <- function(type,
-                                             remote_pre) {
-  manifest_actual <- .remote_get_manifest_non_project_raw(
-    type,
-    remote_pre
-  )
-  if (is.null(manifest_actual)) {
-    .cli_debug(
-      "No manifest found on {type} remote, returning empty manifest"
-    )
-    return(.zero_tbl_get_manifest())
-  }
-  manifest_actual
-}
-
-#' @title Download the raw manifest file from a remote
-#' @description Handles the actual file transfer for `manifest.csv`, returning
-#'   parsed manifest data or `NULL` when the file cannot be retrieved.
-#' @inheritParams .remote_get_manifest
-#' @return Tibble containing manifest contents or `NULL` if missing.
-#' @keywords internal
-#' @noRd
-.remote_get_manifest_non_project_raw <- function(type,
-                                                 remote_pre) {
-  path_dir_save <- .dir_create_tmp_random()
-
-  .cli_debug(
-    "Attempting to download manifest.csv from {type} remote"
-  )
-
-  remote <- if (type == "github") {
-    remote_pre[["fn"]] <- "manifest.zip"
-    remote_pre
+.remote_get_manifest_non_project <- function(type, remote_pre, label = NULL, version = NULL) {
+  if (!length(remote_pre)) return(.zero_tbl_get_manifest())
+  if (type == "local") {
+    store <- file.path(remote_pre, "manifests")
+    legacy <- file.path(remote_pre, "manifest.csv")
   } else {
-    remote_pre
-  }
-
-  path_manifest <- tryCatch(
-    {
-      .remote_file_get(
-        type,
-        remote,
-        "manifest.csv",
-        path_dir_save
-      )
-    },
-    error = function(e) {
-      .cli_debug(
-        "Error downloading manifest.csv from {type} remote: {e$message}"
-      )
-      character(0L)
+    .assert_in(type, "github", TRUE)
+    stage <- .dir_create_tmp_random()
+    on.exit(unlink(stage, recursive = TRUE), add = TRUE)
+    store <- file.path(stage, "manifests")
+    tag <- .remote_misc_github_tag_format(remote_pre[["tag"]])
+    if (!.remote_manifest_download(.gh_repo_get(), tag, store, label, version)) {
+      return(.zero_tbl_get_manifest())
     }
-  )
-
-  if (length(path_manifest) == 0 || !file.exists(path_manifest)) {
-    .cli_debug(
-      "manifest.csv not found on {type} remote"
-    )
-    unlink(path_dir_save, recursive = TRUE)
-    return(NULL)
+    legacy <- file.path(store, "manifest.csv")
   }
-
-  .cli_debug(
-    "Successfully downloaded manifest.csv from {type} remote"
-  )
-
-  manifest <- .manifest_read(path_manifest)
-  unlink(path_dir_save, recursive = TRUE)
-  manifest
+  if (.manifest_store_ready(store)) return(.manifest_store_read(store, label, version))
+  rows <- .manifest_read(legacy)
+  if (!is.null(label)) rows <- .manifest_filter_label(rows, label)
+  if (!is.null(version)) rows <- .manifest_filter_version(rows, version)
+  rows
 }
 
 # ========================
@@ -439,12 +442,8 @@
   }
 
   # check that the manifest matches
-  manifest_project <- .remote_get_manifest_project() |>
-    .manifest_filter_label(label) |>
-    .manifest_filter_version(version_file)
-  manifest_remote <- .remote_get_manifest(type, remote_pre) |>
-    .manifest_filter_label(label) |>
-    .manifest_filter_version(version_file)
+  manifest_project <- .remote_get_manifest("project", label = label, version = version_file)
+  manifest_remote <- .remote_get_manifest(type, remote_pre, label, version_file)
   rownames(manifest_project) <- NULL
   rownames(manifest_remote) <- NULL
   # if the relevant version wasn't actually recorded online

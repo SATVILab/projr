@@ -137,7 +137,7 @@ projr_path_get_dir("output", safe = TRUE) # cache path: _tmp/projr/v0.1.0/output
 
 ## Manifest
 
-Each build records file hashes in `manifest.csv`, linking outputs to
+Each production build records file hashes in `_projr/manifests/`, linking outputs to
 exact input versions. Query it with:
 
 ```{r eval=FALSE}

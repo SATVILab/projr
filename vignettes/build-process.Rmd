@@ -226,7 +226,7 @@ If `clear_output = "post"`, the final directories are cleared before copying.
 
 1. Hashes files in `output` and `docs` directories
 2. Merges with the pre-build manifest
-3. Appends the current version to `manifest.csv`
+3. Records the build version in each hashed directory’s manifest index
 
 See the Manifest System section below for query functions.
 
@@ -322,22 +322,19 @@ projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
 
 ## Manifest System
 
-The manifest tracks file hashes across versions in `manifest.csv` at the project root.
-
-Pre-build hashes cover input directories (`raw-data`, `cache`). Post-build hashes cover output directories (`output`, `docs`). Both are merged and appended to the cumulative manifest.
+Production builds record input directories before rendering and output directories afterward. Each hashed label has its own history under `_projr/manifests/`. For example, `raw-data/versions.csv` might contain the following rows (snapshot IDs are abbreviated here).
 
 ```csv
-label,fn,version,hash
-raw-data,dataset.csv,v0.0.1,abc123def456
-output,figure1.png,v0.0.1,jkl678mno901
-docs,index.html,v0.0.1,pqr234stu567
+label,version,directory_version,snapshot
+raw-data,v1.0.0,v1.0.0,abcd…
+raw-data,v1.1.0,v1.0.0,abcd…
+raw-data,v1.2.0,v1.2.0,ef01…
+raw-data,v1.3.0,v1.0.0,abcd…
 ```
 
-This enables:
+Here the data changed in v1.2.0 and returned to its original contents in v1.3.0. The four builds share two file lists. Open `raw-data/files-<snapshot>.csv` to see each relative filename (`fn`) and its MD5 (`hash`). The full SHA-256 in the index identifies those exact CSV bytes. A change in `output/` updates that label’s history independently.
 
-- Knowing exactly what changed between versions
-- Uploading only changed files to remotes
-- An audit trail linking outputs to specific input versions
+An existing project can continue reading its root `manifest.csv`. Its next production build imports the old history and writes subsequent updates under `_projr/manifests/`.
 
 Query the manifest:
 
