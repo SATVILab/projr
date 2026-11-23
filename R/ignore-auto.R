@@ -120,14 +120,10 @@ projr_ignore_auto <- function() {
 # projr config files
 # -------------------------------------------------------------------------
 .ignore_auto_yml <- function() {
-  path_vec <- list.files(
-    path = .path_get(),
-    pattern = "^_projr\\.yml$|^_projr-.+\\.yml|^_quarto\\.yml$|^_bookdown\\.yml$" # nolint
-  )
-  .ignore_auto_file_rbuild(path_vec)
-  if (file.exists(.path_get("_projr-local.yml"))) {
-    .ignore_auto_file_git(.path_get("_projr-local.yml", relative = TRUE))
-  }
+  configs <- .yml_config_files()
+  render_configs <- list.files(.path_get(), pattern = "^_(quarto|bookdown)\\.yml$")
+  .ignore_auto_file_rbuild(c(configs, render_configs))
+  .ignore_auto_file_git(configs[basename(configs) == "_projr-local.yml"])
 }
 
 .ignore_auto_env <- function() {

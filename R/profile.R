@@ -83,12 +83,10 @@ projr_profile_create_local <- function() {
   .profile_check(profile)
 
   # Create profile file
-  profile_spec <- paste0("-", profile)
-  path_file <- paste0("_projr", profile_spec, ".yml") |>
-    .path_get()
+  path_file <- .yml_get_path(profile)
 
   # Add to rbuildignore
-  projr_ignore_file_rbuild(basename(path_file))
+  projr_ignore_file_rbuild(as.character(fs::path_rel(path_file, .path_get())))
 
   # Check if file already exists
   if (file.exists(path_file)) {
@@ -110,7 +108,7 @@ projr_profile_create_local <- function() {
 
 # Internal function to create local profile with proper structure
 .profile_create_local <- function() {
-  path_file <- .path_get("_projr-local.yml")
+  path_file <- .yml_get_path("local")
 
   # Check if file already exists
   if (file.exists(path_file)) {
@@ -142,15 +140,15 @@ projr_profile_create_local <- function() {
 }
 
 .profile_create_local_ignore <- function() {
-  projr_ignore_file("_projr-local.yml")
+  projr_ignore_file(as.character(fs::path_rel(.yml_get_path("local"), .path_get())))
 }
 
 .profile_create_local_ignore_git <- function() {
-  projr_ignore_file_git("_projr-local.yml")
+  projr_ignore_file_git(as.character(fs::path_rel(.yml_get_path("local"), .path_get())))
 }
 
 .profile_create_local_ignore_rbuild <- function() {
-  projr_ignore_file_rbuild("_projr-local.yml")
+  projr_ignore_file_rbuild(as.character(fs::path_rel(.yml_get_path("local"), .path_get())))
 }
 
 .profile_check <- function(x) {
@@ -242,7 +240,7 @@ projr_profile_delete <- function(profile) {
 }
 
 .profile_delete_impl <- function(profile) {
-  path_fn <- .path_get(paste0("_projr-", profile, ".yml"))
+  path_fn <- .yml_get_path(profile)
   if (!file.exists(path_fn)) {
     .cli_info("No such profile detected: {profile}")
     return(invisible(FALSE))

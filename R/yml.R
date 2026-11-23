@@ -134,7 +134,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .yml_get_default_raw <- function() {
-  path_yml <- .path_get("_projr.yml")
+  path_yml <- .yml_get_path("default")
   if (!file.exists(path_yml)) {
     return(list())
   }
@@ -196,14 +196,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 
 .yml_get_profile_ind_raw <- function(profile) {
   .assert_string(profile)
-  if (missing(profile) || profile == "default") {
-    profile_spec <- ""
-  } else {
-    profile_spec <- paste0("-", profile)
-  }
-  path_profile <- .path_get(
-    paste0("_projr", profile_spec, ".yml")
-  )
+  path_profile <- .yml_get_path(profile)
   if (!file.exists(path_profile)) {
     return(list())
   }
@@ -271,15 +264,27 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   invisible(TRUE)
 }
 
+# Root files take precedence. New configurations are created at the root.
 .yml_get_path <- function(profile) {
-  if (!.is_given_mid(profile) || profile == "default") {
-    return(.path_get("_projr.yml"))
+  filename <- if (!.is_given_mid(profile) || profile == "default") {
+    "_projr.yml"
+  } else {
+    paste0("_projr-", profile, ".yml")
   }
-  .path_get(paste0("_projr-", profile, ".yml"))
+  root <- .path_get()
+  primary <- file.path(root, filename)
+  nested <- file.path(root, "_projr/config", filename)
+  if (!file.exists(primary) && file.exists(nested)) nested else primary
+}
+
+.yml_config_files <- function(root = .path_get()) {
+  pattern <- "^_projr(-[[:alnum:]_-]+)?\\.yml$"
+  paths <- file.path(root, c("", "_projr/config"))
+  as.character(fs::path_rel(list.files(paths, pattern = pattern, full.names = TRUE), root))
 }
 
 .yml_set_root <- function(list_save) {
-  path_yml <- .path_get("_projr.yml")
+  path_yml <- .yml_get_path("default")
   yaml::write_yaml(list_save, path_yml)
   .newline_append(path_yml)
   invisible(TRUE)
