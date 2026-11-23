@@ -162,7 +162,7 @@
 </tr></tbody></table></div>
 <div class="section level3">
 <h3 id="suggested--optional-dependencies">Suggested / optional dependencies<a class="anchor" aria-label="anchor" href="#suggested--optional-dependencies"></a></h3>
-<p><code>gert</code>, <code>gh</code>, <code>gitcreds</code>, <code>credentials</code> (Git/GitHub), <code>osfr</code> (OSF), <code>rmarkdown</code>, <code>quarto</code>, <code>bookdown</code>, <code>knitr</code> (document rendering), <code>testthat</code> ≥ 3.0 (testing), <code>devtools</code>, <code>usethis</code>, <code>styler</code>, <code>roxygen2</code> (development).</p>
+<p><code>gert</code>, <code>gh</code>, <code>gitcreds</code>, <code>credentials</code> (Git/GitHub), <code>osfr</code> (OSF), <code>rmarkdown</code>, <code>quarto</code>, <code>bookdown</code>, <code>knitr</code> (document rendering), <code>testthat</code> ≥ 3.0 (testing), <code>devtools</code>, <code>usethis</code>, <code>roxygen2</code> (development).</p>
 </div>
 <div class="section level3">
 <h3 id="what-not-to-use">What NOT to use<a class="anchor" aria-label="anchor" href="#what-not-to-use"></a></h3>
@@ -243,9 +243,11 @@
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">check</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="lint--format-code">Lint / format code<a class="anchor" aria-label="anchor" href="#lint--format-code"></a></h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">styler</span><span class="fu">::</span><span class="fu"><a href="https://styler.r-lib.org/reference/style_pkg.html" class="external-link">style_pkg</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<h3 id="format-r-code">Format R code<a class="anchor" aria-label="anchor" href="#format-r-code"></a></h3>
+<p>Use Air for package code and tests. From the repository root, run the first command to format and the second to check for pending changes.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">air</span> format R tests</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="ex">air</span> format <span class="at">--check</span> R tests</span></code></pre></div>
+<p>Positron includes Air. In Positron or VS Code, use <strong>Format Document</strong> on an R file. For the terminal command, see the <a href="https://posit-dev.github.io/air/cli.html" class="external-link">Air CLI installation guide</a>.</p>
 </div>
 <div class="section level3">
 <h3 id="update-documentation">Update documentation<a class="anchor" aria-label="anchor" href="#update-documentation"></a></h3>
@@ -322,7 +324,7 @@
 <h3 id="commits--prs">Commits / PRs<a class="anchor" aria-label="anchor" href="#commits--prs"></a></h3>
 <ul><li><p>For a stable package release, merge its three-part <code>DESCRIPTION</code> version into <code>main</code>. The release workflow publishes the matching <code>vX.Y.Z</code> GitHub Release with the <code>R CMD build</code> source tarball. Tag pushes and the manual version/bump workflow also support publication. Keep released version tags fixed.</p></li>
 <li><p>Make <strong>minimal, surgical changes</strong> — change as few lines as possible.</p></li>
-<li><p>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code>, <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> (LITE), and <code><a href="https://styler.r-lib.org/reference/style_pkg.html" class="external-link">styler::style_pkg()</a></code> before committing.</p></li>
+<li><p>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code>, <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> (LITE), and <code>air format --check R tests</code> before committing.</p></li>
 <li><p>Update <code>_pkgdown.yml</code> when adding or removing exported functions, then verify with <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code>.</p></li>
 <li><p>Ensure files end with a <strong>single newline</strong> and have <strong>no trailing whitespace</strong>.</p></li>
 <li><p>Never leave <code><a href="https://rdrr.io/r/base/browser.html" class="external-link">browser()</a></code> or unguarded interactive debugging calls in committed code.</p></li>

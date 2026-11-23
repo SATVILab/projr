@@ -328,7 +328,7 @@ files.
 
 `gert`, `gh`, `gitcreds`, `credentials` (Git/GitHub), `osfr` (OSF),
 `rmarkdown`, `quarto`, `bookdown`, `knitr` (document rendering),
-`testthat` ≥ 3.0 (testing), `devtools`, `usethis`, `styler`, `roxygen2`
+`testthat` ≥ 3.0 (testing), `devtools`, `usethis`, `roxygen2`
 (development).
 
 ### What NOT to use
@@ -435,12 +435,19 @@ devtools::test()
 devtools::check()
 ```
 
-### Lint / format code
+### Format R code
 
-``` r
+Use Air for package code and tests. From the repository root, run the
+first command to format and the second to check for pending changes.
 
-styler::style_pkg()
+``` sh
+air format R tests
+air format --check R tests
 ```
+
+Positron includes Air. In Positron or VS Code, use **Format Document**
+on an R file. For the terminal command, see the [Air CLI installation
+guide](https://posit-dev.github.io/air/cli.html).
 
 ### Update documentation
 
@@ -569,9 +576,7 @@ Internal functions (`.` prefix) must **not** have `@export`.
 - Run
   [`devtools::document()`](https://devtools.r-lib.org/reference/document.html),
   [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
-  (LITE), and
-  [`styler::style_pkg()`](https://styler.r-lib.org/reference/style_pkg.html)
-  before committing.
+  (LITE), and `air format --check R tests` before committing.
 
 - Update `_pkgdown.yml` when adding or removing exported functions, then
   verify with

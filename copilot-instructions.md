@@ -41,10 +41,8 @@ local) and file operations (applies to `R/remote*.R`)
 **Before committing:** - Run
 [`devtools::document()`](https://devtools.r-lib.org/reference/document.html),
 [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
-(LITE mode),
-[`styler::style_pkg()`](https://styler.r-lib.org/reference/style_pkg.html) -
-Update `_pkgdown.yml` when adding/removing exported functions - Verify
-with
+(LITE mode), `air format --check R tests` - Update `_pkgdown.yml` when
+adding/removing exported functions - Verify with
 [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html) -
 Ensure files end with single newline, no trailing whitespace - Update
 copilot instructions as needed
