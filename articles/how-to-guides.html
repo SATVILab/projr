@@ -105,6 +105,13 @@ depending on the function used.</p>
 <code><a href="../reference/instr_auth.html">projr_instr_auth_github()</a></code> for setup instructions.
 Initialisation won’t overwrite existing config files.</p>
 <hr>
+<p>You can keep <code>_projr.yml</code>,
+<code>_projr-&lt;profile&gt;.yml</code> and
+<code>_projr-local.yml</code> in <code>_projr/config/</code> as well as
+the project root. You can split the files between these locations. A
+root file takes precedence over a nested file with the same name.
+Configuration updates write back to that file. New files and all
+relative paths in the configuration start at the project root.</p>
 </div>
 <div class="section level2">
 <h2 id="run-a-development-build">2. Run a development build<a class="anchor" aria-label="anchor" href="#run-a-development-build"></a>

@@ -19,8 +19,11 @@ Key architectural patterns:
   production;
   [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
   for development.
-- **YAML-driven configuration**: All project settings live in
-  `_projr.yml` at the project root.
+- **YAML-driven configuration**: Create `_projr.yml` at the project root
+  by default. Also read default, named and local configuration files in
+  `_projr/config/`. A root file takes precedence over a nested file of
+  the same name. Update the selected file in place and interpret
+  configured paths relative to the project root.
 - **Manifest tracking**: Every build records file hashes in
   `manifest.csv`, linking outputs to exact input versions.
 - **Remote destinations**: A unified dispatcher pattern (`R/remote.R`)

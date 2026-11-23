@@ -39,6 +39,13 @@ files.
 
 ------------------------------------------------------------------------
 
+You can keep `_projr.yml`, `_projr-<profile>.yml` and `_projr-local.yml`
+in `_projr/config/` as well as the project root. You can split the files
+between these locations. A root file takes precedence over a nested file
+with the same name. Configuration updates write back to that file. New
+files and all relative paths in the configuration start at the project
+root.
+
 ## 2. Run a development build
 
 Use

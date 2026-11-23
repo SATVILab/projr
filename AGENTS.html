@@ -57,7 +57,7 @@
 <ul><li>
 <strong>Single build entry point</strong>: <code>projr_build_patch/minor/major()</code> for production; <code><a href="reference/projr_build_dev.html">projr_build_dev()</a></code> for development.</li>
 <li>
-<strong>YAML-driven configuration</strong>: All project settings live in <code>_projr.yml</code> at the project root.</li>
+<strong>YAML-driven configuration</strong>: Create <code>_projr.yml</code> at the project root by default. Also read default, named and local configuration files in <code>_projr/config/</code>. A root file takes precedence over a nested file of the same name. Update the selected file in place and interpret configured paths relative to the project root.</li>
 <li>
 <strong>Manifest tracking</strong>: Every build records file hashes in <code>manifest.csv</code>, linking outputs to exact input versions.</li>
 <li>
