@@ -56,9 +56,10 @@ test_that("replay renders production scripts between its hooks using empty outpu
       expect_identical(readLines("order"), c("pre", "run", "run", "post"))
       expect_identical(readLines("_projr.yml"), config)
       expect_identical(readLines("VERSION"), "v1.2.3.9000")
+      hook_newline <- if (.Platform$OS.type == "windows") "\r\n" else "\n"
       expect_identical(
         readBin("DESCRIPTION", "raw", file.size("DESCRIPTION")),
-        charToRaw(paste0(initial, "Hook: ran\n"))
+        charToRaw(paste0(initial, "Hook: ran", hook_newline))
       )
       expect_identical(
         Sys.getenv("PROJR_PROFILE", unset = NA_character_),
