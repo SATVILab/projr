@@ -82,7 +82,7 @@
         return(hash_files_cpp(paths))
       }
       routine <- getDLLRegisteredRoutines(dyn.load(dll))$.Call[["_projr_hash_files_cpp"]]
-      .Call(routine, paths)
+      do.call(.Call, list(routine, paths))
     },
     legacy = vapply(fn, digest::digest, character(1), algo = "md5", file = TRUE, serialize = FALSE),
     stop("Unknown hash engine: ", engine, call. = FALSE)
