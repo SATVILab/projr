@@ -3,8 +3,6 @@
                           args_engine,
                           engine = .engine_get(scripts),
                           collect_paths = FALSE) {
-  .cli_info("Using rendering engine: {engine}")
-
   # Handle case where no documents are found
   if (identical(engine, character(1L))) {
     build_error <- paste0(
@@ -12,6 +10,9 @@
       "Please create either a .qmd or .Rmd file, or specify the file path explicitly."
     )
   } else {
+    if (engine %in% c("bookdown", "quarto_project") && length(scripts)) {
+      .cli_debug("Selected project documents: {paste(scripts, collapse = ', ')}")
+    }
     build_error <- switch(engine,
       "bookdown" = .build_engine_bookdown(args_engine),
       "quarto_project" = .build_engine_quarto_project(args_engine),
@@ -35,7 +36,7 @@
 
 .build_engine_bookdown <- function(args_engine) {
   .dep_install("bookdown")
-  .cli_debug("Rendering bookdown project")
+  .cli_step("Rendering Bookdown project")
   # Bookdown can cache a different project's YAML after a standalone R Markdown render.
   render <- function(args) try(do.call(bookdown::render_book, args), silent = TRUE)
   environment(render) <- baseenv()
@@ -56,7 +57,7 @@
 
 .build_engine_quarto_project <- function(args_engine) {
   .dep_install("quarto")
-  .cli_debug("Rendering Quarto project")
+  .cli_step("Rendering Quarto project")
   x_return <- try(.build_quarto_render(args_engine))
   err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
   if (is.null(err_msg)) {
@@ -68,9 +69,8 @@
 .build_engine_qmd <- function(scripts, args_engine) {
   .dep_install("quarto")
   fn_vec <- .build_engine_doc_fn_get(scripts = scripts, type = "qmd")
-  .cli_debug("Rendering {length(fn_vec)} Quarto document(s)")
   for (x in fn_vec) {
-    .cli_debug("Rendering: {x}")
+    .cli_step("Rendering Quarto document {fs::path_rel(x)}")
     x_return <- try(.build_quarto_render(c(list(input = x), args_engine)))
     if (.is_try_error(x_return)) {
       break
@@ -86,10 +86,9 @@
 .build_engine_rmd <- function(scripts, args_engine, collect_paths = FALSE) {
   .dep_install("rmarkdown")
   fn_vec <- .build_engine_doc_fn_get(scripts = scripts, type = "rmd")
-  .cli_debug("Rendering {length(fn_vec)} RMarkdown document(s)")
   outputs <- character()
   for (x in fn_vec) {
-    .cli_debug("Rendering: {x}")
+    .cli_step("Rendering R Markdown document {fs::path_rel(x)}")
     x_return <- try(
       do.call(rmarkdown::render, list(input = x) |> append(args_engine))
     )

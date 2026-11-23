@@ -4,6 +4,7 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
+  .cli_debug("Preparing input manifests")
   .build_manifest_pre_get_manifest() |>
     .manifest_write(.build_manifest_pre_path_get())
 }
@@ -39,6 +40,7 @@
   if (!output_run) {
     return(invisible(FALSE))
   }
+  .cli_debug("Recording output manifests")
   current <- .build_manifest_reduce(list(
     .build_manifest_pre_read(), .build_manifest_post_get_manifest(output_run)
   ))

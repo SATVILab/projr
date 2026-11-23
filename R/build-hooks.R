@@ -2,42 +2,9 @@
   # For dev builds, use dev.hooks and ignore build.hooks
   # For production builds, use build.hooks and ignore dev.hooks
   if (is_dev_build) {
-    # Use dev.hooks
-    dev_hooks_yml <- .yml_dev_get_hooks(NULL)
-    if (!is.null(dev_hooks_yml)) {
-      # Get hooks for this stage from dev.hooks
-      hooks_list <- c()
-
-      # Stage-specific hooks
-      if (stage %in% names(dev_hooks_yml)) {
-        stage_hooks <- dev_hooks_yml[[stage]]
-        if (!is.null(stage_hooks)) {
-          hooks_list <- c(hooks_list, as.character(stage_hooks))
-        }
-      }
-
-      # Hooks that run in both stages
-      if ("both" %in% names(dev_hooks_yml)) {
-        both_hooks <- dev_hooks_yml[["both"]]
-        if (!is.null(both_hooks)) {
-          hooks_list <- c(hooks_list, as.character(both_hooks))
-        }
-      }
-
-      # Run the hooks
-      if (length(hooks_list) > 0) {
-        for (hook_path in hooks_list) {
-          if (is.character(hook_path)) {
-            .cli_debug("Running dev hook: {hook_path}")
-            .hook_run(hook_path)
-          }
-        }
-      } else {
-        .cli_debug("No dev hooks to run for stage: {stage}")
-      }
-    } else {
-      .cli_debug("No dev.hooks configuration found")
-    }
+    hooks <- .yml_dev_get_hooks(NULL)
+    paths <- c(as.character(hooks[[stage]]), as.character(hooks[["both"]]))
+    for (path in paths) .hook_run(path, stage)
     return(invisible(TRUE))
   }
 
@@ -47,8 +14,7 @@
   if (!is.null(hooks_list) && length(hooks_list) > 0) {
     for (hook_path in hooks_list) {
       if (is.character(hook_path)) {
-        .cli_debug("Running build hook: {hook_path}")
-        .hook_run(hook_path)
+        .hook_run(hook_path, stage)
       }
     }
     return(invisible(TRUE))
@@ -71,8 +37,6 @@
     for (x in yml_script) {
       .build_hooks_run_title(x, stage = stage)
     }
-  } else {
-    .cli_debug("No hooks to run for stage: {stage}")
   }
   invisible(TRUE)
 }
@@ -90,17 +54,18 @@
     return(invisible(FALSE))
   }
   for (i in seq_along(x[["path"]])) {
-    .cli_debug("Running hook (legacy format): {x[['path']][i]}")
-    .hook_run(x[["path"]][i])
+    .hook_run(x[["path"]][i], stage)
   }
 }
 
-.hook_run <- function(path) {
+.hook_run <- function(path, stage = NULL) {
   if (!file.exists(path)) {
     stop(paste0("Hook '", path, "' does not exist."))
   }
   # Run hook in an isolated child environment of the global environment
   # This prevents hooks from cluttering the global environment or affecting each other
+  label <- if (is.null(stage)) "hook" else paste0(stage, "-build hook")
+  .cli_step("Running {label} {path}")
   hook_env <- new.env(parent = .GlobalEnv)
   source(path, local = hook_env)
   invisible(NULL)

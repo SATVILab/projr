@@ -7,6 +7,7 @@
   if (!.build_renv_snapshot_check(output_run)) {
     return(invisible(FALSE))
   }
+  .cli_step("Snapshotting renv dependencies")
   project <- as.character(.path_get())
   packages <- .build_renv_packages(project)
   # renv's missing-package menu can be interactive even with prompt = FALSE.
@@ -98,10 +99,14 @@
   msg <- .build_git_commit_get_msg(msg, stage)
 
   # commit
-  .git_commit_all(
+  result <- .git_commit_all(
     msg = msg,
     add_untracked = .yml_git_get_add_untracked(NULL)
   )
+  if (!isFALSE(result)) {
+    .cli_info("Created Git commit for the {stage} stage")
+  }
+  invisible(result)
 }
 
 .build_git_commit_pre_warn <- function(stage, output_run) {
@@ -205,6 +210,7 @@
   if (!.git_remote_check_upstream()) {
     warning("No upstream remote detected")
   }
+  .cli_step("Pushing to Git remote")
   .git_push()
   invisible(TRUE)
 }

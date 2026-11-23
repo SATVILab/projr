@@ -472,14 +472,14 @@ test_that(".build_git_commit works with valid git repo", {
       # Create a file to commit
       writeLines("test content", "test.txt")
 
-      # Should not error
-      expect_silent(.build_git_commit(
+      withr::local_envvar(c(PROJR_OUTPUT_LEVEL = "std"))
+      expect_message(.build_git_commit(
         output_run = TRUE,
         bump_component = "patch",
         version_run_on_list = NULL,
         stage = "pre",
         msg = "test"
-      ))
+      ), "Created Git commit for the pre stage")
     },
     quiet = TRUE,
     force = TRUE
@@ -552,7 +552,8 @@ test_that(".build_git_push warns when no upstream remote", {
       .test_setup_project_git_config()
       projr_yml_git_set(push = TRUE)
 
-      # No remote configured, should warn
+      # Isolate the upstream warning from the separate push operation.
+      local_mocked_bindings(.git_push = function() TRUE)
       expect_warning(
         .build_git_push(output_run = TRUE),
         "No upstream remote detected"

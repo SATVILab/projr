@@ -4,6 +4,7 @@
   if (!.build_roxygenise_check(output_run)) {
     return(invisible(FALSE))
   }
+  .cli_step("Updating roxygen documentation")
   .dep_install_only("roxygen2")
   suppressMessages(suppressWarnings(invisible(
     roxygen2::roxygenise(package.dir = .path_get())
@@ -146,6 +147,7 @@
   if (!.build_readme_rmd_render_check(output_run)) {
     return(invisible(FALSE))
   }
+  .cli_step("Rendering README.Rmd")
   .build_readme_rmd_render_add_devtools_if_needed()
   .build_readme_rmd_render_impl()
 }

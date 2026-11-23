@@ -6,30 +6,15 @@
   if (any(names(engines) %in% c("quarto_project", "bookdown", "quarto_document", "rmd"))) {
     .yml_dir_get_path("docs", NULL)
   }
-  # Check required packages are available BEFORE starting build
-  .cli_debug("Checking required packages")
+  if (!output_run) return(invisible(FALSE))
+
+  .cli_debug("Checking production build prerequisites")
   .build_check_packages_available(output_run, engines)
-
-  # check build restrictions (branch)
-  .cli_debug("Checking build restrictions")
   .build_check_restrictions(output_run)
-
   .build_renv_snapshot(output_run)
-
-  # set and check authorisation is available
-  .cli_debug("Checking environment variables")
   .build_env_check(output_run)
-
-  # check that we have Git if needed
-  .cli_debug("Checking Git repository")
   .build_git_check(output_run)
-
-  # check that we have GitHub remote if needed
-  .cli_debug("Checking GitHub remote")
   .build_github_check(output_run)
-
-  # check we are not missing upstream commits
-  .cli_debug("Checking upstream commits")
   .build_exit_if_behind_upstream(output_run)
 }
 
@@ -158,17 +143,15 @@
     }
   }
   if (isTRUE(yml_git) || isTRUE(yml_git[["push"]])) {
-    cli::cli_alert_warning("GitHub remote required, but not found.")
-    cli::cli_inform("Will attempt to create a new GitHub remote.")
+    .cli_info("Git pushes are enabled. Configure a Git remote to push this build.")
     return(invisible(TRUE))
   }
   # check if it's an option
   if (.is_interactive_and_not_test()) {
-    cli::cli_alert_warning("GitHub remote not found.")
-    cli::cli_inform("It is not required, but recommended, and projr will help handle setup for you.") # nolint
+    .cli_info("No Git remote is configured for this project.")
     choice <- utils::menu(
       c("Yes", "No"),
-      title = "Do you want to create a new GitHub remote?"
+      title = "Do you want to keep automatic Git pushes enabled?"
     )
     if (choice == 2) {
       cli::cli_alert_info("Disabling automated pushes to GitHub by projr.")
@@ -178,8 +161,7 @@
     }
     TRUE
   } else {
-    cli::cli_alert_info("GitHub remote not found.")
-    cli::cli_alert_info("GitHub remote will be created automatically, as in non-interactive mode.") # nolint
+    .cli_info("No Git remote is configured for this project.")
     TRUE
   }
 }
@@ -255,7 +237,6 @@
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
-  .cli_debug("Updating documentation output directory")
   .build_doc_output_dir_update(FALSE)
 
   # ensure that pre-build, we are on dev version
@@ -267,18 +248,16 @@
                                             output_run,
                                             clear_output) {
   # set the version pre-run
-  .cli_debug("Setting build version")
+  .cli_step("Setting build version to {version_run_on_list$desc[['run']]}")
   .build_version_set_pre(version_run_on_list)
 
   # ensure that docs directory is the unsafe directory.
   # will copy docs across upon success.
-  .cli_debug("Configuring documentation directory")
   .build_doc_output_dir_update(FALSE)
 
 
   # empty output directories
   # (docs, output and data)
-  .cli_debug("Clearing output directories (pre-build)")
   .build_include_check_config()
   .build_clear_pre(output_run, clear_output)
   # Existing analysis scripts can write directly to their declared output paths.
@@ -357,6 +336,7 @@
     return(invisible(FALSE))
   }
 
+  .cli_debug("Checking for upstream commits")
   if (.git_check_behind()) {
     stop(
       "Remote is ahead of local.\n",
