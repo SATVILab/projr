@@ -193,12 +193,12 @@
       .manifest_store_write_label(rows[indices, , drop = FALSE], directory, tmp)
     }
   }
-  # Git checkouts must preserve the bytes named by each snapshot's checksum.
+  # Keep generated CSV bytes stable across checkouts with different Git EOL settings.
   path_attributes <- file.path(path_dir, ".gitattributes")
-  rule <- "files-*.csv -text"
   attributes <- if (file.exists(path_attributes)) readLines(path_attributes, warn = FALSE)
-  if (!rule %in% attributes) {
-    writeLines(c(attributes, rule), tmp)
+  missing <- setdiff(c("files-*.csv -text", "versions.csv -text"), attributes)
+  if (length(missing)) {
+    writeLines(c(attributes, missing), tmp)
     fs::file_move(tmp, path_attributes)
   }
   if (!ready) {
