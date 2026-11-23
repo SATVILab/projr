@@ -65,6 +65,7 @@
 <li>
 <strong>Internal vs. exported functions</strong>: Internal helpers use a <code>.</code> prefix (e.g., <code>.hash_file()</code>); exported functions use the <code>projr_</code> prefix (e.g., <code><a href="reference/projr_build.html">projr_build_patch()</a></code>).</li>
 </ul><p>A project with a legacy root <code>manifest.csv</code> can be queried and restored before migration. The next production build imports its history. Local destinations store directory histories in <code>manifests/</code>. GitHub Releases use one <code>manifest.zip</code> asset.</p>
+<p>File hashing uses the top-level <code>settings.hash-engine</code> key. Its default, <code>cpp</code>, streams files in batches. The <code>legacy</code> option uses the historical per-file <code>digest</code> implementation. Both produce identical MD5 values and use the same per-directory manifest history.</p>
 <div class="section level3">
 <h3 id="build-script-selection-and-rendering">Build script selection and rendering<a class="anchor" aria-label="anchor" href="#build-script-selection-and-rendering"></a></h3>
 <ul><li>
@@ -121,7 +122,7 @@
 </tr><tr><td><code>fs</code></td>
 <td>File-system operations</td>
 </tr><tr><td><code>digest</code></td>
-<td>MD5 hashing for manifests</td>
+<td>SHA-256 snapshot IDs and historical MD5 hashing</td>
 </tr><tr><td><code>uuid</code></td>
 <td>Random UUIDv4 identifiers for build templates</td>
 </tr><tr><td><code>filelock</code></td>

@@ -389,6 +389,18 @@ Each final build records file hashes in the per-directory histories
 under `_projr/manifests/`. Identical directory contents share one file
 list.
 
+The default C++ backend streams files in batches. To use the historical
+R implementation on a project or in one profile, set this in its projr
+YAML file.
+
+``` yaml
+settings:
+  hash-engine: legacy
+```
+
+Both backends produce the same MD5 hashes. Switching back to `cpp`
+preserves the directory version for unchanged files.
+
 Compare two versions:
 
 ``` r

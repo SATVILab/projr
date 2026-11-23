@@ -401,20 +401,28 @@ also creates a detailed Quarto log file organised by date.</p>
 <p>Each final build records file hashes in the per-directory histories
 under <code>_projr/manifests/</code>. Identical directory contents share
 one file list.</p>
+<p>The default C++ backend streams files in batches. To use the
+historical R implementation on a project or in one profile, set this in
+its projr YAML file.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">settings</span><span class="kw">:</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hash-engine</span><span class="kw">:</span><span class="at"> legacy</span></span></code></pre></div>
+<p>Both backends produce the same MD5 hashes. Switching back to
+<code>cpp</code> preserves the directory version for unchanged
+files.</p>
 <p>Compare two versions:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span>, label <span class="op">=</span> <span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
 <p>Track files across a range of versions:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_range</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.5"</span>, label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span></code></pre></div>
 <p>Check when directories last changed:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_last_change</a></span><span class="op">(</span><span class="st">"0.0.3"</span><span class="op">)</span></span></code></pre></div>
 <p>Practical example — detect raw data changes since a release:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">raw_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span></span>
 <span>  <span class="st">"0.1.0"</span>, <span class="fu"><a href="../reference/projr_version_get.html">projr_version_get</a></span><span class="op">(</span><span class="op">)</span>, label <span class="op">=</span> <span class="st">"raw-data"</span></span>
 <span><span class="op">)</span></span>
@@ -430,19 +438,19 @@ when there are no results.</p>
 <h2 id="configure-environment-variables">10. Configure environment variables<a class="anchor" aria-label="anchor" href="#configure-environment-variables"></a>
 </h2>
 <p>Create environment files at the project root:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment"</span><span class="op">)</span>       <span class="co"># Global defaults</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment-dev"</span><span class="op">)</span>   <span class="co"># Profile-specific overrides</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.create</a></span><span class="op">(</span><span class="st">"_environment.local"</span><span class="op">)</span> <span class="co"># Machine-specific, git-ignored</span></span></code></pre></div>
 <p>Add variables in <code>KEY=value</code> format:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="co"># _environment</span></span>
-<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
-<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE</span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a></span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co"># _environment.local (for secrets — git-ignored)</span></span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="va">GITHUB_PAT</span><span class="op">=</span>your_token_here</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="co"># _environment</span></span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="va">PROJR_OUTPUT_LEVEL</span><span class="op">=</span>std</span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a><span class="va">PROJR_LOG_DETAILED</span><span class="op">=</span>TRUE</span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co"># _environment.local (for secrets — git-ignored)</span></span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="va">GITHUB_PAT</span><span class="op">=</span>your_token_here</span></code></pre></div>
 <p>Load them:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_env_set.html">projr_env_set</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Key variables:</p>
 <table class="table">

@@ -41,6 +41,11 @@ before migration. The next production build imports its history. Local
 destinations store directory histories in `manifests/`. GitHub Releases
 use one `manifest.zip` asset.
 
+File hashing uses the top-level `settings.hash-engine` key. Its default,
+`cpp`, streams files in batches. The `legacy` option uses the historical
+per-file `digest` implementation. Both produce identical MD5 values and
+use the same per-directory manifest history.
+
 ### Build script selection and rendering
 
 - `projr_build_dev(scripts = ...)` takes precedence over `dev.scripts`,
@@ -144,7 +149,7 @@ use one `manifest.zip` asset.
 | `rprojroot` | Reliable project-root detection                   |
 | `desc`      | Read/write `DESCRIPTION`                          |
 | `fs`        | File-system operations                            |
-| `digest`    | MD5 hashing for manifests                         |
+| `digest`    | SHA-256 snapshot IDs and historical MD5 hashing   |
 | `uuid`      | Random UUIDv4 identifiers for build templates     |
 | `filelock`  | Serialize concurrent updates to project manifests |
 | `cli`       | Console output                                    |
