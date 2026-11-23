@@ -40,7 +40,7 @@ files.
 ------------------------------------------------------------------------
 
 You can keep `_projr.yml`, `_projr-<profile>.yml` and `_projr-local.yml`
-in `_projr/config/` as well as the project root. You can split the files
+in `.projr/config/` as well as the project root. You can split the files
 between these locations. A root file takes precedence over a nested file
 with the same name. Configuration updates write back to that file. New
 files and all relative paths in the configuration start at the project
@@ -339,9 +339,8 @@ trackable.
 
 ## 8. View and manage build logs
 
-Build history is logged to
-`cache/projr/log/{dev,output}/history/builds.md`. Each build also
-creates a detailed Quarto log file organised by date.
+Build history is logged to `.projr/logs/{dev,output}/history/builds.md`.
+Each build also creates a detailed Quarto log file organised by date.
 
 ``` r
 
@@ -349,7 +348,7 @@ creates a detailed Quarto log file organised by date.
 projr_log_view()
 
 # List detailed log files
-list.files("cache/projr/log/dev/output",
+list.files(".projr/logs/dev/output",
   recursive = TRUE, pattern = "\\.qmd$"
 )
 ```
@@ -381,7 +380,7 @@ Logs are never cleared automatically — manage them manually.
 ## 9. Query the manifest
 
 Each final build records file hashes in the per-directory histories
-under `_projr/manifests/`. Identical directory contents share one file
+under `.projr/manifests/`. Identical directory contents share one file
 list.
 
 By default, projr hashes files in C++ using one core. To use up to four

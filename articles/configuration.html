@@ -105,7 +105,7 @@ its directory declarations determine which labels are available.</p>
 </tbody>
 </table>
 <p>Each file can live at the project root or in
-<code>_projr/config/</code>. When both locations contain the same
+<code>.projr/config/</code>. When both locations contain the same
 filename, the root copy wins. All relative paths in either location
 start at the project root. A nested script can therefore use the same
 directory labels when run in RStudio or during a build.</p>
@@ -117,6 +117,21 @@ specify a value. Local overrides still win. Use
 <code><a href="../reference/projr_yml_get.html">projr_yml_get()</a></code> to inspect the merged settings,
 <code>projr_yml_get("default")</code> to inspect the base file, and
 <code><a href="../reference/projr_yml_check.html">projr_yml_check()</a></code> to validate the active configuration.</p>
+<div class="section level3">
+<h3 id="files-projr-keeps">Files projr keeps<a class="anchor" aria-label="anchor" href="#files-projr-keeps"></a>
+</h3>
+<p>The <code>.projr/</code> folder belongs to the project. Git can track
+its configuration and manifests so a fresh checkout knows which files
+belonged to a build. Build history and detailed logs live in
+<code>.projr/logs/</code> and stay local.</p>
+<p>A build or restore moves recognized configuration files and manifests
+from the earlier <code>_projr/</code> layout. Read-only queries still
+work on older checkouts. If both locations contain the same
+configuration filename or a manifest store, projr stops before moving
+anything so you can choose which history to keep. Existing logs in a
+former cache directory remain readable with
+<code>projr_log_view(log_file = "...")</code>.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="directory-declarations">Directory declarations<a class="anchor" aria-label="anchor" href="#directory-declarations"></a>
@@ -407,7 +422,7 @@ worker. The earlier <code>settings.hash-engine</code> spelling is
 accepted for compatibility.</p>
 <p>Each versioned build records the selected raw/cache inputs before
 rendering and outputs/docs afterward. Open
-<code>_projr/manifests/&lt;label&gt;/versions.csv</code> to see the
+<code>.projr/manifests/&lt;label&gt;/versions.csv</code> to see the
 project version, earliest matching directory version, and file-list
 identifier. The matching <code>files-&lt;snapshot&gt;.csv</code> lists
 relative filenames and MD5 hashes. Identical contents share a single

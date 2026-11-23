@@ -21,7 +21,7 @@ declarations determine which labels are available.
 | `_projr-<profile>.yml` | Overrides for a named analysis or machine. |
 | `_projr-local.yml`     | Local overrides with highest precedence.   |
 
-Each file can live at the project root or in `_projr/config/`. When both
+Each file can live at the project root or in `.projr/config/`. When both
 locations contain the same filename, the root copy wins. All relative
 paths in either location start at the project root. A nested script can
 therefore use the same directory labels when run in RStudio or during a
@@ -36,6 +36,20 @@ to inspect the merged settings, `projr_yml_get("default")` to inspect
 the base file, and
 [`projr_yml_check()`](https://satvilab.github.io/projr/reference/projr_yml_check.md)
 to validate the active configuration.
+
+### Files projr keeps
+
+The `.projr/` folder belongs to the project. Git can track its
+configuration and manifests so a fresh checkout knows which files
+belonged to a build. Build history and detailed logs live in
+`.projr/logs/` and stay local.
+
+A build or restore moves recognized configuration files and manifests
+from the earlier `_projr/` layout. Read-only queries still work on older
+checkouts. If both locations contain the same configuration filename or
+a manifest store, projr stops before moving anything so you can choose
+which history to keep. Existing logs in a former cache directory remain
+readable with `projr_log_view(log_file = "...")`.
 
 ## Directory declarations
 
@@ -202,7 +216,7 @@ for compatibility.
 
 Each versioned build records the selected raw/cache inputs before
 rendering and outputs/docs afterward. Open
-`_projr/manifests/<label>/versions.csv` to see the project version,
+`.projr/manifests/<label>/versions.csv` to see the project version,
 earliest matching directory version, and file-list identifier. The
 matching `files-<snapshot>.csv` lists relative filenames and MD5 hashes.
 Identical contents share a single file list per label, including when a

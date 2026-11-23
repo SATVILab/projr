@@ -384,7 +384,7 @@ projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
 
 Production builds record input directories before rendering and output
 directories afterward. Each hashed label has its own history under
-`_projr/manifests/`. For example, `raw-data/versions.csv` might contain
+`.projr/manifests/`. For example, `raw-data/versions.csv` might contain
 the following rows (snapshot IDs are abbreviated here).
 
 ``` csv
@@ -404,7 +404,7 @@ independently.
 
 An existing project can continue reading its root `manifest.csv`. Its
 next production build imports the old history and writes subsequent
-updates under `_projr/manifests/`.
+updates under `.projr/manifests/`.
 
 Query the manifest:
 
@@ -450,10 +450,9 @@ the detailed log keeps the steps leading up to the error.
 
 #### Log files
 
-With the starter configuration, projr saves each build log under
-`_tmp/projr/log/`. A custom cache path changes that location.
+Each build keeps its log under `.projr/logs/` at the project root.
 
-    _tmp/projr/log/
+    .projr/logs/
     ├── output/                    # Production build logs
     │   ├── history/builds.md      # All build records
     │   └── output/YYYY-MMM-DD/
@@ -487,7 +486,8 @@ Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 projr_build_patch(msg = "Debug run")
 ```
 
-2.  Review the detailed log file in the cache directory.
+2.  Read the detailed log with
+    [`projr_log_view()`](https://satvilab.github.io/projr/reference/projr_log_view.md).
 
 3.  Check git status:
 

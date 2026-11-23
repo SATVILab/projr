@@ -102,7 +102,7 @@ These functions restore artefact directories from remote sources:
 
 - `projr_content_update()` restores artefacts in an existing local
   project without any cloning required. Reads directory histories in
-  `_projr/manifests/` or a legacy root `manifest.csv`.
+  `.projr/manifests/` or a legacy root `manifest.csv`.
 
 - `projr_restore_repo()` clones a GitHub repository into a subdirectory
   (or specified path), then restores artefacts from that repository's

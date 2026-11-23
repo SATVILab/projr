@@ -21,11 +21,11 @@ Key architectural patterns:
   for development.
 - **YAML-driven configuration**: Create `_projr.yml` at the project root
   by default. Also read default, named and local configuration files in
-  `_projr/config/`. A root file takes precedence over a nested file of
+  `.projr/config/`. A root file takes precedence over a nested file of
   the same name. Update the selected file in place and interpret
   configured paths relative to the project root.
 - **Directory paths**: Require a default configuration at the root or in
-  `_projr/config/`. On the first build, write the starter at the project
+  `.projr/config/`. On the first build, write the starter at the project
   root if both supported locations lack a base YAML. The starter
   disables Git outside a repository and disables pushing for a
   repository with no upstream. Keep existing configurations intact. Use
@@ -36,7 +36,7 @@ Key architectural patterns:
   and ignore rules from the project root, including when called from a
   nested renderer working directory.
 - **Manifest tracking**: Production builds record each hashed directory
-  independently under `_projr/manifests/<label>/`. Its `versions.csv`
+  independently under `.projr/manifests/<label>/`. Its `versions.csv`
   maps project versions to the earliest matching directory version and
   the SHA-256 of a file list. Each distinct list of relative paths and
   MD5 hashes is stored once.
@@ -146,6 +146,13 @@ package names before modifying the lockfile.
 - Reserve the receiving subdirectory for the included label. Reject
   cycles, conflicting files or links, and directory paths that would
   copy recursively or clear the source.
+
+Store package bookkeeping under `.projr/` (optional configuration in
+`config/`, versioned directory histories in `manifests/`, and untracked
+build diagnostics and history in `logs/`). Keep the first-build starter
+at the project root as `_projr.yml`. A build or restore may move
+recognized legacy state from `_projr/`; ordinary reads must work without
+moving files.
 
 ### Directory ignores across profiles
 

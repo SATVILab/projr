@@ -119,7 +119,7 @@ the right place before calling it.
 ## projr_content_update()
 
 Restores artifacts in an existing local project (no cloning). The
-project must have a build history in `_projr/manifests/` or a legacy
+project must have a build history in `.projr/manifests/` or a legacy
 root `manifest.csv`.
 
 ``` r

@@ -51,11 +51,11 @@
 <ul><li>
 <strong>Single build entry point</strong>: <code>projr_build_patch/minor/major()</code> for production; <code><a href="reference/projr_build_dev.html">projr_build_dev()</a></code> for development.</li>
 <li>
-<strong>YAML-driven configuration</strong>: Create <code>_projr.yml</code> at the project root by default. Also read default, named and local configuration files in <code>_projr/config/</code>. A root file takes precedence over a nested file of the same name. Update the selected file in place and interpret configured paths relative to the project root.</li>
+<strong>YAML-driven configuration</strong>: Create <code>_projr.yml</code> at the project root by default. Also read default, named and local configuration files in <code>.projr/config/</code>. A root file takes precedence over a nested file of the same name. Update the selected file in place and interpret configured paths relative to the project root.</li>
 <li>
-<strong>Directory paths</strong>: Require a default configuration at the root or in <code>_projr/config/</code>. On the first build, write the starter at the project root if both supported locations lack a base YAML. The starter disables Git outside a repository and disables pushing for a repository with no upstream. Keep existing configurations intact. Use only directory labels declared with a path in the merged active configuration. The initialization template declares conventional paths explicitly. Require a cache when staging outputs and a docs directory when rendering documents. Resolve configured paths, safe build paths and ignore rules from the project root, including when called from a nested renderer working directory.</li>
+<strong>Directory paths</strong>: Require a default configuration at the root or in <code>.projr/config/</code>. On the first build, write the starter at the project root if both supported locations lack a base YAML. The starter disables Git outside a repository and disables pushing for a repository with no upstream. Keep existing configurations intact. Use only directory labels declared with a path in the merged active configuration. The initialization template declares conventional paths explicitly. Require a cache when staging outputs and a docs directory when rendering documents. Resolve configured paths, safe build paths and ignore rules from the project root, including when called from a nested renderer working directory.</li>
 <li>
-<strong>Manifest tracking</strong>: Production builds record each hashed directory independently under <code>_projr/manifests/&lt;label&gt;/</code>. Its <code>versions.csv</code> maps project versions to the earliest matching directory version and the SHA-256 of a file list. Each distinct list of relative paths and MD5 hashes is stored once.</li>
+<strong>Manifest tracking</strong>: Production builds record each hashed directory independently under <code>.projr/manifests/&lt;label&gt;/</code>. Its <code>versions.csv</code> maps project versions to the earliest matching directory version and the SHA-256 of a file list. Each distinct list of relative paths and MD5 hashes is stored once.</li>
 <li>
 <strong>Remote destinations</strong>: A unified dispatcher pattern (<code>R/remote.R</code>) routes file operations to local, GitHub, or OSF backends.</li>
 <li>
@@ -83,7 +83,8 @@
 <li>Create declared output directories before production scripts run so scripts can write directly to their configured paths on the first build.</li>
 <li>Collect development copies in the build cache and production copies in the configured output before hashing or archiving it. Preserve existing source-side <code>output</code> settings. A request made in both places copies once.</li>
 <li>Reserve the receiving subdirectory for the included label. Reject cycles, conflicting files or links, and directory paths that would copy recursively or clear the source.</li>
-</ul></div>
+</ul><p>Store package bookkeeping under <code>.projr/</code> (optional configuration in <code>config/</code>, versioned directory histories in <code>manifests/</code>, and untracked build diagnostics and history in <code>logs/</code>). Keep the first-build starter at the project root as <code>_projr.yml</code>. A build or restore may move recognized legacy state from <code>_projr/</code>; ordinary reads must work without moving files.</p>
+</div>
 <div class="section level3">
 <h3 id="directory-ignores-across-profiles">Directory ignores across profiles<a class="anchor" aria-label="anchor" href="#directory-ignores-across-profiles"></a></h3>
 <ul><li>When updating <code>.gitignore</code>, combine directory rules from active and inactive profiles per literal project-relative path. Apply the same logic to <code>.Rbuildignore</code> when the project root contains <code>DESCRIPTION</code>. Include a path for each ignore type enabled by any contributing profile.</li>

@@ -145,7 +145,7 @@ restoration fails.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>These functions restore artefact directories from remote sources:</p><ul><li><p><code>projr_content_update()</code> restores artefacts in an existing local project without any cloning required.
-Reads directory histories in <code>_projr/manifests/</code> or a legacy root <code>manifest.csv</code>.</p></li>
+Reads directory histories in <code>.projr/manifests/</code> or a legacy root <code>manifest.csv</code>.</p></li>
 <li><p><code>projr_restore_repo()</code> clones a GitHub repository into a subdirectory (or specified path),
 then restores artefacts from that repository's remote sources.</p></li>
 <li><p><code>projr_restore_repo_wd()</code> clones directly into the current working directory, then restores artefacts.</p></li>
