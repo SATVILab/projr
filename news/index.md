@@ -1,5 +1,39 @@
 # Changelog
 
+## projr 0.6.1
+
+- Development builds leave `VERSION` and the package version in
+  `DESCRIPTION` alone, including after a failed render. You can run a
+  development build before creating either file. A dev build run inside
+  a production README also keeps the outer build’s archive at its
+  production version.
+- Use `- exclude: scratch.R` in a `build.scripts` or `dev.scripts` list
+  to skip a file or glob. With only exclusions, projr discovers the
+  usual scripts and documents and skips the matches. Quoted
+  `"!scratch.R"` also works.
+- Manual rules in `.gitignore` and `.Rbuildignore` survive a refresh.
+  Initialization keeps the original ignore file outside the managed
+  section and adds editable rules for `.vdoc.*`, `.DS_Store` and
+  `Thumbs.db`.
+- Package datasets use the standard `data/` folder without a YAML entry.
+  A production build collects staged datasets into the package and
+  preserves other datasets already there. Declaring `data: {path: data}`
+  also keeps datasets available to Git and R source packages by default.
+- Refreshing the managed ignore block removes its old directory heading
+  and keeps figures linked from the root `README.md` visible to Git.
+- Production builds check the packages needed for a root `README.Rmd`
+  before running analysis scripts.
+- If adding a package `DESCRIPTION` makes renv select an empty library,
+  builds can still use the packages already installed in this checkout’s
+  analysis library. Quarto and its pre-build checks use the same project
+  library.
+- The tracked build history is now `.projr/BUILDLOG.md`. Older checkouts
+  keep their entries when the log moves. `CHANGELOG.md` stays at the
+  root.
+- When a file has stayed the same since its first build,
+  [`projr_manifest_file_last_change()`](https://satvilab.github.io/projr/reference/projr_manifest_file_query.md)
+  now reports the version where it first appeared.
+
 ## projr 0.6.0
 
 ### Changes for existing projects

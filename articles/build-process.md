@@ -88,13 +88,15 @@ The build validates the environment before starting:
 
 1.  [`projr_yml_check()`](https://satvilab.github.io/projr/reference/projr_yml_check.md)
     validates `_projr.yml`
-2.  All configured scripts and hooks must exist on disk
-3.  Required packages (quarto, rmarkdown, etc.) must be installed
-4.  GitHub authentication checked when a GitHub destination is
-    configured
-5.  Git repository must be initialized
-6.  If push is enabled, the GitHub remote must exist and the local
-    branch must not be behind
+2.  Each script selected by name must exist, each inclusion pattern must
+    match a file, and configured hooks must exist
+3.  Required rendering packages must be installed
+4.  GitHub publication requires credentials for the destination
+    repository
+5.  Automatic commits require a Git repository. You can build locally
+    with `build.git: false`
+6.  For a push, the local branch needs an upstream. By default, projr
+    also checks that the local branch is up to date
 
 Run
 [`projr_build_check_packages()`](https://satvilab.github.io/projr/reference/projr_build_check_packages.md)
@@ -395,8 +397,10 @@ Post-build hooks run after distribution, before the final push. See
 
 #### Dev version bump
 
-Production builds only. Appends a dev suffix (e.g. `0.0.2` → `0.0.2-1`)
-and commits with the message `"Begin v{version}"`.
+After publication, a production build sets the development version (for
+example, `0.0.2-1`). If Git commits are enabled, the follow-up commit
+uses the development version in its message, such as
+`Build v0.0.2-1: Update measurements`.
 
 #### Git push
 
@@ -426,8 +430,10 @@ projr_yml_git_set(commit = TRUE, push = TRUE, add_untracked = TRUE)
 
 Production builds record input directories before rendering and output
 directories afterward. Each hashed label has its own history under
-`.projr/manifests/`. For example, `raw-data/versions.csv` might contain
-the following rows (snapshot IDs are abbreviated here).
+`.projr/manifests/`. In `raw-data/versions.csv`, each project build has
+one row in the `version` column. The `directory_version` column shows
+the earliest build with those exact files and can repeat. Here is an
+example with shortened snapshot IDs.
 
 ``` csv
 label,version,directory_version,snapshot
@@ -631,11 +637,10 @@ projr_manifest_last_change()
 projr_log_view()
 ```
 
-After
-[`projr_build_patch()`](https://satvilab.github.io/projr/reference/projr_build.md)
-completes, the project version is bumped to a dev version
-(e.g. `0.0.2-1`), all artifacts are committed and pushed, and remote
-destinations have received the new files.
+In this example, the GitHub release holds the archived inputs and
+results. Git records the code and build history when commits are
+enabled. The working copy then has the development version, such as
+`0.0.2-1`.
 
 ------------------------------------------------------------------------
 

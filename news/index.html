@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,18 @@
       <small>Source: <a href="https://github.com/SATVILab/projr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.1" id="projr-061">projr 0.6.1<a class="anchor" aria-label="anchor" href="#projr-061"></a></h2>
+<ul><li>Development builds leave <code>VERSION</code> and the package version in <code>DESCRIPTION</code> alone, including after a failed render. You can run a development build before creating either file. A dev build run inside a production README also keeps the outer build’s archive at its production version.</li>
+<li>Use <code>- exclude: scratch.R</code> in a <code>build.scripts</code> or <code>dev.scripts</code> list to skip a file or glob. With only exclusions, projr discovers the usual scripts and documents and skips the matches. Quoted <code>"!scratch.R"</code> also works.</li>
+<li>Manual rules in <code>.gitignore</code> and <code>.Rbuildignore</code> survive a refresh. Initialization keeps the original ignore file outside the managed section and adds editable rules for <code>.vdoc.*</code>, <code>.DS_Store</code> and <code>Thumbs.db</code>.</li>
+<li>Package datasets use the standard <code>data/</code> folder without a YAML entry. A production build collects staged datasets into the package and preserves other datasets already there. Declaring <code>data: {path: data}</code> also keeps datasets available to Git and R source packages by default.</li>
+<li>Refreshing the managed ignore block removes its old directory heading and keeps figures linked from the root <code>README.md</code> visible to Git.</li>
+<li>Production builds check the packages needed for a root <code>README.Rmd</code> before running analysis scripts.</li>
+<li>If adding a package <code>DESCRIPTION</code> makes renv select an empty library, builds can still use the packages already installed in this checkout’s analysis library. Quarto and its pre-build checks use the same project library.</li>
+<li>The tracked build history is now <code>.projr/BUILDLOG.md</code>. Older checkouts keep their entries when the log moves. <code>CHANGELOG.md</code> stays at the root.</li>
+<li>When a file has stayed the same since its first build, <code><a href="../reference/projr_manifest_file_query.html">projr_manifest_file_last_change()</a></code> now reports the version where it first appeared.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="projr-060">projr 0.6.0<a class="anchor" aria-label="anchor" href="#projr-060"></a></h2>
 <div class="section level3">

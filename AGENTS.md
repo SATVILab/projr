@@ -82,7 +82,11 @@ project has its renv lockfile or activation script. `true` can create
 the first lockfile using installed packages, and `false` disables
 snapshots. Check dependencies before remote preparation and rendering.
 Take the post-render snapshot noninteractively and report missing
-package names before modifying the lockfile.
+package names before modifying the lockfile. When adding DESCRIPTION
+makes renv choose an empty package library, builds may reuse the same
+checkout’s populated analysis library. Keep parent checks and render
+processes on the chosen project library and restore the calling session
+on exit.
 
 ### Build script selection and rendering
 
@@ -91,6 +95,9 @@ package names before modifying the lockfile.
   the merged active configuration. An explicit empty selection
   ([`character()`](https://rdrr.io/r/base/character.html) in R or `[]`
   in YAML) skips rendering and script execution.
+- A selection made up entirely of quoted exclusions (for example,
+  `["!scratch.R"]`) filters automatic discovery, retaining the
+  project-first order and its native membership for untouched documents.
 - Resolve paths and glob patterns in `_projr.yml` from the project root.
   Keep each renderer’s default code execution directory and honor its
   native options, including Quarto’s `execute-dir` and R Markdown’s
@@ -129,6 +136,13 @@ package names before modifying the lockfile.
   renderer’s output directory only when the build includes that project.
   Preserve its original YAML bytes for both automatic and explicit
   project selections.
+- Development builds must leave `VERSION` and `DESCRIPTION` version
+  fields untouched on success and failure. They may use an existing
+  version in `@version` templates and must be able to run before the
+  first version exists.
+- Production package checks include `rmarkdown` for a root `README.Rmd`,
+  and `pkgbuild` when it uses its own project package. Run those checks
+  before the analysis.
 - Package startup must leave files alone. Before a development or
   production build first mutates a checkout, obtain approval for its
   full root path and the build’s file, script, hook, Git and archive
@@ -193,18 +207,25 @@ files.
 
 ### Directory ignores across profiles
 
+- Keep user rules outside the managed block intact, including their
+  ordering, duplicates and line endings. Seed editable `.vdoc.*` ignores
+  during initialization and respect their removal on refresh.
+
 - When updating `.gitignore`, combine directory rules from active and
   inactive profiles per literal project-relative path. Apply the same
   logic to `.Rbuildignore` when the project root contains `DESCRIPTION`.
   Include a path for each ignore type enabled by any contributing
   profile.
+
 - `directories.<label>.ignore-even-if-inactive` defaults to `true` and
   extends the directory’s existing `ignore`, `ignore-git`, and
   `ignore-rbuild` settings. With `false`, that profile contributes the
   directory’s rules only while active.
+
 - Generate rules only for paths inside the checkout. Skip foreign
   absolute paths in inactive profiles without accessing or validating
   their directories.
+
 - Refresh directory rules from the current configuration. When the last
   qualifying profile reference disappears, drop its generated rule on
   refresh. Keep one managed block in each ignore file. Regenerate rules

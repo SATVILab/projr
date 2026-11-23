@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,18 @@
 <div id="technical-changelog" class="section level1">
 
 <div class="section level2">
+<h2 id="id_061">0.6.1<a class="anchor" aria-label="anchor" href="#id_061"></a></h2>
+<ul><li>Reserve version initialization, version transitions and rollback for production builds. Use a development cache when no version exists.</li>
+<li>Accept <code>exclude: pattern</code> items alongside paths in YAML script lists. Apply exclusions across the selection. An exclusion-only list filters the renderer’s automatic project inputs and the automatically discovered R scripts.</li>
+<li>Preserve manual ignore patterns and their line endings during managed updates. Seed editable ignore rules when initializing a project.</li>
+<li>Make <code>data</code> a reserved path for package datasets. Check a conflicting directory label only when <code><a href="reference/projr_use_data.html">projr_use_data()</a></code> is called. Collect staged datasets into <code>data/</code> and <code>R/sysdata.rda</code> before building the package.</li>
+<li>Default configured package data to inclusion in Git and source packages. Migrate the ignore files to one outer block. Keep the published README’s linked figures and hand-written HTML trackable.</li>
+<li>Include the README renderer and, for a README that loads its own package, <code>pkgbuild</code> in the production prerequisite check.</li>
+<li>Use the checkout’s populated analysis library for render subprocesses when a late package DESCRIPTION redirects renv to an empty project library. Restore the caller’s library settings on exit.</li>
+<li>Migrate the root build log into <code>.projr/</code> using the same conflict checks as other project bookkeeping. Older checkouts support read-only lookups.</li>
+<li>Return the earliest version in the final run of matching file hashes from <code><a href="reference/projr_manifest_file_query.html">projr_manifest_file_last_change()</a></code>, including when a file has the same hash in every build.</li>
+</ul></div>
+<div class="section level2">
 <h2 id="id_060">0.6.0<a class="anchor" aria-label="anchor" href="#id_060"></a></h2>
 <ul><li>Development and production build functions accept <code>project</code>. Interactive approval is stored per canonical checkout path in the user’s projr configuration directory. An explicit root in an unattended build grants approval for that invocation. The check precedes the first project write.</li>
 <li>The build records input and output directory snapshots in separate phases. Each label’s <code>versions.csv</code> maps project versions to shared <code>files-&lt;snapshot&gt;.csv</code> lists. Empty directory versions are representable. Local archives store these histories in <code>manifests/</code>. GitHub releases store them together in <code>manifest.zip</code>.</li>
@@ -54,7 +66,8 @@
 </ul></div>
 </div>
 
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

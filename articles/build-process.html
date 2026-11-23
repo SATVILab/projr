@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -146,13 +146,16 @@ optional defaults to the user’s R environment file.</p>
 <code><a href="../reference/projr_yml_check.html">projr_yml_check()</a></code> validates
 <code>_projr.yml</code>
 </li>
-<li>All configured scripts and hooks must exist on disk</li>
-<li>Required packages (quarto, rmarkdown, etc.) must be installed</li>
-<li>GitHub authentication checked when a GitHub destination is
-configured</li>
-<li>Git repository must be initialized</li>
-<li>If push is enabled, the GitHub remote must exist and the local
-branch must not be behind</li>
+<li>Each script selected by name must exist, each inclusion pattern must
+match a file, and configured hooks must exist</li>
+<li>Required rendering packages must be installed</li>
+<li>GitHub publication requires credentials for the destination
+repository</li>
+<li>Automatic commits require a Git repository. You can build locally
+with <code>build.git: false</code>
+</li>
+<li>For a push, the local branch needs an upstream. By default, projr
+also checks that the local branch is up to date</li>
 </ol>
 <p>Run <code><a href="../reference/projr_build_check_packages.html">projr_build_check_packages()</a></code> at any time to check
 package requirements. Production builds also check for
@@ -517,9 +520,10 @@ details.</p>
 <div class="section level4">
 <h4 id="dev-version-bump">Dev version bump<a class="anchor" aria-label="anchor" href="#dev-version-bump"></a>
 </h4>
-<p>Production builds only. Appends a dev suffix (e.g. <code>0.0.2</code>
-→ <code>0.0.2-1</code>) and commits with the message
-<code>"Begin v{version}"</code>.</p>
+<p>After publication, a production build sets the development version
+(for example, <code>0.0.2-1</code>). If Git commits are enabled, the
+follow-up commit uses the development version in its message, such as
+<code>Build v0.0.2-1: Update measurements</code>.</p>
 </div>
 <div class="section level4">
 <h4 id="git-push">Git push<a class="anchor" aria-label="anchor" href="#git-push"></a>
@@ -543,9 +547,11 @@ details.</p>
 </h3>
 <p>Production builds record input directories before rendering and
 output directories afterward. Each hashed label has its own history
-under <code>.projr/manifests/</code>. For example,
-<code>raw-data/versions.csv</code> might contain the following rows
-(snapshot IDs are abbreviated here).</p>
+under <code>.projr/manifests/</code>. In
+<code>raw-data/versions.csv</code>, each project build has one row in
+the <code>version</code> column. The <code>directory_version</code>
+column shows the earliest build with those exact files and can repeat.
+Here is an example with shortened snapshot IDs.</p>
 <pre class="csv"><code>label,version,directory_version,snapshot
 raw-data,v1.0.0,v1.0.0,abcd…
 raw-data,v1.1.0,v1.0.0,abcd…
@@ -737,10 +743,10 @@ Detailed per-build logs can be disabled:</p>
 <span></span>
 <span><span class="co"># 6. Review the build log</span></span>
 <span><span class="fu"><a href="../reference/projr_log_view.html">projr_log_view</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>After <code><a href="../reference/projr_build.html">projr_build_patch()</a></code> completes, the project version
-is bumped to a dev version (e.g. <code>0.0.2-1</code>), all artifacts
-are committed and pushed, and remote destinations have received the new
-files.</p>
+<p>In this example, the GitHub release holds the archived inputs and
+results. Git records the code and build history when commits are
+enabled. The working copy then has the development version, such as
+<code>0.0.2-1</code>.</p>
 <hr>
 </div>
 <div class="section level3">

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -139,8 +139,10 @@ remote destinations still use their own credentials.</p>
 </h3>
 <p>The <code>.projr/</code> folder belongs to the project. Git can track
 its configuration and manifests so a fresh checkout knows which files
-belonged to a build. Build history and detailed logs live in
-<code>.projr/logs/</code> and stay local.</p>
+belonged to a build. The production build history goes in
+<code>.projr/BUILDLOG.md</code> and can be committed with the analysis.
+Detailed logs for individual runs stay local in
+<code>.projr/logs/</code>.</p>
 <p>A build or restore moves recognized configuration files and manifests
 from the earlier <code>_projr/</code> layout. Read-only queries still
 work on older checkouts. If both locations contain the same
