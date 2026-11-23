@@ -342,15 +342,8 @@ projr_yml_check <- function(profile = NULL) {
 # ----------------------
 
 .yml_scripts_check <- function(profile) {
-  # YAML reads an explicit empty sequence ([]) as an empty list.
-  build <- .yml_scripts_get(profile)
-  if (length(build) && !is.character(build)) {
-    stop("build.scripts must be a character vector")
-  }
-  dev <- .yml_dev_get_scripts(profile)
-  if (length(dev) && !is.character(dev)) {
-    stop("dev.scripts must be a character vector")
-  }
+  .yml_scripts_get(profile)
+  .yml_dev_get_scripts(profile)
   invisible(TRUE)
 }
 

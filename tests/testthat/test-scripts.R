@@ -459,3 +459,45 @@ test_that("repeated literal scripts run in order and project documents reject re
     expect_error(.engines_get(.scripts_get_final(rep("chapter.qmd", 2))), "Quarto.*repeated renders.*chapter[.]qmd")
   })
 })
+
+test_that("YAML exclusion entries preserve order and profile overrides", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(rm_engine = TRUE, git = FALSE)
+  usethis::with_project(project, {
+    dir.create("analysis")
+    writeLines('cat("run\\n", file = "order.txt", append = TRUE)', "analysis/run.R")
+    writeLines('stop("excluded script ran")', "analysis/scratch.R")
+    writeLines('cat("auto\\n", file = "order.txt", append = TRUE)', "auto.R")
+    writeLines('stop("excluded script ran")', "draft.R")
+
+    config <- projr_yml_get("default")
+    selection <- list(
+      "auto.R", "analysis/run.R", "analysis/run.R", "analysis/*.R",
+      list(exclude = "analysis/scr*.R"), "auto.R"
+    )
+    config$build$scripts <- selection
+    .yml_set(config)
+    projr_profile_create_local()
+    expect_identical(projr_yml_get(check = TRUE)$build$scripts, selection)
+    projr_build_dev(project = project)
+    expect_identical(readLines("order.txt"), c("auto", "run", "run", "auto"))
+
+    # The first named profile supplies dev.scripts. The second supplies build.scripts.
+    dir.create(".projr/config", recursive = TRUE, showWarnings = FALSE)
+    writeLines(c("dev:", "  scripts:", "    - exclude: draft.R"), ".projr/config/_projr-lab.yml")
+    writeLines(c("build:", "  scripts:", "    - exclude: auto.R", "dev:", "  scripts: draft.R"), "_projr-other.yml")
+    withr::local_envvar(c(PROJR_PROFILE = "lab,other"))
+    expect_identical(.scripts_get(NULL, "patch", NULL), "!auto.R")
+    expect_identical(projr_yml_get(check = TRUE)$dev$scripts, list(list(exclude = "draft.R")))
+    unlink("order.txt")
+    projr_build_dev(project = project)
+    expect_identical(readLines("order.txt"), "auto")
+
+    writeLines(c("dev:", "  scripts: []"), "_projr-local.yml")
+    expect_identical(.scripts_get(NULL, "dev", NULL), character())
+    unlink("order.txt")
+    projr_build_dev(project = project)
+    expect_false(file.exists("order.txt"))
+    expect_identical(yaml::read_yaml("_projr.yml")$build$scripts, selection)
+  })
+})

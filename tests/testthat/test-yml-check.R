@@ -24,30 +24,22 @@ test_that(".yml_metadata_check validates version-format", {
   )
 })
 
-test_that(".yml_scripts_check validates scripts structure", {
-  skip_if(.is_test_cran())
+test_that("YAML script exclusion entries require one named pattern", {
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-
-      # Valid scripts should pass
-      yml <- .yml_get("default")
-      yml[["build"]][["scripts"]] <- c("script1.R", "script2.R")
-      .yml_set(yml, "default")
-      expect_true(projr_yml_check())
-
-      # Invalid scripts (not character) should fail
-      yml[["build"]][["scripts"]] <- list(name = "script1.R")
-      .yml_set(yml, "default")
-      expect_error(projr_yml_check(), "character vector")
-    },
-    force = TRUE,
-    quiet = TRUE
-  )
+  project <- .test_setup_project(rm_engine = TRUE, git = FALSE)
+  usethis::with_project(project, {
+    for (section in c("build", "dev")) {
+      for (entry in c(
+        "exclude: ''", "exclude: null", "exclude: [a.R, b.R]", "include: a.R",
+        "{exclude: a.R, other: b.R}", "123"
+      )) {
+        writeLines(c(paste0(section, ":"), "  scripts:", "    - a.R", paste0("    - ", entry)), "_projr-local.yml")
+        expect_error(projr_yml_check(), paste0(section, "[.]scripts.*exclude"))
+      }
+      writeLines(c(paste0(section, ":"), "  scripts: {exclude: a.R}"), "_projr-local.yml")
+      expect_error(projr_yml_check(), paste0(section, "[.]scripts.*exclude"))
+    }
+  })
 })
 
 test_that(".yml_hooks_check_config validates hooks structure", {

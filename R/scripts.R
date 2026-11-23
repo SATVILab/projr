@@ -2,11 +2,6 @@
   scripts_vec_specified <- .scripts_get_specified(
     scripts, bump_component, profile
   )
-  if (is.null(scripts) && any(trimws(scripts_vec_specified) == "")) {
-    stop('Empty YAML script entry. Quote exclusions such as "!skip.R", or use scripts: [] to run nothing.',
-      call. = FALSE
-    )
-  }
   .scripts_get_final(scripts_vec_specified)
 }
 
