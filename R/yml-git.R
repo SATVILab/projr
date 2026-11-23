@@ -6,7 +6,7 @@
 #'
 #' @description
 #'
-#' .yml_git_set` sets Git options for the project.
+#' `projr_yml_git_set()` sets Git options for the project.
 #'
 #' The options are:
 #' \itemize{
@@ -19,10 +19,10 @@
 #' }
 #' The default is to leave all the settings unchanged.
 #'
-#' If these settings are not setting in `_projr.yml`,
+#' If these settings are absent from `_projr.yml`,
 #' then the default is to commit, add untracked files and push.
 #'
-#' .yml_git_set_default` sets all Git options to default (`TRUE`).
+#' `projr_yml_git_set_default()` sets all Git options to their default (`TRUE`).
 #'
 #' @param all logical.
 #' Whether to set all the options
@@ -54,16 +54,9 @@
 #' (which is TRUE),
 #' then the settings are removed from `_projr.yml`.
 #' Default is `TRUE`.
-#' @param profile character.
-#' Profile to add the script to.
-#' If `"default"`` (the default),
-#' the script is added to the default profile,
-#' which is `_projr.yml`.
-#' If `NULL`, then the active profile is used
-#' (i.e the merge of `_projr-local.yml`, `_projr-<profile>.yml`
-#' and `_projr.yml`) and written to `_projr.yml`.
-#' If another character vector, then the corresponding profile is used
-#' and written to `_projr-<profile>.yml`.
+#' @param profile Profile to update. The default, `"default"`, updates
+#'   `_projr.yml`. A named profile updates `_projr-<profile>.yml`.
+#'   With `NULL`, read the merged active settings and write to `_projr.yml`.
 #'
 #' @examples
 #' \dontrun{

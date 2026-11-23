@@ -2,35 +2,26 @@
 % Please edit documentation in R/yml.R
 \name{projr_yml_get}
 \alias{projr_yml_get}
-\title{Get active \code{projr} settings and checks for validity}
+\title{Read project settings}
 \usage{
 projr_yml_get(profile = NULL, check = FALSE)
 }
 \arguments{
-\item{profile}{character.
-\code{projr} profile to use.
-If \code{NULL}, then the active profile is used.
-Default is \code{NULL}.}
+\item{profile}{A profile name, or \code{NULL} for the merged active settings.
+Use \code{"default"} to read the base configuration, \code{"local"} to read local
+overrides, or a named profile to read \verb{_projr-<profile>.yml}.}
 
-\item{check}{logical.
-Whether to check the validity of the settings.
-Default is \code{FALSE}.}
+\item{check}{Whether to validate the settings and report an error if they
+are invalid. Defaults to \code{FALSE}.}
 }
 \value{
-A named list, if the settings are valid.
+A named list of project settings.
 }
 \description{
-Gets active \code{projr} settings, which merges settings and resolves conflicts
-between local (\verb{_projr-local.yml}), profile (\verb{_projr-<projr>.yml} or as
-\if{html}{\out{<key>}}-\if{html}{\out{<profile>}} keys in \verb{_projr.yml})
-and default (\verb{_projr.yml}) settings.
-Where there are conflicts, local settings has highest precedence
-(i.e. are always preferred) and default settings have lowest precedence
-(i.e. are never preferred).
-
-Note that an error is thrown if the active settings
-are invalid.
+With \code{profile = NULL}, local settings in \verb{_projr-local.yml} override the
+active profile settings, which override the defaults in \verb{_projr.yml}.
+Supply a profile name to read its own configuration.
 }
 \seealso{
-.yml_get_unchecked.yml_check
+\code{\link[=projr_yml_check]{projr_yml_check()}}
 }
