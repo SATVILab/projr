@@ -22,10 +22,8 @@
   if (label %in% c("code", "project", "docs")) {
     return(path)
   }
-  path_proj <- .path_get() |>
-    fs::path_abs() |>
-    as.character()
-  if (as.character(.path_resolve_root(path) |> fs::path_norm()) == path_proj) {
+  absolute <- fs::path_norm(.path_resolve_root(path))
+  if (dir.exists(absolute) && normalizePath(absolute, winslash = "/") == .path_get()) {
     stop(
       paste0(
         "The path for label ", label, " is the root directory of the project."

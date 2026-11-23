@@ -25,6 +25,19 @@ test_that("a project starts with a default config and uses only declared directo
   expect_error(projr_yml_check(), "directories.output.path")
 })
 
+test_that("a writable directory cannot point back to the checkout through an alias", {
+  skip_if(.is_test_select())
+  scratch <- withr::local_tempdir()
+  project <- file.path(scratch, "project")
+  dir.create(project)
+  alias <- file.path(scratch, "linked")
+  skip_if_not(suppressWarnings(file.symlink(project, alias)), "Directory symlink unavailable")
+  withr::defer(fs::link_delete(alias))
+  withr::local_dir(project)
+  yaml::write_yaml(list(directories = list(output = list(path = alias))), "_projr.yml")
+  expect_error(projr_path_get_dir("output", safe = FALSE), "root directory of the project")
+})
+
 test_that("profile directories, staged outputs, and ignores are rooted at _projr.yml", {
   skip_if(.is_test_select())
   project <- normalizePath(withr::local_tempdir(), winslash = "/")
