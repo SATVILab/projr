@@ -657,16 +657,16 @@ test_that("development builds preserve an existing version on success and failur
     description <- c("Package: analysis", "Version: 1.2.3", "Title: Example",
                      "Description: An example", "  spanning two lines.")
     writeLines(description, "DESCRIPTION")
-    writeBin(charToRaw("1.2.3"), "VERSION")
+    writeBin(charToRaw("9.8.7"), "VERSION")
     writeLines('writeLines(projr::projr_path_get_dir("output", safe = FALSE), "result")', "analysis.R")
-    # Even rewriting the same version would reformat both files.
+    # A versioned DESCRIPTION takes precedence over a differing root VERSION.
     local_mocked_bindings(projr_version_set = function(...) stop("unexpected version write"))
     expect_warning(projr_build_dev(bump = TRUE, project = "."), "Remove bump = TRUE")
     expect_identical(readLines("result"), "output-v1.2.3")
     writeLines('stop("script failure")', "analysis.R")
     expect_error(projr_build_dev(project = "."), "script failure")
     expect_identical(readLines("DESCRIPTION"), description)
-    expect_identical(readBin("VERSION", "raw", 100L), charToRaw("1.2.3"))
+    expect_identical(readBin("VERSION", "raw", 100L), charToRaw("9.8.7"))
     expect_false(dir.exists(".projr/manifests"))
   }, quiet = TRUE, force = TRUE)
 })
@@ -687,6 +687,37 @@ test_that("a first development build and its log work without a project version"
     expect_true(file.exists("_projr.yml"))
     expect_false(any(file.exists(c("VERSION", ".projr/manifests", "BUILDLOG.md", "CHANGELOG.md"))))
     expect_error(.template_expand("output-@version"), "@version requires a project version")
+  }, quiet = TRUE, force = TRUE)
+})
+
+test_that("an analysis can list dependencies in DESCRIPTION without a Version field", {
+  skip_if(.is_test_select())
+  project <- withr::local_tempdir()
+  usethis::with_project(project, {
+    description <- charToRaw("Imports: stats\r\n")
+    writeBin(description, "DESCRIPTION")
+    writeLines(c(
+      'version <- if (file.exists("VERSION")) projr::projr_version_get() else "none"',
+      'writeLines(version, "observed")'
+    ), "analysis.R")
+
+    projr_build_dev(project = ".")
+    expect_identical(readLines("observed"), "none")
+    expect_false(file.exists("VERSION"))
+    expect_identical(readBin("DESCRIPTION", "raw", 100L), description)
+
+    saved <- charToRaw("v2.3.4")
+    writeBin(saved, "VERSION")
+    projr_build_dev(project = ".")
+    expect_identical(readLines("observed"), "2.3.4")
+    expect_identical(readBin("VERSION", "raw", 100L), saved)
+    expect_identical(readBin("DESCRIPTION", "raw", 100L), description)
+
+    unlink("VERSION")
+    projr_build_patch(project = ".")
+    expect_identical(readLines("observed"), "0.0.2")
+    expect_identical(readLines("VERSION"), "v0.0.2-1")
+    expect_identical(readBin("DESCRIPTION", "raw", 100L), description)
   }, quiet = TRUE, force = TRUE)
 })
 
