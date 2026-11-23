@@ -50,6 +50,43 @@ test_that("a clone restores the checked-out build from its implicit GitHub archi
   })
 })
 
+test_that("a development build inside the README preserves the production archive", {
+  skip_if(.is_test_select())
+  skip_if(.is_test_cran())
+  skip_if_not_installed("rmarkdown")
+  skip_if_not_installed("httr")
+  skip_if_not(rmarkdown::pandoc_available())
+  .test_local_github_releases("archive")
+  project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
+  usethis::with_project(project,
+    {
+      yml <- .yml_get("default")
+      yml$build <- list(git = FALSE, scripts = list(), github = list(
+        archive = list(content = "raw-data", structure = "archive")
+      ))
+      .yml_set(yml, "default")
+      projr_version_set("0.5.0-1")
+      input <- projr_path_get("raw-data", "input.txt")
+      writeLines("original measurements", input)
+      writeLines(c(
+        "```{r}", "projr::projr_restore()", "projr::projr_build_dev()",
+        "writeLines(projr::projr_version_get(), 'version-during-readme')", "```"
+      ), "README.Rmd")
+
+      projr_build_minor(archive_github = TRUE)
+      expect_identical(readLines("version-during-readme"), "0.6.0")
+      manifest <- .remote_get_manifest("github", c(tag = "archive"), "raw-data")
+      expect_identical(manifest$version, "v0.6.0")
+      expect_identical(manifest$hash, unname(tools::md5sum(input)))
+      unlink(input)
+      projr_restore("raw-data")
+      expect_identical(readLines(input), "original measurements")
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
+})
+
 test_that("restore verifies an earlier matching archive before replacing local files", {
   skip_if(.is_test_select())
   .test_local_github_releases("artifacts")

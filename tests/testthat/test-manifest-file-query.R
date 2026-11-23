@@ -592,49 +592,21 @@ test_that("projr_manifest_file_history tracks all hash changes", {
 })
 
 
-test_that("projr_manifest_file_last_change finds correct last change version", {
-  skip_if(.is_test_cran())
+test_that("file last change is the first build with its current run of identical hashes", {
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create file and modify it, then keep same for several versions
-      .test_content_setup_label("output", safe = FALSE)
-      .build_manifest_pre(TRUE)
-      .build_manifest_post(TRUE)
-      v1 <- projr_version_get()
+  project <- .test_setup_project(git = FALSE)
+  usethis::with_project(project, {
+    versions <- c("v0.2.0", "v0.3.0", "v0.5.0", "v0.6.0")
+    input <- data.frame(label = "raw-data", fn = "sample.csv", version = versions, hash = "aaa")
+    output <- transform(input, label = "output", hash = c("aaa", "bbb", "bbb", "bbb"))
+    .manifest_store_write(rbind(input, output))
 
-      output_dir <- projr_path_get_dir("output", safe = FALSE)
-
-      # Modify in v2
-      projr_version_set("0.0.1")
-      writeLines("modified", file.path(output_dir, "abc.txt"))
-      .build_manifest_pre(TRUE)
-      .build_manifest_post(TRUE)
-
-      # Don't modify in v3
-      projr_version_set("0.0.2")
-      .build_manifest_pre(TRUE)
-      .build_manifest_post(TRUE)
-
-      # Don't modify in v4
-      projr_version_set("0.0.3")
-      .build_manifest_pre(TRUE)
-      .build_manifest_post(TRUE)
-
-      # Test: Last change should be v0.0.1 (not v3 or v4)
-      last_change <- projr_manifest_file_last_change("abc.txt", "output")
-      expect_identical(nrow(last_change), 1L)
-      expect_identical(last_change$version_last_change, "v0.0.1")
-
-      # Test: With version_end, should still find v0.0.1
-      last_v2 <- projr_manifest_file_last_change("abc.txt", "output", version_end = "0.0.2")
-      expect_identical(last_v2$version_last_change, "v0.0.1")
-
-      # Test: With version_end before the change, should find v1
-      last_v1 <- projr_manifest_file_last_change("abc.txt", "output", version_end = v1)
-      expect_identical(last_v1$version_last_change, paste0("v", v1))
+    last_change <- function(label, end) {
+      projr_manifest_file_last_change("sample.csv", label, version_end = end)$version_last_change
     }
-  )
+    expect_identical(last_change("raw-data", "0.6.0"), "v0.2.0")
+    expect_identical(last_change("output", "0.6.0"), "v0.3.0")
+    expect_identical(last_change("output", "0.5.0"), "v0.3.0")
+    expect_identical(last_change("output", "0.2.0"), "v0.2.0")
+  })
 })

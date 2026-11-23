@@ -550,32 +550,17 @@ projr_manifest_file_first <- function(fn, label = NULL) {
     # Sort by version
     label_data <- label_data[order(numeric_version(sub("^v", "", label_data$version))), , drop = FALSE]
 
-    # Find when hash last changed
-    versions <- label_data$version
+    # Walk back to the first build with the current hash.
     hashes <- label_data$hash
-
-    # Start from the end and work backwards to find last change
-    if (length(versions) == 1) {
-      # Only one version, so it's the last change
-      version_last_change <- versions[1]
-    } else {
-      # Multiple versions - find where hash differs from next
-      version_last_change <- versions[length(versions)]
-      for (j in length(versions):2) {
-        if (hashes[j] != hashes[j - 1]) {
-          version_last_change <- versions[j]
-          break
-        }
-      }
+    last_idx <- length(hashes)
+    while (last_idx > 1L && hashes[last_idx - 1L] == hashes[last_idx]) {
+      last_idx <- last_idx - 1L
     }
-
-    # Get the index for the last change version
-    last_idx <- which(label_data$version == version_last_change)[1]
 
     # Store results
     label_vec[i] <- lbl
     fn_vec[i] <- label_data$fn[1]
-    version_last_change_vec[i] <- version_last_change
+    version_last_change_vec[i] <- label_data$version[last_idx]
     hash_vec[i] <- label_data$hash[last_idx]
   }
 
