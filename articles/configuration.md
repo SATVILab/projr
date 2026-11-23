@@ -153,9 +153,14 @@ after initialization.
 A script selection accepts `.R`, `.Rmd` and `.qmd` paths or glob
 patterns. Quote exclusions such as `"!reports/draft.Rmd"`. Matches
 within a glob are alphabetical. Exclusions apply to the selection as a
-whole, and repeated files keep their first position. An explicit
-`scripts: []`, or `scripts = character()` in R, skips document rendering
-and script execution.
+whole. If every entry is an exclusion, projr uses automatic discovery
+and skips the matching files. For example, `scripts: ["!scratch.R"]`
+builds the project first and then runs the other top-level R scripts. In
+a directory without a rendering project, the remaining documents and
+scripts run together alphabetically. Overlapping globs select each file
+once. Repeating a literal R script or standalone document runs it again.
+An explicit `scripts: []`, or `scripts = character()` in R, skips
+document rendering and script execution.
 
 For example, suppose a Quarto project has the following selection.
 
@@ -171,10 +176,13 @@ and `results.qmd` together when the selection reaches `results.qmd`.
 Then `summarise.R` runs. Projr temporarily sets Quarto’s
 `project.render` (and `book.chapters` for a book), or Bookdown’s
 `rmd_files`. It keeps the selected configuration through post-build
-hooks, then restores the original YAML, including on failure. An R-only
-selection runs just those scripts. Documents for a different engine
-render individually in their listed positions. Choose one project
-configuration when both `_quarto.yml` and `_bookdown.yml` are present.
+hooks, then restores the original YAML, including on failure. For Quarto
+document exclusions this also covers active profile and included
+configuration files inside the checkout. A Quarto book needs its index
+page whenever it renders any remaining chapters. An R-only selection
+runs just those scripts. Documents for a different engine render
+individually in their listed positions. Choose one project configuration
+when both `_quarto.yml` and `_bookdown.yml` are present.
 
 When script selection is omitted, projr builds the Quarto or Bookdown
 project using its own settings and then runs top-level R scripts

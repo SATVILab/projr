@@ -314,9 +314,15 @@ production hooks are configured independently.</td>
 <p>A script selection accepts <code>.R</code>, <code>.Rmd</code> and
 <code>.qmd</code> paths or glob patterns. Quote exclusions such as
 <code>"!reports/draft.Rmd"</code>. Matches within a glob are
-alphabetical. Exclusions apply to the selection as a whole, and repeated
-files keep their first position. An explicit <code>scripts: []</code>,
-or <code>scripts = character()</code> in R, skips document rendering and
+alphabetical. Exclusions apply to the selection as a whole. If every
+entry is an exclusion, projr uses automatic discovery and skips the
+matching files. For example, <code>scripts: ["!scratch.R"]</code> builds
+the project first and then runs the other top-level R scripts. In a
+directory without a rendering project, the remaining documents and
+scripts run together alphabetically. Overlapping globs select each file
+once. Repeating a literal R script or standalone document runs it again.
+An explicit <code>scripts: []</code>, or
+<code>scripts = character()</code> in R, skips document rendering and
 script execution.</p>
 <p>For example, suppose a Quarto project has the following
 selection.</p>
@@ -331,10 +337,13 @@ together when the selection reaches <code>results.qmd</code>. Then
 <code>project.render</code> (and <code>book.chapters</code> for a book),
 or Bookdown’s <code>rmd_files</code>. It keeps the selected
 configuration through post-build hooks, then restores the original YAML,
-including on failure. An R-only selection runs just those scripts.
-Documents for a different engine render individually in their listed
-positions. Choose one project configuration when both
-<code>_quarto.yml</code> and <code>_bookdown.yml</code> are present.</p>
+including on failure. For Quarto document exclusions this also covers
+active profile and included configuration files inside the checkout. A
+Quarto book needs its index page whenever it renders any remaining
+chapters. An R-only selection runs just those scripts. Documents for a
+different engine render individually in their listed positions. Choose
+one project configuration when both <code>_quarto.yml</code> and
+<code>_bookdown.yml</code> are present.</p>
 <p>When script selection is omitted, projr builds the Quarto or Bookdown
 project using its own settings and then runs top-level R scripts
 alphabetically. In a directory without a rendering project it runs
