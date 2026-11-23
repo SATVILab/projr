@@ -56,7 +56,8 @@ still use their own credentials.
 
 The `.projr/` folder belongs to the project. Git can track its configuration
 and manifests so a fresh checkout knows which files belonged to a build.
-Build history and detailed logs live in `.projr/logs/` and stay local.
+The production build history goes in `.projr/BUILDLOG.md` and can be committed
+with the analysis. Detailed logs for individual runs stay local in `.projr/logs/`.
 
 A build or restore moves recognized configuration files and manifests from
 the earlier `_projr/` layout. Read-only queries still work on older checkouts.

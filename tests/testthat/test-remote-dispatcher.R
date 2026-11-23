@@ -912,9 +912,7 @@ test_that(".remote_final_get composes correct local paths", {
         empty = FALSE
       )
 
-      expect_true(grepl("output", final1))
-      expect_true(grepl("v0\\.0\\.9", final1))
-      expect_false(grepl("-empty", final1))
+      expect_equal(final1, file.path(remote_base, "output", "v0.0.9"))
 
       # Test latest structure
       final2 <- .remote_final_get(
@@ -929,8 +927,7 @@ test_that(".remote_final_get composes correct local paths", {
         empty = FALSE
       )
 
-      expect_true(grepl("docs", final2))
-      expect_false(grepl("v[0-9]", final2))
+      expect_equal(final2, file.path(remote_base, "docs"))
 
       # Test pre=TRUE (parent)
       final3 <- .remote_final_get(
@@ -946,7 +943,7 @@ test_that(".remote_final_get composes correct local paths", {
       )
 
       # Should return parent directory (without version)
-      expect_false(grepl("v1\\.0\\.0", final3))
+      expect_equal(final3, remote_base)
 
       # Cleanup
       unlink(remote_base, recursive = TRUE)

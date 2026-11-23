@@ -1,5 +1,31 @@
 # Technical changelog
 
+## 0.6.1
+
+* Reserve version initialization, version transitions and rollback for production
+  builds. Use a development cache when no version exists.
+* Accept `exclude: pattern` items alongside paths in YAML script lists. Apply
+  exclusions across the selection. An exclusion-only list filters the renderer’s
+  automatic project inputs and the automatically discovered R scripts.
+* Preserve manual ignore patterns and their line endings during managed updates.
+  Seed editable ignore rules when initializing a project.
+* Make `data` a reserved path for package datasets. Check a conflicting
+  directory label only when `projr_use_data()` is called. Collect staged
+  datasets into `data/` and `R/sysdata.rda` before building the package.
+* Default configured package data to inclusion in Git and source packages.
+  Migrate the ignore files to one outer block. Keep the published README’s
+  linked figures and hand-written HTML trackable.
+* Include the README renderer and, for a README that loads its own package,
+  `pkgbuild` in the production prerequisite check.
+* Use the checkout’s populated analysis library for render subprocesses when
+  a late package DESCRIPTION redirects renv to an empty project library.
+  Restore the caller’s library settings on exit.
+* Migrate the root build log into `.projr/` using the same conflict checks
+  as other project bookkeeping. Older checkouts support read-only lookups.
+* Return the earliest version in the final run of matching file hashes
+  from `projr_manifest_file_last_change()`, including when a file has the same
+  hash in every build.
+
 ## 0.6.0
 
 * Development and production build functions accept `project`. Interactive
