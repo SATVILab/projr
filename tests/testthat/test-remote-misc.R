@@ -9,14 +9,6 @@
 # - .gh_guess_repo() - Parse GitHub repository from git remote URL
 
 # =============================================================================
-# Setup
-# =============================================================================
-
-dir_test <- .test_setup_project(
-  git = TRUE, github = FALSE, set_env_var = TRUE
-)
-
-# =============================================================================
 # .remote_ls_dest
 # =============================================================================
 
@@ -24,6 +16,7 @@ test_that(".remote_ls_dest returns empty when no destinations configured", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
+  dir_test <- .test_setup_project()
   usethis::with_project(
     path = dir_test,
     code = {
@@ -40,6 +33,7 @@ test_that(".remote_ls_dest returns github when github destination configured", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
+  dir_test <- .test_setup_project()
   usethis::with_project(
     path = dir_test,
     code = {
@@ -65,6 +59,7 @@ test_that(".remote_ls_source returns empty when no source remotes configured", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
+  dir_test <- .test_setup_project()
   usethis::with_project(
     path = dir_test,
     code = {
@@ -81,6 +76,7 @@ test_that(".remote_ls_source returns github when github source configured", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
+  dir_test <- .test_setup_project()
   usethis::with_project(
     path = dir_test,
     code = {
@@ -88,10 +84,7 @@ test_that(".remote_ls_source returns github when github source configured", {
 
       # Add GitHub as a source for a directory
       yml_projr <- .yml_get("default")
-      if (is.null(yml_projr$directories)) {
-        yml_projr$directories <- list()
-      }
-      yml_projr$directories$`raw-data` <- list(github = list(id = "test-tag"))
+      yml_projr$directories$`raw-data`$github <- list(id = "test-tag")
       .yml_set(yml_projr, "default")
 
       remote_vec <- .remote_ls_source()
@@ -113,12 +106,9 @@ test_that(".remote_ls_source returns unique remotes from multiple directories", 
 
       # Add GitHub as sources for different directories
       yml_projr <- .yml_get("default")
-      if (is.null(yml_projr$directories)) {
-        yml_projr$directories <- list()
-      }
-      yml_projr$directories$`raw-data` <- list(github = list(id = "test-tag"))
-      yml_projr$directories$cache <- list(github = list(id = "test-tag2"))
-      yml_projr$directories$output <- list(github = list(id = "test-tag3"))
+      yml_projr$directories$`raw-data`$github <- list(id = "test-tag")
+      yml_projr$directories$cache$github <- list(id = "test-tag2")
+      yml_projr$directories$output$github <- list(id = "test-tag3")
       .yml_set(yml_projr, "default")
 
       remote_vec <- .remote_ls_source()
@@ -306,6 +296,7 @@ test_that(".remote_ls returns unique remotes when duplicates present", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
+  dir_test <- .test_setup_project()
   usethis::with_project(
     path = dir_test,
     code = {
@@ -313,10 +304,7 @@ test_that(".remote_ls returns unique remotes when duplicates present", {
 
       # Add GitHub as both source and destination
       yml_projr <- .yml_get("default")
-      if (is.null(yml_projr$directories)) {
-        yml_projr$directories <- list()
-      }
-      yml_projr$directories$`raw-data` <- list(github = list(id = "test-tag"))
+      yml_projr$directories$`raw-data`$github <- list(id = "test-tag")
       .yml_set(yml_projr, "default")
 
       projr_yml_dest_add_github(
@@ -385,119 +373,25 @@ test_that(".remote_ls filters out empty strings", {
 # .gh_guess_repo
 # =============================================================================
 
-test_that(".gh_guess_repo parses SSH scp-like URL format", {
+test_that(".gh_guess_repo reads each supported origin URL format", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create a temporary git repo with SSH remote URL
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Add a remote with SSH scp-like format
-      system2("git", c("remote", "add", "origin", "git@github.com:owner/repo.git"))
-
-      repo <- .gh_guess_repo()
-      expect_identical(repo, "owner/repo")
+  project <- .test_setup_project()
+  usethis::with_project(project, {
+    urls <- c(
+      "git@github.com:owner/repo.git",
+      "https://github.com/owner/repo.git",
+      "https://github.com/owner/repo",
+      "ssh://git@github.com/owner/repo.git",
+      "owner/repo",
+      "https://github.com/owner/repo/",
+      "https://github.com/owner/repo.git/"
+    )
+    for (url in urls) {
+      expect_identical(system2("git", c("config", "remote.origin.url", url)), 0L)
+      expect_identical(.gh_guess_repo(), "owner/repo", info = url)
     }
-  )
-})
-
-test_that(".gh_guess_repo parses HTTPS URL format", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Add a remote with HTTPS format
-      system2("git", c("remote", "add", "origin", "https://github.com/owner/repo.git"))
-
-      repo <- .gh_guess_repo()
-      expect_identical(repo, "owner/repo")
-    }
-  )
-})
-
-test_that(".gh_guess_repo parses HTTPS URL without .git extension", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Add a remote with HTTPS format without .git
-      system2("git", c("remote", "add", "origin", "https://github.com/owner/repo"))
-
-      repo <- .gh_guess_repo()
-      expect_identical(repo, "owner/repo")
-    }
-  )
-})
-
-test_that(".gh_guess_repo parses SSH protocol URL format", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Add a remote with ssh:// protocol format
-      system2("git", c("remote", "add", "origin", "ssh://git@github.com/owner/repo.git"))
-
-      repo <- .gh_guess_repo()
-      expect_identical(repo, "owner/repo")
-    }
-  )
-})
-
-test_that(".gh_guess_repo handles owner/repo format directly", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Add a remote with just owner/repo
-      system2("git", c("remote", "add", "origin", "owner/repo"))
-
-      repo <- .gh_guess_repo()
-      expect_identical(repo, "owner/repo")
-    }
-  )
-})
-
-test_that(".gh_guess_repo removes trailing slashes", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .git_init()
-      .test_setup_project_git_config()
-
-      # Add a remote with trailing slash
-      system2("git", c("remote", "add", "origin", "https://github.com/owner/repo/"))
-
-      repo <- .gh_guess_repo()
-      expect_identical(repo, "owner/repo")
-    }
-  )
+  })
 })
 
 test_that(".gh_guess_repo throws error when no remotes exist", {
@@ -526,6 +420,7 @@ test_that(".gh_guess_repo falls back to first remote when origin doesn't exist",
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
+  dir_test <- .test_setup_project()
   usethis::with_project(
     path = dir_test,
     code = {
@@ -596,6 +491,7 @@ test_that(".gh_repo_get works in normal git repository", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
+  dir_test <- .test_setup_project()
   usethis::with_project(
     path = dir_test,
     code = {
@@ -627,10 +523,10 @@ test_that(".gh_repo_get works in git worktree", {
     system2("git", c("config", "user.email", "test@example.com"))
     system2("git", c("remote", "add", "origin", "git@github.com:owner/repo.git"))
 
-    # Create initial commit
-    writeLines("test", "test.txt")
-    system2("git", c("add", "test.txt"))
-    system2("git", c("commit", "-m", "Initial commit"), stdout = FALSE, stderr = FALSE)
+    # The project marker is shared by both checkouts.
+    writeLines("directories: {}", "_projr.yml")
+    system2("git", c("add", "_projr.yml"))
+    system2("git", c("commit", "-m", "Initial"), stdout = FALSE, stderr = FALSE)
 
     # Create a worktree
     worktree_dir <- file.path(tempdir(), "worktree_test")
