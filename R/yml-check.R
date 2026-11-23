@@ -261,7 +261,7 @@ projr_yml_check <- function(profile = NULL) {
     .assert_string(yml_title[["tag"]])
     .assert_string(yml_title[["branch"]])
   }
-  .assert_in(yml_title[["content"]], .opt_dir_get_label_send(NULL), TRUE)
+  .assert_in(yml_title[["content"]], .opt_dir_get_label_send(NULL, type), TRUE)
   .assert_in(yml_title[["structure"]], .opt_remote_get_structure())
   .assert_string(yml_title[["path"]], type == "local")
   .assert_flag(yml_title[["path-append-label"]])

@@ -74,6 +74,7 @@ missing, ensuring proper Git ignore syntax.
 }
 }
 \examples{
+\dontrun{
 # Manually ignore files and directories
 projr_ignore(c("output", "tempfile.log"))
 
@@ -82,6 +83,7 @@ projr_ignore_dir("data")
 
 # Specifically ignore files
 projr_ignore_file("README.md")
+}
 
 }
 \seealso{

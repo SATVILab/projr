@@ -239,8 +239,27 @@ projr_build_dev <- function(scripts = NULL,
     rprojroot::has_file("_bookdown.yml") | rprojroot::has_dir("_projr/config")
   root <- tryCatch(rprojroot::find_root(markers), error = function(e) getwd())
   starter <- system.file("project_structure", "_projr.yml", package = "projr", mustWork = TRUE)
-  fs::file_copy(starter, file.path(root, "_projr.yml"))
+  config <- yaml::read_yaml(starter)
+  if (!file.exists(file.path(root, ".git"))) {
+    config$build$git <- FALSE
+  } else if (!.build_has_upstream(root)) {
+    config$build$git <- list(push = FALSE)
+  }
+  # Never overwrite configuration created by another process during discovery.
+  tmp <- tempfile(tmpdir = root)
+  on.exit(unlink(tmp), add = TRUE)
+  yaml::write_yaml(config, tmp)
+  fs::file_copy(tmp, file.path(root, "_projr.yml"))
   invisible(TRUE)
+}
+
+.build_has_upstream <- function(root) {
+  if (.git_system_get() == "git") {
+    args <- c("-C", shQuote(root), "rev-parse", "--verify", "--quiet", shQuote("@{upstream}"))
+    return(system2("git", args, stdout = FALSE, stderr = FALSE) == 0L)
+  }
+  upstream <- gert::git_info(repo = root)$upstream
+  length(upstream) == 1L && !is.na(upstream) && nzchar(upstream)
 }
 
 .build_dev_get_bump_component <- function(bump) {

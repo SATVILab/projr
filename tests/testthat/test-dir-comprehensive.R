@@ -105,15 +105,15 @@ test_that("projr_path_get_dir relative and absolute parameters work", {
       path_default <- projr_path_get_dir("cache", create = FALSE)
 
       # Test relative
-      path_relative <- projr_path_get_dir("cache", create = FALSE, relative = TRUE)
+      path_relative <- projr_path_get_dir("cache", create = FALSE, format = "relative")
       expect_false(fs::is_absolute_path(path_relative))
 
       # Test absolute
-      path_absolute <- projr_path_get_dir("cache", create = FALSE, absolute = TRUE)
+      path_absolute <- projr_path_get_dir("cache", create = FALSE, format = "absolute")
       expect_true(fs::is_absolute_path(path_absolute))
 
-      # Test that relative and absolute cannot both be TRUE
-      expect_error(projr_path_get_dir("cache", relative = TRUE, absolute = TRUE))
+      expect_identical(path_default, path_relative)
+      expect_error(projr_path_get_dir("cache", format = "unknown"))
     },
     force = TRUE,
     quiet = TRUE

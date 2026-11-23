@@ -205,7 +205,10 @@ remote sources.
 ## 6. Define directories and labels
 
 The first build writes a starter `_projr.yml` if the project has no base configuration.
-You can also create it with `projr_init()`. The starter declares these paths:
+On that first build, projr disables Git operations outside a repository and
+disables pushing in a repository without an upstream. Existing configurations
+keep their Git settings. You can also create the starter with `projr_init()`.
+It declares these paths:
 
 - `raw-data` → `_raw_data`
 - `cache` → `_tmp`

@@ -50,6 +50,7 @@
 #' for forcing certain paths to not be ignored.
 #'
 #' @examples
+#' \dontrun{
 #' # Manually ignore files and directories
 #' projr_ignore(c("output", "tempfile.log"))
 #'
@@ -58,6 +59,7 @@
 #'
 #' # Specifically ignore files
 #' projr_ignore_file("README.md")
+#' }
 #'
 #' @export
 projr_ignore <- function(ignore, force_create = TRUE) {

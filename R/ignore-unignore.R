@@ -41,6 +41,7 @@
 #' dynamically managed ignore entries.
 #'
 #' @examples
+#' \dontrun{
 #' # Manually unignore files and directories
 #' projr_unignore_manual(c("output", "tempfile.log"))
 #'
@@ -49,6 +50,7 @@
 #'
 #' # Specifically unignore files
 #' projr_unignore_manual_file("README.md")
+#' }
 #'
 #' @export
 projr_unignore_manual <- function(unignore) {

@@ -123,10 +123,9 @@ projr_path_get <- function(label, ...,
 }
 
 .dir_check_label_found <- function(label, profile) {
-  opt_vec <- names(.yml_dir_get(profile))
-  label_found <- label %in% opt_vec
-  if (!label_found) {
-    stop("label '", label, "' not found in _projr.yml", call. = FALSE)
+  missing <- setdiff(label, names(.yml_dir_get(profile)))
+  if (length(missing)) {
+    stop("label '", paste(missing, collapse = "', '"), "' not found in _projr.yml", call. = FALSE)
   }
   invisible(TRUE)
 }

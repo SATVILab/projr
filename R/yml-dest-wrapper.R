@@ -62,7 +62,7 @@ projr_yml_dest_add_local <- function(title,
   .assert_string(title, TRUE)
   .assert_len_1(title, TRUE)
   .assert_chr(content, TRUE)
-  .assert_in(content, .yml_dir_get(NULL) |> names())
+  .dir_check_label_found(content, NULL)
   .assert_string(path, TRUE)
 
   .yml_dest_add(
@@ -102,7 +102,7 @@ projr_yml_dest_add_local <- function(title,
 #' Labels of directories to include in the upload.
 #' Options are the labels of directories
 #' in the active `projr` configuration,
-#' as well as "docs", "data" and "code".
+#' or `code` for the source archive GitHub provides with a release tag.
 #' @param structure "latest" or "archive".
 #' Structure of the remote. Default is NULL.
 #' @param overwrite logical.

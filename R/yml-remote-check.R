@@ -14,12 +14,7 @@
   .assert_string(title)
   .assert_string(role, TRUE)
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  content_opt <- switch(type,
-    "github" = .opt_dir_get_label_send(NULL) |> c("code"),
-    .opt_dir_get_label_send(NULL)
-  ) |>
-    unique()
-  .assert_in(content, content_opt, TRUE)
+  .assert_in(content, .opt_dir_get_label_send(NULL, type), TRUE)
   .assert_in_single(structure, .opt_remote_get_structure())
   .assert_string(path, type == "local")
   .assert_flag(path_append_label)

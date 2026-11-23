@@ -17,6 +17,7 @@ test_that("a project starts with a default config and uses only declared directo
   expect_identical(projr_path_get_dir("raw-data"), "observations")
   expect_error(projr_path_get_dir("output"), "not found in _projr.yml")
   expect_error(projr_path_get_dir("docs"), "not found in _projr.yml")
+  expect_error(projr_path_get_dir("code"), "not found in _projr.yml")
   expect_error(projr_path_get_cache_build(), "No cache directory")
   expect_false(any(dir.exists(c("_tmp", "_output", "_raw_data", "docs"))))
   yaml::write_yaml(list(directories = list(output = list(ignore = FALSE))), "_projr.yml")
@@ -103,7 +104,7 @@ test_that("both first-build entry points write a root starter and retain existin
     config <- file.path(project, "_projr", "config")
     nested <- file.path(project, "analyses", "report")
     fs::dir_create(c(config, nested))
-    yaml::write_yaml(list(build = list(git = FALSE)), file.path(config, "_projr-offline.yml"))
+    yaml::write_yaml(list(build = list(scripts = list())), file.path(config, "_projr-offline.yml"))
     writeLines("1.0.0-1", file.path(project, "VERSION"))
     withr::with_dir(nested, {
       if (development) {
@@ -117,6 +118,7 @@ test_that("both first-build entry points write a root starter and retain existin
       expect_identical(starter$directories$output$path, "_output")
       expect_identical(starter$directories$cache$path, "_tmp")
       expect_identical(starter$directories$docs$path, "docs")
+      expect_false(starter$build$git)
       # A nested, partial base config is already a project; preserve it on later builds.
       file.remove(file.path(project, "_projr.yml"))
       yaml::write_yaml(list(directories = list(cache = list(path = "my-cache"))), file.path(config, "_projr.yml"))
@@ -126,4 +128,30 @@ test_that("both first-build entry points write a root starter and retain existin
       expect_error(projr_path_get_dir("raw-data"), "not found")
     })
   }
+})
+
+test_that("an initial local repository build keeps commits local", {
+  skip_if(.is_test_select())
+  skip_if_not_installed("gert")
+  project <- withr::local_tempdir()
+  withr::local_dir(project)
+  gert::git_init(project)
+  .test_git_identity_local_set()
+  expect_no_error(projr_build_patch("First build in a local Git repository"))
+  expect_identical(yaml::read_yaml("_projr.yml")$build$git, list(push = FALSE))
+  expect_true(nrow(gert::git_log(repo = project)) > 0L)
+})
+
+test_that("GitHub supplies its source archive without a local code directory", {
+  skip_if(.is_test_select())
+  withr::local_dir(withr::local_tempdir())
+  writeLines("{}", "_projr.yml")
+  writeLines("1.0.0", "VERSION")
+  projr_yml_dest_add_github("release", "code", send_cue = "always")
+  expect_no_error(projr_yml_check())
+  expect_false(dir.exists("code"))
+  testthat::local_mocked_bindings(.dest_send_label = function(...) stop("unexpected local payload"))
+  expect_true(.dest_send_title("release", "github", "patch", FALSE, FALSE))
+  expect_error(projr_path_get_dir("code"), "not found")
+  expect_error(projr_yml_dest_add_local("archive", "code", "backup"), "code")
 })
