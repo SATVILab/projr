@@ -43,3 +43,4 @@
 ^CHANGELOG\.md$
 ^cran-comments\.md$
 ^air\.toml$
+^\.git-blame-ignore-revs$
