@@ -24,6 +24,7 @@ build:
   scripts:
     - prepare.R
     - analysis.qmd
+    - tables.R
     - report.qmd
     - summarize.R
 
@@ -57,13 +58,23 @@ before the build starts. Use `scripts = character()` in R or
 `scripts: []` in YAML to skip rendering and scripts.
 
 With an explicit selection, scripts run in the listed order. Each glob
-expands alphabetically, and the first match determines a file’s
-position. When a Quarto or Bookdown project has selected project
-documents, projr renders those documents together at the position of the
-last one in the list. In the example above, `prepare.R` runs before the
-Quarto project and `summarize.R` runs after it. The selected documents
-stay in the project’s YAML through post-build hooks, and projr restores
-that YAML before switching to the development version.
+expands alphabetically. A file matched by overlapping globs runs once.
+Listing an R script or standalone document twice runs it twice. Quarto
+and Bookdown projects can render each project document only once, so
+projr reports an error if you explicitly list one twice. When a Quarto
+or Bookdown project has selected project documents, projr renders those
+documents together at the position of the last one in the list. Here
+`tables.R` appears between two project documents, so it runs before the
+project renders. The selected documents stay in the project’s YAML
+through post-build hooks, and projr restores that YAML before switching
+to the development version.
+
+![The example runs prepare.R, then tables.R, then renders analysis.qmd
+and report.qmd together, then runs
+summarize.R.](figures/project-script-order.svg)
+
+The example runs prepare.R, then tables.R, then renders analysis.qmd and
+report.qmd together, then runs summarize.R.
 
 With automatic detection, a project renders using its existing YAML,
 followed by top-level R scripts in alphabetical order. Without a

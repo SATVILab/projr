@@ -23,8 +23,8 @@ stages:
 3.  **Implementing the Plan** - Execute the file operations and update
     remote metadata
 
-Each stage builds upon the previous one to ensure efficient and accurate
-synchronization between your local project and remote destinations.
+On narrow screens, scroll a flowchart sideways to read its branches.
+With a keyboard, focus the flowchart and use the arrow keys.
 
 ## Stage 1: Getting the Remotes
 

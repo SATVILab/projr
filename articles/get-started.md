@@ -1,5 +1,13 @@
 # Build an analysis you can restore
 
+![projr_build() runs your analysis from \_raw_data/ to \_output/. The
+dotted arrow to a GitHub release means you can archive both folders by
+setting archive_github = TRUE.](figures/input-to-output.svg)
+
+projr_build() runs your analysis from \_raw_data/ to \_output/. The
+dotted arrow to a GitHub release means you can archive both folders by
+setting archive_github = TRUE.
+
 Keep the files your analysis reads in `_raw_data/` and save the results
 it produces in `_output/`. With those names, you can run your first
 build without writing a configuration file. This example calculates a
@@ -77,6 +85,14 @@ connects the version to the code, and the archive records which files
 belong to it.
 
 ## Restore the inputs and run the analysis again
+
+![A build saves the code in Git and the inputs and results in a GitHub
+release. In a fresh copy of the project, check out the build and run
+projr_restore() to recover its inputs.](figures/build-and-restore.svg)
+
+A build saves the code in Git and the inputs and results in a GitHub
+release. In a fresh copy of the project, check out the build and run
+projr_restore() to recover its inputs.
 
 Clone the repository into a new folder. To reproduce the most recent
 build, open that copy as it is. For an older result, open a terminal in

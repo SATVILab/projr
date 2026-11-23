@@ -70,6 +70,11 @@
 
     
     
+<div class="float">
+<img src="figures/input-to-output.svg" alt="projr_build() runs your analysis from _raw_data/ to _output/. The dotted arrow to a GitHub release means you can archive both folders by setting archive_github = TRUE."><div class="figcaption">projr_build() runs your analysis from _raw_data/
+to _output/. The dotted arrow to a GitHub release means you can archive
+both folders by setting archive_github = TRUE.</div>
+</div>
 <p>Keep the files your analysis reads in <code>_raw_data/</code> and
 save the results it produces in <code>_output/</code>. With those names,
 you can run your first build without writing a configuration file. This
@@ -136,6 +141,11 @@ code, and the archive records which files belong to it.</p>
 <div class="section level2">
 <h2 id="restore-the-inputs-and-run-the-analysis-again">Restore the inputs and run the analysis again<a class="anchor" aria-label="anchor" href="#restore-the-inputs-and-run-the-analysis-again"></a>
 </h2>
+<div class="float">
+<img src="figures/build-and-restore.svg" alt="A build saves the code in Git and the inputs and results in a GitHub release. In a fresh copy of the project, check out the build and run projr_restore() to recover its inputs."><div class="figcaption">A build saves the code in Git and the inputs and
+results in a GitHub release. In a fresh copy of the project, check out
+the build and run projr_restore() to recover its inputs.</div>
+</div>
 <p>Clone the repository into a new folder. To reproduce the most recent
 build, open that copy as it is. For an older result, open a terminal in
 the new folder and list the saved builds.</p>

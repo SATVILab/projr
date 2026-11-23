@@ -352,6 +352,11 @@ in a fresh checkout. Keep the homepage and getting-started example in
 sync, and put the complete list of options and conventions in the
 configuration and function references.
 
+Keep each introductory diagram’s Mermaid source beside its rendered SVG
+in `vignettes/figures/`. Update both when the workflow changes. Use the
+folder paths readers see on disk and give each figure a text
+alternative.
+
 ### Verify pkgdown reference index
 
 ``` r

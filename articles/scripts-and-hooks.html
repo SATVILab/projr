@@ -90,12 +90,13 @@ sub-keys or nested structures are allowed.</p>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> prepare.R</span></span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> analysis.qmd</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> report.qmd</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> summarize.R</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> quick-test.qmd</span></span></code></pre></div>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> tables.R</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> report.qmd</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> summarize.R</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> quick-test.qmd</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="priority">Priority<a class="anchor" aria-label="anchor" href="#priority"></a>
@@ -129,14 +130,21 @@ causes an error before the build starts. Use
 <code>scripts = character()</code> in R or <code>scripts: []</code> in
 YAML to skip rendering and scripts.</p>
 <p>With an explicit selection, scripts run in the listed order. Each
-glob expands alphabetically, and the first match determines a file’s
-position. When a Quarto or Bookdown project has selected project
-documents, projr renders those documents together at the position of the
-last one in the list. In the example above, <code>prepare.R</code> runs
-before the Quarto project and <code>summarize.R</code> runs after it.
-The selected documents stay in the project’s YAML through post-build
-hooks, and projr restores that YAML before switching to the development
-version.</p>
+glob expands alphabetically. A file matched by overlapping globs runs
+once. Listing an R script or standalone document twice runs it twice.
+Quarto and Bookdown projects can render each project document only once,
+so projr reports an error if you explicitly list one twice. When a
+Quarto or Bookdown project has selected project documents, projr renders
+those documents together at the position of the last one in the list.
+Here <code>tables.R</code> appears between two project documents, so it
+runs before the project renders. The selected documents stay in the
+project’s YAML through post-build hooks, and projr restores that YAML
+before switching to the development version.</p>
+<div class="float">
+<img src="figures/project-script-order.svg" alt="The example runs prepare.R, then tables.R, then renders analysis.qmd and report.qmd together, then runs summarize.R."><div class="figcaption">The example runs prepare.R, then tables.R, then
+renders analysis.qmd and report.qmd together, then runs
+summarize.R.</div>
+</div>
 <p>With automatic detection, a project renders using its existing YAML,
 followed by top-level R scripts in alphabetical order. Without a
 project, top-level <code>.qmd</code>, <code>.Rmd</code>, and
