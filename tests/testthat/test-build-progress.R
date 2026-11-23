@@ -119,7 +119,7 @@ test_that("the first failed script selection leaves the build log ignored", {
   project <- withr::local_tempdir()
   usethis::with_project(project, {
     writeLines("directories: {cache: {path: cache}}", "_projr.yml")
-    expect_error(projr_build_dev(scripts = "absent.R"), "absent.R")
+    expect_error(projr_build_dev(scripts = "absent.R", project = "."), "absent.R")
     expect_true(file.exists(".projr/logs/dev/history/builds.md"))
     expect_true("/.projr/logs/**" %in% readLines(".gitignore"))
   }, quiet = TRUE, force = TRUE)
