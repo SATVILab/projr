@@ -434,9 +434,10 @@ projr_version_get <- function() {
 
 .version_append <- function(path) {
   .assert_string(path, required = TRUE)
-  file.path(path, .version_get_v())
+  file.path(path, .version_get_v(required = FALSE) %||% "dev")
 }
-.version_get_v <- function() {
+.version_get_v <- function(required = TRUE) {
+  if (!required && !any(file.exists(file.path(.path_get(), c("VERSION", "DESCRIPTION"))))) return(NULL)
   paste0("v", projr_version_get())
 }
 

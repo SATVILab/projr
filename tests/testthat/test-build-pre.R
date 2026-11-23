@@ -280,64 +280,6 @@ test_that(".build_output_get_bump_component returns provided bump_component", {
 })
 
 # =============================================================================
-# .build_is_current_version_dev tests
-# =============================================================================
-
-test_that(".build_is_current_version_dev returns FALSE when no VERSION or DESCRIPTION file", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Don't initialize - no VERSION or DESCRIPTION file
-      # But .test_setup_project copies files, so we need to remove them
-      if (file.exists("VERSION")) file.remove("VERSION")
-      if (file.exists("DESCRIPTION")) file.remove("DESCRIPTION")
-
-      result <- .build_is_current_version_dev()
-      expect_false(result)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-test_that(".build_is_current_version_dev returns TRUE when on dev version", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-      projr_version_set("0.0.1-1")
-      result <- .build_is_current_version_dev()
-      expect_true(result)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-test_that(".build_is_current_version_dev returns FALSE when on release version", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .init()
-      projr_version_set("1.2.3")
-      result <- .build_is_current_version_dev()
-      expect_false(result)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-# =============================================================================
 # .build_output_get_msg tests
 # =============================================================================
 

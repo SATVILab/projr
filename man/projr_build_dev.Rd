@@ -28,12 +28,11 @@ Explicit selections run in order, with each glob expanded alphabetically. Listin
 standalone document twice runs it twice. A repeated project document is an error.
 If a selection includes Quarto or Bookdown project documents, those
 documents render together at the position of the last selected project
-document. The project YAML is restored before the build returns to the
-development version.}
+document. The project YAML is restored after rendering and post-build hooks.}
 
 \item{bump}{logical.
-Whether to increment dev version for build.
-Default is \code{FALSE}.}
+Retained for compatibility. Supplying \code{TRUE} warns and runs a development
+build with the project's existing version, if any.}
 
 \item{old_dev_remove}{logical.
 If \code{TRUE}, then previous development builds are deleted
@@ -66,10 +65,9 @@ saving approval.}
 Invisibly returns \code{TRUE} after a successful build.
 }
 \description{
-Builds project to output, which
-means recording the input and output data hashes,
-building the actual bookdown document and
-saving and archiving selected output.
+Runs the selected scripts and renders documents for development.
+Development builds preserve the project's version and can run before its
+first versioned build. Staged outputs are available in the build cache.
 }
 \examples{
 \dontrun{
