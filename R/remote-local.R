@@ -100,7 +100,7 @@
   .assert_in(label, .opt_dir_get_label_send(NULL))
   .assert_in_single(structure, .opt_remote_get_structure())
   .assert_string(version)
-  .assert_lgl(pre, TRUE)
+  .assert_flag(pre, TRUE)
 
   # the local destination is just the
   # local directory where files are get, so

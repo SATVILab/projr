@@ -30,13 +30,13 @@ test_that("projr_content_update validates label parameter", {
       # Invalid type - not character
       expect_error(
         projr_content_update(label = 123),
-        "'label' must be NULL or a character vector"
+        "label must be a non-empty character vector"
       )
 
       # Invalid type - empty vector
       expect_error(
         projr_content_update(label = character(0)),
-        "'label' must have at least one element if not NULL"
+        "label must be a non-empty character vector"
       )
 
       # Valid - NULL is allowed
@@ -68,19 +68,19 @@ test_that("projr_content_update validates pos parameter", {
       # Invalid type - not character
       expect_error(
         projr_content_update(pos = 123),
-        "'pos' must be NULL or a character vector"
+        "pos must be a non-empty character vector"
       )
 
       # Invalid type - empty vector
       expect_error(
         projr_content_update(pos = character(0)),
-        "'pos' must have at least one element if not NULL"
+        "pos must be a non-empty character vector"
       )
 
       # Invalid value
       expect_error(
         projr_content_update(pos = "invalid"),
-        "'pos' must be 'source' or 'dest'"
+        "pos must be one of source, dest"
       )
 
       # Valid - NULL
@@ -124,25 +124,25 @@ test_that("projr_content_update validates type parameter", {
       # Invalid type - not character
       expect_error(
         projr_content_update(type = 123),
-        "'type' must be NULL or a character vector"
+        "type must be a non-empty string"
       )
 
       # Invalid type - empty vector
       expect_error(
         projr_content_update(type = character(0)),
-        "'type' must have at least one element if not NULL"
+        "type must be a non-empty string"
       )
 
       # Invalid type - multiple values
       expect_error(
         projr_content_update(type = c("local", "github")),
-        "'type' must be a single character value"
+        "type must be a non-empty string"
       )
 
       # Invalid value
       expect_error(
         projr_content_update(type = "invalid"),
-        "'type' must be one of: local, github"
+        "type must be one of local, github"
       )
 
       # Valid - NULL
@@ -174,19 +174,19 @@ test_that("projr_content_update validates title parameter", {
       # Invalid type - not character
       expect_error(
         projr_content_update(title = 123),
-        "'title' must be NULL or a character vector"
+        "title must be a non-empty string"
       )
 
       # Invalid type - empty vector
       expect_error(
         projr_content_update(title = character(0)),
-        "'title' must have at least one element if not NULL"
+        "title must be a non-empty string"
       )
 
       # Invalid type - multiple values
       expect_error(
         projr_content_update(title = c("title1", "title2")),
-        "'title' must be a single character value"
+        "title must be a non-empty string"
       )
 
       # Valid - NULL

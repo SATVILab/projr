@@ -254,7 +254,7 @@
                                      pre,
                                      empty) {
   .assert_string(id, TRUE)
-  .assert_in(label, .opt_dir_get_label_send(NULL), TRUE)
+  .assert_in_single(label, .opt_dir_get_label_send(NULL), TRUE)
   tag <- .remote_misc_github_tag_get(id)
 
   # For pre=TRUE, just return tag

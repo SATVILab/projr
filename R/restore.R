@@ -89,60 +89,8 @@ projr_content_update <- function(label = NULL,
                                  title = NULL,
                                  clear = FALSE,
                                  destination = NULL) {
-  .assert_string(destination)
-  # Input validation
-  if (!is.null(label)) {
-    if (!is.character(label)) {
-      stop("'label' must be NULL or a character vector")
-    }
-    if (length(label) == 0) {
-      stop("'label' must have at least one element if not NULL")
-    }
-  }
-  if (!is.null(pos)) {
-    if (!is.character(pos)) {
-      stop("'pos' must be NULL or a character vector")
-    }
-    if (length(pos) == 0) {
-      stop("'pos' must have at least one element if not NULL")
-    }
-    invalid_pos <- pos[!pos %in% c("source", "dest")]
-    if (length(invalid_pos) > 0) {
-      stop(
-        "'pos' must be 'source' or 'dest'. Invalid values: ",
-        paste(invalid_pos, collapse = ", ")
-      )
-    }
-  }
-  if (!is.null(type)) {
-    if (!is.character(type)) {
-      stop("'type' must be NULL or a character vector")
-    }
-    if (length(type) == 0) {
-      stop("'type' must have at least one element if not NULL")
-    }
-    if (length(type) > 1) {
-      stop("'type' must be a single character value")
-    }
-    valid_types <- c("local", "github")
-    if (!type %in% valid_types) {
-      stop(
-        "'type' must be one of: ",
-        paste(valid_types, collapse = ", ")
-      )
-    }
-  }
-  if (!is.null(title)) {
-    if (!is.character(title)) {
-      stop("'title' must be NULL or a character vector")
-    }
-    if (length(title) == 0) {
-      stop("'title' must have at least one element if not NULL")
-    }
-    if (length(title) > 1) {
-      stop("'title' must be a single character value")
-    }
-  }
+  .assert_restore_filters(label, pos, type, title, destination)
+  .assert_flag(clear, TRUE)
 
   .title <- title
   if (!.manifest_store_ready(.path_get("_projr", "manifests")) &&
@@ -181,6 +129,17 @@ projr_content_update <- function(label = NULL,
     }
   }
   invisible(success)
+}
+
+.assert_restore_filters <- function(label, pos, type, title, destination) {
+  .assert_chr(label)
+  .assert_chr(pos)
+  .assert_in(pos, c("source", "dest"))
+  .assert_string(type)
+  .assert_in(type, c("local", "github"))
+  .assert_string(title)
+  .assert_string(destination)
+  invisible(TRUE)
 }
 
 .content_update_get_label <- function(label) {

@@ -15,6 +15,7 @@
 #' @return Invisibly returns `TRUE` if successful.
 #' @export
 projr_version_set <- function(version, only_if_exists = TRUE) {
+  .assert_flag(only_if_exists, TRUE)
   if (file.exists(.path_get("DESCRIPTION"))) {
     .version_set_desc(version)
     .version_set_file(version, only_if_exists = only_if_exists)

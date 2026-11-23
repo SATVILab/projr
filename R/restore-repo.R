@@ -7,89 +7,9 @@ projr_restore_repo <- function(repo,
                                type = NULL,
                                title = NULL,
                                destination = NULL) {
-  .assert_string(destination)
-  # Input validation
-  if (is.null(repo)) {
-    stop("'repo' cannot be NULL")
-  }
-  if (!is.character(repo)) {
-    stop("'repo' must be a character string")
-  }
-  if (length(repo) == 0) {
-    stop("'repo' must have at least one element")
-  }
-  if (length(repo) > 1) {
-    stop("'repo' must be a single character value")
-  }
-  if (nchar(repo) == 0) {
-    stop("'repo' cannot be an empty string")
-  }
-
-  if (!is.null(path)) {
-    if (!is.character(path)) {
-      stop("'path' must be NULL or a character string")
-    }
-    if (length(path) > 1) {
-      stop("'path' must be a single character value")
-    }
-    if (nchar(path) == 0) {
-      stop("'path' cannot be an empty string")
-    }
-  }
-
-  # Validate label, pos, type, title (same as projr_restore)
-  if (!is.null(label)) {
-    if (!is.character(label)) {
-      stop("'label' must be NULL or a character vector")
-    }
-    if (length(label) == 0) {
-      stop("'label' must have at least one element if not NULL")
-    }
-  }
-  if (!is.null(pos)) {
-    if (!is.character(pos)) {
-      stop("'pos' must be NULL or a character vector")
-    }
-    if (length(pos) == 0) {
-      stop("'pos' must have at least one element if not NULL")
-    }
-    invalid_pos <- pos[!pos %in% c("source", "dest")]
-    if (length(invalid_pos) > 0) {
-      stop(
-        "'pos' must be 'source' or 'dest'. Invalid values: ",
-        paste(invalid_pos, collapse = ", ")
-      )
-    }
-  }
-  if (!is.null(type)) {
-    if (!is.character(type)) {
-      stop("'type' must be NULL or a character vector")
-    }
-    if (length(type) == 0) {
-      stop("'type' must have at least one element if not NULL")
-    }
-    if (length(type) > 1) {
-      stop("'type' must be a single character value")
-    }
-    valid_types <- c("local", "github")
-    if (!type %in% valid_types) {
-      stop(
-        "'type' must be one of: ",
-        paste(valid_types, collapse = ", ")
-      )
-    }
-  }
-  if (!is.null(title)) {
-    if (!is.character(title)) {
-      stop("'title' must be NULL or a character vector")
-    }
-    if (length(title) == 0) {
-      stop("'title' must have at least one element if not NULL")
-    }
-    if (length(title) > 1) {
-      stop("'title' must be a single character value")
-    }
-  }
+  .assert_string(repo, TRUE)
+  .assert_string(path)
+  .assert_restore_filters(label, pos, type, title, destination)
 
   .title <- title
   result <- tryCatch(

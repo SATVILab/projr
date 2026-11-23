@@ -16,7 +16,7 @@
 .remote_check_exists <- function(type,
                                  id,
                                  ...) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_check_exists_local(path = id),
     "github" = .remote_check_exists_github(
@@ -45,7 +45,7 @@
                                        path_append_label,
                                        version,
                                        empty) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   version <- if (is.null(version)) {
     .version_get_v()
   } else {
@@ -82,7 +82,7 @@
 .remote_final_check_exists_direct <- function(type,
                                               remote,
                                               ...) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_check_exists_direct_local(remote),
     "github" = .remote_final_check_exists_direct_github(remote, ...)
@@ -111,6 +111,7 @@
                            id,
                            name,
                            ...) {
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   .cli_debug(
     "Remote create: type={type}, id={id}"
   )
@@ -141,7 +142,7 @@
 .remote_ls_final <- function(type,
                              remote_pre,
                              ...) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_ls_final_local(remote_pre),
     "github" = .remote_ls_final_github(remote_pre, ...)
@@ -171,7 +172,7 @@
 
 .remote_get <- function(type,
                         id) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_get_local(id = id),
     "github" = .remote_get_github(.remote_misc_github_tag_get(id)),
@@ -431,6 +432,7 @@
                                  version,
                                  pre,
                                  empty) {
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_get_path_rel_hierarchy(
       path = path,
@@ -471,7 +473,7 @@
   .assert_flag(path_append_label, TRUE)
   .assert_in_single(structure, .opt_remote_get_structure(), TRUE)
   if (path_append_label) {
-    .assert_in(label, .opt_dir_get_label_send(NULL), TRUE)
+    .assert_in_single(label, .opt_dir_get_label_send(NULL), TRUE)
   }
 
   if (pre || (!path_append_label && structure == "latest")) return(path %||% character())
@@ -522,7 +524,7 @@
   .assert_flag(path_append_label, TRUE)
   .assert_in_single(structure, .opt_remote_get_structure(), TRUE)
   if (path_append_label) {
-    .assert_in(label, .opt_dir_get_label_send(NULL), TRUE)
+    .assert_in_single(label, .opt_dir_get_label_send(NULL), TRUE)
   }
   path_rel <- if (!is.null(path) && !identical(path, "")) path else character()
 
@@ -563,7 +565,7 @@
 .remote_final_rm_if_empty <- function(type,
                                       remote,
                                       ...) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_rm_if_empty_local(remote),
     "github" = .remote_final_rm_if_empty_github(remote, ...)
@@ -585,7 +587,7 @@
 .remote_rm <- function(type,
                        remote,
                        ...) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_rm_local(remote),
     "github" = .remote_rm_github(remote, ...)
@@ -599,7 +601,7 @@
 .remote_final_rm <- function(type,
                              remote,
                              ...) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_rm_local(
       remote = remote
@@ -627,7 +629,7 @@
 .remote_final_get_info <- function(type,
                                    remote_final,
                                    ...) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = NULL,
     "github" = .remote_final_get_info_github(remote_final, ...)
@@ -653,7 +655,7 @@
 .remote_final_empty <- function(type,
                                 remote,
                                 ...) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   switch(type,
     "local" = .remote_final_empty_local(remote),
     "github" = .remote_final_empty_github(
@@ -681,7 +683,7 @@
                          remote_final,
                          version,
                          label) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   hash_tbl <- .change_get_file_dir( # nolint
     type, remote_final
   ) |>
@@ -716,7 +718,7 @@
                                  path_dir_save_local,
                                  ...) {
   .assert_string(path_dir_save_local, TRUE)
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   .dir_create(path_dir_save_local)
   switch(type,
     "local" = .remote_file_get_all_local(
@@ -748,7 +750,7 @@
                              fn,
                              path_dir_save_local) {
   .assert_string(path_dir_save_local, TRUE)
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
   .dir_create(path_dir_save_local)
   switch(type,
     "local" = .remote_file_get_local(
@@ -777,7 +779,7 @@
 #' @noRd
 .remote_file_ls <- function(type,
                             remote) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
 
   result <- switch(type,
     "local" = .remote_file_ls_local(remote),
@@ -807,7 +809,7 @@
 .remote_file_rm <- function(type,
                             fn,
                             remote) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
     "Remote file remove: type={type}, removing {length(fn)} file(s)"
@@ -836,7 +838,7 @@
                              path_dir_local,
                              fn,
                              ...) {
-  .assert_in(type, .opt_remote_get_type(), TRUE)
+  .assert_in_single(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
     "Remote file add: type={type}, adding {num_files} file(s) from '{path}' to remote='{remote}'",

@@ -72,10 +72,7 @@ projr_profile_create_local <- function() {
     }
   }
 
-  # Validate silent parameter
-  if (!is.logical(silent) || length(silent) != 1) {
-    stop("silent must be a single logical value", call. = FALSE)
-  }
+  .assert_flag(silent, TRUE)
 
   .assert_string(profile, required = TRUE)
 

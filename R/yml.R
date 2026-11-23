@@ -25,6 +25,8 @@
 #'
 #' @export
 projr_yml_get <- function(profile = NULL, check = FALSE) {
+  .assert_flag(check, TRUE)
+  if (check) projr_yml_check(profile)
   .yml_get(profile)
 }
 

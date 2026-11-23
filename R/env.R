@@ -42,6 +42,9 @@ projr_env_set <- function(file = NULL) {
 }
 
 .env_set <- function(file = NULL, unset = FALSE) {
+  .assert_chr_min(file)
+  if (length(file)) .assert_chr(file)
+  .assert_flag(unset, TRUE)
   .file_rm(.env_file_get_path_list())
   if (!is.null(file)) {
     for (x in file) {

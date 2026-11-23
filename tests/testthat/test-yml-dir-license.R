@@ -540,13 +540,13 @@ test_that("projr_yml_dir_license_set validates year parameter", {
       # Non-numeric year
       expect_error(
         projr_yml_dir_license_set("MIT", "output", year = "2023"),
-        "year must be a single numeric value"
+        "year must be a non-NA number"
       )
 
       # Multiple year values
       expect_error(
         projr_yml_dir_license_set("MIT", "output", year = c(2023, 2024)),
-        "year must be a single numeric value"
+        "year must be a non-NA number"
       )
 
       # Valid year should work
@@ -765,13 +765,13 @@ test_that("projr_license_create_manual validates year parameter", {
       # Non-numeric year
       expect_error(
         projr_license_create_manual("MIT", "raw-data", year = "2023"),
-        "year must be a single numeric value"
+        "year must be a non-NA number"
       )
 
       # Multiple year values
       expect_error(
         projr_license_create_manual("MIT", "raw-data", year = c(2023, 2024)),
-        "year must be a single numeric value"
+        "year must be a non-NA number"
       )
 
       # Valid year should work (function produces messages)
