@@ -441,6 +441,14 @@ Pass <code>clear_output = NULL</code> to read
 <code>PROJR_CLEAR_OUTPUT</code>. For console and file logging, profile
 environment files, and authentication, see
 <code><a href="../articles/environment.html">vignette("environment")</a></code>.</p>
+<p>If you add a package <code>DESCRIPTION</code> to an existing renv
+analysis, renv can choose a new library when the next R session starts.
+When that library is empty apart from renv, builds reuse the populated
+analysis library for this checkout. The build and its renderers use the
+same packages. A populated new library takes precedence, and explicit
+renv library settings are respected. A missing renderer dependency stops
+the build with the package names and the installation command for the
+project library.</p>
 </div>
 <div class="section level2">
 <h2 id="hashing-and-history">Hashing and history<a class="anchor" aria-label="anchor" href="#hashing-and-history"></a>
