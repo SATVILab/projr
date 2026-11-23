@@ -6,12 +6,14 @@
 \alias{projr-package}
 \title{projr: Facilitate Reproducible and Archived Projects}
 \description{
-Facilitate reproducible and archived projects.
+Run R scripts and render 'Quarto', 'R Markdown' and 'bookdown' documents in a configured order. Record file hashes for each version of an analysis, archive its inputs and outputs locally or in 'GitHub' releases, and restore the inputs for a checked-out version.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://satvilab.github.io/projr/}
+  \item \url{https://github.com/SATVILab/projr}
+  \item Report bugs at \url{https://github.com/SATVILab/projr/issues}
 }
 
 }
@@ -21,6 +23,11 @@ Useful links:
 Authors:
 \itemize{
   \item Miguel Rodo \email{miguel.rodo@uct.ac.za} (\href{https://orcid.org/0000-0002-2036-4878}{ORCID})
+}
+
+Other contributors:
+\itemize{
+  \item Alexander Peslyak (Bundled MD5 implementation) [contributor]
 }
 
 }
