@@ -172,7 +172,8 @@ projr_manifest_last_change <- function(version = NULL) {
   if (!is.null(version)) return(.version_v_add(version))
   if (use_earliest && nrow(manifest)) {
     versions <- unique(manifest$version)
-    return(versions[which.min(numeric_version(sub("^v", "", versions)))])
+    numbers <- numeric_version(sub("^v", "", versions))
+    return(versions[match(min(numbers), numbers)])
   }
   .version_get_v()
 }
@@ -297,7 +298,7 @@ projr_manifest_last_change <- function(version = NULL) {
     # Find most recent version for this label
     versions <- unique(label_data$version)
     versions_pkg <- numeric_version(sub("^v", "", versions))
-    version_last <- versions[which.max(versions_pkg)]
+    version_last <- versions[match(max(versions_pkg), versions_pkg)]
 
     # Count files at this version
     files_at_version <- label_data[label_data$version == version_last, , drop = FALSE]
