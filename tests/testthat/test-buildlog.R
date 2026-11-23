@@ -55,27 +55,6 @@ test_that(".buildlog_get_disk_info works", {
   expect_true(grepl("- Disk Space:", disk_info))
 })
 
-test_that(".buildlog_get_add includes system resources", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # Create sample inputs
-  msg <- "Test build message"
-  bump_component <- "patch"
-  version_run_on_list <- list(
-    "desc" = list("success" = "0.0.1")
-  )
-  total_time <- as.difftime(120, units = "secs")
-
-  # Get the buildlog addition
-  add_txt <- .buildlog_get_add(msg, bump_component, version_run_on_list, total_time)
-
-  # Check that it includes system resources section
-  expect_true(any(grepl("\\*\\*System Resources\\*\\*", add_txt)))
-  expect_true(any(grepl("- OS:", add_txt)))
-  expect_true(any(grepl("- CPU Cores:", add_txt)))
-})
-
 test_that(".buildlog_read works with empty file", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -262,6 +241,7 @@ test_that(".build_buildlog_check returns correct output_run status", {
 test_that(".buildlog_get_header creates correct header format", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
+  withr::local_dir(testthat::test_path("project_structure"))
 
   version_list <- list(desc = list(success = "1.2.3"))
 
@@ -384,6 +364,8 @@ test_that(".buildlog_get_add combines all sections correctly", {
       expect_true(any(grepl("Total time:", add_txt))) # Time
       expect_true(any(grepl("projr.*profile:", add_txt))) # Profile
       expect_true(any(grepl("\\*\\*System Resources\\*\\*", add_txt))) # System
+      expect_true(any(grepl("- OS:", add_txt)))
+      expect_true(any(grepl("- CPU Cores:", add_txt)))
       expect_true(any(grepl("\\*\\*`projr` config\\*\\*", add_txt))) # Config
       expect_true(any(grepl("\\*\\*Session info\\*\\*", add_txt))) # Session
       expect_true(any(grepl("----", add_txt))) # Separator
