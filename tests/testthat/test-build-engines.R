@@ -329,20 +329,30 @@ for (project_type in c("bookdown", "quarto_book")) {
           config_file <- "_quarto.yml"
           yaml::write_yaml(list(
             project = list(type = "book", `execute-dir` = "project"),
-            book = list(title = "Test", chapters = list(chapters[1], list(part = "Results", chapters = chapters[2:3])))
+            `metadata-files` = list("chapters.yml")
           ), config_file)
+          yaml::write_yaml(list(book = list(title = "Test", chapters = list(
+            chapters[1],
+            list(part = "Results", chapters = chapters[2:3])
+          ))), "chapters.yml")
+          writeLines("book: {appendices: [nested/draft-appendix.qmd]}", "_quarto-report.yml")
+          file.copy(chapters[3], "nested/draft-appendix.qmd")
         } else {
           config_file <- "_bookdown.yml"
           yaml::write_yaml(list(rmd_files = list(html = chapters[1]), rmd_subdir = "nested"), config_file)
           writeLines("bookdown::gitbook: default", "_output.yml")
         }
-        original <- readBin(config_file, "raw", file.size(config_file))
+        files <- c(config_file, if (quarto) c("chapters.yml", "_quarto-report.yml"))
+        config_bytes <- function() lapply(files, function(path) readBin(path, "raw", file.size(path)))
+        original <- config_bytes()
         config <- .yml_get("default")
-        config$build$scripts <- c("!scratch.R", "!nested/draft.*")
-        writeLines(sprintf("saveRDS(yaml::read_yaml('%s'), 'during-render.rds')", config_file), "check-config.R")
+        config$build$scripts <- c("!scratch.R", "!nested/draft*")
+        hook_file <- if (quarto) "chapters.yml" else config_file
+        writeLines(sprintf("saveRDS(yaml::read_yaml('%s'), 'during-render.rds')", hook_file), "check-config.R")
         config$dev$hooks <- list(post = "check-config.R")
         .yml_set(config)
-        projr_build_dev()
+        args <- if (quarto) list(profile = "report") else list()
+        projr_build_dev(args_engine = args)
         expect_identical(readLines("order.txt"), c("chapter", "R"))
         during <- readRDS("during-render.rds")
         if (quarto) {
@@ -351,11 +361,15 @@ for (project_type in c("bookdown", "quarto_book")) {
         } else {
           expect_identical(during$rmd_files, list(html = chapters[1:2]))
         }
-        expect_identical(readBin(config_file, "raw", file.size(config_file)), original)
+        expect_identical(config_bytes(), original)
         unlink("order.txt")
-        projr_build_dev(scripts = c("!index.*", "!nested/*", "!scratch.R"))
+        projr_build_dev(scripts = c("!index.*", "!nested/*", "!scratch.R"), args_engine = args)
         expect_identical(readLines("order.txt"), "R")
-        expect_identical(readBin(config_file, "raw", file.size(config_file)), original)
+        expect_identical(config_bytes(), original)
+        if (quarto) {
+          expect_error(projr_build_dev(scripts = "!index.qmd", args_engine = args), "Quarto books require an index page")
+          expect_identical(config_bytes(), original)
+        }
       },
       force = TRUE,
       quiet = TRUE

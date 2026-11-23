@@ -367,7 +367,7 @@ projr_build_dev <- function(scripts = NULL,
       add = TRUE,
       after = FALSE
     )
-    engines <- .build_engines_override_project(engines)
+    engines <- .build_engines_override_project(engines, restore_project, args_engine[["profile"]])
 
     # Build stage
     if (length(engines)) {
