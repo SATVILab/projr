@@ -29,7 +29,11 @@ test_that(".build_copy_docs uses scripts parameter to detect engine (qmd)", {
 
       # Call .build_copy_docs with scripts parameter
       # Should use quarto_document engine, not bookdown
-      expect_silent(.build_copy_docs(output_run = FALSE, engines = .engines_get(qmd_file)))
+      withr::local_envvar(c(PROJR_OUTPUT_LEVEL = "std"))
+      expect_message(
+        .build_copy_docs(output_run = FALSE, engines = .engines_get(qmd_file)),
+        "Collected 1 rendered document in"
+      )
 
       # Check that the HTML file was copied to docs directory
       docs_dir <- projr_path_get_dir("docs", safe = TRUE)
@@ -72,7 +76,11 @@ test_that(".build_copy_docs uses scripts parameter to detect engine (Rmd)", {
 
       # Call .build_copy_docs with scripts parameter
       # Should use rmd engine, not quarto_project
-      expect_silent(.build_copy_docs(output_run = FALSE, engines = .engines_get(rmd_file)))
+      withr::local_envvar(c(PROJR_OUTPUT_LEVEL = "std"))
+      expect_message(
+        .build_copy_docs(output_run = FALSE, engines = .engines_get(rmd_file)),
+        "Collected 1 rendered document in"
+      )
 
       # Check that the HTML file was copied to docs directory
       docs_dir <- projr_path_get_dir("docs", safe = TRUE)
@@ -155,12 +163,16 @@ test_that(".build_copy propagates scripts parameter correctly", {
 
       # Call .build_copy with scripts parameter
       # Should pass scripts to .build_copy_docs
-      expect_silent(.build_copy(
-        output_run = FALSE,
-        bump_component = "dev",
-        version_run_on_list = version_run_on_list,
-        engines = .engines_get(qmd_file)
-      ))
+      withr::local_envvar(c(PROJR_OUTPUT_LEVEL = "std"))
+      expect_message(
+        .build_copy(
+          output_run = FALSE,
+          bump_component = "dev",
+          version_run_on_list = version_run_on_list,
+          engines = .engines_get(qmd_file)
+        ),
+        "Collected 1 rendered document in"
+      )
 
       # Check that HTML file was copied using quarto engine
       docs_dir <- projr_path_get_dir("docs", safe = TRUE)
@@ -210,7 +222,11 @@ test_that("documents sharing a basename keep their companion assets in separate 
       writeLines(folder, file.path(folder, "report_files", "plot.txt"))
       file.path(folder, c("report.html", "report_files"))
     })
-    .build_copy_docs(FALSE, stats::setNames(outputs, c("document_output", "document_output")))
+    withr::local_envvar(c(PROJR_OUTPUT_LEVEL = "std"))
+    expect_message(
+      .build_copy_docs(FALSE, stats::setNames(outputs, c("document_output", "document_output"))),
+      "Collected 2 rendered documents in"
+    )
     docs <- projr_path_get_dir("docs", safe = TRUE)
     for (folder in c("first", "second")) {
       expect_identical(readLines(file.path(docs, folder, "report.html")), folder)
@@ -240,7 +256,8 @@ test_that("post-build clearing preserves a document rendered into its final dire
     output <- file.path(docs, "rendered.html")
     writeLines("in place", output)
     .build_clear_post_safe_docs(TRUE, "document_output", output)
-    .build_copy_docs(TRUE, list(document_output = output))
+    withr::local_envvar(c(PROJR_OUTPUT_LEVEL = "std"))
+    expect_message(.build_copy_docs(TRUE, list(document_output = output)), "Collected 1 rendered document in")
     expect_identical(readLines(output), "in place")
   })
 })

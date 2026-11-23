@@ -1,7 +1,4 @@
 .build_copy_docs <- function(output_run, engines = .engines_get()) {
-  .cli_debug("Starting .build_copy_docs()")
-  .cli_debug("  output_run: {output_run}")
-
   collected <- .build_copy_docs_targets(engines)
 
   # Move project output before the standalone documents sharing its destination.
@@ -19,7 +16,6 @@
       "rmd" = .build_copy_docs_rmd(output_run, engines[[index]])
     )
   }
-  .cli_debug("Finished .build_copy_docs()")
 }
 
 # Keep the usual flat layout when names are unique. When documents share a
@@ -61,23 +57,16 @@
 # ------------------
 
 .build_copy_docs_rmd <- function(output_run, scripts = NULL) {
-  .cli_debug("Starting .build_copy_docs_rmd()")
-  .cli_debug("  output_run: {output_run}")
-
   fn_vec_rmd <- if (is.null(scripts)) {
     list.files(pattern = "\\.rmd$", ignore.case = TRUE)
   } else {
     grep("\\.rmd$", scripts, ignore.case = TRUE, value = TRUE)
   }
-  .cli_debug("  Found {length(fn_vec_rmd)} Rmd files: {paste(fn_vec_rmd, collapse = ', ')}")
 
   for (fn in fn_vec_rmd) {
-    .cli_debug("  Processing Rmd file: {fn}")
     .build_copy_docs_rmd_ind(fn, output_run)
-    .cli_debug("  Completed processing: {fn}")
   }
 
-  .cli_debug("Finished .build_copy_docs_rmd()")
   invisible(TRUE)
 }
 
@@ -176,23 +165,16 @@
 # ------------------
 
 .build_copy_docs_quarto <- function(output_run, scripts = NULL) {
-  .cli_debug("Starting .build_copy_docs_quarto()")
-  .cli_debug("  output_run: {output_run}")
-
   fn_vec_qmd <- if (is.null(scripts)) {
     list.files(pattern = "\\.qmd$", ignore.case = TRUE)
   } else {
     grep("\\.qmd$", scripts, ignore.case = TRUE, value = TRUE)
   }
-  .cli_debug("  Found {length(fn_vec_qmd)} qmd files: {paste(fn_vec_qmd, collapse = ', ')}")
 
   for (fn in fn_vec_qmd) {
-    .cli_debug("  Processing qmd file: {fn}")
     .build_copy_docs_quarto_ind(fn, output_run)
-    .cli_debug("  Completed processing: {fn}")
   }
 
-  .cli_debug("Finished .build_copy_docs_quarto()")
   invisible(TRUE)
 }
 
@@ -292,81 +274,56 @@
 # ------------------
 
 .build_copy_docs_bookdown <- function(output_run) {
-  .cli_debug("Starting .build_copy_docs_bookdown()")
-  .cli_debug("  output_run: {output_run}")
-
   if (!output_run) {
     # no copying required as we build directly to the
     # temporary location, which is final if
     # not in an output run
-    .cli_debug("  Skipping copy: not an output run (built directly to temp location)")
-    .cli_debug("Finished .build_copy_docs_bookdown() - early return")
     return(invisible(FALSE))
   }
 
   # Get source directory (temporary build location in cache)
   source_dir <- .path_resolve_root(.dir_get_label_safe_path("docs"))
-  .cli_debug("  Source dir: {source_dir}")
 
   if (!dir.exists(source_dir)) {
     .cli_info("Bookdown output directory not found: {source_dir}")
-    .cli_debug("Finished .build_copy_docs_bookdown() - source not found")
     return(invisible(FALSE))
   }
 
   # Get destination directory (final docs location)
   dest_dir <- projr_path_get_dir("docs", safe = !output_run)
-  .cli_debug("  Dest dir: {dest_dir}")
 
   # Copy all contents from source to destination
-  .cli_debug("  Calling .dir_move_exact() from {source_dir} to {dest_dir}")
   .dir_move_exact(source_dir, dest_dir)
-  .cli_debug("  Completed .dir_move_exact()")
 
   # Copy the <book_filename>_files directory if it exists
   # This contains knitr cache files (figures, etc.) from the working directory
-  .cli_debug("  Calling .build_copy_docs_bookdown_files()")
   .build_copy_docs_bookdown_files(output_run)
-  .cli_debug("  Completed .build_copy_docs_bookdown_files()")
 
   .cli_info("Copied bookdown output from {source_dir} to {dest_dir}")
-  .cli_debug("Finished .build_copy_docs_bookdown()")
   invisible(TRUE)
 }
 
 .build_copy_docs_bookdown_files <- function(output_run) {
-  .cli_debug("Starting .build_copy_docs_bookdown_files()")
-  .cli_debug("  output_run: {output_run}")
-
   # Get the book filename from _bookdown.yml
   book_filename <- .yml_bd_get_book_filename()
   files_dir_name <- paste0(book_filename, "_files")
-  .cli_debug("  Book filename: {book_filename}")
-  .cli_debug("  Files dir name: {files_dir_name}")
 
   # Source is in the cache build directory (working directory during build)
   cache_dir <- .dir_get_cache_auto_version(profile = NULL)
   source_files_dir <- file.path(cache_dir, files_dir_name)
-  .cli_debug("  Source files dir: {source_files_dir}")
 
   # Skip if the _files directory doesn't exist
   if (!dir.exists(source_files_dir)) {
-    .cli_debug("  Files directory does not exist, skipping")
-    .cli_debug("Finished .build_copy_docs_bookdown_files() - no files dir")
     return(invisible(FALSE))
   }
 
   # Destination is in the final docs directory
   dest_dir <- projr_path_get_dir("docs", safe = !output_run)
   dest_files_dir <- file.path(dest_dir, files_dir_name)
-  .cli_debug("  Dest files dir: {dest_files_dir}")
 
   # Copy the _files directory
-  .cli_debug("  Calling .dir_move_exact() from {source_files_dir} to {dest_files_dir}")
   .dir_move_exact(source_files_dir, dest_files_dir)
-  .cli_debug("  Completed .dir_move_exact()")
 
-  .cli_debug("Finished .build_copy_docs_bookdown_files()")
   invisible(TRUE)
 }
 
@@ -374,39 +331,28 @@
 # ------------------
 
 .build_copy_docs_quarto_project <- function(output_run) {
-  .cli_debug("Starting .build_copy_docs_quarto_project()")
-  .cli_debug("  output_run: {output_run}")
-
   if (!output_run) {
     # no copying required as we build directly to the
     # temporary location, which is final if
     # not in an output run
-    .cli_debug("  Skipping copy: not an output run (built directly to temp location)")
-    .cli_debug("Finished .build_copy_docs_quarto_project() - early return")
     return(invisible(FALSE))
   }
 
   # Get source directory (temporary build location)
   source_dir <- .dir_get_label_safe_path("docs")
-  .cli_debug("  Source dir: {source_dir}")
 
   if (!dir.exists(source_dir)) {
     .cli_info("Quarto output directory not found: {source_dir}")
-    .cli_debug("Finished .build_copy_docs_quarto_project() - source not found")
     return(invisible(FALSE))
   }
 
   # Get destination directory (final docs location)
   dest_dir <- projr_path_get_dir("docs", safe = !output_run)
-  .cli_debug("  Dest dir: {dest_dir}")
 
   # Copy all contents from source to destination
-  .cli_debug("  Calling .dir_move_exact() from {source_dir} to {dest_dir}")
   .dir_move_exact(source_dir, dest_dir)
-  .cli_debug("  Completed .dir_move_exact()")
 
   .cli_info("Copied quarto project output from {source_dir} to {dest_dir}")
-  .cli_debug("Finished .build_copy_docs_quarto_project()")
   invisible(TRUE)
 }
 
@@ -430,22 +376,20 @@
 }
 
 .build_copy_docs_paths <- function(path, output_run, target = basename(path)) {
-  .cli_debug("  Starting .build_copy_docs_paths()")
-  .cli_debug("    Paths to copy: {paste(path, collapse = ', ')}")
-  .cli_debug("    output_run: {output_run}")
-
+  count <- 0L
   for (i in seq_along(path)) {
-    .build_copy_docs_paths_file(path[[i]], output_run, target[[i]])
+    count <- count + .build_copy_docs_paths_file(path[[i]], output_run, target[[i]])
     .build_copy_docs_paths_dir(path[[i]], output_run, target[[i]])
   }
-
-  .cli_debug("  Finished .build_copy_docs_paths()")
+  if (count > 0L) {
+    destination <- if (output_run) .dir_get_label_unsafe("docs") else .dir_get_label_safe_path("docs")
+    .cli_info("Collected {count} rendered {ngettext(count, 'document', 'documents')} in {destination}")
+  }
   invisible(TRUE)
 }
 
 .build_copy_docs_paths_file <- function(path, output_run, target = basename(path)) {
   if (!file.exists(path) || !fs::is_file(path)) {
-    .cli_debug("      Skipping {path}: not a file or doesn't exist")
     return(invisible(FALSE))
   }
 
@@ -454,21 +398,17 @@
   if (fs::path_abs(path) == fs::path_abs(file_to)) {
     return(invisible(TRUE))
   }
-  .cli_debug("      Copying file {path} to {file_to}")
 
   if (file.exists(file_to)) {
-    .cli_debug("        Removing existing file: {file_to}")
     invisible(file.remove(file_to))
   }
 
   fs::file_move(path, file_to)
-  .cli_debug("      Completed copying file")
   invisible(TRUE)
 }
 
 .build_copy_docs_paths_dir <- function(path, output_run, target = basename(path)) {
   if (!file.exists(path) || !fs::is_dir(path)) {
-    .cli_debug("      Skipping {path}: not a directory or doesn't exist")
     return(invisible(FALSE))
   }
 
@@ -478,7 +418,6 @@
   if (fs::path_abs(path) == fs::path_abs(path_dir_to)) {
     return(invisible(TRUE))
   }
-  .cli_debug("      Copying directory {path} to {path_dir_to}")
 
   .dir_move_exact(
     path_dir_from = path,
@@ -486,7 +425,6 @@
     fn_exc = "CHANGELOG.md"
   )
   .build_copy_docs_paths_rm_dir(path)
-  .cli_debug("      Completed copying directory")
   invisible(TRUE)
 }
 
