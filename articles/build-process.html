@@ -111,12 +111,18 @@ happens at each step.</p>
 <div class="section level3">
 <h3 id="files-a-build-can-change">Files a build can change<a class="anchor" aria-label="anchor" href="#files-a-build-can-change"></a>
 </h3>
-<p>Loading projr leaves project files alone. Calling a build runs the
-selected scripts and hooks, which can write files just as they do when
-run directly. The first build also creates a starter configuration if
-the project has none. Builds update the project version, generated
-ignore rules, build cache and logs. Production builds also record change
-history and can replace published documents and outputs.</p>
+<p>Before the first interactive build writes anything, projr shows the
+full path of the checkout and asks for approval for the build as a
+whole. Selected scripts and hooks can write files as they do when run
+directly. The build can create a starter configuration, update versions
+and ignore rules, clear previous results, or write to configured
+external directories. Production builds can also commit, push, and
+publish archives.</p>
+<p>In an unattended job, supply the checkout root as
+<code>project</code>. For example, when the job starts at the root,
+<code>projr_build(project = ".", archive_github = TRUE)</code>
+authorizes that build. See the <a href="configuration.html#choosing-the-checkout-for-a-build">configuration
+reference</a> for how interactive approval is remembered.</p>
 <p>Review the configured directories and destinations before building an
 unfamiliar project. An absolute path can point outside the checkout. To
 keep existing output when preparing a build, set

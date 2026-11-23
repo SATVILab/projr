@@ -67,7 +67,12 @@ in the input folder because a build can clear previous results.
 
 ## Build and archive it
 
-Run this in the R console, from the project folder.
+Run this in the R console, from the project folder. On the first build,
+projr names the checkout’s full path and asks whether it may run the
+project’s scripts and hooks, write the configured files, and carry out
+requested Git or archive operations. Answer yes to approve those steps
+together. Later interactive builds in the same checkout reuse that
+approval.
 
 ``` r
 
@@ -83,6 +88,12 @@ records a version, and uploads the versioned files to the GitHub release
 named `archive`. Later builds can share that release. The build log
 connects the version to the code, and the archive records which files
 belong to it.
+
+In an unattended job, pass the checkout’s root directory as `project`.
+From that root the equivalent call is
+`projr_build(project = ".", archive_github = TRUE)`. This selects the
+checkout for that build. The job also needs Git and GitHub credentials
+for the push and upload.
 
 ## Restore the inputs and run the analysis again
 
@@ -109,6 +120,7 @@ start of that line and run `git checkout --detach IDENTIFIER`, replacing
 build.
 
 Open that checkout in R to restore its inputs and run a local preview.
+The first interactive build asks for approval in this new checkout, too.
 
 ``` r
 

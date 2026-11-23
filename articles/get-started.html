@@ -125,7 +125,12 @@ a build can clear previous results.</p>
 <div class="section level2">
 <h2 id="build-and-archive-it">Build and archive it<a class="anchor" aria-label="anchor" href="#build-and-archive-it"></a>
 </h2>
-<p>Run this in the R console, from the project folder.</p>
+<p>Run this in the R console, from the project folder. On the first
+build, projr names the checkout’s full path and asks whether it may run
+the project’s scripts and hooks, write the configured files, and carry
+out requested Git or archive operations. Answer yes to approve those
+steps together. Later interactive builds in the same checkout reuse that
+approval.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satvilab.github.io/projr/">projr</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build</a></span><span class="op">(</span>archive_github <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -137,6 +142,11 @@ runs <code>analysis.R</code>, records a version, and uploads the
 versioned files to the GitHub release named <code>archive</code>. Later
 builds can share that release. The build log connects the version to the
 code, and the archive records which files belong to it.</p>
+<p>In an unattended job, pass the checkout’s root directory as
+<code>project</code>. From that root the equivalent call is
+<code>projr_build(project = ".", archive_github = TRUE)</code>. This
+selects the checkout for that build. The job also needs Git and GitHub
+credentials for the push and upload.</p>
 </div>
 <div class="section level2">
 <h2 id="restore-the-inputs-and-run-the-analysis-again">Restore the inputs and run the analysis again<a class="anchor" aria-label="anchor" href="#restore-the-inputs-and-run-the-analysis-again"></a>
@@ -157,7 +167,8 @@ identifier at the start of that line and run
 <code>IDENTIFIER</code> with the one you copied. This loads the code for
 that build.</p>
 <p>Open that checkout in R to restore its inputs and run a local
-preview.</p>
+preview. The first interactive build asks for approval in this new
+checkout, too.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satvilab.github.io/projr/">projr</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_restore.html">projr_restore</a></span><span class="op">(</span><span class="op">)</span></span>

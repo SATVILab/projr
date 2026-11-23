@@ -118,6 +118,23 @@ specify a value. Local overrides still win. Use
 <code>projr_yml_get("default")</code> to inspect the base file, and
 <code><a href="../reference/projr_yml_check.html">projr_yml_check()</a></code> to validate the active configuration.</p>
 <div class="section level3">
+<h3 id="choosing-the-checkout-for-a-build">Choosing the checkout for a build<a class="anchor" aria-label="anchor" href="#choosing-the-checkout-for-a-build"></a>
+</h3>
+<p>The first interactive build names the full project root and asks once
+for permission to run its scripts and hooks, write its configured files,
+and perform the requested Git and archive operations. Configured
+directories can be outside the checkout. Approval is remembered for that
+checkout’s path in the user’s projr configuration directory. A fresh
+clone at another path prompts again, even if it contains the same
+<code>_projr.yml</code>.</p>
+<p>For unattended builds, pass the root of the checkout as
+<code>project</code>. Use
+<code>projr_build(project = ".", archive_github = TRUE)</code> when the
+job starts at that root, or pass the path to the root from another
+working directory. The explicit path authorizes this invocation. Git and
+remote destinations still use their own credentials.</p>
+</div>
+<div class="section level3">
 <h3 id="files-projr-keeps">Files projr keeps<a class="anchor" aria-label="anchor" href="#files-projr-keeps"></a>
 </h3>
 <p>The <code>.projr/</code> folder belongs to the project. Git can track

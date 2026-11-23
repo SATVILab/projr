@@ -63,7 +63,8 @@ saving and archiving selected output.</p>
 <span>  old_dev_remove <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  profile <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  clear_output <span class="op">=</span> <span class="st">"never"</span></span>
+<span>  clear_output <span class="op">=</span> <span class="st">"never"</span>,</span>
+<span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -119,6 +120,16 @@ Quarto renders in the foreground so subsequent scripts and hooks see the complet
 When to clear output directories: "pre" (before build),
 "post" (after build), or "never" (default for dev builds).
 Can also be set via PROJR_CLEAR_OUTPUT environment variable.</p></dd>
+
+
+<dt id="arg-project">project<a class="anchor" aria-label="anchor" href="#arg-project"></a></dt>
+<dd><p>Path to the project root. The default discovers the project
+from the working directory. The first interactive build asks permission to
+run its scripts and hooks, change project files and publish configured
+outputs. projr remembers approval for this checkout in the user's R
+configuration directory. In a noninteractive session, pass the root
+explicitly (for example, <code>project = "."</code>) to authorize this build without
+saving approval.</p></dd>
 
 </dl></div>
     <div class="section level2">

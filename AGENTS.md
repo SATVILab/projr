@@ -123,9 +123,21 @@ package names before modifying the lockfile.
   renderer’s output directory only when the build includes that project.
   Preserve its original YAML bytes for both automatic and explicit
   project selections.
-- Package startup must leave files alone. Keep ordinary build writes in
-  the project, its configured paths or the R session’s temporary
-  directory. User-wide R settings belong to explicit setup commands.
+- Package startup must leave files alone. Before a development or
+  production build first mutates a checkout, obtain approval for its
+  full root path and the build’s file, script, hook, Git and archive
+  operations. Ask once interactively for the checkout as a whole. Save
+  positive interactive approval in the user’s projr configuration
+  directory, outside the checkout. Existing project files do not imply
+  approval, and separate checkout paths have separate approvals.
+- Accept `project` as an explicit checkout root for an unattended build.
+  This authorizes that invocation without saving approval. A
+  subdirectory never grants consent for a different root. Stop an
+  unapproved unattended build that omits `project` before writing files.
+  Remote operations still require their configured credentials.
+- Keep ordinary build writes in the project, its configured paths or the
+  R session’s temporary directory. User-wide R settings belong to
+  explicit setup commands.
 - Keep source documents and their directories trackable. Ignore
   renderer-generated output and intermediates at their project-relative
   paths, including beside nested documents. Install predictable rules

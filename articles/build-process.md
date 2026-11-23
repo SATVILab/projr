@@ -54,12 +54,20 @@ Both follow a three-stage architecture:
 
 ### Files a build can change
 
-Loading projr leaves project files alone. Calling a build runs the
-selected scripts and hooks, which can write files just as they do when
-run directly. The first build also creates a starter configuration if
-the project has none. Builds update the project version, generated
-ignore rules, build cache and logs. Production builds also record change
-history and can replace published documents and outputs.
+Before the first interactive build writes anything, projr shows the full
+path of the checkout and asks for approval for the build as a whole.
+Selected scripts and hooks can write files as they do when run directly.
+The build can create a starter configuration, update versions and ignore
+rules, clear previous results, or write to configured external
+directories. Production builds can also commit, push, and publish
+archives.
+
+In an unattended job, supply the checkout root as `project`. For
+example, when the job starts at the root,
+`projr_build(project = ".", archive_github = TRUE)` authorizes that
+build. See the [configuration
+reference](https://satvilab.github.io/projr/articles/configuration.html#choosing-the-checkout-for-a-build)
+for how interactive approval is remembered.
 
 Review the configured directories and destinations before building an
 unfamiliar project. An absolute path can point outside the checkout. To

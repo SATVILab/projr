@@ -102,10 +102,11 @@ Keep inputs in <code>_raw_data/</code> and write results to <code>_output/</code
 <div class="section level3">
 <h3 id="publish-a-version">Publish a version<a class="anchor" aria-label="anchor" href="#publish-a-version"></a>
 </h3>
-<p>Run this in the R console. The first build creates the starter <code>_projr.yml</code>, runs your script, records the file hashes, and uploads raw inputs and outputs to the <code>archive</code> release.</p>
+<p>Run this in the R console. On the first build, projr shows the checkout’s full path and asks once before running the analysis, writing files and publishing the archive.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/projr_build.html">projr_build</a></span><span class="op">(</span>archive_github <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>Use a GitHub token with write access to the repository’s contents. People with read access to the repository can download the uploaded raw data. For a public repository, that includes anyone.</p>
+<p>The build creates the starter <code>_projr.yml</code> and uploads inputs and outputs to the <code>archive</code> release. Use a GitHub token with write access to the repository’s contents. People with read access can download the raw data.</p>
+<p>For an unattended job started at the checkout root, use <code>projr_build(project = ".", archive_github = TRUE)</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="restore-the-inputs">Restore the inputs<a class="anchor" aria-label="anchor" href="#restore-the-inputs"></a>
