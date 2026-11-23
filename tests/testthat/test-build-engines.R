@@ -266,7 +266,7 @@ test_that("docs path lookups and R-only builds leave the renderer configuration 
       expect_false(dir.exists(projr_path_get_dir("docs", create = FALSE)))
       expect_false(file.exists(projr_path_get("docs", "index.html", create = FALSE)))
       expect_identical(readBin(config, "raw", n = file.size(config)), original)
-      projr_build_dev(scripts = "analysis.R")
+      projr_build_dev(scripts = "analysis.R", project = project)
       expect_identical(readLines("result"), "script ran")
       expect_identical(readBin(config, "raw", n = file.size(config)), original)
       unlink(config)

@@ -64,6 +64,7 @@ test_that("profile directories, staged outputs, and ignores are rooted at _projr
   expect_true(any(grepl("^incoming/site-b", rbuild, fixed = TRUE)))
   expect_false(file.exists(".Rbuildignore"))
   unlink(file.path(project, "DESCRIPTION"))
+  .build_project_approve(project)
   expect_no_error(projr_build_patch(msg = "Build with declared directories", profile = "b"))
   expect_setequal(projr:::.manifest_store_index()$label, c("raw-data", "output"))
   expect_false(any(dir.exists(file.path(project, c("docs", "_raw_data", "_tmp", "_output")))))
@@ -111,9 +112,9 @@ test_that("both first-build entry points write a root starter and retain existin
     writeLines("1.0.0-1", file.path(project, "VERSION"))
     withr::with_dir(nested, {
       if (development) {
-        expect_no_error(projr_build_dev(scripts = character(), profile = "offline"))
+        expect_no_error(projr_build_dev(scripts = character(), profile = "offline", project = project))
       } else {
-        expect_no_error(projr_build_patch("First release", profile = "offline"))
+        expect_no_error(projr_build_patch("First release", profile = "offline", project = project))
       }
       expect_false(file.exists("_projr.yml"))
       starter <- yaml::read_yaml(file.path(project, "_projr.yml"))
@@ -125,7 +126,7 @@ test_that("both first-build entry points write a root starter and retain existin
       # A nested, partial base config is already a project; preserve it on later builds.
       file.remove(file.path(project, "_projr.yml"))
       yaml::write_yaml(list(directories = list(cache = list(path = "my-cache"))), file.path(config, "_projr.yml"))
-      expect_no_error(projr_build_dev(scripts = character(), profile = "offline"))
+      expect_no_error(projr_build_dev(scripts = character(), profile = "offline", project = project))
       expect_false(file.exists(file.path(project, "_projr.yml")))
       expect_identical(names(projr_yml_get()$directories), "cache")
       expect_error(projr_path_get_dir("raw-data"), "not found")
@@ -140,7 +141,7 @@ test_that("an initial local repository build keeps commits local", {
   withr::local_dir(project)
   gert::git_init(project)
   .test_setup_project_git_config()
-  expect_no_error(projr_build_patch("First build in a local Git repository"))
+  expect_no_error(projr_build_patch("First build in a local Git repository", project = project))
   expect_identical(yaml::read_yaml("_projr.yml")$build$git, list(push = FALSE))
   expect_true(nrow(gert::git_log(repo = project)) > 0L)
 })

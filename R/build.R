@@ -11,6 +11,13 @@
 #' bumped set automatically, e.g. projr_build_major()` is equivalent
 #' projr_build(bump_component = "major")`.
 #'
+#' @param project Path to the project root. The default discovers the project
+#'   from the working directory. The first interactive build asks permission to
+#'   run its scripts and hooks, change project files and publish configured
+#'   outputs. projr remembers approval for this checkout in the user's R
+#'   configuration directory. In a noninteractive session, pass the root
+#'   explicitly (for example, `project = "."`) to authorize this build without
+#'   saving approval.
 #' @param bump_component "major", "minor", "patch" or missing.
 #' Specifies version component to increment.
 #' If missing, then is set equal to the lowest version component
@@ -78,8 +85,10 @@ projr_build <- function(bump_component,
                         archive_github = FALSE,
                         archive_local = FALSE,
                         always_archive = TRUE,
-                        clear_output = NULL) {
-  .build_init_config()
+                        clear_output = NULL,
+                        project = NULL) {
+  old_wd <- setwd(.build_prepare_project(project))
+  on.exit(setwd(old_wd), add = TRUE)
   bump_component <- .build_output_get_bump_component(
     bump_component
   )
@@ -105,7 +114,8 @@ projr_build_major <- function(msg = NULL,
                               archive_github = FALSE,
                               archive_local = FALSE,
                               always_archive = TRUE,
-                              clear_output = NULL) {
+                              clear_output = NULL,
+                              project = NULL) {
   projr_build(
     bump_component = "major",
     msg = msg,
@@ -114,7 +124,8 @@ projr_build_major <- function(msg = NULL,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output
+    clear_output = clear_output,
+    project = project
   )
 }
 
@@ -126,7 +137,8 @@ projr_build_minor <- function(msg = NULL,
                               archive_github = FALSE,
                               archive_local = FALSE,
                               always_archive = TRUE,
-                              clear_output = NULL) {
+                              clear_output = NULL,
+                              project = NULL) {
   projr_build(
     bump_component = "minor",
     msg = msg,
@@ -135,7 +147,8 @@ projr_build_minor <- function(msg = NULL,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output
+    clear_output = clear_output,
+    project = project
   )
 }
 
@@ -147,7 +160,8 @@ projr_build_patch <- function(msg = NULL,
                               archive_github = FALSE,
                               archive_local = FALSE,
                               always_archive = TRUE,
-                              clear_output = NULL) {
+                              clear_output = NULL,
+                              project = NULL) {
   projr_build(
     bump_component = "patch",
     msg = msg,
@@ -156,11 +170,13 @@ projr_build_patch <- function(msg = NULL,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
-    clear_output = clear_output
+    clear_output = clear_output,
+    project = project
   )
 }
 
 #' @title Build dev project
+#' @inheritParams projr_build
 #'
 #' @description Builds project to output, which
 #' means recording the input and output data hashes,
@@ -214,10 +230,12 @@ projr_build_dev <- function(scripts = NULL,
                             old_dev_remove = TRUE,
                             args_engine = list(),
                             profile = NULL,
-                            clear_output = "never") {
+                            clear_output = "never",
+                            project = NULL) {
   .assert_flag(bump, TRUE)
   .assert_flag(old_dev_remove, TRUE)
-  .build_init_config()
+  old_wd <- setwd(.build_prepare_project(project))
+  on.exit(setwd(old_wd), add = TRUE)
   # NULL if FALSE and "dev" if TRUE
   bump_component <- .build_dev_get_bump_component(bump)
   .build(
@@ -230,15 +248,7 @@ projr_build_dev <- function(scripts = NULL,
   )
 }
 
-.build_init_config <- function() {
-  if (!is.null(.path_project_root(required = FALSE))) return(invisible(FALSE))
-  # On the first build, locate the project before there is a projr marker.
-  markers <- rprojroot::criteria$is_vcs_root | rprojroot::has_file("VERSION") |
-    rprojroot::has_file("DESCRIPTION") | rprojroot::criteria$is_rstudio_project |
-    rprojroot::criteria$is_renv_project | rprojroot::criteria$is_quarto_project |
-    rprojroot::has_file("_bookdown.yml") | rprojroot::has_dir(".projr/config") |
-    rprojroot::has_dir("_projr/config")
-  root <- tryCatch(rprojroot::find_root(markers), error = function(e) getwd())
+.build_init_config <- function(root) {
   starter <- system.file("project_structure", "_projr.yml", package = "projr", mustWork = TRUE)
   config <- yaml::read_yaml(starter)
   if (!file.exists(file.path(root, ".git"))) {
@@ -286,9 +296,6 @@ projr_build_dev <- function(scripts = NULL,
                    archive_local = FALSE,
                    always_archive = TRUE,
                    clear_output = NULL) {
-  .project_state_upgrade(.path_get())
-  old_wd <- setwd(.path_get())
-  on.exit(setwd(old_wd), add = TRUE, after = FALSE)
   if (!is.null(profile)) {
     old_profile <- Sys.getenv("PROJR_PROFILE")
     Sys.setenv(PROJR_PROFILE = profile)

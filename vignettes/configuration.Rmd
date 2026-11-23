@@ -37,6 +37,21 @@ Local overrides still win. Use `projr_yml_get()` to inspect the merged settings,
 `projr_yml_get("default")` to inspect the base file, and `projr_yml_check()`
 to validate the active configuration.
 
+### Choosing the checkout for a build
+
+The first interactive build names the full project root and asks once for
+permission to run its scripts and hooks, write its configured files, and
+perform the requested Git and archive operations. Configured directories
+can be outside the checkout. Approval is remembered for that checkout’s
+path in the user’s projr configuration directory. A fresh clone at another
+path prompts again, even if it contains the same `_projr.yml`.
+
+For unattended builds, pass the root of the checkout as `project`. Use
+`projr_build(project = ".", archive_github = TRUE)` when the job starts
+at that root, or pass the path to the root from another working directory.
+The explicit path authorizes this invocation. Git and remote destinations
+still use their own credentials.
+
 ### Files projr keeps
 
 The `.projr/` folder belongs to the project. Git can track its configuration

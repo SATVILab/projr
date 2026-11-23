@@ -10,7 +10,8 @@ projr_build_dev(
   old_dev_remove = TRUE,
   args_engine = list(),
   profile = NULL,
-  clear_output = "never"
+  clear_output = "never",
+  project = NULL
 )
 }
 \arguments{
@@ -52,6 +53,14 @@ Quarto renders in the foreground so subsequent scripts and hooks see the complet
 When to clear output directories: "pre" (before build),
 "post" (after build), or "never" (default for dev builds).
 Can also be set via PROJR_CLEAR_OUTPUT environment variable.}
+
+\item{project}{Path to the project root. The default discovers the project
+from the working directory. The first interactive build asks permission to
+run its scripts and hooks, change project files and publish configured
+outputs. projr remembers approval for this checkout in the user's R
+configuration directory. In a noninteractive session, pass the root
+explicitly (for example, \code{project = "."}) to authorize this build without
+saving approval.}
 }
 \value{
 Invisibly returns \code{TRUE} after a successful build.
