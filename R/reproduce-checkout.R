@@ -124,6 +124,7 @@
     run(
       "log",
       "--topo-order",
+      "-m",
       "--format=%H",
       "--no-renames",
       "--diff-filter=AM",

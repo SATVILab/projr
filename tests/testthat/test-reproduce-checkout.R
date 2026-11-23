@@ -54,6 +54,14 @@ test_that("a fresh clone selects a recorded build and its code on the requested 
       git("checkout", "-q", "-b", "feature/extra", first)
       writeLines("print('extra')", "analysis.R")
       other <- save("Edit feature code")
+      git("checkout", "-q", "-b", "side", tip)
+      writeLines("release notes", "notes.txt")
+      save("Add release notes")
+      git("checkout", "-q", "-b", "integration", tip)
+      git("merge", "--no-ff", "--no-commit", "side")
+      writeLines("v0.1.0", "VERSION")
+      record("0.1.0")
+      merged <- save("Record build in the merge")
       git("checkout", "-q", "analysis")
       git("clone", "--quiet", "--bare", "--", producer, upstream)
       git(
@@ -102,6 +110,7 @@ test_that("a fresh clone selects a recorded build and its code on the requested 
         reproduce(repo = "fixture/analysis@feature/extra")$build_commit,
         first
       )
+      expect_identical(reproduce(branch = "integration")$build_commit, merged)
       expect_error(reproduce(commit = before), "No completed build")
       expect_error(reproduce(version = "0.1.0"), "No completed build")
       expect_error(reproduce(commit = other), "outside branch")
