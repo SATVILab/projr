@@ -14,6 +14,7 @@
 #'
 #' @export
 projr_yml_check <- function(profile = NULL) {
+  .yml_settings_hash_engine(profile)
   .yml_dir_check(profile)
   .yml_build_check(profile)
   .yml_dev_check(profile)
@@ -23,6 +24,21 @@ projr_yml_check <- function(profile = NULL) {
   .yml_cite_check_config(profile)
   .yml_restrictions_check_config(profile)
   invisible(TRUE)
+}
+
+.yml_settings_hash_engine <- function(profile = NULL) {
+  settings <- .yml_get(profile)[["settings"]]
+  if (is.null(settings)) {
+    return("cpp")
+  }
+  if (!is.list(settings) || (length(settings) > 0L && is.null(names(settings)))) {
+    stop("settings must be a YAML mapping.", call. = FALSE)
+  }
+  if (length(settings)) .assert_in(names(settings), "hash-engine", nm = "settings")
+  engine <- settings[["hash-engine"]] %||% "cpp"
+  .assert_string(engine, TRUE, nm = "settings.hash-engine")
+  .assert_in(engine, c("cpp", "legacy"), nm = "settings.hash-engine")
+  engine
 }
 
 # directory

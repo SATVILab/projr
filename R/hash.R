@@ -1,4 +1,5 @@
-.hash_dir <- function(path_dir, version = NULL, dir_exc = NULL) {
+.hash_dir <- function(path_dir, version = NULL, dir_exc = NULL,
+                      engine = .yml_settings_hash_engine()) {
   .assert_string(path_dir, TRUE)
   .assert_dir_exists(path_dir, TRUE)
   files <- .hash_dir_files(path_dir, dir_exc)
@@ -8,7 +9,7 @@
   out_tbl <- data.frame(
     fn = files,
     version = .version_v_add(version %||% .version_get()),
-    hash = .hash_file(file.path(path_dir, files))
+    hash = .hash_file(file.path(path_dir, files), engine)
   )
   rownames(out_tbl) <- NULL
   out_tbl
@@ -35,12 +36,15 @@
   files[file.exists(file.path(path_dir, files))]
 }
 
-.hash_file <- function(fn) {
-  if (is.null(fn)) return(character())
-  hashes <- tools::md5sum(fn)
-  if (anyNA(hashes)) {
-    stop("Could not hash file: ", paste(fn[is.na(hashes)], collapse = ", "), call. = FALSE)
+.hash_file <- function(fn, engine = .yml_settings_hash_engine()) {
+  if (is.null(fn)) {
+    return(character())
   }
+  hashes <- switch(engine,
+    cpp = hash_files_cpp(path.expand(fn)),
+    legacy = vapply(fn, digest::digest, character(1), algo = "md5", file = TRUE, serialize = FALSE),
+    stop("Unknown hash engine: ", engine, call. = FALSE)
+  )
   names(hashes) <- names(fn) %||% fn
   hashes
 }
