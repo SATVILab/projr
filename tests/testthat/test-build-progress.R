@@ -18,7 +18,7 @@ test_that("development and production report the actions they run", {
     writeLines(c("warning('example hook warning')", "cat('post\\n', file = 'runs', append = TRUE)"),
                "production.R")
 
-    output <- capture_messages(expect_warning(projr_build_patch("Example"), "example hook warning"))
+    output <- capture_messages(expect_warning(projr_build_patch("Example", project = project), "example hook warning"))
     expect_identical(readLines("runs"), c("analysis", "post"))
     expect_true(all(file.exists(c("BUILDLOG.md", "CHANGELOG.md"))))
     log <- list.files(".projr/logs/output", "\\.qmd$", recursive = TRUE, full.names = TRUE)
@@ -31,7 +31,7 @@ test_that("development and production report the actions they run", {
       expect_false(any(grepl("Pushing to Git|Created Git commit|Snapshotting renv", lines)))
     }
 
-    dev <- capture_messages(projr_build_dev())
+    dev <- capture_messages(projr_build_dev(project = project))
     expect_identical(readLines("runs"), c("analysis", "post", "analysis"))
     expect_true(file.exists(log))
     dev_log <- list.files(".projr/logs/dev", "\\.qmd$", recursive = TRUE, full.names = TRUE)
@@ -48,7 +48,7 @@ test_that("development and production report the actions they run", {
       ), lines)))
     }
 
-    empty <- capture_messages(projr_build_dev(scripts = character()))
+    empty <- capture_messages(projr_build_dev(scripts = character(), project = project))
     expect_true(any(grepl("No scripts or documents selected", empty, fixed = TRUE)))
     expect_false(any(grepl("Running R script", empty, fixed = TRUE)))
     expect_identical(readLines("runs"), c("analysis", "post", "analysis"))
@@ -74,7 +74,7 @@ test_that("post-hook errors and interrupts keep their cause in the detailed log"
         writeLines("stop(structure(list(), class = c('interrupt', 'condition')))", "hook.R")
       }
       output <- capture_messages({
-        failure <- tryCatch(projr_build_dev(), error = identity, interrupt = identity)
+        failure <- tryCatch(projr_build_dev(project = project), error = identity, interrupt = identity)
       })
       expect_s3_class(failure, if (kind == "error") "hook_error" else "interrupt")
       logs <- list.files(".projr/logs/dev", "\\.qmd$", recursive = TRUE, full.names = TRUE)
@@ -106,10 +106,10 @@ test_that("failure to write history leaves the original build error intact", {
     ), "_projr.yml")
     local_mocked_bindings(.log_history_add = function(...) stop("history unavailable"))
     writeLines("stop('analysis failed')", "analysis.R")
-    output <- capture_messages(expect_error(projr_build_dev(), "analysis failed"))
+    output <- capture_messages(expect_error(projr_build_dev(project = project), "analysis failed"))
     expect_true(any(grepl("Could not finish the build log: history unavailable", output, fixed = TRUE)))
     writeLines("invisible(TRUE)", "analysis.R")
-    output <- capture_messages(expect_error(projr_build_dev(), "history unavailable"))
+    output <- capture_messages(expect_error(projr_build_dev(project = project), "history unavailable"))
     expect_false(any(grepl("Build completed successfully", output, fixed = TRUE)))
   }, force = TRUE, quiet = TRUE)
 })
