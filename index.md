@@ -17,10 +17,15 @@
 
 ## Run your first build
 
-Start in an R project linked to your GitHub repository. In the R console,
-install the package with `remotes::install_github("SATVILab/projr")` and
-load it with `library(projr)`. Install `remotes` first with
-`install.packages("remotes")` if you need it.
+Open a local clone of a GitHub repository where you can push commits
+and create releases. Install projr and its publishing tools once, then
+load the package in R.
+
+```r
+install.packages(c("remotes", "gh", "httr"))
+remotes::install_github("SATVILab/projr")
+library(projr)
+```
 
 <div class="projr-workflow">
 
@@ -49,7 +54,7 @@ inputs and outputs to the `archive` release.
 projr_build(archive_github = TRUE)
 ```
 
-Authenticate with a GitHub account that can write releases in the repository.
+Use a GitHub token with write access to the repository’s contents.
 People with read access to the repository can download the uploaded raw data.
 For a public repository, that includes anyone.
 
