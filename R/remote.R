@@ -474,6 +474,8 @@
     .assert_in(label, .opt_dir_get_label_send(NULL), TRUE)
   }
 
+  if (pre) return(path %||% character())
+
   args_list <- list()
   if (!is.null(path)) {
     args_list <- list(path)
@@ -491,18 +493,6 @@
   }
   if (length(args_list) == 0L) {
     return(character())
-  }
-  if (pre) {
-    # remove the label (if structure is latest),
-    # or the version (if structure is archive).
-    # ensures that the manifest and version files
-    # are always at the same level as the labels
-    args_list <- args_list[-length(args_list)]
-    if (structure == "archive") {
-      # need to also remove the label
-      # if it's an archive
-      args_list <- args_list[-length(args_list)]
-    }
   }
   if (!is.null(empty) && isTRUE(empty)) {
     args_list[[length(args_list)]] <- paste0(
@@ -695,7 +685,7 @@
   hash_tbl <- .change_get_file_dir( # nolint
     type, remote_final
   ) |>
-    .hash_dir(version) |>
+    .hash_dir(version, dir_exc = .remote_local_metadata_pattern(remote_final)) |>
     .manifest_hash_cache_filter(label)
   if (nrow(hash_tbl) == 0) {
     .zero_tbl_get_manifest()

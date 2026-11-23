@@ -116,11 +116,43 @@
     pre = pre,
     empty = empty
   )
+  # An unlabeled latest destination shares its root with release metadata.
+  # Archive readers also need to know when versions live directly at that root.
+  if (!path_append_label && !isTRUE(empty) && (pre || structure == "latest")) {
+    attr(path_dir, "label_at_root") <- TRUE
+  }
   # Don't automatically create directory here - it will be created when files
   # are actually written via .remote_file_add() -> .dir_copy_file().
   # This prevents creating both empty and full remotes when only checking
   # for existence.
   path_dir
+}
+
+# These names belong to the archive when payload files share its root.
+.remote_local_metadata_pattern <- function(remote) {
+  if (isTRUE(attr(remote, "label_at_root"))) "(?i:manifests|manifest[.]csv|version|changelog[.]md)"
+}
+
+.remote_local_check_payload <- function(source, root) {
+  pattern <- .remote_local_metadata_pattern(root)
+  top_level <- function(path) list.files(path, all.files = TRUE, no.. = TRUE)
+  entries <- top_level(source)
+  conflicts <- setdiff(entries, .path_filter_spec(entries, pattern))
+  # An existing valid manifest identifies a managed destination. Refuse to
+  # adopt an unrelated VERSION, CHANGELOG, or manifests directory on first use.
+  legacy <- file.path(root, "manifest.csv")
+  if (!.manifest_store_ready(file.path(root, "manifests"))) {
+    legacy_managed <- file.exists(legacy) && !dir.exists(legacy) &&
+      identical(names(.manifest_read(legacy)), names(.zero_tbl_get_manifest()))
+    if (!legacy_managed) {
+      entries <- top_level(root)
+      conflicts <- union(conflicts, setdiff(entries, .path_filter_spec(entries, pattern)))
+    }
+  }
+  if (length(conflicts)) {
+    stop("Local destination '", root, "' reserves these paths for release metadata: ",
+         paste(conflicts, collapse = ", "), call. = FALSE)
+  }
 }
 
 # ========================
@@ -244,15 +276,9 @@
   .cli_debug(
     "Local remote: Emptying directory '{remote}'"
   )
-  dir_vec <- list.dirs(remote, recursive = TRUE)[-1]
-  while (length(dir_vec) > 0L) {
-    unlink(dir_vec[1], recursive = TRUE)
-    dir_vec <- list.dirs(remote, recursive = TRUE)[-1]
-  }
-  fn_vec <- list.files(remote, full.names = TRUE, all.files = TRUE)[-(1:2)]
-  if (length(fn_vec) > 0) {
-    file.remove(fn_vec)
-  }
+  entries <- list.files(remote, all.files = TRUE, no.. = TRUE)
+  payload <- .path_filter_spec(entries, .remote_local_metadata_pattern(remote))
+  unlink(file.path(remote, payload), recursive = TRUE, expand = FALSE)
   invisible(TRUE)
 }
 
@@ -276,7 +302,7 @@
     )
     return(character(0L))
   }
-  .dir_copy(remote, path_dir_save_local)
+  .dir_copy(remote, path_dir_save_local, fn_exc = .remote_local_metadata_pattern(remote))
 }
 
 # ========================
@@ -309,7 +335,7 @@
 
 .remote_file_ls_local <- function(remote) {
   .assert_string(remote, TRUE)
-  .file_ls(path_dir = remote)
+  .path_filter_spec(.file_ls(path_dir = remote), .remote_local_metadata_pattern(remote))
 }
 
 # ========================

@@ -44,6 +44,7 @@ File hashing uses the top-level `settings.hash-engine` key. Its default, `cpp`, 
 - Expand `@version`, `@branch`, and `@uuid` in configured directory paths, local destination names and paths, and GitHub release names. A token ends at the end of the string or before a hyphen, underscore, period, ordinary space, or path separator. Preserve unknown names literally.
 - Use the build version with one `v` prefix. Capture one UUIDv4 and Git HEAD per build and share them with child render processes and retries. Encode branch names as one portable path component, preserving the distinction between `feature/foo` and `feature-foo`. Detached HEAD uses the commit SHA.
 - Generate directory ignore patterns from the current YAML templates, including local archives. Keep the template in YAML and record the concrete archive destination in `BUILDLOG.md` for restore.
+- Store local release histories in `<destination>/manifests/` for every layout. With `path-append-label: false` and `structure: latest`, keep the root's `manifests/`, `manifest.csv`, `VERSION`, and `CHANGELOG.md` separate from payload listing, hashing, purge, and restore. Report a conflicting payload name before writing.
 - Keep a GitHub release's title and tag identical. Only an explicitly configured target branch selects the commit for a new tag. Resolve that branch in the destination repository and leave existing release tags in place.
 
 ---
