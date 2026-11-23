@@ -3,10 +3,6 @@
 # the "Start of projr section" and "End of projr section" comments.
 .ignore_path_get_list <- function(path, ignore, override) {
   file_vec <- .ignore_path_read(path)
-  if (length(file_vec) == 0) {
-    return(.ignore_get_list_empty())
-  }
-
   ind_vec <- .ignore_path_get_ind(file_vec, path)
 
   start_end_list <- .ignore_path_get_startend(
@@ -30,11 +26,6 @@
     return(character(0))
   }
   suppressWarnings(readLines(path))
-}
-
-# return an empty list
-.ignore_get_list_empty <- function() {
-  list(start = character(0), content = character(0), end = character(0))
 }
 
 # get the indices of the projr-managed section from the specified file
@@ -129,10 +120,42 @@
     (reset || file.exists(.yml_get_path("default")))) {
     file_vec <- .ignore_diryml_update(file_vec, path, reset)
   }
-  writeLines(file_vec, path)
-  .newline_append(path)
+  # Keep the unchanged lines byte-for-byte, including their original line endings.
+  exists <- file.exists(path)
+  original <- if (exists) readBin(path, "raw", file.size(path)) else raw()
+  if (any(original == as.raw(0))) stop(path, " contains a NUL byte. Check the file encoding before updating its rules.", call. = FALSE)
+  bom <- as.raw(c(0xef, 0xbb, 0xbf))
+  has_bom <- identical(utils::head(original, 3L), bom)
+  text <- rawToChar(if (has_bom) utils::tail(original, -3L) else original)
+  lines <- strsplit(text, "(?<=\\n)|(?<=\\r)(?!\\n)", perl = TRUE, useBytes = TRUE)[[1L]]
+  old <- sub("[\\r\\n]+$", "", lines, perl = TRUE, useBytes = TRUE)
+  if (exists && identical(unname(file_vec), old)) {
+    return(invisible(path))
+  }
+  endings <- sub("^[^\\r\\n]*", "", lines, perl = TRUE, useBytes = TRUE)
+  eol <- if (any(nzchar(endings))) endings[which(nzchar(endings))[1L]] else "\n"
+  result <- paste0(file_vec, eol, recycle0 = TRUE)
+  common_start <- function(a, b) {
+    n <- min(length(a), length(b))
+    match(FALSE, a[seq_len(n)] == b[seq_len(n)], nomatch = n + 1L) - 1L
+  }
+  first <- common_start(old, file_vec)
+  last <- min(common_start(rev(old), rev(file_vec)), length(file_vec) - first, length(old) - first)
+  result[seq_len(first)] <- utils::head(lines, first)
+  if (last) {
+    result[seq.int(length(result) - last + 1L, length(result))] <- utils::tail(lines, last)
+  }
+  if (first && first < length(result) && endings[first] == "") result[first] <- paste0(result[first], eol)
+  bytes <- c(if (has_bom) bom, charToRaw(paste0(result, collapse = "")))
+
+  target <- if (exists) fs::path_real(path) else path
+  tmp <- tempfile(".projr-ignore-", tmpdir = dirname(target))
+  on.exit(unlink(tmp))
+  writeBin(bytes, tmp)
+  if (exists) Sys.chmod(tmp, file.info(target)$mode, use_umask = FALSE)
+  fs::file_move(tmp, target)
   invisible(path)
 }
 
-match_str_top <- "^# Start of projr section"
-match_str_bottom <- "^# End of projr section"
+match_str_top <- "^# Start of projr section(:.*)?[[:blank:]]*$"
+match_str_bottom <- "^# End of projr section[[:blank:]]*$"

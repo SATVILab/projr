@@ -113,5 +113,5 @@ projr_init_license <- function(license, first_name, last_name) {
 #' @export
 #' @rdname projr_init
 projr_init_ignore <- function() {
-  projr_ignore_auto()
+  .init_ignore()
 }

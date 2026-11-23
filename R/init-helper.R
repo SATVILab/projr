@@ -149,37 +149,31 @@
   invisible(TRUE)
 }
 
-.init_ignore <- function() {
-  if (file.exists(.path_get(".gitignore"))) {
-    gitignore <- readLines(.path_get(".gitignore"), warn = FALSE)
-  } else {
-    gitignore <- NULL
-  }
-  gitignore <- c(
-    gitignore,
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
+# The managed markers also identify an initialized ignore file. Seed editable
+# defaults only once, before user rules so existing Git exceptions still win.
+.init_ignore_starter <- function(root) {
+  defaults <- list(.gitignore = c(
+    ".vdoc.*", ".DS_Store", "Thumbs.db", ".Rproj.user", ".Rhistory", ".RData",
     ".Ruserdata", "_projr-local.yml", "_environment.local"
-  ) |>
-    unique()
-  writeLines(gitignore, .path_get(".gitignore"))
-  .newline_append(.path_get(".gitignore"))
-
-  if (file.exists(.path_get(".Rbuildignore"))) {
-    rbuildignore <- readLines(.path_get(".Rbuildignore"), warn = FALSE)
-  } else {
-    rbuildignore <- NULL
+  ))
+  if (any(file.exists(file.path(root, c("DESCRIPTION", ".Rbuildignore"))))) {
+    defaults[[".Rbuildignore"]] <- c(
+      "(^|/)\\.vdoc\\.", "(^|/)(\\.DS_Store|Thumbs\\.db)$", "^.*\\.Rproj$", "^\\.Rproj\\.user$", "^_projr-local\\.yml$"
+    )
   }
-  rbuildignore <- c(
-    rbuildignore,
-    "^.*\\.Rproj$", "^\\.Rproj\\.user$", "^_projr-local\\.yml$"
-  ) |>
-    unique()
-  writeLines(rbuildignore, .path_get(".Rbuildignore"))
-  .newline_append(.path_get(".Rbuildignore"))
-
-  projr_ignore_auto()
-
+  for (name in names(defaults)) {
+    path <- file.path(root, name)
+    lines <- .ignore_path_read(path)
+    if (!is.na(.ignore_path_get_ind(lines, path)[["top"]])) next
+    outer <- .ignore_path_get_startend(NA_integer_, NA_integer_, setdiff(defaults[[name]], lines))
+    .ignore_path_write(c(outer$start, outer$end, lines), path, refresh_directories = FALSE)
+  }
   invisible(TRUE)
+}
+
+.init_ignore <- function() {
+  .init_ignore_starter(.path_get())
+  projr_ignore_auto()
 }
 
 .init_r <- function() {
