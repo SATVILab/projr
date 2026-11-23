@@ -160,8 +160,10 @@ test_that("a failed render restores project selection and ignores new TeX files"
         "```"
       ), "index.Rmd")
       original <- readBin("_bookdown.yml", "raw", n = file.size("_bookdown.yml"))
-      expect_error(projr_build_dev(scripts = c("index.Rmd", "reports/chapter.Rmd")), "expected build failure")
-      expect_identical(readBin("_bookdown.yml", "raw", n = file.size("_bookdown.yml")), original)
+      for (scripts in list(c("index.Rmd", "reports/chapter.Rmd"), NULL)) {
+        expect_error(projr_build_dev(scripts = scripts), "expected build failure")
+        expect_identical(readBin("_bookdown.yml", "raw", n = file.size("_bookdown.yml")), original)
+      }
       expect_identical(.yml_bd_get()[["rmd_files"]], "index.Rmd")
       expect_identical(readLines("reports/unexpected.tex"), "generated")
       projr_ignore_auto()
@@ -244,4 +246,30 @@ test_that("a failure during pre-build restores the original project YAML", {
     force = TRUE,
     quiet = TRUE
   )
+})
+
+test_that("docs path lookups and R-only builds leave the renderer configuration intact", {
+  skip_if(.is_test_select())
+  project <- withr::local_tempdir()
+  usethis::with_project(project, {
+    writeLines("directories: {docs: {path: published}, cache: {path: cache}}", "_projr.yml")
+    writeLines("0.1.0", "VERSION")
+    writeLines("writeLines('script ran', 'result')", "analysis.R")
+    for (config in c("_quarto.yml", "_bookdown.yml")) {
+      contents <- if (config == "_quarto.yml") {
+        "project:\r\n  type: website\r\n  output-dir: authored-site # preserve\r\n"
+      } else {
+        "book_filename: report\r\noutput_dir: authored-book # preserve\r\n"
+      }
+      original <- charToRaw(contents)
+      writeBin(original, config)
+      expect_false(dir.exists(projr_path_get_dir("docs", create = FALSE)))
+      expect_false(file.exists(projr_path_get("docs", "index.html", create = FALSE)))
+      expect_identical(readBin(config, "raw", n = file.size(config)), original)
+      projr_build_dev(scripts = "analysis.R")
+      expect_identical(readLines("result"), "script ran")
+      expect_identical(readBin(config, "raw", n = file.size(config)), original)
+      unlink(config)
+    }
+  }, quiet = TRUE, force = TRUE)
 })

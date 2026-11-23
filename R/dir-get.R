@@ -41,12 +41,7 @@
     return(.dir_get_label_unsafe(label))
   }
 
-  path_dir <- .dir_get_label_safe_path(label)
-
-  # set _bookdown.yml and _quarto.yml
-  .dir_set_docs_safe(path_dir, label)
-
-  path_dir
+  .dir_get_label_safe_path(label)
 }
 
 .dir_get_label_safe_check_unsafe <- function(label) {

@@ -63,6 +63,12 @@ Both follow a three-stage architecture:
 
 ---
 
+## Files a build can change
+
+Loading projr leaves project files alone. Calling a build runs the selected scripts and hooks, which can write files just as they do when run directly. The first build also creates a starter configuration if the project has none. Builds update the project version, generated ignore rules, build cache and logs. Production builds also record change history and can replace published documents and outputs.
+
+Review the configured directories and destinations before building an unfamiliar project. An absolute path can point outside the checkout. To keep existing output when preparing a build, set `clear_output = "never"`. Renderers can still replace their own output files. Set `build.git: false` to disable automatic commits and pushes, and `build.renv: false` to disable dependency snapshots. Calling `projr_init_renviron()` separately adds optional defaults to the user's R environment file.
+
 ## Stage 1: Pre-Build
 
 ### Validation

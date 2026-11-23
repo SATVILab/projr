@@ -7,12 +7,10 @@ test_that("projr_build_dev works", {
   usethis::with_project(
     path = dir_test,
     code = {
+      original <- readLines("_bookdown.yml")
       projr_build_dev()
-      yml_bd <- .yml_bd_get()
-      # it's set in _bookdown.yml
-      # and not in _projr.yml, so use _bookdown.yml
-      # as basename
-      expect_identical(basename(yml_bd$output_dir), "docs")
+      expect_identical(readLines("_bookdown.yml"), original)
+      expect_true(file.exists(projr_path_get("docs", "index.html", create = FALSE)))
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.0-1")
     },
@@ -32,12 +30,10 @@ test_that("projr_build_output works", {
       .yml_git_set_commit(TRUE, TRUE, NULL)
       .yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .yml_git_set_push(FALSE, TRUE, NULL)
-      # debugonce(.build_output_get_msg)
-      # debugonce(.git_msg_get)
+      original <- readLines("_bookdown.yml")
       projr_build("patch", msg = "test")
-      .version_get()
-      yml_bd <- .yml_bd_get()
-      expect_identical(basename(yml_bd$output_dir), "docs")
+      expect_identical(readLines("_bookdown.yml"), original)
+      expect_true(file.exists(projr_path_get("docs", "index.html", create = FALSE, safe = FALSE)))
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1-1")
       # run repeat build
@@ -283,8 +279,10 @@ test_that("projr_build_ works with quarto projects", {
     path = dir_test,
     code = {
       .test_setup_project_lit_docs("quarto_project")
+      original <- readLines("_quarto.yml")
       # dev build
       projr_build_dev()
+      expect_identical(readLines("_quarto.yml"), original)
       expect_true(
         dir.exists("_tmp/projr/v0.0.0-1/docs")
       )
@@ -294,6 +292,7 @@ test_that("projr_build_ works with quarto projects", {
 
       # output build
       projr_build_patch(msg = "Test")
+      expect_identical(readLines("_quarto.yml"), original)
       expect_true(
         !dir.exists("_tmp/projr/v0.0.0-1/docs")
       )

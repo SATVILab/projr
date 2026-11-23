@@ -40,9 +40,9 @@
 }
 
 .build_engines_backup_project <- function(engines) {
-  if (!is.null(engines[["quarto_project"]])) {
+  if ("quarto_project" %in% names(engines)) {
     path <- .path_get("_quarto.yml")
-  } else if (!is.null(engines[["bookdown"]])) {
+  } else if ("bookdown" %in% names(engines)) {
     path <- .path_get("_bookdown.yml")
   } else {
     return(function() invisible(NULL))
@@ -59,6 +59,9 @@
 }
 
 .build_engines_override_project <- function(engines) {
+  if (any(names(engines) %in% c("quarto_project", "bookdown"))) {
+    .dir_set_docs_safe(.dir_get_label_safe_path("docs"), "docs")
+  }
   if (!is.null(engines[["quarto_project"]])) {
     scripts <- as.list(engines[["quarto_project"]])
     config <- .yml_quarto_get()
