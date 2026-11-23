@@ -23,8 +23,8 @@ projr_path_get(
 
 - label:
 
-  character. A directory label declared under `directories` in the
-  active project configuration.
+  character. The built-in `data` label or a directory label declared in
+  the active configuration.
 
 - ...:
 

@@ -325,9 +325,7 @@ Functions for managing renv dependencies
 Functions for managing project data
 
 - [`projr_use_data()`](https://satvilab.github.io/projr/reference/projr_use_data.md)
-  :
-
-  `projr` drop-in replacement for usethis::use_data
+  : Save package datasets
 
 ## GitHub helpers
 

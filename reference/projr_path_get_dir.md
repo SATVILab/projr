@@ -22,9 +22,9 @@ projr_path_get_dir(
 
 - label:
 
-  character. A directory label declared under `directories` in the
-  active project configuration. Each label must have a `path`, which may
-  be inherited from another profile.
+  character. The built-in `data` label or a directory label declared
+  under `directories`. For other labels, the active configuration
+  supplies the `path`.
 
 - ...:
 

@@ -28,13 +28,14 @@ Key architectural patterns:
   `.projr/config/`. On the first build, write the starter at the project
   root if both supported locations lack a base YAML. The starter
   disables Git outside a repository and disables pushing for a
-  repository with no upstream. Keep existing configurations intact. Use
-  only directory labels declared with a path in the merged active
-  configuration. The initialization template declares conventional paths
-  explicitly. Require a cache when staging outputs and a docs directory
-  when rendering documents. Resolve configured paths, safe build paths
-  and ignore rules from the project root, including when called from a
-  nested renderer working directory.
+  repository with no upstream. Keep existing configurations intact. The
+  reserved `data` label resolves to the package’s root `data/` directory
+  (or its safe build cache). Other directory labels require an explicit
+  path in the merged active configuration. The initialization template
+  declares conventional paths explicitly. Require a cache when staging
+  outputs and a docs directory when rendering documents. Resolve
+  configured paths, safe build paths and ignore rules from the project
+  root, including when called from a nested renderer working directory.
 - **Manifest tracking**: Production builds record each hashed directory
   independently under `.projr/manifests/<label>/`. Its `versions.csv`
   maps project versions to the earliest matching directory version and
@@ -170,6 +171,13 @@ package names before modifying the lockfile.
   the configured output before hashing or archiving it. Preserve
   existing source-side `output` settings. A request made in both places
   copies once.
+- [`projr_use_data()`](https://satvilab.github.io/projr/reference/projr_use_data.md)
+  checks the active configuration when called. If another label resolves
+  to root `data/` or a descendant, name the conflicting label before
+  saving anything. Analyses may use those paths freely until they call
+  the helper. Collect staged public datasets into `data/` and staged
+  internal datasets into `R/sysdata.rda` during production. Preserve
+  other package datasets and R sources during cleanup.
 - Reserve the receiving subdirectory for the included label. Reject
   cycles, conflicting files or links, and directory paths that would
   copy recursively or clear the source.
@@ -198,9 +206,12 @@ files.
   absolute paths in inactive profiles without accessing or validating
   their directories.
 - Refresh directory rules from the current configuration. When the last
-  qualifying profile reference to a path is removed, drop its generated
-  rule on the next refresh. On the first manual edit to a legacy managed
-  block, regenerate its contents and preserve rules outside the block.
+  qualifying profile reference disappears, drop its generated rule on
+  refresh. Keep one managed block in each ignore file. Regenerate rules
+  from their sources and preserve user entries outside the block,
+  including during migration. Keep package datasets under `data/`
+  available to Git and R source packages by default. A `data` label can
+  explicitly select either ignore type for that folder.
 
 ### Destination and directory templates
 

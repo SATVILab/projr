@@ -96,16 +96,27 @@ include another assembled output. Cycles, paths that would copy a
 directory inside itself, and overlapping paths that could erase an input
 are rejected.
 
+For R package datasets,
+`projr_path_get("data", "sample.rda", safe = FALSE)` resolves to
+`data/sample.rda` in the project root. The `data` label is built in and
+its location is fixed. A production build copies datasets staged by
+`projr_use_data(sample)` into `data/` and internal datasets into
+`R/sysdata.rda`. Development builds keep staged datasets under the
+configured cache. If an active directory label already uses `data/` or a
+subdirectory such as `data/site-a/`, the helper reports that label
+before saving. Projects that store their own files there can still build
+and look up those paths.
+
 | `directories.<label>` field | Meaning |
 |----|----|
-| `path` | Required for every declared label. An absolute path can point outside the checkout. |
+| `path` | Required for configurable labels. An absolute path can point outside the checkout. |
 | `hash` | Include the directory in the version history. Defaults to true for raw data, outputs and docs, and false for cache. |
 | `include` | On an output label, list declared raw, docs or output labels to copy under their label names. An empty list requests no includes. |
 | `output` | Older source-side form. Use an output label or list to copy into those outputs, `true` for all other outputs, or `false` to skip. |
 | `package` | On an output label, `true` also builds the R source package and copies it under `pkg/`. |
 | `source` | Preferred restore configuration by remote type. For example, `source: {local: shared}` selects a named local destination called `shared`. |
 | `license` | A license identifier such as `CC-BY`, or a mapping containing `type`, `authors` and `year`. See [`vignette("directory-licenses")`](https://satvilab.github.io/projr/articles/directory-licenses.md). |
-| `ignore` | Defaults to true for declared directories. Controls both Git and R build rules. Accepts YAML booleans, `ignore`, `no-ignore`, or `manual`. |
+| `ignore` | Controls both Git and R build rules. Defaults to false for package datasets (`data`) and true for other declared directories, including `raw-data`. Accepts YAML booleans, `ignore`, `no-ignore`, or `manual`. |
 | `ignore-git`, `ignore-rbuild` | Set either type separately. When `ignore` is also supplied, the choices must agree. |
 | `ignore-even-if-inactive` | Defaults to true. Applies that profile’s enabled ignore types while a different profile is active. |
 

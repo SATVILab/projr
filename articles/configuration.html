@@ -175,6 +175,18 @@ including file removals. Other files in the receiving directory are
 separate from these copies. An output can include another assembled
 output. Cycles, paths that would copy a directory inside itself, and
 overlapping paths that could erase an input are rejected.</p>
+<p>For R package datasets,
+<code>projr_path_get("data", "sample.rda", safe = FALSE)</code> resolves
+to <code>data/sample.rda</code> in the project root. The
+<code>data</code> label is built in and its location is fixed. A
+production build copies datasets staged by
+<code>projr_use_data(sample)</code> into <code>data/</code> and internal
+datasets into <code>R/sysdata.rda</code>. Development builds keep staged
+datasets under the configured cache. If an active directory label
+already uses <code>data/</code> or a subdirectory such as
+<code>data/site-a/</code>, the helper reports that label before saving.
+Projects that store their own files there can still build and look up
+those paths.</p>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -188,8 +200,8 @@ overlapping paths that could erase an input are rejected.</p>
 <tbody>
 <tr class="odd">
 <td><code>path</code></td>
-<td>Required for every declared label. An absolute path can point
-outside the checkout.</td>
+<td>Required for configurable labels. An absolute path can point outside
+the checkout.</td>
 </tr>
 <tr class="even">
 <td><code>hash</code></td>
@@ -226,9 +238,11 @@ containing <code>type</code>, <code>authors</code> and
 </tr>
 <tr class="even">
 <td><code>ignore</code></td>
-<td>Defaults to true for declared directories. Controls both Git and R
-build rules. Accepts YAML booleans, <code>ignore</code>,
-<code>no-ignore</code>, or <code>manual</code>.</td>
+<td>Controls both Git and R build rules. Defaults to false for package
+datasets (<code>data</code>) and true for other declared directories,
+including <code>raw-data</code>. Accepts YAML booleans,
+<code>ignore</code>, <code>no-ignore</code>, or
+<code>manual</code>.</td>
 </tr>
 <tr class="odd">
 <td>

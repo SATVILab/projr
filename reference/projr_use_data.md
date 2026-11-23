@@ -1,9 +1,10 @@
-# `projr` drop-in replacement for usethis::use_data
+# Save package datasets
 
-Save package datasets in the staged build cache by default. For datasets
-intended for package users, declare the `data` label under `directories`
-with the final path (normally `data` in an R package). Internal datasets
-use the package's `R/sysdata.rda` convention.
+Stage datasets for the current build. Production builds collect public
+datasets in the project's `data/` directory and internal datasets in
+`R/sysdata.rda`. The `data` label is built in. When using this helper,
+reserve `data/` and its subdirectories for package datasets in the
+active configuration.
 
 ## Usage
 
@@ -66,7 +67,7 @@ projr_use_data(
 - safe:
 
   logical. Whether to save data to a temporary directory (in
-  `<cache>/"projr"/v<version>/data/`) or the configured final data
+  `<cache>/"projr"/v<version>/data/`) or directly to the package
   directory. Default is the temporary directory (TRUE).
 
 ## Details
