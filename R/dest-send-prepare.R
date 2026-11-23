@@ -51,16 +51,8 @@
 }
 
 .dest_github_targets <- function(archive_github, always_archive, profile) {
-  # 1. From YAML-configured build.github destinations
   yml_github <- .yml_dest_get_type("github", profile)
-  titles <- names(yml_github)
-
-  # 2. From archive_github parameter, if no "archive" title already
-  if (!isFALSE(archive_github) &&
-    !is.null(archive_github) &&
-    !"archive" %in% titles) {
-    titles <- c(titles, "archive")
-  }
+  titles <- .dest_send_type_get_title("github", archive_github, profile)
 
   targets <- list()
   for (title in titles) {
@@ -74,12 +66,16 @@
 
     tag <- yml_title[["id"]]
     repo <- yml_title[["repo"]]
-    key <- paste(repo %||% "", tag, sep = ":")
+    key <- .dest_github_target_key(repo, tag)
     target <- list(tag = tag, repo = repo, branch = yml_title[["branch"]])
-    if (key %in% names(targets) && !identical(targets[[key]], target)) {
+    if (key %in% names(targets) && !identical(targets[[key]][["branch"]], target[["branch"]])) {
       stop("Conflicting target branches for GitHub release '", tag, "'.", call. = FALSE)
     }
     targets[[key]] <- target
   }
   targets
+}
+
+.dest_github_target_key <- function(repo, tag) {
+  paste(tolower(repo %||% ""), tag, sep = ":")
 }

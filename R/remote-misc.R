@@ -14,13 +14,11 @@
 }
 
 .remote_ls_dest <- function() {
-  yml_projr_build <- .yml_build_get(NULL)
-  remote_vec <- c("github")
-  remote_vec[remote_vec %in% names(yml_projr_build)]
+  intersect("github", .dest_send_get_type_yml())
 }
 
-.with_github_repo <- function(repo, code) {
-  previous <- options(projr.github.repo = repo)
+.with_github_repo <- function(repo, code, branch = NULL) {
+  previous <- options(projr.github.repo = repo, projr.github.branch = branch)
   on.exit(options(previous))
   force(code)
 }

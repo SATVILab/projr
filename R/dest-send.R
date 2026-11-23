@@ -83,9 +83,9 @@
 #' @keywords internal
 #' @noRd
 .dest_send_get_type_yml <- function() {
-  .dest_send_get_type_opt()[
-    .dest_send_get_type_opt() %in% names(.yml_build_get(NULL))
-  ]
+  build <- .yml_build_get(NULL)
+  types <- intersect(.dest_send_get_type_opt(), names(build))
+  types[lengths(lapply(build[types], .dest_send_selected_titles)) > 0L]
 }
 
 #' @title Derive remote types from function parameters
@@ -257,11 +257,18 @@
 #' @keywords internal
 #' @noRd
 .dest_send_type_get_title <- function(type,
-                                      archive_type) {
-  # get all titles to upload, for the type
-  nm_vec_yml <- names(.yml_dest_get_type(type, NULL))
-  nm_vec_param <- .dest_send_type_get_title_param(archive_type)
-  unique(c(nm_vec_yml, nm_vec_param))
+                                      archive_type,
+                                      profile = NULL) {
+  selections <- .yml_dest_get_type(type, profile)
+  one_off <- if (!"archive" %in% names(selections)) .dest_send_type_get_title_param(archive_type)
+  unique(c(.dest_send_selected_titles(selections), one_off))
+}
+
+.dest_send_selected_titles <- function(selections) {
+  empty <- vapply(selections, function(entry) {
+    "content" %in% names(entry) && !length(entry[["content"]])
+  }, logical(1))
+  names(selections)[!empty]
 }
 #' @title Titles from YAML configuration for a remote type
 #' @description Helper that simply returns the names under the remote type entry
@@ -331,7 +338,7 @@
   if (!length(content_vec)) return(invisible(TRUE))
   target <- .yml_dest_get_title_complete(title, type, NULL, archive_type, always_archive)
   .cli_info("Updating {type} destination '{target$id}'")
-  .with_github_repo(target[["repo"]], {
+  .with_github_repo(target[["repo"]], branch = target[["branch"]], {
     for (x in content_vec) {
       .dest_send_label(
         x, title, type, .build_get_output_run(bump_component),

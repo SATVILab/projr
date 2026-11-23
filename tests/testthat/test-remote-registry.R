@@ -33,6 +33,13 @@ test_that("registered remotes resolve independently of the selected publications
     expect_false("cache" %in% .dest_send_title_get_content("shared", "github", FALSE))
     expect_true(any(grepl("snapshot-v1.2.3", .buildlog_get_destinations(), fixed = TRUE)))
     expect_true(any(grepl("archives/v1.2.3", .buildlog_get_destinations(), fixed = TRUE)))
+    config$build$github$shared <- list(content = character())
+    .yml_set(config)
+    expect_true(projr_yml_check())
+    expect_length(.dest_github_tags_needed(FALSE, TRUE), 0)
+    expect_length(.remote_ls_dest(), 0)
+    expect_false(any(grepl("snapshot-v1.2.3", .buildlog_get_destinations(), fixed = TRUE)))
+    config$build$github["shared"] <- list(NULL)
     config$build$github["reports"] <- list(NULL)
     .yml_set(config)
     expect_true(projr_yml_check())
@@ -166,5 +173,31 @@ test_that("registered publishers send assets and metadata to the named repositor
     expect_identical(.gh_repo_get(), "fixture/source")
     assets <- .remote_ls_final_github_httr("fixture/destination", "published")
     expect_setequal(assets, c("raw-data-v1.2.3.zip", "manifest.zip", "VERSION.zip", "CHANGELOG.zip"))
+  })
+})
+
+
+test_that("creating an empty release asset preserves the selected target branch", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(git = FALSE)
+  usethis::with_project(project, {
+    config <- .yml_get("default")
+    config$remotes$github <- list(archive = list(repo = "org/one-off", branch = "private", tag = "saved"))
+    .yml_set(config)
+    projr_version_set("1.2.3")
+    created <- list()
+    local_mocked_bindings(
+      .remote_final_check_exists_direct = function(...) FALSE,
+      .remote_check_exists = function(...) FALSE,
+      .remote_create = function(type, id, branch = NULL, ...) {
+        created <<- list(repo = .gh_repo_get(), tag = id, branch = branch)
+      },
+      .remote_file_add_github = function(...) TRUE
+    )
+    target <- .yml_dest_get_title_complete("archive", "github", NULL, TRUE, TRUE)
+    .with_github_repo(target$repo, branch = target$branch, {
+      .remote_final_empty_get("github", target$id, "raw-data", "archive", version = "1.2.3")
+    })
+    expect_identical(created, list(repo = "org/one-off", tag = "saved", branch = "private"))
   })
 })
