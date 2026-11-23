@@ -153,21 +153,31 @@
     .yml_dest_complete_title(title, type, destination)
 }
 
+# A registered remote remains available to readers even when a build doesn't publish to it.
+.yml_remote_definition <- function(type, title, yml = .yml_get(NULL)) {
+  registry <- yml[["remotes"]][[type]]
+  if (title %in% names(registry)) return(registry[[title]] %||% list())
+  yml[["build"]][[type]][[title]]
+}
+
 .yml_dest_get_title_init <- function(title,
                                      type,
                                      profile,
                                      archive_type,
                                      always_archive) {
+  yml <- .yml_get(profile)
+  definition <- .yml_remote_definition(type, title, yml)
   if (title != "archive" || isFALSE(archive_type) || is.null(archive_type)) {
-    # not from parameter, so read from yml
-    .yml_dest_get_title(title, type, profile)
-  } else {
-    # construct equivalent yml as only specified via parameter
-    # at this stage
-    .yml_dest_get_title_complete_param(
-      title, type, archive_type, always_archive
-    )
+    if (title %in% names(yml[["remotes"]][[type]])) {
+      definition[["content"]] <- yml[["build"]][[type]][[title]][["content"]]
+    }
+    return(definition)
   }
+  one_off <- .yml_dest_get_title_complete_param(title, type, archive_type, always_archive)
+  if (!title %in% names(yml[["remotes"]][[type]])) return(one_off)
+  definition[["content"]] <- one_off[["content"]]
+  definition[["send"]][["cue"]] <- definition[["send"]][["cue"]] %||% one_off[["send"]][["cue"]]
+  definition
 }
 
 .yml_dest_get_title_complete_param <- function(title,
@@ -385,6 +395,21 @@
 # title
 .yml_dest_set_title <- function(yml, title, type, overwrite, profile) {
   .yml_dest_set_title_check(type, title, overwrite, profile)
+  if (title %in% names(.yml_get_null(profile)[["remotes"]][[type]])) {
+    config <- .yml_get(profile)
+    settings <- yml[setdiff(names(yml), "content")]
+    # Older internal setters use the shorter cue field.
+    if (!is.null(settings[["cue"]])) {
+      settings[["send"]][["cue"]] <- settings[["cue"]]
+      settings[["cue"]] <- NULL
+    }
+    if (length(settings)) {
+      previous <- config[["remotes"]][[type]][[title]] %||% list()
+      config[["remotes"]][[type]][[title]] <- utils::modifyList(previous, settings)
+    }
+    config[["build"]][[type]][title] <- list(yml[intersect("content", names(yml))])
+    return(.yml_set(config, profile))
+  }
   yml_type <- .yml_dest_get_type(type, profile) %||%
     (list())
   yml_type[[title]] <- yml

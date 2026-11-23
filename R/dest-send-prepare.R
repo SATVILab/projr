@@ -17,8 +17,7 @@
   }
 
   targets <- .dest_github_targets(archive_github, always_archive, NULL)
-  tags <- names(targets)
-  if (.is_len_0(tags)) {
+  if (.is_len_0(targets)) {
     return(invisible(FALSE))
   }
 
@@ -26,22 +25,20 @@
     stop("Publishing a GitHub release requires a token with write access to the destination repository.", call. = FALSE)
   }
 
-  for (x in tags) {
-    if (!.remote_check_exists("github", id = x)) {
-      .cli_debug(
-        "GitHub release preparation: Creating missing tag '{x}'"
-      )
-      branch <- targets[[x]]
-      if (is.null(branch)) {
-        .remote_create("github", x)
+  for (target in targets) {
+    .with_github_repo(target[["repo"]], {
+      tag <- target[["tag"]]
+      if (!.remote_check_exists("github", id = tag)) {
+        .cli_debug("GitHub release preparation: Creating missing tag '{tag}'")
+        if (is.null(target[["branch"]])) {
+          .remote_create("github", tag)
+        } else {
+          .remote_create("github", tag, branch = target[["branch"]])
+        }
       } else {
-        .remote_create("github", x, branch = branch)
+        .cli_debug("GitHub release preparation: Tag '{tag}' already exists")
       }
-    } else {
-      .cli_debug(
-        "GitHub release preparation: Tag '{x}' already exists"
-      )
-    }
+    })
   }
 }
 
@@ -49,7 +46,8 @@
 .dest_github_tags_needed <- function(archive_github,
                                      always_archive,
                                      profile = NULL) {
-  as.character(names(.dest_github_targets(archive_github, always_archive, profile)))
+  targets <- .dest_github_targets(archive_github, always_archive, profile)
+  unique(vapply(targets, `[[`, character(1), "tag", USE.NAMES = FALSE))
 }
 
 .dest_github_targets <- function(archive_github, always_archive, profile) {
@@ -75,11 +73,13 @@
     )
 
     tag <- yml_title[["id"]]
-    branch <- yml_title[["branch"]]
-    if (tag %in% names(targets) && !identical(targets[[tag]], branch)) {
+    repo <- yml_title[["repo"]]
+    key <- paste(repo %||% "", tag, sep = ":")
+    target <- list(tag = tag, repo = repo, branch = yml_title[["branch"]])
+    if (key %in% names(targets) && !identical(targets[[key]], target)) {
       stop("Conflicting target branches for GitHub release '", tag, "'.", call. = FALSE)
     }
-    targets[tag] <- list(branch)
+    targets[[key]] <- target
   }
   targets
 }

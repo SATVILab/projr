@@ -331,12 +331,14 @@
   if (!length(content_vec)) return(invisible(TRUE))
   target <- .yml_dest_get_title_complete(title, type, NULL, archive_type, always_archive)
   .cli_info("Updating {type} destination '{target$id}'")
-  for (x in content_vec) {
-    .dest_send_label(
-      x, title, type, .build_get_output_run(bump_component),
-      archive_type, always_archive, x == content_vec[length(content_vec)]
-    )
-  }
+  .with_github_repo(target[["repo"]], {
+    for (x in content_vec) {
+      .dest_send_label(
+        x, title, type, .build_get_output_run(bump_component),
+        archive_type, always_archive, x == content_vec[length(content_vec)]
+      )
+    }
+  })
 
   invisible(TRUE)
 }
@@ -406,7 +408,12 @@
 #' @noRd
 .dest_send_title_get_content_yml <- function(title, type) {
   force(title)
-  content <- .yml_dest_get_title(title, type, NULL)[["content"]]
+  yml <- .yml_get(NULL)
+  selection <- yml[["build"]][[type]][[title]]
+  content <- selection[["content"]]
+  if (!length(selection) && title %in% names(yml[["build"]][[type]])) {
+    return(.dest_send_title_get_content_auto())
+  }
   if (is.null(content) || isFALSE(content)) {
     return(character(0L))
   } else if (isTRUE(content)) {

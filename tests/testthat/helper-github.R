@@ -26,11 +26,13 @@
 
 # Each fixture has its own releases and monotonically assigned asset IDs. Intercept
 # httr before transport so unknown routes fail without opening a connection.
-.test_local_github_releases <- function(tags, env = parent.frame()) {
+.test_local_github_releases <- function(tags, env = parent.frame(), repo = "fixture/project", checkout_repo = repo) {
   api <- "https://fixture.invalid"
-  repo <- "fixture/project"
   withr::local_envvar(c(GITHUB_API_URL = api, GITHUB_PAT = "fixture-token"), .local_envir = env)
-  testthat::local_mocked_bindings(.gh_repo_get = function() repo, .package = "projr", .env = env)
+  testthat::local_mocked_bindings(
+    .gh_guess_repo = function(...) checkout_repo, .git_repo_is_worktree = function() FALSE,
+    .package = "projr", .env = env
+  )
   directory <- withr::local_tempdir(.local_envir = env)
   assets <- data.frame(id = integer(), name = character(), release = integer(), url = character())
   next_id <- 100L

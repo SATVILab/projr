@@ -63,6 +63,11 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
       # A profile chooses one ordered script sequence, including an explicit [].
       return(elem_local %||% elem_profile %||% elem_default)
     }
+    if (length(parents) == 2L && parents[1L] == "build" && parents[2L] %in% c("local", "github")) {
+      # An explicitly bare selection chooses all content, overriding a lower profile's selection.
+      if (nm %in% names(yml_projr_local) && !length(elem_local)) return(elem_local)
+      if (!nm %in% names(yml_projr_local) && nm %in% names(yml_projr_profile) && !length(elem_profile)) return(elem_profile)
+    }
     # return early if highest-precedence element
     # is not a list.
     # Otherwise, make any lower-precedence elements
@@ -227,6 +232,7 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 .yml_get_filter_top_level <- function(yml) {
   nm_list <- list(
     "directories",
+    "remotes",
     "build",
     "dev",
     "settings",

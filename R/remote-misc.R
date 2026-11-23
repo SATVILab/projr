@@ -19,7 +19,15 @@
   remote_vec[remote_vec %in% names(yml_projr_build)]
 }
 
+.with_github_repo <- function(repo, code) {
+  previous <- options(projr.github.repo = repo)
+  on.exit(options(previous))
+  force(code)
+}
+
 .gh_repo_get <- function() {
+  repo <- getOption("projr.github.repo")
+  if (!is.null(repo)) return(repo)
   if (.git_repo_is_worktree()) {
     git_file <- readLines(.path_get(".git"), warn = FALSE)
     git_file <- gsub("^gitdir: ", "", git_file)

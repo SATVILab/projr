@@ -501,7 +501,9 @@ projr_build_dev <- function(scripts = NULL,
   )
 
   # update documentation
-  .build_post_document(bump_component, version_run_on_list, msg, total_time)
+  .build_post_document(bump_component, version_run_on_list, msg, total_time,
+    .buildlog_get_destinations(archive_github, archive_local)
+  )
 
   # record (version, rmd, git)
   .build_post_commit_git(bump_component, version_run_on_list, msg)
@@ -532,7 +534,8 @@ projr_build_dev <- function(scripts = NULL,
 .build_post_document <- function(bump_component,
                                  version_run_on_list,
                                  msg,
-                                 total_time) {
+                                 total_time,
+                                 destinations = .buildlog_get_destinations()) {
   output_run <- .build_get_output_run(bump_component)
   if (!output_run) {
     .cli_debug("Development builds skip production metadata and publication")
@@ -558,7 +561,8 @@ projr_build_dev <- function(scripts = NULL,
     msg = msg,
     bump_component = bump_component,
     version_run_on_list = version_run_on_list,
-    total_time = total_time
+    total_time = total_time,
+    destinations = destinations
   )
 
   # update README
