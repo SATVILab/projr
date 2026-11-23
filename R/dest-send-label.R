@@ -30,14 +30,8 @@
                              changelog) {
   force(title)
 
-  .cli_debug(
-    "Content '{label}': Starting processing for destination '{title}' (type: {type})" # nolint
-  )
-
   # where they should go to
   path_dir_local <- projr_path_get_dir(label, safe = !output_run) # nolint
-
-  .cli_debug("Content '{label}': Local path is {path_dir_local}")
 
   yml_title <- .yml_dest_get_title_complete( # nolint
     title, type, NULL, archive_type, always_archive
@@ -59,20 +53,6 @@
     yml_title[["send"]][["cue"]]
   )
 
-  .cli_debug(
-    "Content '{label}': Remote configuration - id: {yml_title[['id']]}, structure: {yml_title[['structure']]}, strategy: {yml_title[['send']][['strategy']]}, inspect: {yml_title[['send']][['inspect']]}" # nolint
-  )
-
-  if (!is.null(remote_list[["remote_dest"]])) {
-    .cli_debug(
-      "Content '{label}': Remote destination exists at path: {remote_list[['remote_dest']][['path']]}" # nolint
-    )
-  } else {
-    .cli_debug(
-      "Content '{label}': Remote destination does not exist yet (will be created)" # nolint
-    )
-  }
-
   plan <- .dsl_get_plan(
     yml_title[["send"]][["strategy"]], yml_title[["send"]][["inspect"]],
     remote_list[["version_comp"]], type, label,
@@ -84,28 +64,10 @@
   )
 
   .cli_debug(
-    "Content '{label}': Upload plan - {length(plan[['fn_add']])} file(s) to add, {length(plan[['fn_rm']])} file(s) to remove, create: {plan[['create']]}, purge: {plan[['purge']]}" # nolint
+    "Destination '{title}', {label} from '{path_dir_local}'",
+    "({yml_title$structure}, {yml_title$send$strategy}, inspect={yml_title$send$inspect}):",
+    "{length(plan$fn_add)} file(s) to add, {length(plan$fn_rm)} to remove, purge={plan$purge}"
   )
-
-  if (length(plan[["fn_add"]]) > 0) {
-    .cli_debug(
-      "Content '{label}': Files to add: {paste(head(plan[['fn_add']], 10), collapse = ', ')}{if (length(plan[['fn_add']]) > 10) '...' else ''}" # nolint
-    )
-  } else {
-    .cli_debug(
-      "Content '{label}': No files to add"
-    )
-  }
-
-  if (length(plan[["fn_rm"]]) > 0) {
-    .cli_debug(
-      "Content '{label}': Files to remove: {paste(head(plan[['fn_rm']], 10), collapse = ', ')}{if (length(plan[['fn_rm']]) > 10) '...' else ''}" # nolint
-    )
-  } else {
-    .cli_debug(
-      "Content '{label}': No files to remove"
-    )
-  }
 
   .dsl_implement_plan(
     plan[["fn_add"]], plan[["fn_rm"]], plan[["version"]],
@@ -121,9 +83,7 @@
     yml_title[["send"]][["cue"]]
   )
 
-  .cli_debug(
-    "Content '{label}': Processing completed successfully"
-  )
+  invisible(NULL)
 }
 
 # ==========================================================================
@@ -1530,9 +1490,6 @@
                                 path_dir_local,
                                 remote_pre,
                                 cue) {
-  .cli_debug(
-    "Content '{label}': Implementing upload plan"
-  )
 
   # purge
   remote_dest_full <- .dsl_ip_purge(
@@ -1579,9 +1536,6 @@
                           remote_dest_full) {
   dont_purge <- is.null(remote_dest_full) || !purge
   if (dont_purge) {
-    .cli_debug(
-      "Not purging remote destination"
-    )
     return(remote_dest_full)
   }
   .cli_debug(
@@ -1604,14 +1558,8 @@
                         version,
                         path_dir_local) {
   if (!.is_len_pos(fn_add)) {
-    .cli_debug(
-      "Content '{label}': No files to add to remote"
-    )
     return(remote_dest_full)
   }
-  .cli_debug(
-    "Content '{label}': Adding {length(fn_add)} file(s) to remote"
-  )
   remote_add <- .dsl_ip_a_get_remote_add(
     remote_dest_full, type, id, label, structure, path,
     path_append_label, version
@@ -1647,9 +1595,6 @@
                        path_append_label,
                        version) {
   if (!.is_len_pos(fn_rm)) {
-    .cli_debug(
-      "Content '{label}': No files to remove from remote"
-    )
     return(remote_dest_full)
   }
   remote_rm <- .dsl_ip_r_get_remote_rm(
@@ -1662,9 +1607,6 @@
     )
     return(remote_dest_full)
   }
-  .cli_debug(
-    "Content '{label}': Removing {length(fn_rm)} file(s) from remote"
-  )
   .remote_file_rm(type, fn_rm, remote_rm)
   Sys.sleep(1) # ensure remote consistency
 
@@ -1699,18 +1641,10 @@
                         type,
                         remote_pre,
                         changelog) {
-  .cli_debug(
-    "Uploading manifest"
-  )
+  .cli_debug("Updating {type} destination manifest")
   .remote_write_manifest(type, remote_pre, manifest)
-  .cli_debug(
-    "Uploading version file"
-  )
   .remote_write_version_file(type, remote_pre, version_file)
   if (changelog) {
-    .cli_debug(
-      "Writing changelog to remote"
-    )
     .remote_write_changelog(type, remote_pre)
   }
   invisible(TRUE)
@@ -1734,31 +1668,14 @@
   # version that was just uploaded (remote_dest_full), not the current version
   # which may have already been bumped to dev.
   if (is.null(remote_dest_empty) && !is.null(remote_dest_full) && structure == "archive") {
-    .cli_debug(
-      "Re-checking for empty remote variant after adding files"
-    )
-    # Extract version from remote_dest_full path
-    # For local: path ends with v<version>, for github: it's in the "fn" component
     version_from_full <- .dsl_ip_fr_extract_version(
       remote_dest_full, type
-    )
-    .cli_debug(
-      "Extracted version from full remote: {version_from_full}"
     )
     if (!is.null(version_from_full)) {
       remote_dest_empty <- .remote_final_get_if_exists(
         type, id, label, structure, path, path_append_label,
         version_from_full, FALSE, TRUE
       )
-      if (!is.null(remote_dest_empty)) {
-        .cli_debug(
-          "Found empty remote variant: {remote_dest_empty}"
-        )
-      } else {
-        .cli_debug(
-          "No empty remote variant found"
-        )
-      }
     }
   }
 
@@ -1816,9 +1733,6 @@
 .dsl_ip_fr_remove_empty <- function(remote_dest_full,
                                     remote_dest_empty,
                                     type) {
-  .cli_debug(
-    "Removing empty remote destination if full destination exists"
-  )
   full_exists <- !is.null(remote_dest_full)
   empty_exists <- !is.null(remote_dest_empty)
   remove_empty <- full_exists && empty_exists
@@ -1846,26 +1760,11 @@
                                      fn_add,
                                      fn_rm,
                                      cue) {
-  .cli_debug(
-    "Ensuring a remote exists if required"
-  )
   # If we just added files, we definitely have a full remote (don't create empty)
   added_files <- .is_len_pos(fn_add)
   full_exists <- !is.null(remote_dest_full)
   empty_exists <- !is.null(remote_dest_empty)
-  .cli_debug(
-    "added_files: {added}, remote_dest_full: {full}, remote_dest_empty: {empty}",
-    added = added_files,
-    full = if (is.null(remote_dest_full)) "NULL" else as.character(remote_dest_full),
-    empty = if (is.null(remote_dest_empty)) "NULL" else as.character(remote_dest_empty)
-  )
-  .cli_debug(
-    "full_exists: {full_exists}, empty_exists: {empty_exists}"
-  )
   if (added_files || full_exists || empty_exists) {
-    .cli_debug(
-      "Remote destination already exists (or files were just added); no need to create empty"
-    )
     return(remote_dest_empty)
   }
 
@@ -1876,20 +1775,9 @@
   final_remotes <- .remote_ls_final(type, remote_pre)
   cond_no_remotes <- .is_len_0(final_remotes)
 
-  .cli_debug(
-    "Conditions: latest={latest}, fn_rm_len={fn_rm_len}, cue={cue}, final_remotes={num_final}",
-    latest = cond_latest,
-    fn_rm_len = length(fn_rm),
-    cue = cue,
-    num_final = length(final_remotes)
-  )
-
   create_empty <- cond_latest || cond_fn_rm || cond_always || cond_no_remotes
 
   if (!create_empty) {
-    .cli_debug(
-      "No need to create empty remote destination"
-    )
     return(NULL)
   }
 

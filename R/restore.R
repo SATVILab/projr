@@ -106,21 +106,16 @@ projr_content_update <- function(label = NULL,
   if (length(label) == 0) {
     msg <- "No labels found to restore."
     msg <- if (clear) paste0(msg, " No files cleared.") else msg
-    .cli_debug(msg)
-    stop("", .call = FALSE)
+    stop(msg, call. = FALSE)
   }
 
   success <- TRUE
   for (i in seq_along(label)) {
-    .cli_debug(
-      "Restoring label: ", label[[i]]
-    )
     result <- tryCatch(
       .content_update_label(label[[i]], pos, type, .title, destination = destination, clear = clear),
       error = function(e) {
-        .cli_debug(
-          "Error restoring label: ", label[[i]], " - ", e$message
-        )
+        msg <- paste0("Could not restore ", label[[i]], ": ", conditionMessage(e))
+        warning(msg, call. = FALSE)
         FALSE
       }
     )
@@ -174,19 +169,13 @@ projr_content_update <- function(label = NULL,
 
   # Check if source was found
   if (is.null(source_vec)) {
-    .cli_debug(
-      "No source found for label: ", label
-    )
-    .cli_debug(
-      "Skipping restore for label: ", label
-    )
+    .cli_debug("Skipping {label} because it has no restore source")
     return(invisible(FALSE))
   }
 
   yml_title <- .yml_dest_get_title_complete(
     source_vec[["title"]], source_vec[["type"]], NULL, FALSE, FALSE, destination
   )
-  .cli_info("Restoring {label} from {source_vec[['type']]} destination {yml_title$id}")
   remote_pre <- .remote_final_get(
     source_vec[["type"]], yml_title[["id"]], label,
     yml_title[["structure"]], yml_title[["path"]],
@@ -202,21 +191,15 @@ projr_content_update <- function(label = NULL,
     )
   }
   if (!length(version_remote)) {
-    .cli_debug("No version found for ", label)
-    .cli_debug("Skipping restore for ", label)
+    .cli_debug("Skipping {label} because the destination has no recorded version")
     return(invisible(FALSE))
   }
-  .cli_debug(
-    "Restoring version ", version_remote, " of ", label,
-    " from ", source_vec[["type"]],
-    " ", source_vec[["title"]]
-  )
   # Check if version is marked as untrusted in VERSION file
   untrusted <- .remote_check_version_untrusted(
     remote_pre, source_vec[["type"]], label
   )
   if (untrusted) {
-    .cli_info("Note: This version is marked as untrusted")
+    .cli_info("{label} at {version_remote} is marked as untrusted")
   }
 
   remote_exists <- .remote_final_check_exists(
@@ -232,6 +215,7 @@ projr_content_update <- function(label = NULL,
       yml_title[["path-append-label"]], version_remote, empty = TRUE
     )
     if (empty && clear) {
+      .cli_info("Clearing {label} to match the empty snapshot at {version_remote}")
       .dir_clear(projr_path_get_dir(label, safe = FALSE, format = "absolute"))
       return(invisible(TRUE))
     }
@@ -246,6 +230,7 @@ projr_content_update <- function(label = NULL,
     FALSE, FALSE
   )
   path_dir_local <- projr_path_get_dir(label, safe = FALSE, format = "absolute")
+  .cli_info("Restoring {label} at {version_remote} from {source_vec[['type']]} destination {yml_title$id}")
   if (clear) .dir_clear(path_dir_local)
   .remote_file_get_all(source_vec[["type"]], remote_source, path_dir_local)
 
@@ -373,22 +358,21 @@ projr_content_update <- function(label = NULL,
 
 # try find restore from destination
 
-.content_update_label_get_dest_no_type <- function(label) {
-  if (.remote_check_exists("github", "archive")) {
+.content_update_label_get_default_dest <- function(type) {
+  if ((is.null(type) || type == "github") && .git_remote_check_exists() &&
+      .remote_check_exists("github", "archive")) {
     return(c("pos" = "dest", "type" = "github", "title" = "archive"))
-  } else {
-    if (.remote_check_exists("local", "_archive")) {
-      return(c("pos" = "dest", "type" = "local", "title" = "_archive"))
-    } else {
-      stop("No source found for ", label)
-    }
   }
+  if ((is.null(type) || type == "local") && .remote_check_exists("local", "_archive")) {
+    return(c("pos" = "dest", "type" = "local", "title" = "_archive"))
+  }
+  NULL
 }
 
 .content_update_label_get_source_dest <- function(label, type, .title) {
   type_vec <- .content_update_label_get_source_dest_get_type(type, label)
   if (.is_len_0(type_vec)) {
-    return(.content_update_label_get_dest_no_type(label))
+    return(.content_update_label_get_default_dest(type))
   }
   # choose the first type and title
   # provided as the restore destination
@@ -437,14 +421,7 @@ projr_content_update <- function(label = NULL,
   # if nothing found, try parameter-specified removes
   if (is.null(tt_first)) {
     if (!is.null(.title)) return(NULL)
-    tryCatch(
-      .content_update_label_get_dest_no_type(label),
-      error = function(e) {
-        .cli_info("No source found for {label}")
-        .cli_info("Skipping restore for {label}")
-        return(invisible(FALSE))
-      }
-    )
+    .content_update_label_get_default_dest(type)
   } else {
     c("pos" = "dest", "type" = tp_first, "title" = tt_first)
   }

@@ -490,14 +490,7 @@
     asset_name = fn,
     api_url = api_url,
     token = token
-  ) %||% character()
-
-  if (length(asset) == 0L) {
-    .cli_debug(
-      "GitHub release: No assets found in release '{tag}' for repo '{repo}'"
-    )
-    return(invisible(character()))
-  }
+  )
 
   # Ensure destination directory exists
   if (!dir.exists(dest_dir)) {
@@ -511,8 +504,6 @@
     headers["Authorization"] <- paste("token", tok)
   }
 
-  downloaded <- character(0)
-
   asset_name <- asset$name
   download_url <- asset$url
 
@@ -522,8 +513,7 @@
     .cli_debug(
       "GitHub release: Skipping existing asset '{asset_name}' in '{dest_file}'"
     )
-    downloaded <- c(downloaded, dest_file)
-    return(invisible(downloaded))
+    return(invisible(dest_file))
   }
 
   .cli_debug(
@@ -538,9 +528,7 @@
 
   status <- httr::status_code(resp)
 
-  if (status >= 200L && status < 300L) {
-    downloaded <- c(downloaded, dest_file)
-  } else {
+  if (status < 200L || status >= 300L) {
     stop(
       "Failed to download asset '", asset_name, "': HTTP ",
       status, " (url: ", download_url, ")",
@@ -548,11 +536,7 @@
     )
   }
 
-  .cli_debug(
-    "GitHub release: Downloaded {length(downloaded)} asset(s) from tag '{tag}'"
-  )
-
-  invisible(downloaded)
+  invisible(dest_file)
 }
 
 .gh_httr_get_assetid <- function(repo,

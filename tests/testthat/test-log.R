@@ -218,6 +218,10 @@ test_that(".log_build_init creates log file correctly", {
       expect_true(any(grepl("date:", content)))
       expect_true(any(grepl("format:", content)))
 
+      expect_true(paste0("- **Output Level**: ", .cli_output_level_get()) %in% content)
+      expect_true(paste0("- **Build Version**: ", .template_version()) %in% content)
+      expect_true(paste0("- **Profile**: ", paste(projr_profile_get(), collapse = ", ")) %in% content)
+
       # Should have build information
       expect_true(any(grepl("# Build Information", content)))
       expect_true(any(grepl("Build Type", content)))
@@ -395,6 +399,8 @@ test_that(".log_history_add creates history file", {
 
       # Should have header
       expect_true(any(grepl("# Build History", content)))
+
+      expect_false("NA" %in% content)
 
       # Should have entry
       expect_true(any(grepl("Test build", content)))
@@ -796,7 +802,7 @@ test_that("projr_log_clear with before_version filters correctly", {
         "# Build Information",
         "",
         "- **Build Type**: output",
-        "- **projr Version**: 0.0.1",
+        "- **Build Version**: v0.0.1",
         ""
       )
       writeLines(old_content, old_file)

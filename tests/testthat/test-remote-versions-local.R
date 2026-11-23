@@ -82,14 +82,8 @@ test_that(".remote_write_changelog handles missing CHANGELOG gracefully", {
         file.remove("CHANGELOG.md")
       }
 
-      # Should not error even if CHANGELOG doesn't exist
-      result <- tryCatch(
-        {
-          .remote_write_changelog("local", remote_dir)
-          TRUE
-        },
-        error = function(e) FALSE
-      )
+      expect_true(.remote_write_changelog("local", remote_dir))
+      expect_false(file.exists(file.path(remote_dir, "CHANGELOG.md")))
 
       # Cleanup
       unlink(remote_dir, recursive = TRUE)

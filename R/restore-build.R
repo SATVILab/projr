@@ -56,6 +56,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
     safe = FALSE, format = "absolute", create = FALSE
   )
   .restore_build_check_paths(paths)
+  .cli_info("Checking {paste(labels, collapse = ', ')} against build {version}")
   current <- lapply(paths, .restore_build_hashes)
   complete <- vapply(seq_along(labels), function(i) {
     !is.null(snapshots[[i]]$files) && dir.exists(paths[i]) &&
@@ -67,6 +68,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
   }, logical(1))
   if (any(needs_release)) {
     repo <- .gh_repo_get()
+    .cli_debug("Looking up snapshots for {version} in GitHub release {repo}/{destination}")
     assets <- .remote_ls_final_github_httr(repo, destination)
     if ("manifest.zip" %in% assets) {
       .remote_manifest_download(repo, destination, store, label = labels[needs_release], version = version)
@@ -131,6 +133,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
       if (!length(asset)) {
         stop("No matching archive for ", label, " at ", version, " in release ", destination, ".", call. = FALSE)
       }
+      .cli_info("Downloading {asset[1L]} from GitHub release {destination}")
       zip <- .remote_file_get_all_github_httr(repo, destination, asset[1L], workspace)
       .restore_build_unpack(zip, tmp[i], snapshot$files)
     }
@@ -148,6 +151,7 @@ projr_restore <- function(label = NULL, version = NULL, destination = "archive",
     .version_set_file(version)
   }
   success <- TRUE
+  .cli_success("Verified {paste(labels, collapse = ', ')} for build {version}")
   invisible(TRUE)
 }
 

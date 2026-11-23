@@ -123,13 +123,12 @@ automatically.
 | `PROJR_AUTO_INSTALL` | `TRUE`/`FALSE` | Unset | Case-insensitive |
 
 `PROJR_OUTPUT_LEVEL` controls console verbosity. `debug` shows detailed
-messages including remote operations.
+messages including remote operations. Warnings and errors remain visible at every level.
 
 `PROJR_CLEAR_OUTPUT` controls when output directories are cleared:
 `pre` clears before build, `post` after, `never` skips clearing.
 
-`PROJR_LOG_DETAILED` controls detailed `.qmd` log files in
-`cache/projr/log/`. Build history (`builds.md`) is always maintained.
+`PROJR_LOG_DETAILED` controls detailed `.qmd` log files under the configured cache directory (normally `_tmp/projr/log/`). Build history (`builds.md`) is always maintained.
 
 `PROJR_AUTO_INSTALL` auto-installs missing R packages without prompting.
 When unset, interactive sessions prompt the user; non-interactive sessions

@@ -154,8 +154,9 @@
     paste0("- **Timestamp**: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
     if (!is.null(bump_component)) paste0("- **Version Bump**: ", bump_component) else NULL,
     if (nzchar(msg)) paste0("- **Message**: ", msg) else NULL,
-    paste0("- **Output Level**: "),
-    paste0("- **projr Version**: ", projr_version_get()),
+    paste0("- **Output Level**: ", .cli_output_level_get()),
+    paste0("- **Profile**: ", paste(projr_profile_get(), collapse = ", ")),
+    paste0("- **Build Version**: ", .template_version()),
     "",
     "# Build Output",
     ""
@@ -280,13 +281,13 @@
     paste0("- **Type**: ", build_type),
     if (!is.null(bump_component)) paste0("- **Bump**: ", bump_component) else NULL,
     if (nzchar(msg)) paste0("- **Message**: ", msg) else NULL,
-    paste0("- **Version**: ", projr_version_get()),
+    paste0("- **Version**: ", .template_version()),
     if (!is.null(log_file)) paste0("- **Log**: `", basename(dirname(log_file)), "/", basename(log_file), "`") else NULL,
     ""
   )
 
   # Insert at position after header (line 4)
-  updated <- c(existing[1:4], entry, existing[5:length(existing)])
+  updated <- c(existing[1:4], entry, utils::tail(existing, -4L))
 
   writeLines(updated, history_file)
   invisible(NULL)
@@ -340,7 +341,6 @@ projr_log_clear <- function(build_type = "all",
     }
   }
 
-  cli::cli_alert_success("Logs cleared successfully")
   invisible(TRUE)
 }
 
@@ -485,12 +485,13 @@ projr_log_clear <- function(build_type = "all",
       tryCatch(
         {
           lines <- readLines(log_file, warn = FALSE)
-          # Look for projr version in the format: - **projr Version**: X.Y.Z
-          version_line <- lines[grepl("^-\\s*\\*\\*projr Version\\*\\*:", lines, ignore.case = TRUE)]
+          # Older logs called the project version "projr Version".
+          version_field <- "^-\\s*\\*\\*(Build|projr) Version\\*\\*:\\s*"
+          version_line <- lines[grepl(version_field, lines, ignore.case = TRUE)]
 
           if (length(version_line) > 0) {
             # Extract version from bullet point format
-            version_str <- sub("^-\\s*\\*\\*projr Version\\*\\*:\\s*", "", version_line[1], ignore.case = TRUE)
+            version_str <- sub(version_field, "", version_line[1], ignore.case = TRUE)
             version_str <- gsub("[\"\']", "", version_str) # Remove quotes
             version_str <- trimws(version_str) # Remove whitespace
 

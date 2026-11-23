@@ -120,6 +120,7 @@
     for (source in plan[[target]]) {
       from <- roots[[source]]
       dest <- file.path(roots[[target]], source)
+      .cli_step("Including directory {source} in {target}")
       if (!source %in% directories[[target]][["include"]]) {
         fs::dir_create(c(from, dest))
         .dir_copy_exact(from, dest, dir_exc = .build_label_get_dir_exc(source))

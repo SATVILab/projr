@@ -4,7 +4,6 @@
 # - .remote_ls() - List all configured remotes
 # - .remote_ls_source() - List remotes from directory configuration
 # - .remote_ls_dest() - List remotes from build destination configuration
-# - .git_push_check() - Check if git push is enabled
 # - .gh_repo_get() - Get GitHub repository name
 # - .gh_guess_repo() - Parse GitHub repository from git remote URL
 
@@ -120,153 +119,10 @@ test_that(".remote_ls_source returns unique remotes from multiple directories", 
 })
 
 # =============================================================================
-# .git_push_check
-# =============================================================================
-
-test_that(".git_push_check returns TRUE when git setting is NULL (default)", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
-
-  usethis::with_project(
-    path = dir_test2,
-    code = {
-      .init()
-
-      # Explicitly set git to NULL to test default behavior
-      yml_projr <- .yml_get("default")
-      yml_projr$build$git <- NULL
-      .yml_set(yml_projr, "default")
-
-      # When git setting is NULL, push should be TRUE
-      result <- .git_push_check()
-      expect_true(result)
-    }
-  )
-})
-
-test_that(".git_push_check returns TRUE when git setting is TRUE", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
-
-  usethis::with_project(
-    path = dir_test2,
-    code = {
-      .init()
-
-      # Set git to TRUE
-      projr_yml_git_set(all = TRUE, simplify_default = FALSE)
-
-      result <- .git_push_check()
-      expect_true(result)
-    }
-  )
-})
-
-test_that(".git_push_check returns FALSE when git setting is FALSE", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
-
-  usethis::with_project(
-    path = dir_test2,
-    code = {
-      .init()
-
-      # Set git to FALSE
-      projr_yml_git_set(
-        commit = FALSE,
-        push = FALSE,
-        add_untracked = FALSE,
-        simplify_identical = TRUE,
-        simplify_default = FALSE
-      )
-
-      result <- .git_push_check()
-      expect_false(result)
-    }
-  )
-})
-
-test_that(".git_push_check returns FALSE when push is FALSE in list", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
-
-  usethis::with_project(
-    path = dir_test2,
-    code = {
-      .init()
-
-      # Set only push to FALSE
-      projr_yml_git_set(
-        push = FALSE,
-        simplify_default = FALSE
-      )
-
-      result <- .git_push_check()
-      expect_false(result)
-    }
-  )
-})
-
-test_that(".git_push_check returns TRUE when push is not specified in list", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
-
-  usethis::with_project(
-    path = dir_test2,
-    code = {
-      .init()
-
-      # Manually set the YAML to have a list with only commit FALSE
-      yml_projr <- .yml_get("default")
-      yml_projr$build$git <- list(commit = FALSE)
-      .yml_set(yml_projr, "default")
-
-      # When push is NULL in the list, it should default to TRUE
-      result <- .git_push_check()
-      expect_true(result)
-    }
-  )
-})
-
-test_that(".git_push_check throws error for invalid git setting type", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
-
-  usethis::with_project(
-    path = dir_test2,
-    code = {
-      .init()
-
-      # Manually set an invalid type (e.g., character string)
-      yml_projr <- .yml_get("default")
-      yml_projr$build$git <- "invalid"
-      .yml_set(yml_projr, "default")
-
-      expect_error(
-        .git_push_check(),
-        "git setting.*not recognized"
-      )
-    }
-  )
-})
-
-# =============================================================================
 # .remote_ls
 # =============================================================================
 
-test_that(".remote_ls combines source, dest, and git push remotes", {
+test_that(".remote_ls includes a configured GitHub destination", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -283,7 +139,6 @@ test_that(".remote_ls combines source, dest, and git push remotes", {
         content = "output"
       )
 
-      # Should include github from dest and git push check
       remote_vec <- .remote_ls()
       expect_true("github" %in% remote_vec)
       # Should be unique (only one "github")
@@ -321,7 +176,7 @@ test_that(".remote_ls returns unique remotes when duplicates present", {
   )
 })
 
-test_that(".remote_ls excludes github when git push is disabled", {
+test_that("Git pushes do not require GitHub API authentication", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -332,15 +187,12 @@ test_that(".remote_ls excludes github when git push is disabled", {
     code = {
       .init()
 
-      # Disable git push
-      projr_yml_git_set(
-        push = FALSE,
-        simplify_default = FALSE
-      )
-
-      # Should not include github from git push
-      remote_vec <- .remote_ls()
-      expect_false("github" %in% remote_vec)
+      local_mocked_bindings(.git_gh_check_auth = function(...) stop("Unexpected API check"))
+      for (push in c(TRUE, FALSE)) {
+        projr_yml_git_set(push = push, simplify_default = FALSE)
+        expect_false("github" %in% .remote_ls())
+        expect_true(.build_check_auth_remote())
+      }
     }
   )
 })

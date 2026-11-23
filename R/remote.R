@@ -281,14 +281,6 @@
                                     path_append_label = TRUE,
                                     version = NULL,
                                     ...) {
-  .cli_debug(
-    "remote_final_empty_get: type={type}, label={label}, structure={structure}, version={version}",
-    type = type,
-    label = label,
-    structure = structure,
-    version = version
-  )
-
   # pre: "one up" from the final remote, e.g. the directory
   # above for hierarchical. Does not apply to flat.
   switch(type,
@@ -839,14 +831,6 @@
                              fn,
                              ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-
-  .cli_debug(
-    "Remote file add: type={type}, adding {num_files} file(s) from '{path}' to remote='{remote}'",
-    type = type,
-    num_files = length(fn),
-    path = path_dir_local,
-    remote = remote
-  )
 
   switch(type,
     "local" = .remote_file_add_local(

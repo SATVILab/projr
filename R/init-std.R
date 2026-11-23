@@ -179,11 +179,12 @@ projr_init_git <- function(commit = TRUE) {
 }
 
 .init_dir_std_impl <- function() {
-  .cli_info("Creating standard artefact directories.")
-  nm_vec <- .yml_dir_get(NULL) |> names()
-  nm_vec[grepl("^raw|^output|^cache", .dir_label_strip(nm_vec))] |>
-    lapply(projr_path_get)
-  .cli_info("Initialised raw, cache and output directories.")
+  labels <- names(.yml_dir_get(NULL))
+  labels <- labels[grepl("^raw|^output|^cache", .dir_label_strip(labels))]
+  if (length(labels)) {
+    .cli_info("Preparing directories for {paste(labels, collapse = ', ')}")
+    lapply(labels, projr_path_get)
+  }
   invisible(TRUE)
 }
 
@@ -230,7 +231,7 @@ projr_init_git <- function(commit = TRUE) {
       output_format = "md_document",
       quiet = TRUE
     )
-    cli::cli_inform("Rendered README.Rmd.")
+    .cli_info("Rendered README.Rmd.")
   }
 }
 
@@ -240,7 +241,7 @@ projr_init_git <- function(commit = TRUE) {
   }
   if (readme_rmd) {
     if (file.exists(.path_get("README.Rmd"))) {
-      .cli_info(
+      .cli_debug(
         "README.Rmd already exists, so not creating and not overwriting."
       )
       .init_readme_std_impl_render()
@@ -248,7 +249,7 @@ projr_init_git <- function(commit = TRUE) {
     }
   } else {
     if (file.exists(.path_get("README.md"))) {
-      .cli_info("README.md already exists, so skipping.")
+      .cli_debug("README.md already exists, so skipping.")
       return(invisible(FALSE))
     }
   }
@@ -282,14 +283,13 @@ projr_init_git <- function(commit = TRUE) {
     return(invisible(FALSE))
   }
   if (file.exists(.path_get("DESCRIPTION"))) {
-    .cli_info("DESCRIPTION already exists, so skipping.")
+    .cli_debug("DESCRIPTION already exists, so skipping.")
     return(invisible(FALSE))
   }
   .init_desc_std_impl()
 }
 
 .init_desc_std_impl <- function() {
-  .cli_info("Creating DESCRIPTION file.")
   .init_desc_std_impl_get_contents() |>
     writeLines(con = .path_get("DESCRIPTION"))
   if (file.exists(.path_get("VERSION"))) {
@@ -349,7 +349,6 @@ projr_init_git <- function(commit = TRUE) {
       usethis::use_proprietary_license("[First Name] [Last Name]")
     }
   )
-  .cli_info("Created LICENSE.")
 }
 
 # ========================================
@@ -361,7 +360,7 @@ projr_init_git <- function(commit = TRUE) {
     return(invisible(FALSE))
   }
   if (!file.exists(.path_get("DESCRIPTION"))) {
-    .cli_info("DESCRIPTION does not exist, so skipping citation files.")
+    .cli_debug("DESCRIPTION does not exist, so skipping citation files.")
     return(invisible(FALSE))
   }
   .init_cite_std_impl()
@@ -379,7 +378,7 @@ projr_init_git <- function(commit = TRUE) {
   } else if (file.exists("README.md")) {
     .init_cite_citation_readme_add_file(.path_get("README.md"))
   } else {
-    .cli_info(
+    .cli_debug(
       "README.[R]md does not exist, so skipping citation entry in README."
     ) # nolint
     return(invisible(FALSE))
@@ -433,7 +432,7 @@ projr_init_git <- function(commit = TRUE) {
 
 .init_engine_std_bookdown_bookdown <- function() {
   if (file.exists(.path_get("_bookdown.yml"))) {
-    .cli_info("_bookdown.yml already exists, so skipping.")
+    .cli_debug("_bookdown.yml already exists, so skipping.")
     return(invisible(FALSE))
   }
   # Read the template from inst/project_structure
@@ -450,7 +449,7 @@ projr_init_git <- function(commit = TRUE) {
 .init_engine_std_bookdown_output <- function() {
   path_yml <- .path_get("_output.yml")
   if (file.exists(path_yml)) {
-    .cli_info("_output.yml already exists, so skipping.")
+    .cli_debug("_output.yml already exists, so skipping.")
     return(invisible(FALSE))
   }
   init_engine_bookdown_contents_output() |>
@@ -463,7 +462,7 @@ projr_init_git <- function(commit = TRUE) {
 .init_engine_std_bookdown_index <- function() {
   path_index <- .path_get("index.Rmd")
   if (file.exists(path_index)) {
-    .cli_info("index.Rmd already exists, so skipping.")
+    .cli_debug("index.Rmd already exists, so skipping.")
     return(invisible(FALSE))
   }
   init_engine_bookdown_contents_index() |>
@@ -477,7 +476,7 @@ projr_init_git <- function(commit = TRUE) {
   .dep_install("quarto")
   path_yml <- .path_get("_quarto.yml")
   if (file.exists(path_yml)) {
-    .cli_info("_quarto.yml already exists, so skipping.")
+    .cli_debug("_quarto.yml already exists, so skipping.")
     skipped <- 1
   } else {
     .init_engine_quarto_projects_content_yml() |>
@@ -487,7 +486,7 @@ projr_init_git <- function(commit = TRUE) {
   }
   path_index <- .path_get("index.qmd")
   if (file.exists(path_index)) {
-    .cli_info("index.qmd already exists, so skipping.")
+    .cli_debug("index.qmd already exists, so skipping.")
     skipped <- skipped + 1
   } else {
     .init_engine_quarto_project_index() |>
@@ -502,7 +501,7 @@ projr_init_git <- function(commit = TRUE) {
   .dep_install("quarto")
   path_qmd <- .path_get("intro.qmd")
   if (file.exists(path_qmd)) {
-    .cli_info("intro.qmd already exists, so skipping.")
+    .cli_debug("intro.qmd already exists, so skipping.")
     return(invisible(FALSE))
   }
   c(
@@ -527,7 +526,7 @@ projr_init_git <- function(commit = TRUE) {
   .dep_install("rmarkdown")
   path_rmd <- .path_get("intro.Rmd")
   if (file.exists(path_rmd)) {
-    .cli_info("intro.Rmd already exists, so skipping.")
+    .cli_debug("intro.Rmd already exists, so skipping.")
     return(invisible(FALSE))
   }
   c(

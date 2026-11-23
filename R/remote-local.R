@@ -43,15 +43,6 @@
   if (exists && !is.null(empty_label)) {
     exists <- !fs::link_exists(remote) && !length(list.files(remote, all.files = TRUE, no.. = TRUE))
   }
-  if (exists) {
-    .cli_debug(
-      "Local remote: Direct remote exists at '{remote}'"
-    )
-  } else {
-    .cli_debug(
-      "Local remote: Direct remote does not exist at '{remote}'"
-    )
-  }
   exists
 }
 
@@ -181,11 +172,6 @@
     empty = TRUE
   )
 
-  .cli_debug(
-    "remote_final_empty_get_local: Creating empty at '{path}'",
-    path = remote_empty
-  )
-
   if (isTRUE(attr(remote_empty, "label_at_root"))) {
     # The sender publishes this version's empty manifest in the shared root.
     .dir_create(remote_empty)
@@ -196,19 +182,12 @@
     if (!.remote_final_check_exists_direct_local(remote_empty)) {
       stop("The local empty marker path is already occupied: ", remote_empty, call. = FALSE)
     }
-    .cli_debug(
-      "remote_final_empty_get_local: Already exists at '{path}'",
-      path = remote_empty
-    )
     return(remote_empty)
   }
 
   # Create the empty directory as a marker (like GitHub creates projr-empty file)
   .dir_create(remote_empty)
-  .cli_debug(
-    "remote_final_empty_get_local: Created empty directory at '{path}'",
-    path = remote_empty
-  )
+  .cli_debug("Created local empty marker '{remote_empty}'")
   remote_empty
 }
 
@@ -406,23 +385,18 @@
     )
     return(invisible(FALSE))
   }
-  count <- length(fn)
-  from_path <- path_dir_local
-  to_path <- remote
-  .cli_debug(
-    "Local remote: Adding {count} file(s) from '{from_path}' to '{to_path}'"
-  )
   .assert_string(path_dir_local, TRUE)
   .assert_path_not_file(path_dir_local)
   .assert_string(remote, TRUE)
 
   # This will create the directory if it doesn't exist
-  .cli_debug(
-    "Local remote: Calling .dir_copy_file to copy files"
-  )
-  .dir_copy_file(
+  copied <- .dir_copy_file(
     fn = fn,
     path_dir_from = path_dir_local,
     path_dir_to = remote
   )
+  if (isTRUE(copied)) {
+    .cli_debug("Copied {if (length(fn) == 1L) fn else paste(length(fn), 'files')} to '{remote}'")
+  }
+  invisible(copied)
 }

@@ -16,6 +16,9 @@ test_that(".cli_output_level_get works with environment variable", {
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "std")
   expect_identical(.cli_output_level_get(), "std")
 
+  Sys.setenv(PROJR_OUTPUT_LEVEL = "typo")
+  expect_error(.cli_output_level_get(), "PROJR_OUTPUT_LEVEL must be")
+
   # Unset and test defaults
   Sys.unsetenv("PROJR_OUTPUT_LEVEL")
   expect_identical(.cli_output_level_get(), "std")
@@ -58,6 +61,9 @@ test_that(".cli_info respects output level", {
   # Just verify it doesn't error
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "std")
   expect_error(.cli_info("test message"), NA)
+
+  path <- "inputs/{literal}/observations.csv"
+  expect_message(.cli_info("Reading {path}"), path, fixed = TRUE)
 
   # At "debug" level, should also work
   Sys.setenv("PROJR_OUTPUT_LEVEL" = "debug")

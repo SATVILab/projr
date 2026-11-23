@@ -31,6 +31,7 @@
   }
   # Run script in an isolated child environment of the global environment
   # This prevents scripts from cluttering the global environment or affecting each other
+  .cli_step("Running R script {fs::path_rel(path)}")
   script_env <- new.env(parent = .GlobalEnv)
   source(path, local = script_env)
   invisible(NULL)

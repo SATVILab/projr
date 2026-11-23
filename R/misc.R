@@ -32,7 +32,6 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 # without prompting, even in non-interactive sessions.
 
 .dep_install <- function(dep) {
-  .cli_debug("Checking dependencies: {paste(dep, collapse = ', ')}")
   for (x in dep) {
     .dep_add(x)
     if (!requireNamespace(x, quietly = TRUE)) {
@@ -43,22 +42,17 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 }
 
 .dep_add <- function(dep) {
-  .cli_debug("Adding dependency to _dependencies.R: {dep}")
   # don't add to _dependencies
   # if renv already picks it up as a dependency
   if (!.renv_detect()) {
-    .cli_debug("renv not detected, adding dependency")
     return(invisible(FALSE))
   }
   if (.dep_in_renv(basename(dep))) {
-    .cli_debug(
-      "Dependency {dep} already in renv, not adding to _dependencies.R"
-    )
     return(invisible(FALSE))
   }
-  .cli_debug("Dependency {dep} not in renv, adding to _dependencies.R")
   path_dep <- .path_get("_dependencies.R")
   dep_vec <- .dep_read(path_dep)
+  previous <- dep_vec
   for (i in seq_along(dep)) {
     dep_pattern <- paste0(
       "library\\(",
@@ -71,6 +65,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
       dep_vec <- c(dep_vec, dep_txt)
     }
   }
+  if (identical(previous, dep_vec)) return(invisible(FALSE))
   writeLines(dep_vec, path_dep)
   .newline_append(path_dep)
   .cli_debug("Dependency {dep} added to _dependencies.R")
@@ -151,7 +146,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
           remotes::install_github(pkg_list[["github"]])
         }
       }
-      .cli_success("Packages installed successfully")
+      .dep_check_installed(dep_required)
       return(invisible(TRUE))
     },
     error = function(e) {
@@ -165,6 +160,12 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
       )
     }
   )
+}
+
+.dep_check_installed <- function(dep_required) {
+  missing <- dep_required[!vapply(basename(dep_required), requireNamespace, logical(1), quietly = TRUE)]
+  if (length(missing)) stop("Packages still unavailable: ", paste(missing, collapse = ", "), call. = FALSE)
+  .cli_success("Installed {paste(dep_required, collapse = ', ')}")
 }
 
 .dep_install_only_interactive <- function(dep_required) {
@@ -206,7 +207,7 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
             remotes::install_github(pkg_list[["github"]])
           }
         }
-        .cli_success("Packages installed successfully")
+        .dep_check_installed(dep_required)
         return(invisible(TRUE))
       },
       error = function(e) {
@@ -369,13 +370,12 @@ with_dir <- function(new, code) {
   with_dir(
     path_dir_fn_rel,
     {
-      sink(file.path(tempdir(), "zip123"))
       fn_rel <- .file_filter_exists(fn_rel)
       if (length(fn_rel) == 0L) {
         return(character())
       }
-      utils::zip(zipfile = path_zip, files = fn_rel, flags = "-r9Xq")
-      sink(NULL)
+      status <- utils::zip(zipfile = path_zip, files = fn_rel, flags = "-r9Xq")
+      if (status != 0L) stop("Could not create archive ", path_zip, " (zip status ", status, ").", call. = FALSE)
     }
   )
   path_zip
@@ -619,18 +619,6 @@ projr_use_data <- function(
 
   setwd(path_dir)
 
-  sink_file <- file.path(tempdir(), "zip123")
-  sink(sink_file)
-  on.exit(
-    {
-      # Be defensive in case there is no active sink
-      if (sink.number() > 0L) {
-        try(sink(NULL), silent = TRUE)
-      }
-    },
-    add = TRUE
-  )
-
   fn_vec <- .file_ls(getwd())
 
   if (!is.null(dir_exc)) {
@@ -659,12 +647,13 @@ projr_use_data <- function(
 
   path_zip_temp <- basename(path_zip)
 
-  utils::zip(
+  status <- utils::zip(
     zipfile = path_zip_temp,
     files = fn_vec,
     flags = "-r9Xq"
   )
 
+  if (status != 0L) stop("Could not create archive ", path_zip, " (zip status ", status, ").", call. = FALSE)
   if (!identical(path_zip_temp, path_zip)) {
     fs::file_move(path_zip_temp, path_zip)
   }
