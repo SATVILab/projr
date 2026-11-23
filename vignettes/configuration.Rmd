@@ -258,40 +258,75 @@ comparison in R, use `projr_manifest_changes()` or
 
 ## Saving artifacts
 
-Give a destination a name under `build.local` or `build.github`. Its
-`content` lists the labels to send. For example, this saves the assembled
-deliverable locally and publishes the figures to a GitHub release.
+The `remotes` section was added after projr 0.6.1. To use it before
+the next release, install `remotes::install_github("SATVILab/projr@main")`.
+
+Use `remotes` to give an archive a name and record where it lives. Use
+`build` to select which archives a production build writes to. This example
+keeps a complete local archive called `shared` and sends just the figures to
+a GitHub repository. The project declares `output-figures` under `directories`.
 
 ```yaml
-build:
+remotes:
   local:
     shared:
       path: ../team-archives/study
-      content: [output-delivery]
-      structure: archive
   github:
-    figures:
+    reports:
+      repo: research-team/study-results
       tag: "figures-@branch"
-      content: [output-figures]
-      structure: latest
+      structure: archive
       send:
         cue: if-change
         inspect: manifest
         strategy: sync-diff
+build:
+  local:
+    shared: {}
+  github:
+    reports:
+      content: [output-figures]
 ```
+
+For a name declared under `remotes`, the matching entry under `build`
+has three forms.
+
+| Entry under `build.github` or `build.local` | What a production build sends |
+|---|---|
+| Omit the name | Nothing to this archive. Its saved files remain available to readers. |
+| `reports: {}` or a bare `reports:` | All declared raw, output and docs labels. Cache is included only when explicitly selected. |
+| `reports: {content: [output-figures]}` | Only the listed labels. |
+
+Put the address, layout and transfer settings under `remotes` and only
+`content` in the matching build entry. Readers can ask for any label
+actually saved for a build, even after its publishing selection changes.
+Existing configurations that define a destination entirely under `build`
+still work.
+
+For GitHub, `repo` defaults to the repository that produced the build.
+The name under `remotes.github` supplies the release tag and title unless
+`tag` supplies a different name. For example, `reports: {}` under
+`remotes.github` registers a release named `reports` in the producer's
+repository. `repo: research-team/study-results` sends the files to a
+separate repository. A release such as `figures-main` can hold files from
+several project versions.
 
 | Destination field | Values and effect |
 |---|---|
 | `path` | Local archive path, relative to the project root or absolute. |
-| `content` | Declared labels to archive. GitHub also provides its built-in source archive for `code`. |
+| `repo` | GitHub repository in `owner/repo` form. Defaults to the repository where the analysis is built. |
 | `structure` | `archive` (default) stores versioned payloads. `latest` keeps the current payload for each label. |
 | `path-append-label` | Defaults to true. On a local destination, false lays out artifacts without the label subdirectory. A dedicated path per label avoids overlapping payloads. |
-| `tag`, `title` | GitHub release tag and displayed title resolve to the same string. The mapping key supplies the name when an explicit name is omitted. A literal `archive` shares one release across versions. |
+| `tag` | GitHub release name, used for both the Git tag and the displayed release title. Defaults to the registered name. A literal `archive` shares one release across versions. |
 | `branch` | Optional GitHub target branch for a new tag. The branch must exist in the destination repository. `@branch` selects the checkout's named branch. Reusing a release preserves its tag target. |
 | `send.cue` | `if-change` (default) or `always`. |
 | `send.inspect` | `manifest` (default) compares recorded hashes, `file` inspects the files themselves, and `none` treats the destination as empty for comparison. |
 | `send.strategy` | `sync-diff` sends changes and removes obsolete files. `sync-purge` replaces the remote contents, `upload-all` sends every local file, and `upload-missing` sends only absent names. Defaults to `sync-diff`, or `upload-all` with `inspect: none`. |
 | `source` | Set true to prefer this destination for restores, false to skip it, or list the labels for which it is preferred. |
+
+In an older inline `build.github` entry, `title` can also supply the release
+name. Under `remotes.github`, the mapping key names the destination and `tag`
+sets the release name.
 
 For a one-off production archive, pass labels to `archive_local` or
 `archive_github`. `TRUE` chooses the available archive labels. `always_archive`
@@ -307,6 +342,11 @@ can contain the following placeholders.
 | `@version` | `archive-@version` becomes `archive-v1.2.3` for build 1.2.3. |
 | `@branch` | `archive-@branch` on `feature/foo` becomes `archive-feature_2ffoo`. A detached checkout uses `__detached-` followed by the full commit SHA. |
 | `@uuid` | A fresh UUIDv4 for each build, shared by that build's scripts, renderers, paths and release operations. |
+
+The build supplies the values for all three placeholders. For example,
+`figures-@branch` uses the branch of the analysis being built even when the
+release is hosted in a separate repository. The optional `branch` setting
+selects the commit for a new GitHub tag in that destination repository.
 
 Quote a YAML string that begins with `@`. A placeholder ends at the end of
 the string or before a hyphen, underscore, period, ordinary space or path

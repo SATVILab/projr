@@ -45,10 +45,13 @@ projr_restore()
 projr_build_dev()
 ```
 
+To download finished reports or results into a folder of your choice, see the
+[guide to retrieving files](https://satvilab.github.io/projr/articles/restore-artifacts.html#get-files-from-a-completed-build).
+
 ## Install
 
 ```r
-install.packages(c("remotes", "gh", "httr"))
+install.packages(c("remotes", "gh", "httr"))  # projr 0.6.1 needs httr separately
 remotes::install_github("SATVILab/projr@*release")
 ```
 
