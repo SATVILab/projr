@@ -18,7 +18,7 @@ Key architectural patterns:
 
 A project with a legacy root `manifest.csv` can be queried and restored before migration. The next production build imports its history. Local destinations store directory histories in `manifests/`. GitHub Releases use one `manifest.zip` asset. A local latest destination with `path-append-label: false` shares its root with release metadata. Preserve that metadata across payload purges. Confirm an empty build from the destination's `VERSION` and matching directory snapshot before clearing local files on restore.
 
-File hashing uses the top-level `settings.hash-engine` key. Its default, `cpp`, streams files in batches. The `legacy` option uses the historical per-file `digest` implementation. Both produce identical MD5 values and use the same per-directory manifest history.
+Set the file hashing approach and worker limit under `settings.hashing`. The defaults are `approach: cpp` and `cores: 1`. A positive whole-number core count can parallelize file hashing with either the C++ or historical `legacy` approach. Both preserve file ordering, identical MD5s and per-directory histories. Existing `settings.hash-engine` configurations remain readable.
 
 ### Build script selection and rendering
 

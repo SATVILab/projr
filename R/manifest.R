@@ -1,24 +1,33 @@
 # hashing
 # ---------------------------
 
-.manifest_hash_label <- function(label,
-                                 output_run, version = NULL,
-                                 engine = .yml_settings_hash_engine()) {
-  # output is always in safe directory
-  # as hashing is done before copying over to final directory
-  hash_tbl <- .hash_dir(
-    path_dir = projr_path_get_dir(label, safe = !output_run),
-    version = version, dir_exc = .build_label_get_dir_exc(label), engine = engine
-  ) |>
-    .manifest_hash_cache_filter(label)
-  if (nrow(hash_tbl) == 0L) {
-    .empty_tbl_get_manifest(label, version)
-  } else {
-    cbind(
-      data.frame(label = rep(label, nrow(hash_tbl))),
-      hash_tbl
-    )
+# Hash all labels in one build phase together, including when each has just one file.
+.manifest_hash_label <- function(label, output_run, version = NULL, engine = NULL) {
+  if (!length(label)) {
+    return(.zero_tbl_get_manifest())
   }
+  hashing <- .yml_settings_hashing()
+  version <- .version_v_add(version %||% projr_version_get())
+  directories <- vapply(label, projr_path_get_dir, character(1),
+    safe = !output_run, format = "absolute", USE.NAMES = FALSE
+  )
+  files <- Map(function(directory, label) {
+    .assert_dir_exists(directory, TRUE)
+    paths <- .hash_dir_files(directory, .build_label_get_dir_exc(label))
+    # Empty directories have one manifest row with blank filename and hash.
+    if (length(paths)) paths else ""
+  }, directories, label)
+
+  counts <- lengths(files)
+  filenames <- unlist(files, use.names = FALSE)
+  rows <- data.frame(label = rep(label, counts), fn = filenames, version = version, hash = "")
+  has_file <- nzchar(filenames)
+  if (any(has_file)) {
+    paths <- file.path(rep(directories, counts)[has_file], filenames[has_file])
+    hashes <- .hash_file(unique(paths), engine %||% hashing$approach, hashing$cores)
+    rows$hash[has_file] <- unname(hashes[paths])
+  }
+  rows
 }
 
 .manifest_hash_cache_filter <- function(hash_tbl, # nolint

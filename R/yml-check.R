@@ -14,7 +14,7 @@
 #'
 #' @export
 projr_yml_check <- function(profile = NULL) {
-  .yml_settings_hash_engine(profile)
+  .yml_settings_hashing(profile)
   .yml_dir_check(profile)
   .yml_build_check(profile)
   .yml_dev_check(profile)
@@ -26,19 +26,36 @@ projr_yml_check <- function(profile = NULL) {
   invisible(TRUE)
 }
 
-.yml_settings_hash_engine <- function(profile = NULL) {
-  settings <- .yml_get(profile)[["settings"]]
-  if (is.null(settings)) {
-    return("cpp")
-  }
-  if (!is.list(settings) || (length(settings) > 0L && is.null(names(settings)))) {
+.yml_settings_hashing <- function(profile = NULL) {
+  settings <- .yml_get(profile)[["settings"]] %||% list()
+  if (!is.list(settings) || (length(settings) && is.null(names(settings)))) {
     stop("settings must be a YAML mapping.", call. = FALSE)
   }
-  if (length(settings)) .assert_in(names(settings), "hash-engine", nm = "settings")
-  engine <- settings[["hash-engine"]] %||% "cpp"
-  .assert_string(engine, TRUE, nm = "settings.hash-engine")
-  .assert_in(engine, c("cpp", "legacy"), nm = "settings.hash-engine")
-  engine
+  if (length(settings)) .assert_in(names(settings), "hashing", nm = "settings")
+  hashing <- settings[["hashing"]] %||% list()
+  if (!is.list(hashing) || (length(hashing) && is.null(names(hashing)))) {
+    stop("settings.hashing must be a YAML mapping.", call. = FALSE)
+  }
+  if (length(hashing)) .assert_in(names(hashing), c("approach", "cores"), nm = "settings.hashing")
+
+  approach <- hashing[["approach"]] %||% "cpp"
+  .assert_string(approach, TRUE, nm = "settings.hashing.approach")
+  .assert_in(approach, c("cpp", "legacy"), nm = "settings.hashing.approach")
+
+  cores <- hashing[["cores"]] %||% 1L
+  .assert_number(cores, TRUE, nm = "settings.hashing.cores")
+  if (!is.finite(cores) || cores < 1 || cores != trunc(cores) || cores > .Machine$integer.max) {
+    stop("settings.hashing.cores must be a positive whole number.", call. = FALSE)
+  }
+  list(approach = approach, cores = as.integer(cores))
+}
+
+.yml_settings_hash_engine <- function(profile = NULL) {
+  .yml_settings_hashing(profile)$approach
+}
+
+.yml_settings_hash_cores <- function(profile = NULL) {
+  .yml_settings_hashing(profile)$cores
 }
 
 # directory
