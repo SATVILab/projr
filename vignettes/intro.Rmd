@@ -33,7 +33,7 @@ Project structure and build actions are configured in `_projr.yml`.
 if (!requireNamespace("remotes", quietly = TRUE)) {
   install.packages("remotes")
 }
-remotes::install_github("SATVILab/projr")
+remotes::install_github("SATVILab/projr@*release")
 ```
 
 ## Workflow

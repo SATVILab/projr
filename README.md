@@ -49,8 +49,12 @@ projr_build_dev()
 
 ```r
 install.packages(c("remotes", "gh", "httr"))
-remotes::install_github("SATVILab/projr")
+remotes::install_github("SATVILab/projr@*release")
 ```
+
+For a specific version, use its tag, such as `SATVILab/projr@v0.6.1`.
+To install the current development code, use `SATVILab/projr@main`.
+[Downloadable source packages](https://github.com/SATVILab/projr/releases)
 
 Follow the [worked example](https://satvilab.github.io/projr/articles/get-started.html)
 to publish and reproduce a small analysis. The [configuration reference](https://satvilab.github.io/projr/articles/configuration.html)

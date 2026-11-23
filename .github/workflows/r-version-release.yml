@@ -2,6 +2,8 @@ name: R Version and Release
 
 on:
   push:
+    branches: [main]
+    paths: [DESCRIPTION]
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch:
@@ -27,15 +29,50 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    concurrency:
+      group: package-release-${{ github.sha }}
+      cancel-in-progress: false
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - name: Select the stable package version
+        id: stable
+        if: github.event_name == 'push'
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(awk '$1 == "Version:" {print $2; exit}' DESCRIPTION)
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then
+            [[ "$GITHUB_REF_NAME" == "v$version" ]] || { echo "Tag does not match DESCRIPTION." >&2; exit 1; }
+          else
+            previous=$(git show "$BEFORE:DESCRIPTION" | awk '$1 == "Version:" {print $2; exit}')
+            [[ "$version" != "$previous" ]] || exit 0
+          fi
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 0
+
+          # A retry can fill in a missing asset. Completed releases are immutable.
+          assets=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases" --jq \
+            '.[] | select(.draft == false) | .tag_name as $tag | .assets[] | ($tag + "/" + .name)')
+          if grep -Fxq "v$version/projr_$version.tar.gz" <<< "$assets"; then exit 0; fi
+          # A backport must not move the floating latest tag backwards.
+          newest=$(git tag --list | grep -Ex 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1 || true)
+          if [[ -n "$newest" && "$(printf '%s\n' "$newest" "v$version" | sort -V | tail -1)" != "v$version" ]]; then
+            echo "A newer version is already tagged ($newest)."
+            exit 0
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - uses: r-lib/actions/setup-pandoc@v2
+        if: github.event_name == 'workflow_dispatch' || steps.stable.outputs.version != ''
       - uses: MiguelRodo/actions/r-version-release@v3
+        if: github.event_name == 'workflow_dispatch' || steps.stable.outputs.version != ''
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ inputs.version }}
+          version: ${{ steps.stable.outputs.version || inputs.version }}
           bump_type: ${{ inputs.bump_type }}
-          version_force: ${{ inputs.version_force }}
+          version_force: ${{ github.event_name == 'push' || inputs.version_force }}
