@@ -148,8 +148,16 @@
     return(invisible(FALSE))
   }
   .cli_step("Rendering README.Rmd")
-  .build_readme_rmd_render_add_devtools_if_needed()
-  .build_readme_rmd_render_impl()
+  readme <- as.character(.path_get("README.Rmd"))
+  if (!.build_readme_rmd_render_detect_pkg_use()) {
+    return(.build_readme_rmd_render_impl(readme))
+  }
+
+  .dep_install_only("pkgbuild")
+  # Use the project's new version even if the caller already loaded an older one.
+  render <- .build_readme_rmd_render_impl
+  environment(render) <- baseenv()
+  invisible(xfun::Rscript_call(render, list(readme, .libPaths()), options = "--vanilla"))
 }
 
 .build_readme_rmd_render_check <- function(output_run) {
@@ -160,36 +168,36 @@
 }
 
 .build_readme_rmd_render_detect_pkg_use <- function() {
-  readme_rmd <- readLines(.path_get("README.Rmd"), warn = FALSE)
-  pkg_use_detected_lib <- grepl(
-    paste0(
-      "library\\(", projr_name_get(), "\\)|",
-      'library\\("', projr_name_get(), '"\\)|',
-      "library\\('", projr_name_get(), "'\\)"
-    ),
-    readme_rmd
-  ) |>
-    any()
-  pkg_use_detected_dots <- grepl(
-    paste0(projr_name_get(), "::"),
-    readme_rmd
-  ) |>
-    any()
-  pkg_use_detected_lib | pkg_use_detected_dots
-}
-
-.build_readme_rmd_render_add_devtools_if_needed <- function() {
-  if (.build_readme_rmd_render_detect_pkg_use()) {
-    .dep_add("devtools")
-    devtools::install()
-  }
-}
-
-.build_readme_rmd_render_impl <- function() {
-  rmarkdown::render(
-    .path_get("README.Rmd"),
-    output_format = "md_document", quiet = TRUE
+  description <- .path_get("DESCRIPTION")
+  if (!file.exists(description)) return(FALSE)
+  package <- read.dcf(description, fields = "Package")[[1L]]
+  if (is.na(package) || !nzchar(package)) return(FALSE)
+  package <- gsub(".", "[.]", package, fixed = TRUE)
+  pattern <- paste0(
+    "\\b", package, "::|\\b(library|require|requireNamespace)\\s*\\(\\s*",
+    "(?:package\\s*=\\s*)?['\"]?", package, "['\"]?\\s*[,)]"
   )
+  any(grepl(pattern, readLines(.path_get("README.Rmd"), warn = FALSE), perl = TRUE))
+}
+
+.build_readme_rmd_render_impl <- function(readme, libraries = NULL) {
+  if (!is.null(libraries)) {
+    # R removes this private library and source archive when the child exits.
+    library <- tempfile("projr-readme-")
+    dir.create(library)
+    .libPaths(c(library, libraries))
+    Sys.setenv(R_LIBS = paste(.libPaths(), collapse = .Platform$path.sep))
+    archive <- pkgbuild::build(dirname(readme), dest_path = tempdir(), vignettes = FALSE, quiet = TRUE)
+    args <- c("CMD", "INSTALL", "-l", shQuote(library), shQuote(archive))
+    output <- suppressWarnings(system2(
+      file.path(R.home("bin"), "R"), args, stdout = TRUE, stderr = TRUE
+    ))
+    if (!is.null(attr(output, "status"))) {
+      stop("Could not install the project package for README.Rmd:\n",
+           paste(output, collapse = "\n"), call. = FALSE)
+    }
+  }
+  rmarkdown::render(readme, output_format = "md_document", quiet = TRUE)
   invisible(TRUE)
 }
 
