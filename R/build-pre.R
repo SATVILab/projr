@@ -281,6 +281,8 @@
   .cli_debug("Clearing output directories (pre-build)")
   .build_include_check_config()
   .build_clear_pre(output_run, clear_output)
+  # Existing analysis scripts can write directly to their declared output paths.
+  if (output_run) .dir_create_by_label(.yml_dir_get_label_output(NULL), safe = FALSE)
 }
 
 # misc

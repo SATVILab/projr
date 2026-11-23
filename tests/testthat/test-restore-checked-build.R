@@ -136,3 +136,48 @@ test_that("restore recovers a missing immutable file list and VERSION from recor
     force = TRUE
   )
 })
+
+test_that("a first build archives literal starter paths and restores them into a clone", {
+  skip_if(.is_test_select())
+  skip_if_not_installed("gert")
+  skip_if_not_installed("httr")
+  .test_local_github_releases("archive")
+  project <- withr::local_tempdir()
+  clone <- file.path(withr::local_tempdir(), "clone")
+  upstream <- withr::local_tempdir()
+  gert::git_init(upstream, bare = TRUE)
+  gert::git_init(project)
+  gert::git_remote_add(upstream, repo = project)
+  .test_setup_project_git_config(project)
+  usethis::with_project(project, {
+    dir.create("_raw_data")
+    writeLines("21", "_raw_data/number.txt")
+    writeLines(c(
+      'number <- as.integer(readLines("_raw_data/number.txt"))',
+      'writeLines(as.character(2L * number), "_output/result.txt")'
+    ), "analysis.R")
+    gert::git_add("analysis.R")
+    gert::git_commit("Initial analysis")
+    gert::git_push("origin", set_upstream = TRUE)
+    expect_false(file.exists("_projr.yml"))
+    expect_false(dir.exists("_output"))
+    projr_build(archive_github = TRUE)
+    expect_identical(readLines("_output/result.txt"), "42")
+    assets <- .remote_ls_final_github_httr(.gh_repo_get(), "archive")
+    version <- .restore_build_version(NULL)
+    output_asset <- paste0("output-", version, ".zip")
+    expect_true(all(c(paste0("raw-data-", version, ".zip"), output_asset, "manifest.zip") %in% assets))
+    archive <- .remote_file_get_all_github_httr(.gh_repo_get(), "archive", output_asset, tempdir())
+    expect_identical(readLines(unz(archive, "result.txt")), "42")
+    gert::git_clone(upstream, clone, branch = gert::git_branch())
+    .test_setup_project_git_config(clone)
+  }, quiet = TRUE, force = TRUE)
+  usethis::with_project(clone, {
+    expect_false(file.exists("_raw_data/number.txt"))
+    expect_true(projr_restore())
+    expect_identical(readLines("_raw_data/number.txt"), "21")
+    expect_false(file.exists("_output/result.txt"))
+    projr_build()
+    expect_identical(readLines("_output/result.txt"), "42")
+  }, quiet = TRUE, force = TRUE)
+})
