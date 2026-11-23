@@ -73,11 +73,11 @@ test_that("all build entry points accept an unattended project without saving pe
   functions <- list(projr_build, projr_build_patch, projr_build_minor, projr_build_major)
   for (build in functions) {
     expect_true(build(msg = "Example", project = project))
-    expect_identical(getwd(), caller)
+    expect_identical(normalizePath(getwd()), normalizePath(caller))
   }
   writeLines("stop('configured script failed')", file.path(project, "broken.R"))
   expect_error(projr_build_dev(scripts = "broken.R", project = project), "configured script failed")
-  expect_identical(getwd(), caller)
+  expect_identical(normalizePath(getwd()), normalizePath(caller))
   expect_true(file.exists(file.path(project, "BUILDLOG.md")))
   expect_identical(list.files(user, all.files = TRUE, no.. = TRUE), character())
   expect_identical(list.files(caller, all.files = TRUE, no.. = TRUE), character())
@@ -108,7 +108,7 @@ test_that("running from an approved legacy config directory restores the origina
   .build_project_approve(project)
   withr::with_dir(old, {
     expect_true(projr_build_dev(scripts = character()))
-    expect_identical(getwd(), old)
+    expect_identical(normalizePath(getwd()), normalizePath(old))
   })
   expect_true(file.exists(file.path(project, ".projr", "config", "_projr.yml")))
 })
