@@ -307,7 +307,8 @@ projr_build_dev <- function(scripts = NULL,
   output_run <- .build_get_output_run(bump_component)
   build_type <- if (output_run) "output" else "dev"
 
-  # Initialize build log
+  # Script selection can fail before the normal build ignore refresh.
+  .ignore_project_state()
   .log_build_init(
     build_type = build_type,
     bump_component = bump_component,
