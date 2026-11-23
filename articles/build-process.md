@@ -98,7 +98,10 @@ The build validates the environment before starting:
 
 Run
 [`projr_build_check_packages()`](https://satvilab.github.io/projr/reference/projr_build_check_packages.md)
-at any time to check package requirements.
+at any time to check package requirements. Production builds also check
+for `rmarkdown` when the project contains `README.Rmd`, even if the
+selected scripts are all R files or the list is empty. A README that
+uses the project package also requires `pkgbuild`.
 
 #### Remote destination preparation
 

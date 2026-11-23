@@ -155,7 +155,11 @@ configured</li>
 branch must not be behind</li>
 </ol>
 <p>Run <code><a href="../reference/projr_build_check_packages.html">projr_build_check_packages()</a></code> at any time to check
-package requirements.</p>
+package requirements. Production builds also check for
+<code>rmarkdown</code> when the project contains
+<code>README.Rmd</code>, even if the selected scripts are all R files or
+the list is empty. A README that uses the project package also requires
+<code>pkgbuild</code>.</p>
 </div>
 <div class="section level4">
 <h4 id="remote-destination-preparation">Remote destination preparation<a class="anchor" aria-label="anchor" href="#remote-destination-preparation"></a>
