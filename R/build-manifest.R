@@ -13,19 +13,8 @@
 }
 
 .build_manifest_pre_get_manifest <- function() {
-  label_vec <- .build_manifest_pre_get_label()
-  if (.is_len_0(label_vec)) {
-    return(.zero_tbl_get_manifest())
-  }
-  out_tbl <- lapply(
-    label_vec, .manifest_hash_label,
-    output_run = FALSE, version = projr_version_get(), engine = .yml_settings_hash_engine()
-  ) |>
-    .build_manifest_reduce()
-  rownames(out_tbl) <- NULL
-  out_tbl
+  .manifest_hash_label(.build_manifest_pre_get_label(), output_run = FALSE)
 }
-
 
 .build_manifest_pre_get_label <- function() {
   .build_manifest_labels(c("cache", "raw"))
@@ -66,17 +55,7 @@
 }
 
 .build_manifest_post_get_manifest <- function(output_run) {
-  label_vec <- .build_manifest_post_get_label()
-  if (length(label_vec) == 0) {
-    return(.zero_tbl_get_manifest())
-  }
-  out_tbl <- lapply(
-    label_vec, .manifest_hash_label,
-    output_run = output_run, version = projr_version_get(), engine = .yml_settings_hash_engine()
-  ) |>
-    .build_manifest_reduce()
-  rownames(out_tbl) <- NULL
-  out_tbl
+  .manifest_hash_label(.build_manifest_post_get_label(), output_run)
 }
 
 .build_manifest_reduce <- function(manifest_list) {
