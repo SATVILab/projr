@@ -278,6 +278,7 @@
   # empty output directories
   # (docs, output and data)
   .cli_debug("Clearing output directories (pre-build)")
+  .build_include_check_config()
   .build_clear_pre(output_run, clear_output)
 }
 

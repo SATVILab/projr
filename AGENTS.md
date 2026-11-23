@@ -32,6 +32,12 @@ Set the file hashing approach and worker limit under `settings.hashing`. The def
 - Keep source documents and their directories trackable. Ignore renderer-generated output and intermediates at their project-relative paths, including beside nested documents. Install predictable rules before rendering and retain ignore rules for newly created intermediates after a failed render.
 - Collect project outputs from the configured safe documentation directory. Collect standalone outputs and their companion assets together in the configured documentation directory. When names collide, keep the affected documents in their project-relative subdirectories and report any remaining conflicts before collecting outputs.
 
+### Including directories in an output
+
+- Set `directories.<receiving output>.include` to declared raw, docs or output labels. Copy each complete directory to a subdirectory named for its source label, including nested outputs in dependency order.
+- Collect development copies in the build cache and production copies in the configured output before hashing or archiving it. Preserve existing source-side `output` settings. A request made in both places copies once.
+- Reserve the receiving subdirectory for the included label. Reject cycles, conflicting files or links, and directory paths that would copy recursively or clear the source.
+
 ### Directory ignores across profiles
 
 - When updating `.gitignore`, combine directory rules from active and inactive profiles per literal project-relative path. Apply the same logic to `.Rbuildignore` when the project root contains `DESCRIPTION`. Include a path for each ignore type enabled by any contributing profile.

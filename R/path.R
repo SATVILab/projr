@@ -323,7 +323,7 @@
   path_dir <- .dir_filter_exists_non(path_dir)
   for (i in seq_along(path_dir)) {
     .assert_path_not_file(path_dir[[i]])
-    dir.create(path_dir[[i]], recursive = TRUE)
+    fs::dir_create(path_dir[[i]])
   }
   invisible(path_dir)
 }
@@ -740,14 +740,13 @@
     .cli_debug("    Same filesystem detected, trying file.rename()")
     dir_already_exists <- dir.exists(path_dir_to)
     dir_non_empty <- dir_already_exists &&
-      (length(list.dirs(path_dir_to, recursive = FALSE)) > 0 ||
-        length(list.files(path_dir_to)) > 0)
+      length(list.files(path_dir_to, all.files = TRUE, no.. = TRUE)) > 0L
     if (dir_non_empty) {
       .cli_debug("    Destination directory not empty, cannot use file.rename()") # nolint
       return(invisible(FALSE))
     } else if (dir_already_exists) {
       .cli_debug("    Destination directory exists, removing before rename")
-      unlink(path_dir_to, recursive = TRUE)
+      unlink(path_dir_to, recursive = TRUE, expand = FALSE)
     }
     .dir_create(dirname(path_dir_to))
     res <- tryCatch(
