@@ -20,7 +20,7 @@ test_that("development and production report the actions they run", {
 
     output <- capture_messages(expect_warning(projr_build_patch("Example", project = project), "example hook warning"))
     expect_identical(readLines("runs"), c("analysis", "post"))
-    expect_true(all(file.exists(c("BUILDLOG.md", "CHANGELOG.md"))))
+    expect_true(all(file.exists(c(".projr/BUILDLOG.md", "CHANGELOG.md"))))
     log <- list.files(".projr/logs/output", "\\.qmd$", recursive = TRUE, full.names = TRUE)
     expect_length(log, 1L)
     expect_equal(sum(grepl("**WARNING**: example hook warning", readLines(log), fixed = TRUE)), 1L)

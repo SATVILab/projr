@@ -122,7 +122,12 @@ projr_build_check_packages <- function(profile = NULL) {
     quarto_document = "quarto",
     rmd = "rmarkdown"
   )
-  unique(unname(packages[intersect(engines, names(packages))]))
+  required <- unname(packages[intersect(engines, names(packages))])
+  if (.build_readme_rmd_render_check(output_run = TRUE)) {
+    required <- c(required, "rmarkdown")
+    if (.build_readme_rmd_render_detect_pkg_use()) required <- c(required, "pkgbuild")
+  }
+  unique(required)
 }
 
 .build_check_packages_remote <- function(profile = NULL) {

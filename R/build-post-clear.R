@@ -76,14 +76,14 @@
 }
 
 .build_clear_old_dev <- function() {
-  path_dir <- .dir_get_cache_auto_version(profile = NULL) |>
-    dirname()
+  current <- .dir_get_cache_auto_version(profile = NULL)
+  path_dir <- dirname(current)
   if (!dir.exists(path_dir) || !nzchar(path_dir)) {
     return(invisible(FALSE))
   }
   path_dir_vec <- path_dir |>
     .dir_ls(recursive = FALSE) |>
-    setdiff(c(.version_get_v(), "log"))
+    setdiff(c(basename(current), "log"))
   if (.is_len_0(path_dir_vec)) {
     return(invisible(FALSE))
   }

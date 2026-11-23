@@ -189,7 +189,7 @@ test_that("a production build archives the script output under the same invocati
     uuid <- sub("^results-", "", results)
     archive <- file.path("archives", paste0("run-", uuid))
     expect_identical(readLines(file.path(archive, "output", "v1.2.3", "result.txt")), "analysis result")
-    expect_true(any(grepl(archive, readLines("BUILDLOG.md"), fixed = TRUE)))
+    expect_true(any(grepl(archive, readLines(".projr/BUILDLOG.md"), fixed = TRUE)))
     expect_identical(.yml_dir_get_path_raw("output", NULL), "results-@uuid")
   }, quiet = TRUE, force = TRUE)
 })
@@ -575,52 +575,6 @@ test_that(".build_ensure_version does nothing when DESCRIPTION exists", {
   )
 })
 
-# Test .build_dev_get_bump_component
-test_that(".build_dev_get_bump_component returns NULL when not on dev version", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Set to non-dev version
-      projr_version_set("1.0.0")
-
-      # Should return NULL (to auto-bump to dev)
-      result <- .build_dev_get_bump_component(TRUE)
-      expect_null(result)
-
-      result <- .build_dev_get_bump_component(FALSE)
-      expect_null(result)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
-test_that(".build_dev_get_bump_component respects bump when on dev version", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Set to dev version
-      projr_version_set("1.0.0-1")
-
-      # Should return "dev" when bump = TRUE
-      result <- .build_dev_get_bump_component(TRUE)
-      expect_identical(result, "dev")
-
-      # Should return NULL when bump = FALSE
-      result <- .build_dev_get_bump_component(FALSE)
-      expect_null(result)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
-})
-
 # Test .build_post_dev
 test_that(".build_post_dev appends dev component after production build", {
   skip_if(.is_test_cran())
@@ -692,35 +646,48 @@ test_that(".build_post_dev skips dev bump for dev builds", {
   )
 })
 
-# Test projr_build_dev with bump parameter
-test_that("projr_build_dev bump parameter works correctly", {
-  skip_if(.is_test_cran())
+test_that("development builds preserve an existing version on success and failure", {
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Start with non-dev version
-      projr_version_set("0.0.0")
+  project <- withr::local_tempdir()
+  usethis::with_project(project, {
+    writeLines(c(
+      "directories: {cache: {path: cache}, output: {path: output-@version}}",
+      "dev: {scripts: [analysis.R]}"
+    ), "_projr.yml")
+    description <- c("Package: analysis", "Version: 1.2.3", "Title: Example",
+                     "Description: An example", "  spanning two lines.")
+    writeLines(description, "DESCRIPTION")
+    writeBin(charToRaw("1.2.3"), "VERSION")
+    writeLines('writeLines(projr::projr_path_get_dir("output", safe = FALSE), "result")', "analysis.R")
+    # Even rewriting the same version would reformat both files.
+    local_mocked_bindings(projr_version_set = function(...) stop("unexpected version write"))
+    expect_warning(projr_build_dev(bump = TRUE, project = "."), "Remove bump = TRUE")
+    expect_identical(readLines("result"), "output-v1.2.3")
+    writeLines('stop("script failure")', "analysis.R")
+    expect_error(projr_build_dev(project = "."), "script failure")
+    expect_identical(readLines("DESCRIPTION"), description)
+    expect_identical(readBin("VERSION", "raw", 100L), charToRaw("1.2.3"))
+    expect_false(dir.exists(".projr/manifests"))
+  }, quiet = TRUE, force = TRUE)
+})
 
-      # Build with bump = FALSE (should auto-bump to dev)
-      projr_build_dev(bump = FALSE)
-      version_after_first <- projr_version_get()
-      expect_true(grepl("-", version_after_first))
-
-      # Build again with bump = TRUE (should increment dev)
-      projr_build_dev(bump = TRUE)
-      version_after_second <- projr_version_get()
-      expect_true(grepl("-", version_after_second))
-
-      # Parse and compare dev numbers
-      dev_num_first <- as.integer(sub(".*-", "", version_after_first))
-      dev_num_second <- as.integer(sub(".*-", "", version_after_second))
-      expect_true(dev_num_second > dev_num_first)
-    },
-    quiet = TRUE,
-    force = TRUE
-  )
+test_that("a first development build and its log work without a project version", {
+  skip_if(.is_test_select())
+  project <- withr::local_tempdir()
+  usethis::with_project(project, {
+    writeLines(c(
+      'path <- projr::projr_path_get_cache_build("result", create = TRUE)',
+      'writeLines("finished", path)'
+    ), "analysis.R")
+    projr_build_dev(project = ".")
+    expect_identical(readLines(projr_path_get_cache_build("result")), "finished")
+    expect_equal(basename(projr_path_get_cache_build_dir()), "dev")
+    history <- readLines(".projr/logs/dev/history/builds.md")
+    expect_false(any(grepl("**Version**", history, fixed = TRUE)))
+    expect_true(file.exists("_projr.yml"))
+    expect_false(any(file.exists(c("VERSION", ".projr/manifests", "BUILDLOG.md", "CHANGELOG.md"))))
+    expect_error(.template_expand("output-@version"), "@version requires a project version")
+  }, quiet = TRUE, force = TRUE)
 })
 
 # Test projr_build_dev with profile parameter
