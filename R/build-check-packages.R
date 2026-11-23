@@ -145,18 +145,6 @@ projr_build_check_packages <- function(profile = NULL) {
 }
 
 .build_check_packages_citations <- function(profile = NULL) {
-  pkg_needed <- character(0)
-
-  yml_cite <- .yml_cite_get(profile)
-  if (is.null(yml_cite) || isFALSE(yml_cite)) {
-    return(pkg_needed)
-  }
-  if ("cff" %in% names(yml_cite) && isTRUE(yml_cite[["cff"]])) {
-    pkg_needed <- c(pkg_needed, "cffr")
-  }
-  if ("codemeta" %in% names(yml_cite) && isTRUE(yml_cite[["codemeta"]])) {
-    pkg_needed <- c(pkg_needed, "codemetar")
-  }
-
-  unique(pkg_needed)
+  packages <- c(cff = "cffr", codemeta = "codemeta", "inst-citation" = "cffr")
+  unique(unname(packages[.build_cite_get_yml(profile)]))
 }

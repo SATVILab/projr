@@ -55,13 +55,15 @@
   invisible(TRUE)
 }
 
-.build_cite_get_yml <- function() {
-  cite_vec <- .yml_cite_get(NULL)
+.build_cite_get_yml <- function(profile = NULL) {
+  cite_vec <- .yml_cite_get(profile)
 
   if (isTRUE(cite_vec)) {
     return(c("cff", "codemeta", "inst-citation"))
   } else if (is.null(cite_vec) || isFALSE(cite_vec)) {
     return(character(0))
+  } else if (is.list(cite_vec)) {
+    return(names(cite_vec)[vapply(cite_vec, isTRUE, logical(1))])
   } else {
     .assert_chr(cite_vec)
     cite_vec
