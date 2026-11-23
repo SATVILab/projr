@@ -178,10 +178,9 @@ projr_build_patch <- function(msg = NULL,
 #' @title Build dev project
 #' @inheritParams projr_build
 #'
-#' @description Builds project to output, which
-#' means recording the input and output data hashes,
-#' building the actual bookdown document and
-#' saving and archiving selected output.
+#' @description Runs the selected scripts and renders documents for development.
+#' Development builds preserve the project's version and can run before its
+#' first versioned build. Staged outputs are available in the build cache.
 #'
 #' @param scripts character vector.
 #' Paths or glob patterns for scripts to build, relative to the project root
@@ -196,11 +195,10 @@ projr_build_patch <- function(msg = NULL,
 #' standalone document twice runs it twice. A repeated project document is an error.
 #' If a selection includes Quarto or Bookdown project documents, those
 #' documents render together at the position of the last selected project
-#' document. The project YAML is restored before the build returns to the
-#' development version.
+#' document. The project YAML is restored after rendering and post-build hooks.
 #' @param bump logical.
-#' Whether to increment dev version for build.
-#' Default is \code{FALSE}.
+#' Retained for compatibility. Supplying `TRUE` warns and runs a development
+#' build with the project's existing version, if any.
 #' @param old_dev_remove logical.
 #' If `TRUE`, then previous development builds are deleted
 #' after a successful run.
@@ -234,13 +232,14 @@ projr_build_dev <- function(scripts = NULL,
                             project = NULL) {
   .assert_flag(bump, TRUE)
   .assert_flag(old_dev_remove, TRUE)
+  if (bump) {
+    warning("Development builds do not change the project version. Remove bump = TRUE.", call. = FALSE)
+  }
   old_wd <- setwd(.build_prepare_project(project))
   on.exit(setwd(old_wd), add = TRUE)
-  # NULL if FALSE and "dev" if TRUE
-  bump_component <- .build_dev_get_bump_component(bump)
   .build(
     scripts = scripts,
-    bump_component = bump_component,
+    bump_component = NULL,
     old_dev_remove = old_dev_remove,
     args_engine = args_engine,
     profile = profile,
@@ -273,19 +272,6 @@ projr_build_dev <- function(scripts = NULL,
   length(upstream) == 1L && !is.na(upstream) && nzchar(upstream)
 }
 
-.build_dev_get_bump_component <- function(bump) {
-  # Auto-bump to dev if not already on a dev version
-  # Return NULL (not "dev") to just add dev component without incrementing
-  if (!.build_is_current_version_dev()) {
-    return(NULL)
-  }
-
-  # If already on dev version, respect the bump parameter
-  switch(bump,
-    "dev"
-  )
-}
-
 .build <- function(scripts = NULL,
                    bump_component,
                    old_dev_remove = TRUE,
@@ -304,14 +290,16 @@ projr_build_dev <- function(scripts = NULL,
   # set and unset environment variables
   .env_set(unset = TRUE)
   on.exit(.env_unset(), add = TRUE, after = FALSE)
-  .build_ensure_version()
-  version_run_on_list <- .version_run_onwards_get(bump_component)
-  restore_context <- .template_context_start(version_run_on_list[["desc"]][["run"]])
+  output_run <- .build_get_output_run(bump_component)
+  version_run_on_list <- if (output_run) {
+    .build_ensure_version()
+    .version_run_onwards_get(bump_component)
+  }
+  version <- if (output_run) version_run_on_list$desc[["run"]] else .version_get_v(required = FALSE)
+  restore_context <- .template_context_start(version)
   on.exit(restore_context(), add = TRUE, after = FALSE)
   clear_output <- .build_get_clear_output(clear_output)
 
-  # Determine output_run
-  output_run <- .build_get_output_run(bump_component)
   build_type <- if (output_run) "output" else "dev"
 
   # Script selection can fail before the normal build ignore refresh.

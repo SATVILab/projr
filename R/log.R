@@ -154,7 +154,7 @@
     if (nzchar(msg)) paste0("- **Message**: ", msg) else NULL,
     paste0("- **Output Level**: ", .cli_output_level_get()),
     paste0("- **Profile**: ", paste(projr_profile_get(), collapse = ", ")),
-    paste0("- **Build Version**: ", .template_version()),
+    paste0("- **Build Version**: ", .template_version(), recycle0 = TRUE),
     "",
     "# Build Output",
     ""
@@ -279,7 +279,7 @@
     paste0("- **Type**: ", build_type),
     if (!is.null(bump_component)) paste0("- **Bump**: ", bump_component) else NULL,
     if (nzchar(msg)) paste0("- **Message**: ", msg) else NULL,
-    paste0("- **Version**: ", .template_version()),
+    paste0("- **Version**: ", .template_version(), recycle0 = TRUE),
     if (!is.null(log_file)) paste0("- **Log**: `", basename(dirname(log_file)), "/", basename(log_file), "`") else NULL,
     ""
   )

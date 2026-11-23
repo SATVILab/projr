@@ -27,7 +27,10 @@
   }
   .template_substitute(x, function(token) {
     switch(token,
-      "@version" = .version_v_add(version),
+      "@version" = .version_v_add(version %||% stop(
+        "@version requires a project version. Set one with projr_version_set() or run a production build.",
+        call. = FALSE
+      )),
       "@branch" = branch,
       "@uuid" = uuid
     )
@@ -36,7 +39,7 @@
 
 .template_version <- function() {
   version <- Sys.getenv("PROJR_BUILD_VERSION")
-  if (nzchar(version)) version else .version_get_v()
+  if (nzchar(version)) version else .version_get_v(required = FALSE)
 }
 
 .template_uuid <- function() {
