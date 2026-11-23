@@ -96,7 +96,11 @@ test_that(".remote_ls_source returns unique remotes from multiple directories", 
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test2 <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test2,
@@ -126,7 +130,11 @@ test_that(".remote_ls includes a configured GitHub destination", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test2 <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test2,
@@ -180,14 +188,20 @@ test_that("Git pushes do not require GitHub API authentication", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test2 <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test2,
     code = {
       .init()
 
-      local_mocked_bindings(.git_gh_check_auth = function(...) stop("Unexpected API check"))
+      local_mocked_bindings(.git_gh_check_auth = function(...) {
+        stop("Unexpected API check")
+      })
       for (push in c(TRUE, FALSE)) {
         projr_yml_git_set(push = push, simplify_default = FALSE)
         expect_false("github" %in% .remote_ls())
@@ -201,7 +215,11 @@ test_that(".remote_ls filters out empty strings", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test2 <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test2 <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test2,
@@ -240,7 +258,10 @@ test_that(".gh_guess_repo reads each supported origin URL format", {
       "https://github.com/owner/repo.git/"
     )
     for (url in urls) {
-      expect_identical(system2("git", c("config", "remote.origin.url", url)), 0L)
+      expect_identical(
+        system2("git", c("config", "remote.origin.url", url)),
+        0L
+      )
       expect_identical(.gh_guess_repo(), "owner/repo", info = url)
     }
   })
@@ -251,7 +272,11 @@ test_that(".gh_guess_repo throws error when no remotes exist", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
-  dir_test2 <- .test_setup_project(git = FALSE, github = FALSE, set_env_var = FALSE)
+  dir_test2 <- .test_setup_project(
+    git = FALSE,
+    github = FALSE,
+    set_env_var = FALSE
+  )
 
   usethis::with_project(
     path = dir_test2,
@@ -280,7 +305,10 @@ test_that(".gh_guess_repo falls back to first remote when origin doesn't exist",
       .test_setup_project_git_config()
 
       # Add a remote named 'upstream' instead of 'origin'
-      system2("git", c("remote", "add", "upstream", "git@github.com:owner/repo.git"))
+      system2(
+        "git",
+        c("remote", "add", "upstream", "git@github.com:owner/repo.git")
+      )
 
       repo <- .gh_guess_repo()
       expect_identical(repo, "owner/repo")
@@ -293,7 +321,11 @@ test_that(".gh_guess_repo throws error for invalid URL format", {
   skip_if(.is_test_lite())
   skip_if(.is_test_select())
 
-  dir_test2 <- .test_setup_project(git = FALSE, github = FALSE, set_env_var = FALSE)
+  dir_test2 <- .test_setup_project(
+    git = FALSE,
+    github = FALSE,
+    set_env_var = FALSE
+  )
 
   usethis::with_project(
     path = dir_test2,
@@ -318,7 +350,9 @@ test_that(".gh_guess_repo works with custom path argument", {
 
   # Create a separate git repo in a subdirectory
   sub_dir <- file.path(tempdir(), "test_gh_guess_repo_subdir")
-  if (dir.exists(sub_dir)) unlink(sub_dir, recursive = TRUE)
+  if (dir.exists(sub_dir)) {
+    unlink(sub_dir, recursive = TRUE)
+  }
   .dir_create(sub_dir)
   withr::defer(unlink(sub_dir, recursive = TRUE))
 
@@ -351,7 +385,10 @@ test_that(".gh_repo_get works in normal git repository", {
       .test_setup_project_git_config()
 
       # Add a remote
-      system2("git", c("remote", "add", "origin", "git@github.com:owner/repo.git"))
+      system2(
+        "git",
+        c("remote", "add", "origin", "git@github.com:owner/repo.git")
+      )
 
       repo <- .gh_repo_get()
       expect_identical(repo, "owner/repo")
@@ -365,7 +402,9 @@ test_that(".gh_repo_get works in git worktree", {
 
   # Create a main git repository
   main_repo <- file.path(tempdir(), "main_repo_test")
-  if (dir.exists(main_repo)) unlink(main_repo, recursive = TRUE)
+  if (dir.exists(main_repo)) {
+    unlink(main_repo, recursive = TRUE)
+  }
   .dir_create(main_repo)
   withr::defer(unlink(main_repo, recursive = TRUE))
 
@@ -373,7 +412,10 @@ test_that(".gh_repo_get works in git worktree", {
     system2("git", c("init"), stdout = FALSE, stderr = FALSE)
     system2("git", c("config", "user.name", "Test User"))
     system2("git", c("config", "user.email", "test@example.com"))
-    system2("git", c("remote", "add", "origin", "git@github.com:owner/repo.git"))
+    system2(
+      "git",
+      c("remote", "add", "origin", "git@github.com:owner/repo.git")
+    )
 
     # The project marker is shared by both checkouts.
     writeLines("directories: {}", "_projr.yml")
@@ -382,7 +424,9 @@ test_that(".gh_repo_get works in git worktree", {
 
     # Create a worktree
     worktree_dir <- file.path(tempdir(), "worktree_test")
-    if (dir.exists(worktree_dir)) unlink(worktree_dir, recursive = TRUE)
+    if (dir.exists(worktree_dir)) {
+      unlink(worktree_dir, recursive = TRUE)
+    }
     withr::defer(unlink(worktree_dir, recursive = TRUE))
     system2("git", c("worktree", "add", worktree_dir, "-b", "feature"))
 
@@ -398,7 +442,11 @@ test_that(".gh_repo_get throws error when gitdir does not exist", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test2 <- .test_setup_project(git = FALSE, github = FALSE, set_env_var = FALSE)
+  dir_test2 <- .test_setup_project(
+    git = FALSE,
+    github = FALSE,
+    set_env_var = FALSE
+  )
 
   usethis::with_project(
     path = dir_test2,

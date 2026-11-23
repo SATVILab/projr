@@ -9,8 +9,16 @@ test_that("Quarto projects and documents finish in the foreground with their ren
   skip_if_not_installed("quarto")
   calls <- list()
   testthat::local_mocked_bindings(
-    quarto_render = function(input = NULL, as_job = "auto", execute_dir = NULL) {
-      calls[[length(calls) + 1L]] <<- list(input = input, as_job = as_job, execute_dir = execute_dir)
+    quarto_render = function(
+      input = NULL,
+      as_job = "auto",
+      execute_dir = NULL
+    ) {
+      calls[[length(calls) + 1L]] <<- list(
+        input = input,
+        as_job = as_job,
+        execute_dir = execute_dir
+      )
       invisible(NULL)
     },
     .package = "quarto"
@@ -22,7 +30,10 @@ test_that("Quarto projects and documents finish in the foreground with their ren
     .build_engine_qmd("index.qmd", list(as_job = TRUE, execute_dir = project))
   })
   expect_identical(vapply(calls, `[[`, logical(1), "as_job"), c(FALSE, FALSE))
-  expect_identical(vapply(calls, `[[`, character(1), "execute_dir"), rep(project, 2))
+  expect_identical(
+    vapply(calls, `[[`, character(1), "execute_dir"),
+    rep(project, 2)
+  )
   expect_null(calls[[1L]]$input)
   expect_identical(basename(calls[[2L]]$input), "index.qmd")
 })
@@ -68,9 +79,15 @@ test_that(".build_engine works with quarto documents", {
     path = dir_test,
     code = {
       # Remove bookdown files
-      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
-      if (file.exists("_output.yml")) file.remove("_output.yml")
-      if (file.exists("index.Rmd")) file.remove("index.Rmd")
+      if (file.exists("_bookdown.yml")) {
+        file.remove("_bookdown.yml")
+      }
+      if (file.exists("_output.yml")) {
+        file.remove("_output.yml")
+      }
+      if (file.exists("index.Rmd")) {
+        file.remove("index.Rmd")
+      }
 
       # Create a Quarto document
       writeLines(
@@ -117,8 +134,12 @@ test_that(".build_engine works with RMarkdown documents", {
     path = dir_test,
     code = {
       # Remove bookdown files to test standalone RMarkdown
-      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
-      if (file.exists("_output.yml")) file.remove("_output.yml")
+      if (file.exists("_bookdown.yml")) {
+        file.remove("_bookdown.yml")
+      }
+      if (file.exists("_output.yml")) {
+        file.remove("_output.yml")
+      }
 
       version_run_on_list <- list(
         "desc" = c(
@@ -151,9 +172,15 @@ test_that(".build_engine works with quarto projects", {
     path = dir_test,
     code = {
       # Remove bookdown files
-      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
-      if (file.exists("_output.yml")) file.remove("_output.yml")
-      if (file.exists("index.Rmd")) file.remove("index.Rmd")
+      if (file.exists("_bookdown.yml")) {
+        file.remove("_bookdown.yml")
+      }
+      if (file.exists("_output.yml")) {
+        file.remove("_output.yml")
+      }
+      if (file.exists("index.Rmd")) {
+        file.remove("index.Rmd")
+      }
 
       # Setup quarto project
       .test_setup_project_lit_docs("quarto_project")
@@ -189,9 +216,15 @@ test_that(".build_engine respects scripts parameter for qmd documents", {
     path = dir_test,
     code = {
       # Remove bookdown files
-      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
-      if (file.exists("_output.yml")) file.remove("_output.yml")
-      if (file.exists("index.Rmd")) file.remove("index.Rmd")
+      if (file.exists("_bookdown.yml")) {
+        file.remove("_bookdown.yml")
+      }
+      if (file.exists("_output.yml")) {
+        file.remove("_output.yml")
+      }
+      if (file.exists("index.Rmd")) {
+        file.remove("index.Rmd")
+      }
 
       # Create specific quarto files
       writeLines(
@@ -235,9 +268,15 @@ test_that(".build_engine respects scripts parameter for rmd documents", {
     path = dir_test,
     code = {
       # Remove bookdown files
-      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
-      if (file.exists("_output.yml")) file.remove("_output.yml")
-      if (file.exists("index.Rmd")) file.remove("index.Rmd")
+      if (file.exists("_bookdown.yml")) {
+        file.remove("_bookdown.yml")
+      }
+      if (file.exists("_output.yml")) {
+        file.remove("_output.yml")
+      }
+      if (file.exists("index.Rmd")) {
+        file.remove("index.Rmd")
+      }
 
       # Create specific RMarkdown files
       writeLines(
@@ -281,9 +320,15 @@ test_that(".build_engine handles no documents error", {
     path = dir_test,
     code = {
       # Remove all document files
-      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
-      if (file.exists("_output.yml")) file.remove("_output.yml")
-      if (file.exists("index.Rmd")) file.remove("index.Rmd")
+      if (file.exists("_bookdown.yml")) {
+        file.remove("_bookdown.yml")
+      }
+      if (file.exists("_output.yml")) {
+        file.remove("_output.yml")
+      }
+      if (file.exists("index.Rmd")) {
+        file.remove("index.Rmd")
+      }
 
       version_run_on_list <- list(
         "desc" = c(
@@ -374,9 +419,15 @@ test_that(".build_engine_quarto_project succeeds with valid project", {
     path = dir_test,
     code = {
       # Remove bookdown files
-      if (file.exists("_bookdown.yml")) file.remove("_bookdown.yml")
-      if (file.exists("_output.yml")) file.remove("_output.yml")
-      if (file.exists("index.Rmd")) file.remove("index.Rmd")
+      if (file.exists("_bookdown.yml")) {
+        file.remove("_bookdown.yml")
+      }
+      if (file.exists("_output.yml")) {
+        file.remove("_output.yml")
+      }
+      if (file.exists("index.Rmd")) {
+        file.remove("index.Rmd")
+      }
 
       # Setup quarto project
       .test_setup_project_lit_docs("quarto_project")

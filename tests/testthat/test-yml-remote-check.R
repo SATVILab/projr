@@ -240,7 +240,6 @@ test_that(".yml_remote_check validates path parameter for local type", {
       send_list = list()
     )
   )
-
 })
 
 test_that(".yml_remote_check validates flag parameters", {

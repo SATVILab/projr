@@ -16,11 +16,13 @@ test_that(".path_* functions work", {
       # -------------------
       # relative
       expect_equal(
-        .path_force_rel("a/b" |> .path_force_abs()), "a/b"
+        .path_force_rel("a/b" |> .path_force_abs()),
+        "a/b"
       )
       # absolute
       expect_equal(
-        "a/b" |> .path_force_abs(), fs::path_abs("a/b") |> as.character()
+        "a/b" |> .path_force_abs(),
+        fs::path_abs("a/b") |> as.character()
       )
       expect_equal(
         "a/b" |> .path_force_abs("c/d/e"),
@@ -42,12 +44,15 @@ test_that(".file_* and .dir_* functions work", {
       # -------------------
       dir_tmp <- .test_content_setup_dir()
       content_vec_test_file <- c(
-        ".hidden.txt", "abc.txt",
-        "subdir1/def.txt", "subdir1/subdir2/ghi.txt"
+        ".hidden.txt",
+        "abc.txt",
+        "subdir1/def.txt",
+        "subdir1/subdir2/ghi.txt"
       )
       expect_identical(.file_ls(dir_tmp), content_vec_test_file)
       expect_identical(
-        .dir_ls(dir_tmp), unique(dirname(content_vec_test_file)) |> setdiff(".")
+        .dir_ls(dir_tmp),
+        unique(dirname(content_vec_test_file)) |> setdiff(".")
       )
       expect_identical(
         file.path(dir_tmp, content_vec_test_file) |>
@@ -205,10 +210,14 @@ test_that(".dir_get_tmp_random_path never generates negative paths", {
 
   # Representative seeds include negative normal draws from the original bug.
   # A leading minus made these paths invalid GitHub repository names.
-  basenames <- vapply(c(1, 42, 123, 444, 999, 12345), function(seed) {
-    set.seed(seed)
-    basename(.dir_get_tmp_random_path())
-  }, character(1))
+  basenames <- vapply(
+    c(1, 42, 123, 444, 999, 12345),
+    function(seed) {
+      set.seed(seed)
+      basename(.dir_get_tmp_random_path())
+    },
+    character(1)
+  )
   expect_false(any(grepl("^-", basenames)))
   expect_true(all(grepl("^[0-9]", basenames)))
 })

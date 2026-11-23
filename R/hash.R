@@ -1,6 +1,10 @@
-.hash_dir <- function(path_dir, version = NULL, dir_exc = NULL,
-                      engine = .yml_settings_hash_engine(),
-                      cores = .yml_settings_hash_cores()) {
+.hash_dir <- function(
+  path_dir,
+  version = NULL,
+  dir_exc = NULL,
+  engine = .yml_settings_hash_engine(),
+  cores = .yml_settings_hash_cores()
+) {
   .assert_string(path_dir, TRUE)
   .assert_dir_exists(path_dir, TRUE)
   files <- .hash_dir_files(path_dir, dir_exc)
@@ -25,7 +29,11 @@
     entries <- .path_filter_spec(entries, dir_exc)
     is_dir <- dir.exists(file.path(path_dir, entries))
     nested <- lapply(entries[is_dir], function(entry) {
-      files <- list.files(file.path(path_dir, entry), recursive = TRUE, all.files = TRUE)
+      files <- list.files(
+        file.path(path_dir, entry),
+        recursive = TRUE,
+        all.files = TRUE
+      )
       if (length(files)) file.path(entry, files)
     })
     files <- sort(c(entries[!is_dir], unlist(nested, use.names = FALSE)))
@@ -37,8 +45,11 @@
   files[file.exists(file.path(path_dir, files))]
 }
 
-.hash_file <- function(fn, engine = .yml_settings_hash_engine(),
-                       cores = .yml_settings_hash_cores()) {
+.hash_file <- function(
+  fn,
+  engine = .yml_settings_hash_engine(),
+  cores = .yml_settings_hash_cores()
+) {
   if (is.null(fn)) {
     return(character())
   }
@@ -46,7 +57,9 @@
   hashes <- if (workers <= 1L) {
     .hash_file_batch(fn, engine)
   } else {
-    chunks <- lapply(parallel::splitIndices(length(fn), workers), function(i) fn[i])
+    chunks <- lapply(parallel::splitIndices(length(fn), workers), function(i) {
+      fn[i]
+    })
     if (.Platform$OS.type == "windows") {
       pool <- parallel::makePSOCKcluster(workers)
       on.exit(parallel::stopCluster(pool), add = TRUE)
@@ -58,13 +71,23 @@
       dll <- getLoadedDLLs()[["projr"]][["path"]]
       parts <- parallel::parLapply(pool, chunks, worker, engine, dll)
     } else {
-      parts <- parallel::mclapply(chunks, function(paths) {
-        tryCatch(.hash_file_batch(paths, engine), error = identity)
-      }, mc.cores = workers, mc.set.seed = FALSE)
+      parts <- parallel::mclapply(
+        chunks,
+        function(paths) {
+          tryCatch(.hash_file_batch(paths, engine), error = identity)
+        },
+        mc.cores = workers,
+        mc.set.seed = FALSE
+      )
       for (part in parts) {
-        if (inherits(part, "error")) stop(part)
+        if (inherits(part, "error")) {
+          stop(part)
+        }
         if (!is.character(part) || inherits(part, "try-error")) {
-          stop("A file hashing worker exited without returning hashes.", call. = FALSE)
+          stop(
+            "A file hashing worker exited without returning hashes.",
+            call. = FALSE
+          )
         }
       }
     }
@@ -75,16 +98,26 @@
 }
 
 .hash_file_batch <- function(fn, engine, dll = NULL) {
-  switch(engine,
+  switch(
+    engine,
     cpp = {
       paths <- path.expand(fn)
       if (is.null(dll)) {
         return(hash_files_cpp(paths))
       }
-      routine <- getDLLRegisteredRoutines(dyn.load(dll))$.Call[["_projr_hash_files_cpp"]]
+      routine <- getDLLRegisteredRoutines(dyn.load(dll))$.Call[[
+        "_projr_hash_files_cpp"
+      ]]
       do.call(.Call, list(routine, paths))
     },
-    legacy = vapply(fn, digest::digest, character(1), algo = "md5", file = TRUE, serialize = FALSE),
+    legacy = vapply(
+      fn,
+      digest::digest,
+      character(1),
+      algo = "md5",
+      file = TRUE,
+      serialize = FALSE
+    ),
     stop("Unknown hash engine: ", engine, call. = FALSE)
   )
 }

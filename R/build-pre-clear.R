@@ -62,7 +62,8 @@
   if (!.build_clear_pre_docs_check(clear_output)) {
     return(invisible(FALSE))
   }
-  switch(clear_output,
+  switch(
+    clear_output,
     # if we are clearing before building,
     # then we always save docs directly to
     # the final docs folder

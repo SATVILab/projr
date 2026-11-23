@@ -55,10 +55,16 @@
 #' projr_yml_restrictions_set(not_behind = TRUE)
 #' }
 #'
-projr_yml_restrictions_set <- function(branch = NULL,
-                                       not_behind = NULL,
-                                       profile = "default") {
-  .yml_restrictions_set_check(branch = branch, not_behind = not_behind, profile = profile)
+projr_yml_restrictions_set <- function(
+  branch = NULL,
+  not_behind = NULL,
+  profile = "default"
+) {
+  .yml_restrictions_set_check(
+    branch = branch,
+    not_behind = not_behind,
+    profile = profile
+  )
 
   if (!is.null(branch)) {
     .yml_restrictions_set_branch(branch, profile)

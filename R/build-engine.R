@@ -1,8 +1,10 @@
-.build_engine <- function(scripts,
-                          version_run_on_list,
-                          args_engine,
-                          engine = .engine_get(scripts),
-                          collect_paths = FALSE) {
+.build_engine <- function(
+  scripts,
+  version_run_on_list,
+  args_engine,
+  engine = .engine_get(scripts),
+  collect_paths = FALSE
+) {
   # Handle case where no documents are found
   if (identical(engine, character(1L))) {
     build_error <- paste0(
@@ -11,9 +13,12 @@
     )
   } else {
     if (engine %in% c("bookdown", "quarto_project") && length(scripts)) {
-      .cli_debug("Selected project documents: {paste(scripts, collapse = ', ')}")
+      .cli_debug(
+        "Selected project documents: {paste(scripts, collapse = ', ')}"
+      )
     }
-    build_error <- switch(engine,
+    build_error <- switch(
+      engine,
       "bookdown" = .build_engine_bookdown(args_engine),
       "quarto_project" = .build_engine_quarto_project(args_engine),
       "quarto_document" = .build_engine_qmd(scripts, args_engine),
@@ -28,7 +33,9 @@
   .build_engine_error(build_error, version_run_on_list)
   if (collect_paths && identical(engine, "quarto_document")) {
     return(invisible(.build_copy_docs_quarto_paths_get(
-      .build_frontmatter_get(scripts), scripts, args_engine
+      .build_frontmatter_get(scripts),
+      scripts,
+      args_engine
     )))
   }
   invisible(TRUE)
@@ -38,7 +45,9 @@
   .dep_install("bookdown")
   .cli_step("Rendering Bookdown project")
   # Bookdown can cache a different project's YAML after a standalone R Markdown render.
-  render <- function(args) try(do.call(bookdown::render_book, args), silent = TRUE)
+  render <- function(args) {
+    try(do.call(bookdown::render_book, args), silent = TRUE)
+  }
   environment(render) <- baseenv()
   x_return <- try(xfun::Rscript_call(render, list(args_engine)))
   err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
@@ -51,7 +60,9 @@
 .build_quarto_render <- function(args) {
   # A background RStudio job would return before outputs and hooks are ready.
   # Older quarto releases always render synchronously and have no as_job argument.
-  if ("as_job" %in% names(formals(quarto::quarto_render))) args$as_job <- FALSE
+  if ("as_job" %in% names(formals(quarto::quarto_render))) {
+    args$as_job <- FALSE
+  }
   do.call(quarto::quarto_render, args)
 }
 
@@ -123,9 +134,9 @@
   invisible(TRUE)
 }
 
-.build_engine_doc_fn_get <- function(scripts,
-                                     type) {
-  detect_str <- switch(tolower(type),
+.build_engine_doc_fn_get <- function(scripts, type) {
+  detect_str <- switch(
+    tolower(type),
     "qmd" = "\\.qmd$",
     "rmd" = "\\.rmd$",
     stop(paste0("Unknown document type: ", type), call. = FALSE)
@@ -142,22 +153,36 @@
     missing_files <- setdiff(file_matching, fn_vec)
   }
 
-  fn_vec <- setdiff(fn_vec, c("README.Rmd", as.character(.path_get("README.Rmd"))))
+  fn_vec <- setdiff(
+    fn_vec,
+    c("README.Rmd", as.character(.path_get("README.Rmd")))
+  )
   .build_engine_doc_fn_get_error(fn_vec, type, scripts, missing_files)
   fn_vec
 }
 
-.build_engine_doc_fn_get_error <- function(fn, type, scripts, missing_files = NULL) {
+.build_engine_doc_fn_get_error <- function(
+  fn,
+  type,
+  scripts,
+  missing_files = NULL
+) {
   # Check if there are missing files when files were specified
   if (!is.null(missing_files) && length(missing_files) > 0) {
-    document_type <- switch(tolower(type),
+    document_type <- switch(
+      tolower(type),
       "qmd" = "Quarto",
       "rmd" = "RMarkdown"
     )
     error_msg <- paste0(
-      "The following ", document_type, " document(s) could not be found: ",
-      paste0(missing_files, collapse = ", "), ". ",
-      "Please check that the file(s) exist and have the correct extension (", type, ")."
+      "The following ",
+      document_type,
+      " document(s) could not be found: ",
+      paste0(missing_files, collapse = ", "),
+      ". ",
+      "Please check that the file(s) exist and have the correct extension (",
+      type,
+      ")."
     )
     stop(error_msg, call. = FALSE)
   }
@@ -167,23 +192,29 @@
     return(invisible(TRUE))
   }
 
-  document_type <- switch(tolower(type),
-    "qmd" = "Quarto",
-    "rmd" = "RMarkdown"
-  )
+  document_type <- switch(tolower(type), "qmd" = "Quarto", "rmd" = "RMarkdown")
 
   # Create appropriate error message based on whether files were specified
   if (is.null(scripts)) {
     error_msg <- paste0(
-      "No ", document_type, " documents found in the project directory. ",
-      "Please create a ", tolower(type), " file or specify the file path explicitly."
+      "No ",
+      document_type,
+      " documents found in the project directory. ",
+      "Please create a ",
+      tolower(type),
+      " file or specify the file path explicitly."
     )
   } else {
     # Fallback for when no files match the pattern
     error_msg <- paste0(
-      "The following ", document_type, " document(s) could not be found: ",
-      paste0(scripts, collapse = ", "), ". ",
-      "Please check that the file(s) exist and have the correct extension (", type, ")."
+      "The following ",
+      document_type,
+      " document(s) could not be found: ",
+      paste0(scripts, collapse = ", "),
+      ". ",
+      "Please check that the file(s) exist and have the correct extension (",
+      type,
+      ")."
     )
   }
 

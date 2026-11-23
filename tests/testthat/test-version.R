@@ -8,11 +8,17 @@ test_that(".yml_metadata_get_version_format_get and _set", {
     path = dir_test,
     code = {
       yml_projr_init <- .yml_get_default_raw()
-      expect_identical(.yml_metadata_get_version_format(NULL), "major.minor.patch-dev")
+      expect_identical(
+        .yml_metadata_get_version_format(NULL),
+        "major.minor.patch-dev"
+      )
       yml_projr <- yml_projr_init
       yml_projr[["metadata"]][["version-format"]] <- "major.minor-dev"
       .yml_set(yml_projr)
-      expect_identical(.yml_metadata_get_version_format(NULL), "major.minor-dev")
+      expect_identical(
+        .yml_metadata_get_version_format(NULL),
+        "major.minor-dev"
+      )
       .yml_set(yml_projr_init)
       yml_projr <- .yml_get_default_raw()
       expect_error(.yml_metadata_set_version_format("abc", NULL))
@@ -23,7 +29,10 @@ test_that(".yml_metadata_get_version_format_get and _set", {
         .yml_metadata_set_version_format(c("abc"), NULL)
       )
       expect_error(
-        .yml_metadata_set_version_format(c("major.dev", "major.minor-dev"), NULL)
+        .yml_metadata_set_version_format(
+          c("major.dev", "major.minor-dev"),
+          NULL
+        )
       )
       expect_error(
         .yml_metadata_set_version_format(1, NULL)
@@ -144,7 +153,8 @@ test_that("projr_version_get works", {
     path = dir_test,
     code = {
       expect_identical(
-        .version_current_vec_get(), c(rep(0L, 3), 1L)
+        .version_current_vec_get(),
+        c(rep(0L, 3), 1L)
       )
       projr_version_set("7.9.2-1")
       expect_identical(projr_version_get(), "7.9.2-1")
@@ -179,7 +189,9 @@ test_that(".version_run_onwards_get works", {
         .version_run_onwards_get("major"),
         list(
           desc = c(
-            run = "1.0.0", failure = "0.42.33-1", success = "1.0.0"
+            run = "1.0.0",
+            failure = "0.42.33-1",
+            success = "1.0.0"
           )
         )
       )
@@ -188,7 +200,9 @@ test_that(".version_run_onwards_get works", {
         .version_run_onwards_get("major"),
         list(
           desc = c(
-            run = "1.0.0", failure = "0.42.33-9001", success = "1.0.0"
+            run = "1.0.0",
+            failure = "0.42.33-9001",
+            success = "1.0.0"
           )
         )
       )
@@ -197,7 +211,9 @@ test_that(".version_run_onwards_get works", {
         .version_run_onwards_get("dev"),
         list(
           desc = c(
-            run = "0.42.33-2", failure = "0.42.33-2", success = "0.42.33-2"
+            run = "0.42.33-2",
+            failure = "0.42.33-2",
+            success = "0.42.33-2"
           )
         )
       )
@@ -205,7 +221,9 @@ test_that(".version_run_onwards_get works", {
         .version_run_onwards_get(NULL),
         list(
           desc = c(
-            run = "0.42.33-1", failure = "0.42.33-1", success = "0.42.33-1"
+            run = "0.42.33-1",
+            failure = "0.42.33-1",
+            success = "0.42.33-1"
           )
         )
       )
@@ -214,7 +232,9 @@ test_that(".version_run_onwards_get works", {
         .version_run_onwards_get(NULL),
         list(
           desc = c(
-            run = "0.42.33-1", failure = "0.42.33-1", success = "0.42.33-1"
+            run = "0.42.33-1",
+            failure = "0.42.33-1",
+            success = "0.42.33-1"
           )
         )
       )
@@ -223,7 +243,9 @@ test_that(".version_run_onwards_get works", {
         .version_run_onwards_get("patch"),
         list(
           desc = c(
-            run = "0.42.34", failure = "0.42.33-1", success = "0.42.34"
+            run = "0.42.34",
+            failure = "0.42.33-1",
+            success = "0.42.34"
           )
         )
       )
@@ -391,7 +413,9 @@ test_that(".version_set_file works with different parameters", {
     path = dir_test,
     code = {
       # Test with only_if_exists = FALSE (default behavior for new files)
-      if (file.exists("VERSION")) file.remove("VERSION")
+      if (file.exists("VERSION")) {
+        file.remove("VERSION")
+      }
       result <- .version_set_file("1.2.3", only_if_exists = FALSE)
       expect_true(result)
       expect_true(file.exists("VERSION"))
@@ -414,7 +438,10 @@ test_that(".version_set_file works with different parameters", {
       custom_dir <- file.path(tempdir(), "custom_version")
       .version_set_file("4.5.6", path_dir = custom_dir, only_if_exists = FALSE)
       expect_true(file.exists(file.path(custom_dir, "VERSION")))
-      version_content <- readLines(file.path(custom_dir, "VERSION"), warn = FALSE)
+      version_content <- readLines(
+        file.path(custom_dir, "VERSION"),
+        warn = FALSE
+      )
       expect_identical(version_content, "v4.5.6")
 
       # Cleanup
@@ -536,7 +563,10 @@ test_that(".version_run_onwards_get_dev works correctly", {
 
       # Test with production version that needs dev appended
       version_vec_prod <- c(1, 2, 3)
-      result_prod <- .version_run_onwards_get_dev(version_vec_prod, version_format_sep)
+      result_prod <- .version_run_onwards_get_dev(
+        version_vec_prod,
+        version_format_sep
+      )
       expect_identical(result_prod$desc[["run"]], "1.2.3-1")
     },
     force = TRUE,
@@ -557,19 +587,28 @@ test_that(".version_run_onwards_get_dev_append_dev works correctly", {
 
       # Test when version already has dev component
       version_vec_with_dev <- c(1, 2, 3, 4)
-      result <- .version_run_onwards_get_dev_append_dev(version_vec_with_dev, version_format_sep)
+      result <- .version_run_onwards_get_dev_append_dev(
+        version_vec_with_dev,
+        version_format_sep
+      )
       expect_identical(result, c(1, 2, 3, 4))
 
       # Test when version needs dev component (default format uses "dev")
       version_vec_no_dev <- c(1, 2, 3)
-      result_no_dev <- .version_run_onwards_get_dev_append_dev(version_vec_no_dev, version_format_sep)
+      result_no_dev <- .version_run_onwards_get_dev_append_dev(
+        version_vec_no_dev,
+        version_format_sep
+      )
       expect_identical(result_no_dev, c(1, 2, 3, "1"))
 
       # Test with shorter format (major.minor-dev)
       .yml_metadata_set_version_format("major.minor-dev", NULL)
       version_format_sep_short <- c(".", "-")
       version_vec_short <- c(2, 3)
-      result_short <- .version_run_onwards_get_dev_append_dev(version_vec_short, version_format_sep_short)
+      result_short <- .version_run_onwards_get_dev_append_dev(
+        version_vec_short,
+        version_format_sep_short
+      )
       expect_identical(result_short, c(2, 3, "1"))
 
       # Reset to default
@@ -595,7 +634,10 @@ test_that(".version_run_onwards_get_bump works correctly", {
 
       # Test major bump
       result_major <- .version_run_onwards_get_bump(
-        version_vec, version_format_comp, version_format_sep, "major"
+        version_vec,
+        version_format_comp,
+        version_format_sep,
+        "major"
       )
       expect_identical(result_major$desc[["run"]], "2.0.0")
       expect_identical(result_major$desc[["failure"]], "1.2.3-4")
@@ -603,14 +645,20 @@ test_that(".version_run_onwards_get_bump works correctly", {
 
       # Test minor bump
       result_minor <- .version_run_onwards_get_bump(
-        version_vec, version_format_comp, version_format_sep, "minor"
+        version_vec,
+        version_format_comp,
+        version_format_sep,
+        "minor"
       )
       expect_identical(result_minor$desc[["run"]], "1.3.0")
       expect_identical(result_minor$desc[["failure"]], "1.2.3-4")
 
       # Test patch bump
       result_patch <- .version_run_onwards_get_bump(
-        version_vec, version_format_comp, version_format_sep, "patch"
+        version_vec,
+        version_format_comp,
+        version_format_sep,
+        "patch"
       )
       expect_identical(result_patch$desc[["run"]], "1.2.4")
       expect_identical(result_patch$desc[["failure"]], "1.2.3-4")
@@ -629,26 +677,34 @@ test_that(".version_run_onwards_get_bump_update_vec works correctly", {
   version_vec <- c(1, 2, 3)
   version_format_comp <- c("major", "minor", "patch")
   result_major <- .version_run_onwards_get_bump_update_vec(
-    version_vec, version_format_comp, "major"
+    version_vec,
+    version_format_comp,
+    "major"
   )
   expect_identical(result_major, c(2, 0, 0))
 
   # Test minor bump
   result_minor <- .version_run_onwards_get_bump_update_vec(
-    version_vec, version_format_comp, "minor"
+    version_vec,
+    version_format_comp,
+    "minor"
   )
   expect_identical(result_minor, c(1, 3, 0))
 
   # Test patch bump
   result_patch <- .version_run_onwards_get_bump_update_vec(
-    version_vec, version_format_comp, "patch"
+    version_vec,
+    version_format_comp,
+    "patch"
   )
   expect_identical(result_patch, c(1, 2, 4))
 
   # Test when bump is the last component (should not reset anything)
   version_vec2 <- c(5, 6, 7)
   result_last <- .version_run_onwards_get_bump_update_vec(
-    version_vec2, version_format_comp, "patch"
+    version_vec2,
+    version_format_comp,
+    "patch"
   )
   expect_identical(result_last, c(5, 6, 8))
 })

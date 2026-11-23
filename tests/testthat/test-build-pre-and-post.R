@@ -48,7 +48,10 @@ test_that(".build_renv_snapshot_check returns FALSE when renv not detected", {
     path = dir_test,
     code = {
       # Create minimal DESCRIPTION without renv
-      writeLines(c("Package: test", "Version: 0.0.1", "Title: Test"), "DESCRIPTION")
+      writeLines(
+        c("Package: test", "Version: 0.0.1", "Title: Test"),
+        "DESCRIPTION"
+      )
 
       withr::local_envvar(c(R_PKG_TEST_IN_PROGRESS = NA))
 
@@ -424,13 +427,16 @@ test_that(".build_git_commit works with valid git repo", {
       writeLines("test content", "test.txt")
 
       withr::local_envvar(c(PROJR_OUTPUT_LEVEL = "std"))
-      expect_message(.build_git_commit(
-        output_run = TRUE,
-        bump_component = "patch",
-        version_run_on_list = NULL,
-        stage = "pre",
-        msg = "test"
-      ), "Created Git commit for the pre stage")
+      expect_message(
+        .build_git_commit(
+          output_run = TRUE,
+          bump_component = "patch",
+          version_run_on_list = NULL,
+          stage = "pre",
+          msg = "test"
+        ),
+        "Created Git commit for the pre stage"
+      )
     },
     quiet = TRUE,
     force = TRUE

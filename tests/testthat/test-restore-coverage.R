@@ -11,7 +11,11 @@ test_that("projr_content_update selects destination with source=TRUE in YAML", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -57,7 +61,11 @@ test_that("projr_content_update skips destination with source=FALSE", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -105,7 +113,11 @@ test_that("projr_content_update selects destination with label in source vector"
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -151,7 +163,11 @@ test_that("projr_content_update handles no type found in dest", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -186,7 +202,11 @@ test_that("projr_content_update handles label not in destination content list", 
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -201,7 +221,7 @@ test_that("projr_content_update handles label not in destination content list", 
 
       projr_yml_dest_add_local(
         title = "dest-title",
-        content = "cache",  # Only cache, not raw-data
+        content = "cache", # Only cache, not raw-data
         path = remote_dest,
         structure = "latest"
       )
@@ -231,7 +251,11 @@ test_that("projr_content_update handles first available type when none specified
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,

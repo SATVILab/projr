@@ -65,7 +65,9 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
       dep_vec <- c(dep_vec, dep_txt)
     }
   }
-  if (identical(previous, dep_vec)) return(invisible(FALSE))
+  if (identical(previous, dep_vec)) {
+    return(invisible(FALSE))
+  }
   writeLines(dep_vec, path_dep)
   .newline_append(path_dep)
   .cli_debug("Dependency {dep} added to _dependencies.R")
@@ -76,7 +78,11 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
   # don't install any already available
   # (we're not trying to force the latest version)
   dep_required <- dep[
-    vapply(basename(dep), function(pkg) !requireNamespace(pkg, quietly = TRUE), logical(1))
+    vapply(
+      basename(dep),
+      function(pkg) !requireNamespace(pkg, quietly = TRUE),
+      logical(1)
+    )
   ]
   if (.is_len_0(dep_required)) {
     return(invisible(TRUE))
@@ -163,8 +169,21 @@ par_nm_vec <- c("parameters", "parameter", "param", "params", "par", "pars")
 }
 
 .dep_check_installed <- function(dep_required) {
-  missing <- dep_required[!vapply(basename(dep_required), requireNamespace, logical(1), quietly = TRUE)]
-  if (length(missing)) stop("Packages still unavailable: ", paste(missing, collapse = ", "), call. = FALSE)
+  missing <- dep_required[
+    !vapply(
+      basename(dep_required),
+      requireNamespace,
+      logical(1),
+      quietly = TRUE
+    )
+  ]
+  if (length(missing)) {
+    stop(
+      "Packages still unavailable: ",
+      paste(missing, collapse = ", "),
+      call. = FALSE
+    )
+  }
   .cli_success("Installed {paste(dep_required, collapse = ', ')}")
 }
 
@@ -375,7 +394,16 @@ with_dir <- function(new, code) {
         return(character())
       }
       status <- utils::zip(zipfile = path_zip, files = fn_rel, flags = "-r9Xq")
-      if (status != 0L) stop("Could not create archive ", path_zip, " (zip status ", status, ").", call. = FALSE)
+      if (status != 0L) {
+        stop(
+          "Could not create archive ",
+          path_zip,
+          " (zip status ",
+          status,
+          ").",
+          call. = FALSE
+        )
+      }
     }
   )
   path_zip
@@ -556,7 +584,11 @@ projr_use_data <- function(
   if (!overwrite) {
     existing <- .file_filter_exists(paths_project)
     if (length(existing)) {
-      stop("The following files already exist:\n", paste0("  ", existing, collapse = "\n"), call. = FALSE)
+      stop(
+        "The following files already exist:\n",
+        paste0("  ", existing, collapse = "\n"),
+        call. = FALSE
+      )
     }
   }
   envir <- parent.frame()
@@ -582,13 +614,25 @@ projr_use_data <- function(
   data <- .path_resolve_links(file.path(root, "data"), allow_broken = TRUE)
   for (label in setdiff(names(directories), "data")) {
     path <- directories[[label]][["path"]]
-    if (is.null(path)) next
+    if (is.null(path)) {
+      next
+    }
     path <- fs::path_abs(.template_expand(path), start = root)
-    if (.Platform$OS.type != "windows" && !.path_can_relativise(path, root)) next
+    if (.Platform$OS.type != "windows" && !.path_can_relativise(path, root)) {
+      next
+    }
     actual <- .path_resolve_links(path, allow_broken = TRUE)
-    if (.path_can_relativise(actual, data) && fs::path_has_parent(actual, data)) {
-      stop("projr_use_data() needs the package data/ directory. Configured label '",
-           label, "' uses ", path, ".", call. = FALSE)
+    if (
+      .path_can_relativise(actual, data) && fs::path_has_parent(actual, data)
+    ) {
+      stop(
+        "projr_use_data() needs the package data/ directory. Configured label '",
+        label,
+        "' uses ",
+        path,
+        ".",
+        call. = FALSE
+      )
     }
   }
 }
@@ -672,7 +716,16 @@ projr_use_data <- function(
     flags = "-r9Xq"
   )
 
-  if (status != 0L) stop("Could not create archive ", path_zip, " (zip status ", status, ").", call. = FALSE)
+  if (status != 0L) {
+    stop(
+      "Could not create archive ",
+      path_zip,
+      " (zip status ",
+      status,
+      ").",
+      call. = FALSE
+    )
+  }
   if (!identical(path_zip_temp, path_zip)) {
     fs::file_move(path_zip_temp, path_zip)
   }

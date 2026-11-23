@@ -3,12 +3,21 @@
 # ==========================
 
 .build_pre_check <- function(output_run, engines = NULL) {
-  if (any(names(engines) %in% c("quarto_project", "bookdown", "quarto_document", "rmd"))) {
+  if (
+    any(
+      names(engines) %in%
+        c("quarto_project", "bookdown", "quarto_document", "rmd")
+    )
+  ) {
     .yml_dir_get_path("docs", NULL)
   }
   missing <- .build_renv_missing_renderers(engines, output_run)
-  if (length(missing)) stop(.build_renv_render_status(missing)$message, call. = FALSE)
-  if (!output_run) return(invisible(FALSE))
+  if (length(missing)) {
+    stop(.build_renv_render_status(missing)$message, call. = FALSE)
+  }
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
 
   .cli_debug("Checking production build prerequisites")
   .build_check_packages_available(output_run, engines)
@@ -20,10 +29,12 @@
   .build_exit_if_behind_upstream(output_run)
 }
 
-.build_pre_remotes_prepare <- function(bump_component,
-                                       archive_github,
-                                       archive_local,
-                                       always_archive) {
+.build_pre_remotes_prepare <- function(
+  bump_component,
+  archive_github,
+  archive_local,
+  always_archive
+) {
   output_run <- .build_get_output_run(bump_component)
   if (!output_run) {
     return(invisible(FALSE))
@@ -73,7 +84,9 @@
 }
 
 .build_git_required_setup <- function() {
-  cli::cli_alert_info("Git is explicitly required but no Git repository was found.")
+  cli::cli_alert_info(
+    "Git is explicitly required but no Git repository was found."
+  )
   cli::cli_alert_info("Creating a new Git repository...")
   projr_init_git(TRUE)
 }
@@ -91,8 +104,12 @@
   # check if it's an option
   if (.is_interactive_and_not_test()) {
     cli::cli_alert_warning("Git repository not found.")
-    cli::cli_inform("It is not required, but recommended, and projr will handle setup and (by default) commits for you.")
-    cli::cli_inform("If you choose not to create one now, then Git handling by projr will be disabled.")
+    cli::cli_inform(
+      "It is not required, but recommended, and projr will handle setup and (by default) commits for you."
+    )
+    cli::cli_inform(
+      "If you choose not to create one now, then Git handling by projr will be disabled."
+    )
     choice <- utils::menu(
       c("Yes", "No"),
       title = "Do you want to create a new Git repository?"
@@ -100,7 +117,9 @@
     choice == 1
   } else {
     cli::cli_alert_warning("Git repository not found.")
-    cli::cli_inform("Git repository will be created automatically, as in non-interactive mode.")
+    cli::cli_inform(
+      "Git repository will be created automatically, as in non-interactive mode."
+    )
     TRUE
   }
 }
@@ -145,7 +164,9 @@
     }
   }
   if (isTRUE(yml_git) || isTRUE(yml_git[["push"]])) {
-    .cli_info("Git pushes are enabled. Configure a Git remote to push this build.")
+    .cli_info(
+      "Git pushes are enabled. Configure a Git remote to push this build."
+    )
     return(invisible(TRUE))
   }
   # check if it's an option
@@ -157,7 +178,9 @@
     )
     if (choice == 2) {
       cli::cli_alert_info("Disabling automated pushes to GitHub by projr.")
-      cli::cli_inform("You can re-enable it by running `projr_yml_git_set(push = TRUE)`.") # nolint
+      cli::cli_inform(
+        "You can re-enable it by running `projr_yml_git_set(push = TRUE)`."
+      ) # nolint
       projr_yml_git_set(push = FALSE)
       return(FALSE)
     }
@@ -201,7 +224,11 @@
   }
   choice <- utils::menu(
     c(user, "Organisation"),
-    title = paste0("Do you want to set up the GitHub remote under user ", user, ", or under an organisation?") # nolint
+    title = paste0(
+      "Do you want to set up the GitHub remote under user ",
+      user,
+      ", or under an organisation?"
+    ) # nolint
   )
   if (choice == 1) {
     return(c("user" = user))
@@ -243,9 +270,11 @@
   }
 }
 
-.build_pre_setup_for_output_run <- function(version_run_on_list,
-                                            output_run,
-                                            clear_output) {
+.build_pre_setup_for_output_run <- function(
+  version_run_on_list,
+  output_run,
+  clear_output
+) {
   if (output_run) {
     .cli_step("Setting build version to {version_run_on_list$desc[['run']]}")
     .build_version_set_pre(version_run_on_list)
@@ -256,7 +285,9 @@
   .build_include_check_config()
   .build_clear_pre(output_run, clear_output)
   # Existing analysis scripts can write directly to their declared output paths.
-  if (output_run) .dir_create_by_label(.yml_dir_get_label_output(NULL), safe = FALSE)
+  if (output_run) {
+    .dir_create_by_label(.yml_dir_get_label_output(NULL), safe = FALSE)
+  }
 }
 
 # misc
@@ -298,11 +329,9 @@
     return(invisible(TRUE))
   }
   for (i in seq_along(remote_vec)) {
-    switch(remote_vec[[i]],
-      "github" = {
-        if (!.git_gh_check_auth()) stop()
-      }
-    )
+    switch(remote_vec[[i]], "github" = {
+      if (!.git_gh_check_auth()) stop()
+    })
   }
 }
 
@@ -429,7 +458,9 @@
   }
 
   # Auto-install if PROJR_AUTO_INSTALL=TRUE, or prompt user in interactive mode
-  if (.is_env_var_true("PROJR_AUTO_INSTALL") || .is_interactive_and_not_test()) {
+  if (
+    .is_env_var_true("PROJR_AUTO_INSTALL") || .is_interactive_and_not_test()
+  ) {
     .dep_install_only(pkg_status$missing)
     return(invisible(TRUE))
   }
@@ -480,31 +511,43 @@
   if (isFALSE(branch_restriction)) {
     stop(
       "Builds are restricted on all branches.\n",
-      "Current branch: ", current_branch, "\n",
+      "Current branch: ",
+      current_branch,
+      "\n",
       "To allow builds, update build.restrictions.branch in _projr.yml",
       call. = FALSE
     )
   }
 
   # If empty character vector or empty list, restrict on all branches
-  if ((is.character(branch_restriction) && length(branch_restriction) == 0) ||
-    (is.list(branch_restriction) && length(branch_restriction) == 0)) {
+  if (
+    (is.character(branch_restriction) && length(branch_restriction) == 0) ||
+      (is.list(branch_restriction) && length(branch_restriction) == 0)
+  ) {
     stop(
       "Builds are restricted on all branches.\n",
-      "Current branch: ", current_branch, "\n",
+      "Current branch: ",
+      current_branch,
+      "\n",
       "To allow builds, update build.restrictions.branch in _projr.yml",
       call. = FALSE
     )
   }
 
   # Check if current branch matches any allowed branches
-  if ((is.character(branch_restriction) || is.list(branch_restriction)) &&
-    length(branch_restriction) > 0 &&
-    !current_branch %in% branch_restriction) {
+  if (
+    (is.character(branch_restriction) || is.list(branch_restriction)) &&
+      length(branch_restriction) > 0 &&
+      !current_branch %in% branch_restriction
+  ) {
     stop(
       "Builds are restricted to specific branches.\n",
-      "Current branch: ", current_branch, "\n",
-      "Allowed branches: ", paste(branch_restriction, collapse = ", "), "\n",
+      "Current branch: ",
+      current_branch,
+      "\n",
+      "Allowed branches: ",
+      paste(branch_restriction, collapse = ", "),
+      "\n",
       "To allow builds on this branch, update build.restrictions.branch in _projr.yml",
       call. = FALSE
     )

@@ -10,7 +10,11 @@ test_that("projr_build_dev works", {
       original <- readLines("_bookdown.yml")
       projr_build_dev()
       expect_identical(readLines("_bookdown.yml"), original)
-      expect_true(file.exists(projr_path_get("docs", "index.html", create = FALSE)))
+      expect_true(file.exists(projr_path_get(
+        "docs",
+        "index.html",
+        create = FALSE
+      )))
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.0-1")
     },
@@ -33,7 +37,12 @@ test_that("projr_build_output works", {
       original <- readLines("_bookdown.yml")
       projr_build("patch", msg = "test")
       expect_identical(readLines("_bookdown.yml"), original)
-      expect_true(file.exists(projr_path_get("docs", "index.html", create = FALSE, safe = FALSE)))
+      expect_true(file.exists(projr_path_get(
+        "docs",
+        "index.html",
+        create = FALSE,
+        safe = FALSE
+      )))
       desc_file <- read.dcf(file.path(dir_test, "DESCRIPTION"))
       expect_identical(desc_file[1, "Version"][[1]], "0.0.1-1")
       # run repeat build
@@ -122,7 +131,11 @@ test_that("bookdown _files directory is copied correctly", {
       expect_true(dir.exists(dest_files_dir))
 
       # There should be figure files inside
-      figure_files <- list.files(dest_files_dir, recursive = TRUE, pattern = "\\.(png|jpg|jpeg)$")
+      figure_files <- list.files(
+        dest_files_dir,
+        recursive = TRUE,
+        pattern = "\\.(png|jpg|jpeg)$"
+      )
       expect_true(length(figure_files) > 0)
     },
     quiet = TRUE,
@@ -174,24 +187,44 @@ test_that("a production build archives the script output under the same invocati
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(rm_engine = TRUE)
-  usethis::with_project(dir_test, {
-    projr_version_set("1.2.2")
-    config <- .yml_get("default")
-    config$directories$output$path <- "results-@uuid"
-    config$build$scripts <- "analysis.R"
-    .yml_set(config)
-    projr_yml_dest_add_local("backup", "output", path = "archives/run-@uuid", structure = "archive")
-    writeLines('writeLines("analysis result", projr::projr_path_get("output", "result.txt"))', "analysis.R")
+  usethis::with_project(
+    dir_test,
+    {
+      projr_version_set("1.2.2")
+      config <- .yml_get("default")
+      config$directories$output$path <- "results-@uuid"
+      config$build$scripts <- "analysis.R"
+      .yml_set(config)
+      projr_yml_dest_add_local(
+        "backup",
+        "output",
+        path = "archives/run-@uuid",
+        structure = "archive"
+      )
+      writeLines(
+        'writeLines("analysis result", projr::projr_path_get("output", "result.txt"))',
+        "analysis.R"
+      )
 
-    projr_build_patch(msg = "Archive analysis output")
-    results <- list.files(pattern = "^results-")
-    expect_length(results, 1L)
-    uuid <- sub("^results-", "", results)
-    archive <- file.path("archives", paste0("run-", uuid))
-    expect_identical(readLines(file.path(archive, "output", "v1.2.3", "result.txt")), "analysis result")
-    expect_true(any(grepl(archive, readLines(".projr/BUILDLOG.md"), fixed = TRUE)))
-    expect_identical(.yml_dir_get_path_raw("output", NULL), "results-@uuid")
-  }, quiet = TRUE, force = TRUE)
+      projr_build_patch(msg = "Archive analysis output")
+      results <- list.files(pattern = "^results-")
+      expect_length(results, 1L)
+      uuid <- sub("^results-", "", results)
+      archive <- file.path("archives", paste0("run-", uuid))
+      expect_identical(
+        readLines(file.path(archive, "output", "v1.2.3", "result.txt")),
+        "analysis result"
+      )
+      expect_true(any(grepl(
+        archive,
+        readLines(".projr/BUILDLOG.md"),
+        fixed = TRUE
+      )))
+      expect_identical(.yml_dir_get_path_raw("output", NULL), "results-@uuid")
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
 })
 
 # Test error handling and version recovery
@@ -205,16 +238,19 @@ test_that("Failed builds handle version appropriately", {
     code = {
       # Create an intentionally broken Rmd file
       broken_rmd <- "index.Rmd"
-      writeLines(c(
-        "---",
-        "title: \"Test\"",
-        "---",
-        "",
-        "```{r}",
-        "# This will cause an error",
-        "stop('Intentional error')",
-        "```"
-      ), broken_rmd)
+      writeLines(
+        c(
+          "---",
+          "title: \"Test\"",
+          "---",
+          "",
+          "```{r}",
+          "# This will cause an error",
+          "stop('Intentional error')",
+          "```"
+        ),
+        broken_rmd
+      )
 
       # Record initial version
       initial_version <- projr_version_get()
@@ -242,7 +278,8 @@ test_that("Failed builds handle version appropriately", {
 test_that("projr_build_ works with rmarkdown", {
   skip_if(.is_test_cran())
   dir_test <- .test_setup_project(
-    git = FALSE, set_env_var = TRUE
+    git = FALSE,
+    set_env_var = TRUE
   )
   skip_if(.is_test_select())
   usethis::with_project(
@@ -272,7 +309,8 @@ test_that("projr_build_ works with rmarkdown", {
 test_that("projr_build_ works with quarto projects", {
   skip_if(.is_test_cran())
   dir_test <- .test_setup_project(
-    git = FALSE, set_env_var = TRUE
+    git = FALSE,
+    set_env_var = TRUE
   )
   skip_if(.is_test_select())
   usethis::with_project(
@@ -309,7 +347,8 @@ test_that("projr_build_ works with quarto projects", {
 test_that("projr_build_ works with quarto", {
   skip_if(.is_test_cran())
   dir_test <- .test_setup_project(
-    git = FALSE, set_env_var = TRUE
+    git = FALSE,
+    set_env_var = TRUE
   )
   skip_if(.is_test_select())
   usethis::with_project(
@@ -340,7 +379,11 @@ test_that("projr_build_ works with quarto", {
 test_that("projr_build_dev runs and collects only scripts selected by the caller", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = TRUE,
+    rm_engine = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -352,25 +395,51 @@ test_that("projr_build_dev runs and collects only scripts selected by the caller
       dir.create("reports")
       writeLines("local input", "reports/input.txt")
       writeLines("# Nested directory", "reports/README.md")
-      writeLines(c(
-        "---", "title: Selected", "output:", "  html_document:", "    self_contained: false",
-        "---", "", "Selected report.", "",
-        "```{r}", "stopifnot(readLines('input.txt') == 'local input')", "plot(1:3)", "```"
-      ), "reports/selected.Rmd")
-      writeLines(c(
-        "---", "title: Quarto report", "format: html", "output-file: quarto-report.html", "---", "",
-        "```{r}", "stopifnot(readLines('input.txt') == 'local input')", "plot(1:3)", "```"
-      ), "reports/figure.qmd")
+      writeLines(
+        c(
+          "---",
+          "title: Selected",
+          "output:",
+          "  html_document:",
+          "    self_contained: false",
+          "---",
+          "",
+          "Selected report.",
+          "",
+          "```{r}",
+          "stopifnot(readLines('input.txt') == 'local input')",
+          "plot(1:3)",
+          "```"
+        ),
+        "reports/selected.Rmd"
+      )
+      writeLines(
+        c(
+          "---",
+          "title: Quarto report",
+          "format: html",
+          "output-file: quarto-report.html",
+          "---",
+          "",
+          "```{r}",
+          "stopifnot(readLines('input.txt') == 'local input')",
+          "plot(1:3)",
+          "```"
+        ),
+        "reports/figure.qmd"
+      )
       writeLines("Excluded report.", "reports/excluded.Rmd")
       writeLines("Old output.", "reports/excluded.html")
 
       withr::with_dir("reports", {
         original_wd <- getwd()
-        projr_build_dev(scripts = c(
-          "reports/figure.qmd",
-          "reports/*.Rmd",
-          paste0("!", file.path(dir_test, "reports", "excluded.Rmd"))
-        ))
+        projr_build_dev(
+          scripts = c(
+            "reports/figure.qmd",
+            "reports/*.Rmd",
+            paste0("!", file.path(dir_test, "reports", "excluded.Rmd"))
+          )
+        )
         expect_identical(getwd(), original_wd)
       })
 
@@ -379,7 +448,10 @@ test_that("projr_build_dev runs and collects only scripts selected by the caller
       expect_true(dir.exists(file.path(docs, "selected_files")))
       expect_true(file.exists(file.path(docs, "quarto-report.html")))
       expect_true(file.exists(file.path(
-        docs, "figure_files", "figure-html", "unnamed-chunk-1-1.png"
+        docs,
+        "figure_files",
+        "figure-html",
+        "unnamed-chunk-1-1.png"
       )))
       expect_false(file.exists(file.path(docs, "excluded.html")))
       expect_identical(readLines("reports/excluded.html"), "Old output.")
@@ -398,17 +470,20 @@ test_that("args_engine parameter works correctly", {
     path = dir_test,
     code = {
       # Create a simple Rmd file that can use parameters
-      writeLines(c(
-        "---",
-        "title: \"Test Document\"",
-        "params:",
-        "  message: \"Default message\"",
-        "---",
-        "",
-        "```{r}",
-        "cat(params$message)",
-        "```"
-      ), "params.Rmd")
+      writeLines(
+        c(
+          "---",
+          "title: \"Test Document\"",
+          "params:",
+          "  message: \"Default message\"",
+          "---",
+          "",
+          "```{r}",
+          "cat(params$message)",
+          "```"
+        ),
+        "params.Rmd"
+      )
 
       # Test args_engine with parameters for rmarkdown
       custom_args <- list(
@@ -432,7 +507,13 @@ test_that("PROJR_CLEAR_OUTPUT environment variable works correctly", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_CLEAR_OUTPUT = old_val) else Sys.unsetenv("PROJR_CLEAR_OUTPUT"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_CLEAR_OUTPUT = old_val)
+    } else {
+      Sys.unsetenv("PROJR_CLEAR_OUTPUT")
+    }
+  )
 
   # Test default value
   Sys.unsetenv("PROJR_CLEAR_OUTPUT")
@@ -460,7 +541,13 @@ test_that("PROJR_CLEAR_OUTPUT explicit parameter overrides env var", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_CLEAR_OUTPUT = old_val) else Sys.unsetenv("PROJR_CLEAR_OUTPUT"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_CLEAR_OUTPUT = old_val)
+    } else {
+      Sys.unsetenv("PROJR_CLEAR_OUTPUT")
+    }
+  )
 
   # Set env var to one value
   Sys.setenv(PROJR_CLEAR_OUTPUT = "never")
@@ -476,7 +563,13 @@ test_that("PROJR_CLEAR_OUTPUT validates input strictly", {
   skip_if(.is_test_select())
 
   old_val <- Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "")
-  on.exit(if (nzchar(old_val)) Sys.setenv(PROJR_CLEAR_OUTPUT = old_val) else Sys.unsetenv("PROJR_CLEAR_OUTPUT"))
+  on.exit(
+    if (nzchar(old_val)) {
+      Sys.setenv(PROJR_CLEAR_OUTPUT = old_val)
+    } else {
+      Sys.unsetenv("PROJR_CLEAR_OUTPUT")
+    }
+  )
 
   # Test case sensitivity
   Sys.setenv(PROJR_CLEAR_OUTPUT = "PRE")
@@ -519,8 +612,12 @@ test_that(".build_ensure_version creates VERSION file when missing", {
       # Remove both VERSION and DESCRIPTION
       version_path <- .path_get("VERSION")
       desc_path <- .path_get("DESCRIPTION")
-      if (file.exists(version_path)) file.remove(version_path)
-      if (file.exists(desc_path)) file.remove(desc_path)
+      if (file.exists(version_path)) {
+        file.remove(version_path)
+      }
+      if (file.exists(desc_path)) {
+        file.remove(desc_path)
+      }
 
       # Function should create VERSION with 0.0.1
       .build_ensure_version()
@@ -560,7 +657,9 @@ test_that(".build_ensure_version does nothing when DESCRIPTION exists", {
     code = {
       # Remove VERSION but keep DESCRIPTION
       version_path <- .path_get("VERSION")
-      if (file.exists(version_path)) file.remove(version_path)
+      if (file.exists(version_path)) {
+        file.remove(version_path)
+      }
 
       # Set version in DESCRIPTION
       desc::desc_set_version("2.3.4")
@@ -649,76 +748,124 @@ test_that(".build_post_dev skips dev bump for dev builds", {
 test_that("development builds preserve an existing version on success and failure", {
   skip_if(.is_test_select())
   project <- withr::local_tempdir()
-  usethis::with_project(project, {
-    writeLines(c(
-      "directories: {cache: {path: cache}, output: {path: output-@version}}",
-      "dev: {scripts: [analysis.R]}"
-    ), "_projr.yml")
-    description <- c("Package: analysis", "Version: 1.2.3", "Title: Example",
-                     "Description: An example", "  spanning two lines.")
-    writeLines(description, "DESCRIPTION")
-    writeBin(charToRaw("9.8.7"), "VERSION")
-    writeLines('writeLines(projr::projr_path_get_dir("output", safe = FALSE), "result")', "analysis.R")
-    # A versioned DESCRIPTION takes precedence over a differing root VERSION.
-    local_mocked_bindings(projr_version_set = function(...) stop("unexpected version write"))
-    expect_warning(projr_build_dev(bump = TRUE, project = "."), "Remove bump = TRUE")
-    expect_identical(readLines("result"), "output-v1.2.3")
-    writeLines('stop("script failure")', "analysis.R")
-    expect_error(projr_build_dev(project = "."), "script failure")
-    expect_identical(readLines("DESCRIPTION"), description)
-    expect_identical(readBin("VERSION", "raw", 100L), charToRaw("9.8.7"))
-    expect_false(dir.exists(".projr/manifests"))
-  }, quiet = TRUE, force = TRUE)
+  usethis::with_project(
+    project,
+    {
+      writeLines(
+        c(
+          "directories: {cache: {path: cache}, output: {path: output-@version}}",
+          "dev: {scripts: [analysis.R]}"
+        ),
+        "_projr.yml"
+      )
+      description <- c(
+        "Package: analysis",
+        "Version: 1.2.3",
+        "Title: Example",
+        "Description: An example",
+        "  spanning two lines."
+      )
+      writeLines(description, "DESCRIPTION")
+      writeBin(charToRaw("9.8.7"), "VERSION")
+      writeLines(
+        'writeLines(projr::projr_path_get_dir("output", safe = FALSE), "result")',
+        "analysis.R"
+      )
+      # A versioned DESCRIPTION takes precedence over a differing root VERSION.
+      local_mocked_bindings(projr_version_set = function(...) {
+        stop("unexpected version write")
+      })
+      expect_warning(
+        projr_build_dev(bump = TRUE, project = "."),
+        "Remove bump = TRUE"
+      )
+      expect_identical(readLines("result"), "output-v1.2.3")
+      writeLines('stop("script failure")', "analysis.R")
+      expect_error(projr_build_dev(project = "."), "script failure")
+      expect_identical(readLines("DESCRIPTION"), description)
+      expect_identical(readBin("VERSION", "raw", 100L), charToRaw("9.8.7"))
+      expect_false(dir.exists(".projr/manifests"))
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
 })
 
 test_that("a first development build and its log work without a project version", {
   skip_if(.is_test_select())
   project <- withr::local_tempdir()
-  usethis::with_project(project, {
-    writeLines(c(
-      'path <- projr::projr_path_get_cache_build("result", create = TRUE)',
-      'writeLines("finished", path)'
-    ), "analysis.R")
-    projr_build_dev(project = ".")
-    expect_identical(readLines(projr_path_get_cache_build("result")), "finished")
-    expect_equal(basename(projr_path_get_cache_build_dir()), "dev")
-    history <- readLines(".projr/logs/dev/history/builds.md")
-    expect_false(any(grepl("**Version**", history, fixed = TRUE)))
-    expect_true(file.exists("_projr.yml"))
-    expect_false(any(file.exists(c("VERSION", ".projr/manifests", "BUILDLOG.md", "CHANGELOG.md"))))
-    expect_error(.template_expand("output-@version"), "@version requires a project version")
-  }, quiet = TRUE, force = TRUE)
+  usethis::with_project(
+    project,
+    {
+      writeLines(
+        c(
+          'path <- projr::projr_path_get_cache_build("result", create = TRUE)',
+          'writeLines("finished", path)'
+        ),
+        "analysis.R"
+      )
+      projr_build_dev(project = ".")
+      expect_identical(
+        readLines(projr_path_get_cache_build("result")),
+        "finished"
+      )
+      expect_equal(basename(projr_path_get_cache_build_dir()), "dev")
+      history <- readLines(".projr/logs/dev/history/builds.md")
+      expect_false(any(grepl("**Version**", history, fixed = TRUE)))
+      expect_true(file.exists("_projr.yml"))
+      expect_false(any(file.exists(c(
+        "VERSION",
+        ".projr/manifests",
+        "BUILDLOG.md",
+        "CHANGELOG.md"
+      ))))
+      expect_error(
+        .template_expand("output-@version"),
+        "@version requires a project version"
+      )
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
 })
 
 test_that("an analysis can list dependencies in DESCRIPTION without a Version field", {
   skip_if(.is_test_select())
   project <- withr::local_tempdir()
-  usethis::with_project(project, {
-    description <- charToRaw("Imports: stats\r\n")
-    writeBin(description, "DESCRIPTION")
-    writeLines(c(
-      'version <- if (file.exists("VERSION")) projr::projr_version_get() else "none"',
-      'writeLines(version, "observed")'
-    ), "analysis.R")
+  usethis::with_project(
+    project,
+    {
+      description <- charToRaw("Imports: stats\r\n")
+      writeBin(description, "DESCRIPTION")
+      writeLines(
+        c(
+          'version <- if (file.exists("VERSION")) projr::projr_version_get() else "none"',
+          'writeLines(version, "observed")'
+        ),
+        "analysis.R"
+      )
 
-    projr_build_dev(project = ".")
-    expect_identical(readLines("observed"), "none")
-    expect_false(file.exists("VERSION"))
-    expect_identical(readBin("DESCRIPTION", "raw", 100L), description)
+      projr_build_dev(project = ".")
+      expect_identical(readLines("observed"), "none")
+      expect_false(file.exists("VERSION"))
+      expect_identical(readBin("DESCRIPTION", "raw", 100L), description)
 
-    saved <- charToRaw("v2.3.4")
-    writeBin(saved, "VERSION")
-    projr_build_dev(project = ".")
-    expect_identical(readLines("observed"), "2.3.4")
-    expect_identical(readBin("VERSION", "raw", 100L), saved)
-    expect_identical(readBin("DESCRIPTION", "raw", 100L), description)
+      saved <- charToRaw("v2.3.4")
+      writeBin(saved, "VERSION")
+      projr_build_dev(project = ".")
+      expect_identical(readLines("observed"), "2.3.4")
+      expect_identical(readBin("VERSION", "raw", 100L), saved)
+      expect_identical(readBin("DESCRIPTION", "raw", 100L), description)
 
-    unlink("VERSION")
-    projr_build_patch(project = ".")
-    expect_identical(readLines("observed"), "0.0.2")
-    expect_identical(readLines("VERSION"), "v0.0.2-1")
-    expect_identical(readBin("DESCRIPTION", "raw", 100L), description)
-  }, quiet = TRUE, force = TRUE)
+      unlink("VERSION")
+      projr_build_patch(project = ".")
+      expect_identical(readLines("observed"), "0.0.2")
+      expect_identical(readLines("VERSION"), "v0.0.2-1")
+      expect_identical(readBin("DESCRIPTION", "raw", 100L), description)
+    },
+    quiet = TRUE,
+    force = TRUE
+  )
 })
 
 # Test projr_build_dev with profile parameter

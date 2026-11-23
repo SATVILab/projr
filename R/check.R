@@ -11,7 +11,10 @@
 
   if (!identical(value, attr(x, attr, exact = TRUE))) {
     msg <- paste0(
-      nm, " must have attribute ", attr, " with value ",
+      nm,
+      " must have attribute ",
+      attr,
+      " with value ",
       value |> .string_create()
     )
     .cli_debug("Validation failed: {msg}")
@@ -29,7 +32,8 @@
 
   if (!identical(attr |> sort(), attributes(x) |> names() |> sort())) {
     msg <- paste0(
-      nm, " must have exactly the following attribute(s): \n",
+      nm,
+      " must have exactly the following attribute(s): \n",
       attr |> .string_create()
     )
     .cli_debug("Validation failed: {msg}")
@@ -63,7 +67,8 @@
 
   if (any(value %in% x)) {
     msg <- paste0(
-      nm, " must not contain any of the following value(s):\n",
+      nm,
+      " must not contain any of the following value(s):\n",
       .string_create(value, sep = "\n")
     )
     .cli_debug("Validation failed: {msg}")
@@ -81,7 +86,8 @@
 
   if (!all(value %in% x)) {
     msg <- paste0(
-      nm, " must contain all the following value(s):\n",
+      nm,
+      " must contain all the following value(s):\n",
       .string_create(value, sep = "\n")
     )
     .cli_debug("Validation failed: {msg}")
@@ -147,7 +153,8 @@
   }
   if (!identical(class, class(x))) {
     msg <- paste0(
-      nm, " must have exactly the following class(es) (without any sorting to help): ", # nolint
+      nm,
+      " must have exactly the following class(es) (without any sorting to help): ", # nolint
       .string_create(class, sep = "\n")
     )
     .cli_debug("Validation failed: {msg}")
@@ -164,7 +171,8 @@
   }
   if (!identical(class |> sort(), class(x) |> sort())) {
     msg <- paste0(
-      nm, " must have exactly the following class(es) (after sorting to help): ", # nolint: line_length_linter.
+      nm,
+      " must have exactly the following class(es) (after sorting to help): ", # nolint: line_length_linter.
       .string_create(class, sep = "\n")
     )
     .cli_debug("Validation failed: {msg}")
@@ -182,7 +190,8 @@
   }
   if (!all(vapply(class, function(cls) inherits(x, cls), logical(1)))) {
     msg <- paste0(
-      nm, " must have all of the following class(es): ",
+      nm,
+      " must have all of the following class(es): ",
       .string_create(class, sep = "\n")
     )
     .cli_debug("Validation failed: {msg}")
@@ -201,7 +210,8 @@
   }
   if (!any(vapply(class, function(cls) inherits(x, cls), logical(1)))) {
     msg <- paste0(
-      nm, " must have at least one of the following class(es): ",
+      nm,
+      " must have at least one of the following class(es): ",
       .string_create(class, sep = "\n")
     )
     .cli_debug("Validation failed: {msg}")
@@ -212,8 +222,10 @@
 
 .assert_directory_labels <- function(label) {
   .assert_chr(label)
-  if (any(grepl('[/\\\\:*?"<>|[:cntrl:]]|^[.]|[. ]$', label)) ||
-    anyDuplicated(tolower(unique(label)))) {
+  if (
+    any(grepl('[/\\\\:*?"<>|[:cntrl:]]|^[.]|[. ]$', label)) ||
+      anyDuplicated(tolower(unique(label)))
+  ) {
     stop("Each label must be a distinct directory name.", call. = FALSE)
   }
 }
@@ -260,8 +272,18 @@
   }
   .assert_chr(sub, TRUE)
   .assert_chr(x, TRUE, nm = nm)
-  if (any(vapply(sub, function(parent) any(fs::path_has_parent(x, parent)), logical(1)))) {
-    msg <- paste0(nm, " must not be a subdirectory of ", paste(sub, collapse = ", "))
+  if (
+    any(vapply(
+      sub,
+      function(parent) any(fs::path_has_parent(x, parent)),
+      logical(1)
+    ))
+  ) {
+    msg <- paste0(
+      nm,
+      " must not be a subdirectory of ",
+      paste(sub, collapse = ", ")
+    )
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
   }
@@ -322,7 +344,9 @@
   .assert_chr(opt, TRUE, nm = "opt")
   if (!.is_in_not(x, opt)) {
     msg <- paste0(
-      nm, " must not be one of ", paste0(opt, collapse = ", "),
+      nm,
+      " must not be one of ",
+      paste0(opt, collapse = ", "),
       ", but is the following:\n",
       .string_create(x, sep = "\n")
     )
@@ -344,7 +368,9 @@
   .assert_chr(opt, TRUE, nm = "opt")
   if (!.is_in_not(x, opt)) {
     msg <- paste0(
-      nm, " must not be one of ", paste0(opt, collapse = ", "),
+      nm,
+      " must not be one of ",
+      paste0(opt, collapse = ", "),
       ", but is the following:\n",
       .string_create(x, sep = "\n")
     )
@@ -380,8 +406,12 @@
   if (!all(.is_opt(x, opt))) {
     offending <- x[!(.is_opt_min(x, opt))]
     msg <- paste0(
-      nm, " must be one of ", paste0(opt, collapse = ", "), ",\n",
-      "and not:\n", .string_create(offending, sep = "\n")
+      nm,
+      " must be one of ",
+      paste0(opt, collapse = ", "),
+      ",\n",
+      "and not:\n",
+      .string_create(offending, sep = "\n")
     )
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
@@ -481,9 +511,16 @@
 
 .assert_count <- function(x, minimum = 0L, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
-  if (!.assert_check(x, required, nm)) return(invisible(TRUE))
-  if (!.is_number(x) || !is.finite(x) || x < minimum ||
-      x != trunc(x) || x > .Machine$integer.max) {
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
+  if (
+    !.is_number(x) ||
+      !is.finite(x) ||
+      x < minimum ||
+      x != trunc(x) ||
+      x > .Machine$integer.max
+  ) {
     stop(nm, " must be a whole number of at least ", minimum, call. = FALSE)
   }
   invisible(TRUE)
@@ -508,7 +545,10 @@
     return(invisible(TRUE))
   }
   if (!.is_number(x)) {
-    msg <- paste0(nm, " must be a non-NA number (a numeric vector of length one)")
+    msg <- paste0(
+      nm,
+      " must be a non-NA number (a numeric vector of length one)"
+    )
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
   }
@@ -554,7 +594,10 @@
     return(invisible(TRUE))
   }
   if (!.is_chr_mid(x)) {
-    msg <- paste0(nm, " must be a non-empty character vector with no NA entries")
+    msg <- paste0(
+      nm,
+      " must be a non-empty character vector with no NA entries"
+    )
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
   }
@@ -728,12 +771,18 @@
 # assert
 .assert_len <- function(x, len, required = FALSE, nm = NULL) {
   nm <- .assert_nm_get(x, nm)
-  if (!.assert_check(x, required, nm)) return(invisible(TRUE))
+  if (!.assert_check(x, required, nm)) {
+    return(invisible(TRUE))
+  }
   .assert_count(len, required = TRUE)
   if (!.is_len(x = x, len = len)) {
     msg <- paste0(
-      nm, " must be length ", len, ",\n",
-      "and not length ", length(x)
+      nm,
+      " must be length ",
+      len,
+      ",\n",
+      "and not length ",
+      length(x)
     )
     .cli_debug("Validation failed: {msg}")
     stop(msg, call. = FALSE)
@@ -787,7 +836,9 @@
 # check that it's given
 .assert_check <- function(x, required, nm) {
   nm <- .assert_nm_get(x, nm)
-  if (!.is_flag(required)) stop("required must be TRUE or FALSE", call. = FALSE)
+  if (!.is_flag(required)) {
+    stop("required must be TRUE or FALSE", call. = FALSE)
+  }
   if (required) {
     .assert_given_mid(x = x, nm = nm)
   } else if (!.is_given_mid(x)) {

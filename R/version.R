@@ -51,7 +51,9 @@ projr_version_set <- function(version, only_if_exists = TRUE) {
 }
 
 .version_check <- function(version) {
-  if (missing(version)) stop("version must be supplied")
+  if (missing(version)) {
+    stop("version must be supplied")
+  }
   .assert_string(version, TRUE)
   if (grepl("^v", version)) {
     version <- gsub("^v", "", version)
@@ -72,7 +74,11 @@ projr_version_set <- function(version, only_if_exists = TRUE) {
 }
 
 
-.version_set_file <- function(version, path_dir = NULL, only_if_exists = FALSE) {
+.version_set_file <- function(
+  version,
+  path_dir = NULL,
+  only_if_exists = FALSE
+) {
   .version_check(version)
   .assert_string(path_dir)
   .assert_flag(only_if_exists)
@@ -106,7 +112,9 @@ projr_name_get <- function() basename(.path_get())
   version_format_regex_dev_n <- gsub("\\-", "\\\\-", version_format_regex_dev_n)
   version_format_regex_dev_n <- paste0("^", version_format_regex_dev_n, "$")
   version_format_regex <- paste0(
-    version_format_regex_dev_n, "|", version_format_regex_dev
+    version_format_regex_dev_n,
+    "|",
+    version_format_regex_dev
   )
   if (!grepl(version_format_regex, version)) {
     stop("version does not match version format in _projr.yml")
@@ -138,16 +146,21 @@ projr_name_get <- function() basename(.path_get())
 }
 
 .version_current_vec_get_init <- function() {
-  version_vec_init <- .version_current_vec_get_init_desc() %||% .version_current_vec_get_init_file()
+  version_vec_init <- .version_current_vec_get_init_desc() %||%
+    .version_current_vec_get_init_file()
   .assert_chr_mid(version_vec_init)
   version_vec_init
 }
 
 .version_current_vec_get_init_desc <- function() {
   path <- .path_get("DESCRIPTION")
-  if (!file.exists(path)) return(NULL)
+  if (!file.exists(path)) {
+    return(NULL)
+  }
   version <- read.dcf(path, fields = "Version")[, "Version"]
-  if (!length(version) || is.na(version[[1L]]) || !nzchar(version[[1L]])) return(NULL)
+  if (!length(version) || is.na(version[[1L]]) || !nzchar(version[[1L]])) {
+    return(NULL)
+  }
   strsplit(version[[1L]], "[.-]")[[1L]]
 }
 
@@ -175,17 +188,20 @@ projr_name_get <- function() basename(.path_get())
   if (is.null(bump_component)) {
     return(
       .version_run_onwards_get_dev(
-        version_orig_vec, version_format_list$sep
+        version_orig_vec,
+        version_format_list$sep
       )
     )
   }
   if (bump_component == "dev") {
     version_orig_vec[length(version_orig_vec)] <- version_orig_vec[
       length(version_orig_vec)
-    ] + 1
+    ] +
+      1
     return(
       .version_run_onwards_get_dev(
-        version_orig_vec, version_format_list$sep
+        version_orig_vec,
+        version_format_list$sep
       )
     )
   }
@@ -198,10 +214,10 @@ projr_name_get <- function() basename(.path_get())
   )
 }
 
-.version_run_onwards_get_dev <- function(version_vec,
-                                         version_format_sep) {
+.version_run_onwards_get_dev <- function(version_vec, version_format_sep) {
   version_vec <- .version_run_onwards_get_dev_append_dev(
-    version_vec, version_format_sep
+    version_vec,
+    version_format_sep
   )
   version <- .version_concat(version_vec, version_format_sep)
   list(
@@ -213,8 +229,10 @@ projr_name_get <- function() basename(.path_get())
   )
 }
 
-.version_run_onwards_get_dev_append_dev <- function(version_vec,
-                                                    version_format_sep) {
+.version_run_onwards_get_dev_append_dev <- function(
+  version_vec,
+  version_format_sep
+) {
   if (length(version_vec) == length(version_format_sep) + 1) {
     return(version_vec)
   }
@@ -244,7 +262,9 @@ projr_name_get <- function() basename(.path_get())
 
   # For multi-element versions, validate split_vec
   if (length(split_vec) == 0) {
-    stop("split_vec must have at least one element when version_vec has more than one element")
+    stop(
+      "split_vec must have at least one element when version_vec has more than one element"
+    )
   }
   .assert_chr(split_vec, required = TRUE)
 
@@ -265,12 +285,16 @@ projr_name_get <- function() basename(.path_get())
   )
 }
 
-.version_run_onwards_get_bump <- function(version_vec,
-                                          version_format_comp,
-                                          version_format_sep,
-                                          bump_component) {
+.version_run_onwards_get_bump <- function(
+  version_vec,
+  version_format_comp,
+  version_format_sep,
+  bump_component
+) {
   version_update_vec <- .version_run_onwards_get_bump_update_vec(
-    version_vec[-length(version_vec)], version_format_comp, bump_component
+    version_vec[-length(version_vec)],
+    version_format_comp,
+    bump_component
   )
   version_failure <- .version_concat(version_vec, version_format_sep)
   version_run <- .version_concat(version_update_vec, version_format_sep)
@@ -284,14 +308,17 @@ projr_name_get <- function() basename(.path_get())
   )
 }
 
-.version_run_onwards_get_bump_update_vec <- function(version_vec,
-                                                     version_format_comp,
-                                                     bump_component) {
+.version_run_onwards_get_bump_update_vec <- function(
+  version_vec,
+  version_format_comp,
+  bump_component
+) {
   comp_to_update_ind <- which(version_format_comp == bump_component)
   version_update_vec <- version_vec
   version_update_vec[comp_to_update_ind] <- version_update_vec[
     comp_to_update_ind
-  ] + 1
+  ] +
+    1
   if (comp_to_update_ind < length(version_update_vec)) {
     version_update_vec[
       seq(comp_to_update_ind + 1, length(version_vec))
@@ -327,7 +354,9 @@ projr_version_get <- function() {
   }
   for (i in seq_along(version_format_sep_vec)) {
     version_str <- paste0(
-      version_str, version_format_sep_vec[[i]], version[[i + 1]]
+      version_str,
+      version_format_sep_vec[[i]],
+      version[[i + 1]]
     )
   }
   version_str
@@ -363,15 +392,15 @@ projr_version_get <- function() {
   version_new
 }
 
-.version_comp_min_check <- function(bump_component,
-                                    version_min) {
+.version_comp_min_check <- function(bump_component, version_min) {
   version_comp_vec_min <- .version_comp_vec_min_get(version_min)
   bump_component %in% version_comp_vec_min
 }
 
 .version_comp_vec_min_get <- function(version_min) {
   version_vec_possible <- c("major", "minor", "patch")
-  switch(version_min,
+  switch(
+    version_min,
     "any" = version_vec_possible,
     version_vec_possible[seq_len(which(version_vec_possible == version_min))]
   )
@@ -421,7 +450,12 @@ projr_version_get <- function() {
   }
   # Apply .version_v_rm to each element and normalize
   x_clean <- vapply(x, .version_v_rm, character(1), USE.NAMES = FALSE)
-  x_normalized <- vapply(x_clean, .version_normalize, character(1), USE.NAMES = FALSE)
+  x_normalized <- vapply(
+    x_clean,
+    .version_normalize,
+    character(1),
+    USE.NAMES = FALSE
+  )
   x_normalized |>
     unique() |>
     package_version() |>
@@ -435,11 +469,14 @@ projr_version_get <- function() {
 }
 
 .version_exists <- function() {
-  file.exists(.path_get("VERSION")) || !is.null(.version_current_vec_get_init_desc())
+  file.exists(.path_get("VERSION")) ||
+    !is.null(.version_current_vec_get_init_desc())
 }
 
 .version_get_v <- function(required = TRUE) {
-  if (!required && !.version_exists()) return(NULL)
+  if (!required && !.version_exists()) {
+    return(NULL)
+  }
   paste0("v", projr_version_get())
 }
 
@@ -450,7 +487,12 @@ projr_version_get <- function() {
   }
   # Apply .version_v_rm to each element and normalize
   x_clean <- vapply(x, .version_v_rm, character(1), USE.NAMES = FALSE)
-  x_normalized <- vapply(x_clean, .version_normalize, character(1), USE.NAMES = FALSE)
+  x_normalized <- vapply(
+    x_clean,
+    .version_normalize,
+    character(1),
+    USE.NAMES = FALSE
+  )
   x_normalized |>
     unique() |>
     package_version() |>

@@ -1,28 +1,44 @@
-.build_buildlog_add <- function(msg,
-                                bump_component,
-                                version_run_on_list,
-                                total_time,
-                                destinations = .buildlog_get_destinations()) {
+.build_buildlog_add <- function(
+  msg,
+  bump_component,
+  version_run_on_list,
+  total_time,
+  destinations = .buildlog_get_destinations()
+) {
   if (!.build_buildlog_check(bump_component)) {
     return(invisible(FALSE))
   }
   summary <- .buildlog_get_change_summary(bump_component)
   .build_change_summary_display(bump_component, summary)
-  .buildlog_add(msg, bump_component, version_run_on_list, total_time, summary, destinations)
+  .buildlog_add(
+    msg,
+    bump_component,
+    version_run_on_list,
+    total_time,
+    summary,
+    destinations
+  )
 }
 .build_buildlog_check <- function(bump_component) {
   .build_get_output_run(bump_component)
 }
 
-.buildlog_add <- function(msg,
-                          bump_component,
-                          version_run_on_list,
-                          total_time,
-                          summary = .buildlog_get_change_summary(bump_component),
-                          destinations = .buildlog_get_destinations()) {
+.buildlog_add <- function(
+  msg,
+  bump_component,
+  version_run_on_list,
+  total_time,
+  summary = .buildlog_get_change_summary(bump_component),
+  destinations = .buildlog_get_destinations()
+) {
   init_txt <- c("# BUILDLOG", "")
   add_txt <- .buildlog_get_add(
-    msg, bump_component, version_run_on_list, total_time, summary, destinations
+    msg,
+    bump_component,
+    version_run_on_list,
+    total_time,
+    summary,
+    destinations
   )
   append_txt <- .buildlog_read()[-c(1, 2)]
   c(init_txt, add_txt, append_txt) |>
@@ -31,14 +47,17 @@
     .newline_append()
 }
 
-.buildlog_get_add <- function(msg,
-                              bump_component,
-                              version_run_on_list,
-                              total_time,
-                              summary = .buildlog_get_change_summary(bump_component),
-                              destinations = .buildlog_get_destinations()) {
+.buildlog_get_add <- function(
+  msg,
+  bump_component,
+  version_run_on_list,
+  total_time,
+  summary = .buildlog_get_change_summary(bump_component),
+  destinations = .buildlog_get_destinations()
+) {
   header_txt <- .buildlog_get_header(
-    version_run_on_list, bump_component
+    version_run_on_list,
+    bump_component
   )
   desc_txt <- .buildlog_get_desc(msg)
   metadata_txt <- .buildlog_get_metadata(total_time)
@@ -63,7 +82,8 @@
   version_txt <- .buildlog_get_version(version_run_on_list, bump_component)
   c(
     paste0(
-      version_txt, ": ",
+      version_txt,
+      ": ",
       .change_get_author_time()
     ),
     ""
@@ -73,7 +93,8 @@
 
 .buildlog_get_version <- function(version_run_on_list, bump_component) {
   version_init <- paste0("v", version_run_on_list[["desc"]][["success"]])
-  switch(bump_component,
+  switch(
+    bump_component,
     "patch" = paste0("#### ", version_init),
     "minor" = paste0("### ", version_init),
     "major" = paste0("## ", version_init)
@@ -88,8 +109,10 @@
   c(
     "**Metadata**",
     "",
-    "- Total time: ", .buildlog_get_metadata_time(total_time),
-    "- `projr` profile: ", projr_profile_get(),
+    "- Total time: ",
+    .buildlog_get_metadata_time(total_time),
+    "- `projr` profile: ",
+    projr_profile_get(),
     ""
   )
 }
@@ -136,25 +159,54 @@
   paste(parts, collapse = " ")
 }
 
-.buildlog_get_destinations <- function(archive_github = FALSE, archive_local = FALSE) {
+.buildlog_get_destinations <- function(
+  archive_github = FALSE,
+  archive_local = FALSE
+) {
   yml <- .yml_get(NULL)
   resolved <- list()
   for (type in c("github", "local")) {
-    archive_type <- .dest_send_get_archive_type(type, archive_github, archive_local)
+    archive_type <- .dest_send_get_archive_type(
+      type,
+      archive_github,
+      archive_local
+    )
     for (key in .dest_send_type_get_title(type, archive_type)) {
       settings <- .yml_remote_definition(type, key, yml)
-      fields <- c(key, settings[["title"]], settings[["tag"]], settings[["path"]])
-      if (!any(grepl(.template_token_pattern, fields, perl = TRUE))) next
+      fields <- c(
+        key,
+        settings[["title"]],
+        settings[["tag"]],
+        settings[["path"]]
+      )
+      if (!any(grepl(.template_token_pattern, fields, perl = TRUE))) {
+        next
+      }
       target <- .yml_dest_complete_title(settings, key, type)
       id <- target[["id"]]
-      if (type == "local" && !fs::is_absolute_path(settings[["path"]] %||% "_archive")) {
+      if (
+        type == "local" &&
+          !fs::is_absolute_path(settings[["path"]] %||% "_archive")
+      ) {
         id <- as.character(fs::path_rel(id, .path_get()))
       }
-      resolved[[type]][[key]] <- list(title = target[["title"]], destination = id)
+      resolved[[type]][[key]] <- list(
+        title = target[["title"]],
+        destination = id
+      )
     }
   }
-  if (!length(resolved)) return(character())
-  c("**Resolved archive destinations**", "", "```yaml", yaml::as.yaml(resolved), "```", "")
+  if (!length(resolved)) {
+    return(character())
+  }
+  c(
+    "**Resolved archive destinations**",
+    "",
+    "```yaml",
+    yaml::as.yaml(resolved),
+    "```",
+    ""
+  )
 }
 
 .buildlog_get_projr_yml <- function() {
@@ -233,7 +285,8 @@
     # Linux: use /proc/meminfo or free command
     mem_output <- tryCatch(
       {
-        system("free -h 2>/dev/null | grep '^Mem:' | awk '{print $2}'",
+        system(
+          "free -h 2>/dev/null | grep '^Mem:' | awk '{print $2}'",
           intern = TRUE
         )
       },
@@ -281,7 +334,8 @@
         system("wmic logicaldisk get size,freespace 2>nul", intern = TRUE)
       } else {
         # Unix-like: use df
-        system("df -h . 2>/dev/null | tail -1 | awk '{print $2\" total, \"$4\" available\"}'",
+        system(
+          "df -h . 2>/dev/null | tail -1 | awk '{print $2\" total, \"$4\" available\"}'",
           intern = TRUE
         )
       }
@@ -302,7 +356,9 @@
 
 .buildlog_read <- function() {
   path_buildlog <- .path_get(".projr", "BUILDLOG.md")
-  if (!file.exists(path_buildlog)) path_buildlog <- .path_get("BUILDLOG.md")
+  if (!file.exists(path_buildlog)) {
+    path_buildlog <- .path_get("BUILDLOG.md")
+  }
   if (!file.exists(path_buildlog)) {
     return(c("# BUILDLOG", ""))
   }

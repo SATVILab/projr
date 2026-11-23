@@ -39,7 +39,8 @@ test_that(".yml_script_ functions work works", {
         cue = "major"
       )
       .yml_script_rm_title(
-        title = "test-script", profile = "default"
+        title = "test-script",
+        profile = "default"
       )
       expect_identical(
         .yml_script_get("default"),
@@ -62,7 +63,8 @@ test_that(".yml_script_ functions work works", {
       # test.yml_script_rm
       .yml_script_add(
         path = c(
-          "tests/testthat/test-script.R", "tests/testthat/test-script-2.R"
+          "tests/testthat/test-script.R",
+          "tests/testthat/test-script-2.R"
         ),
         title = "test-script",
         stage = "post",
@@ -118,7 +120,8 @@ test_that(".yml_script_ functions work works with other profile", {
       )
       file.create("_projr-test.yml")
       yaml::write_yaml(
-        list(directories = list(path = "abc")), "_projr-test.yml"
+        list(directories = list(path = "abc")),
+        "_projr-test.yml"
       )
       # test.yml_script_add
       .yml_script_add(
@@ -153,7 +156,8 @@ test_that(".yml_script_ functions work works with other profile", {
         profile = "test"
       )
       .yml_script_rm_title(
-        title = "test-script", profile = "test"
+        title = "test-script",
+        profile = "test"
       )
       expect_identical(
         .yml_script_get("test"),
@@ -178,7 +182,8 @@ test_that(".yml_script_ functions work works with other profile", {
       # test.yml_script_rm
       .yml_script_add(
         path = c(
-          "tests/testthat/test-script.R", "tests/testthat/test-script-2.R"
+          "tests/testthat/test-script.R",
+          "tests/testthat/test-script-2.R"
         ),
         title = "test-script",
         stage = "post",
@@ -228,8 +233,12 @@ test_that(".build_script... functions work works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      if (exists("x", inherits = FALSE)) rm(x)
-      if (exists("y", inherits = FALSE)) rm(y)
+      if (exists("x", inherits = FALSE)) {
+        rm(x)
+      }
+      if (exists("y", inherits = FALSE)) {
+        rm(y)
+      }
       .yml_script_add(
         "title" = "test-script",
         path = c("script1.R", "script2.R"),
@@ -238,8 +247,12 @@ test_that(".build_script... functions work works", {
       cat("x <- 1; saveRDS(x, 'x.rds')", file = "script1.R")
       cat("y <- 1; saveRDS(y, 'y.rds')", file = "script2.R")
       # Clean up any existing RDS files
-      if (file.exists("x.rds")) unlink("x.rds")
-      if (file.exists("y.rds")) unlink("y.rds")
+      if (file.exists("x.rds")) {
+        unlink("x.rds")
+      }
+      if (file.exists("y.rds")) {
+        unlink("y.rds")
+      }
       # Nothing done for "post" stage
       .build_script_run(
         stage = "post"
@@ -571,7 +584,8 @@ test_that("projr_yml_script functions work with custom profile", {
       # Create custom profile file
       file.create("_projr-custom.yml")
       yaml::write_yaml(
-        list(directories = list(path = "test")), "_projr-custom.yml"
+        list(directories = list(path = "test")),
+        "_projr-custom.yml"
       )
 
       # Add script to custom profile

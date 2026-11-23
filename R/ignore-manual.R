@@ -72,7 +72,8 @@ projr_ignore <- function(ignore, force_create = TRUE) {
     c(ignore[grepl("/$", ignore)]) |>
     unique()
   ignore_nonexistent <- setdiff(
-    ignore, c(ignore_file, ignore_dir)
+    ignore,
+    c(ignore_file, ignore_dir)
   )
   projr_ignore_file_git(c(ignore_file, ignore_nonexistent), force_create)
   projr_ignore_dir_git(ignore_dir, force_create)
@@ -145,13 +146,17 @@ projr_ignore_dir_git <- function(ignore, force_create = TRUE) {
   if (!.is_chr(ignore)) {
     return(invisible(FALSE))
   }
-  ignore <- vapply(ignore, function(x) {
-    if (grepl("/\\*\\*$", x)) {
-      x
-    } else {
-      paste0(x, "/**")
-    }
-  }, character(1L))
+  ignore <- vapply(
+    ignore,
+    function(x) {
+      if (grepl("/\\*\\*$", x)) {
+        x
+      } else {
+        paste0(x, "/**")
+      }
+    },
+    character(1L)
+  )
   .ignore_manual_path_add(ignore, .path_get(".gitignore"))
 }
 
@@ -231,8 +236,7 @@ projr_ignore_dir_rbuild <- function(ignore, force_create = TRUE) {
   invisible(TRUE)
 }
 
-.ignore_manual_path_add_get_updated <- function(path,
-                                                ignore) {
+.ignore_manual_path_add_get_updated <- function(path, ignore) {
   ignore_list <- .ignore_path_get_list(path, ignore)
 
   c(

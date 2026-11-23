@@ -125,8 +125,11 @@
 #'
 #' @return List with log_file path and timestamp, or NULL if logging disabled.
 #' @keywords internal
-.log_build_init <- function(build_type = "output", bump_component = NULL,
-                            msg = "") {
+.log_build_init <- function(
+  build_type = "output",
+  bump_component = NULL,
+  msg = ""
+) {
   # Check if detailed logging is enabled
   if (!.log_enabled()) {
     Sys.unsetenv("PROJR_BUILD_LOG")
@@ -135,8 +138,13 @@
 
   timestamp <- format(Sys.time(), "%H-%M-%S")
   build_id <- Sys.getenv("PROJR_BUILD_UUID")
-  if (!nzchar(build_id)) build_id <- uuid::UUIDgenerate(use.time = FALSE)
-  log_file <- .log_file_get_output(build_type, paste(timestamp, build_id, sep = "-"))
+  if (!nzchar(build_id)) {
+    build_id <- uuid::UUIDgenerate(use.time = FALSE)
+  }
+  log_file <- .log_file_get_output(
+    build_type,
+    paste(timestamp, build_id, sep = "-")
+  )
 
   # Create header for the log file
   header <- c(
@@ -150,7 +158,11 @@
     "",
     paste0("- **Build Type**: ", build_type),
     paste0("- **Timestamp**: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
-    if (!is.null(bump_component)) paste0("- **Version Bump**: ", bump_component) else NULL,
+    if (!is.null(bump_component)) {
+      paste0("- **Version Bump**: ", bump_component)
+    } else {
+      NULL
+    },
     if (nzchar(msg)) paste0("- **Message**: ", msg) else NULL,
     paste0("- **Output Level**: ", .cli_output_level_get()),
     paste0("- **Profile**: ", paste(projr_profile_get(), collapse = ", ")),
@@ -181,13 +193,20 @@
   # Format message with timestamp and level
   timestamp <- format(Sys.time(), "%H:%M:%S")
   formatted <- paste0(
-    "[", timestamp, "] **", toupper(level), "**: ", message
+    "[",
+    timestamp,
+    "] **",
+    toupper(level),
+    "**: ",
+    message
   )
 
   # Append to file
   cat(
-    formatted, "\n",
-    file = log_file, append = TRUE
+    formatted,
+    "\n",
+    file = log_file,
+    append = TRUE
   )
   invisible(NULL)
 }
@@ -252,8 +271,12 @@
 #' @param success Logical. Whether build succeeded.
 #'
 #' @keywords internal
-.log_history_add <- function(build_type = "output", bump_component = NULL,
-                             msg = "", success = TRUE) {
+.log_history_add <- function(
+  build_type = "output",
+  bump_component = NULL,
+  msg = "",
+  success = TRUE
+) {
   history_file <- .log_file_get_history(build_type)
 
   # Read existing history or create header
@@ -277,10 +300,24 @@
     paste0("## ", timestamp, " ", status),
     "",
     paste0("- **Type**: ", build_type),
-    if (!is.null(bump_component)) paste0("- **Bump**: ", bump_component) else NULL,
+    if (!is.null(bump_component)) {
+      paste0("- **Bump**: ", bump_component)
+    } else {
+      NULL
+    },
     if (nzchar(msg)) paste0("- **Message**: ", msg) else NULL,
     paste0("- **Version**: ", .template_version(), recycle0 = TRUE),
-    if (!is.null(log_file)) paste0("- **Log**: `", basename(dirname(log_file)), "/", basename(log_file), "`") else NULL,
+    if (!is.null(log_file)) {
+      paste0(
+        "- **Log**: `",
+        basename(dirname(log_file)),
+        "/",
+        basename(log_file),
+        "`"
+      )
+    } else {
+      NULL
+    },
     ""
   )
 
@@ -309,11 +346,13 @@
 #'   Default is NULL (no version filter).
 #'
 #' @export
-projr_log_clear <- function(build_type = "all",
-                            history = TRUE,
-                            output = TRUE,
-                            before_date = NULL,
-                            before_version = NULL) {
+projr_log_clear <- function(
+  build_type = "all",
+  history = TRUE,
+  output = TRUE,
+  before_date = NULL,
+  before_version = NULL
+) {
   # Validate inputs
   .assert_in_single(build_type, c("all", "output", "dev"), TRUE)
   .assert_flag(history, TRUE)
@@ -345,7 +384,11 @@ projr_log_clear <- function(build_type = "all",
 #' Clear history file with filters
 #'
 #' @keywords internal
-.log_clear_history <- function(build_type, before_date = NULL, before_version = NULL) {
+.log_clear_history <- function(
+  build_type,
+  before_date = NULL,
+  before_version = NULL
+) {
   history_file <- .log_file_get_history(build_type)
 
   if (!file.exists(history_file)) {
@@ -372,12 +415,19 @@ projr_log_clear <- function(build_type = "all",
   for (i in seq_along(entry_starts)) {
     # Get entry lines
     start_idx <- entry_starts[i]
-    end_idx <- if (i < length(entry_starts)) entry_starts[i + 1] - 1 else length(lines)
+    end_idx <- if (i < length(entry_starts)) {
+      entry_starts[i + 1] - 1
+    } else {
+      length(lines)
+    }
     entry_lines <- lines[start_idx:end_idx]
 
     # Extract timestamp from header line (## YYYY-MM-DD HH:MM:SS [OK/X])
     header <- entry_lines[1]
-    timestamp_match <- regmatches(header, regexpr("\\d{4}-\\d{2}-\\d{2}", header))
+    timestamp_match <- regmatches(
+      header,
+      regexpr("\\d{4}-\\d{2}-\\d{2}", header)
+    )
 
     # Extract version from entry
     version_line <- entry_lines[grepl("^- \\*\\*Version\\*\\*:", entry_lines)]
@@ -404,7 +454,9 @@ projr_log_clear <- function(build_type = "all",
       # Compare versions (keep if entry version >= before_version)
       entry_ver_clean <- .version_v_rm(version_match)
       cutoff_ver_clean <- .version_v_rm(before_version)
-      if (package_version(entry_ver_clean) < package_version(cutoff_ver_clean)) {
+      if (
+        package_version(entry_ver_clean) < package_version(cutoff_ver_clean)
+      ) {
         keep <- FALSE
       }
     }
@@ -423,7 +475,11 @@ projr_log_clear <- function(build_type = "all",
 
     for (i in which(keep_entries)) {
       start_idx <- entry_starts[i]
-      end_idx <- if (i < length(entry_starts)) entry_starts[i + 1] - 1 else length(lines)
+      end_idx <- if (i < length(entry_starts)) {
+        entry_starts[i + 1] - 1
+      } else {
+        length(lines)
+      }
       kept_lines <- c(kept_lines, lines[start_idx:end_idx])
     }
 
@@ -436,7 +492,11 @@ projr_log_clear <- function(build_type = "all",
 #' Clear output logs with filters
 #'
 #' @keywords internal
-.log_clear_output <- function(build_type, before_date = NULL, before_version = NULL) {
+.log_clear_output <- function(
+  build_type,
+  before_date = NULL,
+  before_version = NULL
+) {
   type_dir <- .log_dir_get_type(build_type, create = FALSE)
   output_dir <- file.path(type_dir, "output")
 
@@ -489,7 +549,12 @@ projr_log_clear <- function(build_type = "all",
 
           if (length(version_line) > 0) {
             # Extract version from bullet point format
-            version_str <- sub(version_field, "", version_line[1], ignore.case = TRUE)
+            version_str <- sub(
+              version_field,
+              "",
+              version_line[1],
+              ignore.case = TRUE
+            )
             version_str <- gsub("[\"\']", "", version_str) # Remove quotes
             version_str <- trimws(version_str) # Remove whitespace
 
@@ -576,9 +641,12 @@ projr_log_clear <- function(build_type = "all",
   }
 
   # Collect all qmd files under the chosen date directories
-  log_files <- unlist(lapply(date_dirs, function(dd) {
-    list.files(dd, pattern = "\\.qmd$", full.names = TRUE, recursive = FALSE)
-  }), use.names = FALSE)
+  log_files <- unlist(
+    lapply(date_dirs, function(dd) {
+      list.files(dd, pattern = "\\.qmd$", full.names = TRUE, recursive = FALSE)
+    }),
+    use.names = FALSE
+  )
 
   if (length(log_files) == 0) {
     return(NULL)
@@ -638,14 +706,18 @@ projr_log_clear <- function(build_type = "all",
 #' @param show_header Logical. Whether to print a short header including the
 #'   logfile path and last modification time. Default is TRUE.
 #' @export
-projr_log_view <- function(log_file = NULL,
-                           build_type = "auto",
-                           n_lines = 10,
-                           show_header = TRUE) {
+projr_log_view <- function(
+  log_file = NULL,
+  build_type = "auto",
+  n_lines = 10,
+  show_header = TRUE
+) {
   .assert_string(log_file)
   .assert_in_single(build_type, c("auto", "output", "dev"), TRUE)
   .assert_flag(show_header, TRUE)
-  if (!identical(n_lines, NA)) .assert_number_min(n_lines)
+  if (!identical(n_lines, NA)) {
+    .assert_number_min(n_lines)
+  }
 
   if (is.null(log_file)) {
     if (build_type == "auto") {
@@ -691,7 +763,11 @@ projr_log_view <- function(log_file = NULL,
     fi <- file.info(log_file, extra_cols = FALSE)
     cat(glue::glue("Log file: {cli::col_green(log_file)}"), "\n", sep = "")
     if (!is.na(fi$mtime)) {
-      cat(glue::glue("Modified: {format(fi$mtime, '%Y-%m-%d %H:%M:%S')}"), "\n", sep = "")
+      cat(
+        glue::glue("Modified: {format(fi$mtime, '%Y-%m-%d %H:%M:%S')}"),
+        "\n",
+        sep = ""
+      )
     }
     cli::cat_line("")
   }

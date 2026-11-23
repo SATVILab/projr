@@ -35,7 +35,8 @@
 }
 
 .git_config_get <- function() {
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_config_get_git(),
     "gert" = .git_config_get_gert()
   )
@@ -83,10 +84,18 @@
 .init_git_config_ind_get_default <- function(key) {
   tryCatch(
     {
-      switch(key,
-        "user.name" = paste0(Sys.info()[["user"]], "_", Sys.info()[["nodename"]]),
+      switch(
+        key,
+        "user.name" = paste0(
+          Sys.info()[["user"]],
+          "_",
+          Sys.info()[["nodename"]]
+        ),
         "user.email" = paste0(
-          Sys.info()[["user"]], "_", Sys.info()[["nodename"]], "@projr-test.com"
+          Sys.info()[["user"]],
+          "_",
+          Sys.info()[["nodename"]],
+          "@projr-test.com"
         ),
         "unrecognised_key"
       )
@@ -106,7 +115,8 @@
 }
 
 .init_git_config_ind_get_val_gha <- function(key) {
-  switch(key,
+  switch(
+    key,
     "user.name" = "GitHub Actions",
     "user.email" = "filler-email@projr-test.com",
     "unrecognised_key"
@@ -114,17 +124,22 @@
 }
 
 .init_git_config_ind_get_val_default <- function(key) {
-  switch(key,
+  switch(
+    key,
     "user.name" = paste0(Sys.info()[["user"]], "_", Sys.info()[["nodename"]]),
     "user.email" = paste0(
-      Sys.info()[["user"]], "_", Sys.info()[["nodename"]], "@projr-test.com"
+      Sys.info()[["user"]],
+      "_",
+      Sys.info()[["nodename"]],
+      "@projr-test.com"
     ),
     "unrecognised_key"
   )
 }
 
 .init_git_config_ind_get_val_prompt <- function(key) {
-  switch(key,
+  switch(
+    key,
     "user.name" = .init_git_config_ind_get_val_prompt_user_name(),
     "user.email" = .init_git_config_ind_get_val_prompt_user_email(),
     stop(paste0("Unrecognised key: ", key))
@@ -139,7 +154,9 @@
   if (choice == 1) {
     user_name <- readline("Please enter your Git user name: ")
     while (!.is_string(user_name)) {
-      user_name <- readline("Git user.name cannot be empty. Please enter your Git user name: ") # nolint line_length_linter.
+      user_name <- readline(
+        "Git user.name cannot be empty. Please enter your Git user name: "
+      ) # nolint line_length_linter.
     }
   } else {
     stop("Git user.name is required. Please configure it and try again.")
@@ -155,7 +172,9 @@
   if (choice == 1) {
     user_email <- readline("Please enter your Git user email: ")
     while (!.is_string(user_email)) {
-      user_email <- readline("Git user.email cannot be empty. Please enter your Git user email: ") # nolint line_length_linter.
+      user_email <- readline(
+        "Git user.email cannot be empty. Please enter your Git user email: "
+      ) # nolint line_length_linter.
     }
   } else {
     stop("Git user.email is required. Please configure it and try again.")
@@ -164,10 +183,16 @@
 }
 
 .init_git_config_ind_set <- function(key, val) {
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = {
-      status <- system2("git", c("-C", shQuote(.path_get()), "config", "--local", key, shQuote(val)))
-      if (status != 0L) stop("Could not set ", key, " in the project Git configuration.")
+      status <- system2(
+        "git",
+        c("-C", shQuote(.path_get()), "config", "--local", key, shQuote(val))
+      )
+      if (status != 0L) {
+        stop("Could not set ", key, " in the project Git configuration.")
+      }
     },
     "gert" = gert::git_config_set(key, val, repo = .path_get())
   )

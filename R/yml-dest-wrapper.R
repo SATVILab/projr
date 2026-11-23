@@ -47,17 +47,19 @@
 #'
 #' @export
 #' @rdname projr_yml_dest_add
-projr_yml_dest_add_local <- function(title,
-                                     content,
-                                     path,
-                                     structure = NULL,
-                                     overwrite = TRUE,
-                                     #  get_strategy = NULL,
-                                     #  get_conflict = NULL,
-                                     send_cue = NULL,
-                                     send_strategy = NULL,
-                                     send_inspect = NULL,
-                                     profile = "default") {
+projr_yml_dest_add_local <- function(
+  title,
+  content,
+  path,
+  structure = NULL,
+  overwrite = TRUE,
+  #  get_strategy = NULL,
+  #  get_conflict = NULL,
+  send_cue = NULL,
+  send_strategy = NULL,
+  send_inspect = NULL,
+  profile = "default"
+) {
   .assert_string(title, TRUE)
   .assert_len_1(title, TRUE)
   .assert_chr(content, TRUE)
@@ -116,24 +118,27 @@ projr_yml_dest_add_local <- function(title,
 #' @param profile character.
 #' Profile to write the settings to. Default is "default".
 #' @export
-projr_yml_dest_add_github <- function(title,
-                                      content,
-                                      structure = NULL,
-                                      overwrite = TRUE,
-                                      # get_strategy = NULL,
-                                      # get_conflict = NULL,
-                                      send_cue = NULL,
-                                      send_strategy = NULL,
-                                      send_inspect = NULL,
-                                      profile = "default",
-                                      branch = NULL) {
+projr_yml_dest_add_github <- function(
+  title,
+  content,
+  structure = NULL,
+  overwrite = TRUE,
+  # get_strategy = NULL,
+  # get_conflict = NULL,
+  send_cue = NULL,
+  send_strategy = NULL,
+  send_inspect = NULL,
+  profile = "default",
+  branch = NULL
+) {
   .assert_string(title, TRUE)
   # as GitHub automatically does this anyway
   title <- gsub(" ", "-", title)
   .assert_len_1(title, TRUE)
   .assert_chr(content, TRUE)
   .assert_in(
-    content, .yml_dir_get(NULL) |> names() |> c("code") |> unique()
+    content,
+    .yml_dir_get(NULL) |> names() |> c("code") |> unique()
   )
 
   .yml_dest_add(

@@ -632,23 +632,3 @@ references:
     orcid: https://orcid.org/0000-0002-3242-0582
   year: '2025'
   doi: 10.32614/CRAN.package.BiocManager
-- type: software
-  title: 'styler: Non-Invasive Pretty Printing of R Code'
-  notes: Suggests
-  url: https://styler.r-lib.org
-  repository: https://CRAN.R-project.org/package=styler
-  authors:
-  - family-names: Müller
-    given-names: Kirill
-    email: kirill@cynkra.com
-    orcid: https://orcid.org/0000-0002-1416-3412
-  - family-names: Walthert
-    given-names: Lorenz
-    email: lorenz.walthert@icloud.com
-  - family-names: Patil
-    given-names: Indrajeet
-    email: patilindrajeet.science@gmail.com
-    orcid: https://orcid.org/0000-0003-1995-6531
-  year: '2025'
-  doi: 10.32614/CRAN.package.styler
-

@@ -8,11 +8,19 @@ test_that("a project starts with a default config and uses only declared directo
   expect_error(projr_ignore_auto(), "_projr.yml")
   expect_false(file.exists(".gitignore"))
 
-  expect_true(projr_init(git = FALSE, github = FALSE, readme = FALSE, dir = FALSE))
+  expect_true(projr_init(
+    git = FALSE,
+    github = FALSE,
+    readme = FALSE,
+    dir = FALSE
+  ))
   expect_true(file.exists("_projr.yml"))
   configured <- yaml::read_yaml("_projr.yml")
   expect_identical(configured$directories[["cache"]]$path, "_tmp")
-  yaml::write_yaml(list(directories = list("raw-data" = list(path = "observations"))), "_projr.yml")
+  yaml::write_yaml(
+    list(directories = list("raw-data" = list(path = "observations"))),
+    "_projr.yml"
+  )
   expect_no_error(projr_yml_check())
   expect_identical(projr_path_get_dir("raw-data"), "observations")
   expect_error(projr_path_get_dir("output"), "not found in _projr.yml")
@@ -20,7 +28,10 @@ test_that("a project starts with a default config and uses only declared directo
   expect_error(projr_path_get_dir("code"), "not found in _projr.yml")
   expect_error(projr_path_get_cache_build(), "No cache directory")
   expect_false(any(dir.exists(c("_tmp", "_output", "_raw_data", "docs"))))
-  yaml::write_yaml(list(directories = list(output = list(ignore = FALSE))), "_projr.yml")
+  yaml::write_yaml(
+    list(directories = list(output = list(ignore = FALSE))),
+    "_projr.yml"
+  )
   expect_error(projr_path_get_dir("output"), "directories.output.path")
   expect_error(projr_yml_check(), "directories.output.path")
 })
@@ -31,11 +42,20 @@ test_that("a writable directory cannot point back to the checkout through an ali
   project <- file.path(scratch, "project")
   dir.create(project)
   alias <- file.path(scratch, "linked")
-  skip_if_not(suppressWarnings(file.symlink(project, alias)), "Directory symlink unavailable")
+  skip_if_not(
+    suppressWarnings(file.symlink(project, alias)),
+    "Directory symlink unavailable"
+  )
   withr::defer(fs::link_delete(alias))
   withr::local_dir(project)
-  yaml::write_yaml(list(directories = list(output = list(path = alias))), "_projr.yml")
-  expect_error(projr_path_get_dir("output", safe = FALSE), "root directory of the project")
+  yaml::write_yaml(
+    list(directories = list(output = list(path = alias))),
+    "_projr.yml"
+  )
+  expect_error(
+    projr_path_get_dir("output", safe = FALSE),
+    "root directory of the project"
+  )
 })
 
 test_that("profile directories, staged outputs, and ignores are rooted at _projr.yml", {
@@ -44,13 +64,26 @@ test_that("profile directories, staged outputs, and ignores are rooted at _projr
   config <- file.path(project, ".projr", "config")
   nested <- file.path(project, "scripts", "reports")
   fs::dir_create(c(config, nested))
-  yaml::write_yaml(list(directories = list(
-    "cache-analysis" = list(path = "scratch"), output = list(path = "results"),
-    "raw-data" = list(path = "data/site-a")
-  ), build = list(git = FALSE, scripts = list())), file.path(config, "_projr.yml"))
-  yaml::write_yaml(list(directories = list(
-    "raw-data" = list(path = "incoming/site-b"), output = list(ignore = FALSE)
-  )), file.path(config, "_projr-b.yml"))
+  yaml::write_yaml(
+    list(
+      directories = list(
+        "cache-analysis" = list(path = "scratch"),
+        output = list(path = "results"),
+        "raw-data" = list(path = "data/site-a")
+      ),
+      build = list(git = FALSE, scripts = list())
+    ),
+    file.path(config, "_projr.yml")
+  )
+  yaml::write_yaml(
+    list(
+      directories = list(
+        "raw-data" = list(path = "incoming/site-b"),
+        output = list(ignore = FALSE)
+      )
+    ),
+    file.path(config, "_projr-b.yml")
+  )
   writeLines("1.0.0-1", file.path(project, "VERSION"))
   withr::local_envvar(c(PROJR_PROFILE = "b"))
   withr::local_dir(nested)
@@ -61,26 +94,46 @@ test_that("profile directories, staged outputs, and ignores are rooted at _projr
   )
   expect_no_error(projr_yml_check("b"))
   safe <- projr_path_get("output", "tables", "monthly", "table.csv")
-  expect_identical(safe, "../../scratch/projr/v1.0.0-1/output/tables/monthly/table.csv")
+  expect_identical(
+    safe,
+    "../../scratch/projr/v1.0.0-1/output/tables/monthly/table.csv"
+  )
   cache <- projr_path_get_cache_build_dir("assets", create = TRUE)
-  expect_identical(projr_path_get_cache_build_dir("assets", profile = "b"), cache)
+  expect_identical(
+    projr_path_get_cache_build_dir("assets", profile = "b"),
+    cache
+  )
   expect_true(dir.exists(cache))
   expect_identical(cache, "../../scratch/projr/v1.0.0-1/assets")
-  writeLines(c("Package: report", "Version: 1.0.0-1"), file.path(project, "DESCRIPTION"))
+  writeLines(
+    c("Package: report", "Version: 1.0.0-1"),
+    file.path(project, "DESCRIPTION")
+  )
   expect_no_error(projr_ignore_auto())
   expect_false(file.exists(".gitignore"))
   rules <- readLines(file.path(project, ".gitignore"))
   expect_true(all(c("/data/site-a/**", "/incoming/site-b/**") %in% rules))
-  expect_false(any(c("/_tmp/**", "/_output/**", "/_raw_data/**", "/docs/**") %in% rules))
+  expect_false(any(
+    c("/_tmp/**", "/_output/**", "/_raw_data/**", "/docs/**") %in% rules
+  ))
   rbuild <- readLines(file.path(project, ".Rbuildignore"))
   expect_true(any(grepl("^data/site-a", rbuild, fixed = TRUE)))
   expect_true(any(grepl("^incoming/site-b", rbuild, fixed = TRUE)))
   expect_false(file.exists(".Rbuildignore"))
   unlink(file.path(project, "DESCRIPTION"))
   .build_project_approve(project)
-  expect_no_error(projr_build_patch(msg = "Build with declared directories", profile = "b"))
-  expect_setequal(projr:::.manifest_store_index()$label, c("raw-data", "output"))
-  expect_false(any(dir.exists(file.path(project, c("docs", "_raw_data", "_tmp", "_output")))))
+  expect_no_error(projr_build_patch(
+    msg = "Build with declared directories",
+    profile = "b"
+  ))
+  expect_setequal(
+    projr:::.manifest_store_index()$label,
+    c("raw-data", "output")
+  )
+  expect_false(any(dir.exists(file.path(
+    project,
+    c("docs", "_raw_data", "_tmp", "_output")
+  ))))
 })
 
 test_that("safe documentation stays in the configured cache for external final paths", {
@@ -88,7 +141,12 @@ test_that("safe documentation stays in the configured cache for external final p
   project <- normalizePath(withr::local_tempdir(), winslash = "/")
   destination <- withr::local_tempdir()
   withr::local_dir(project)
-  config <- list(directories = list(docs = list(path = destination), cache = list(path = "staging")))
+  config <- list(
+    directories = list(
+      docs = list(path = destination),
+      cache = list(path = "staging")
+    )
+  )
   yaml::write_yaml(config, "_projr.yml")
   original <- readBin("_projr.yml", "raw", n = file.size("_projr.yml"))
   writeLines("1.0.0", "VERSION")
@@ -96,22 +154,38 @@ test_that("safe documentation stays in the configured cache for external final p
   withr::local_dir("reports")
   for (engine in c("_quarto.yml", "_bookdown.yml")) {
     yaml <- file.path(project, engine)
-    writeLines(if (engine == "_quarto.yml") "project: {}" else "book_filename: report", yaml)
+    writeLines(
+      if (engine == "_quarto.yml") "project: {}" else "book_filename: report",
+      yaml
+    )
     bytes <- readBin(yaml, "raw", n = file.size(yaml))
     safe <- projr_path_get_dir("docs", format = "absolute")
-    expect_identical(as.character(safe), file.path(project, "staging/projr/v1.0.0/docs"))
+    expect_identical(
+      as.character(safe),
+      file.path(project, "staging/projr/v1.0.0/docs")
+    )
     expect_true(dir.exists(safe))
     expect_identical(readBin(yaml, "raw", n = file.size(yaml)), bytes)
     withr::with_dir(project, .build_engines_override_project(.engines_get()))
     settings <- yaml::read_yaml(yaml)
-    rendered <- if (engine == "_quarto.yml") settings$project[["output-dir"]] else settings$output_dir
+    rendered <- if (engine == "_quarto.yml") {
+      settings$project[["output-dir"]]
+    } else {
+      settings$output_dir
+    }
     expect_identical(rendered, "staging/projr/v1.0.0/docs")
     bytes <- readBin(yaml, "raw", n = file.size(yaml))
-    expect_identical(as.character(projr_path_get_dir("docs", safe = FALSE)), destination)
+    expect_identical(
+      as.character(projr_path_get_dir("docs", safe = FALSE)),
+      destination
+    )
     expect_identical(readBin(yaml, "raw", n = file.size(yaml)), bytes)
     unlink(yaml)
   }
-  expect_identical(readBin("../_projr.yml", "raw", n = length(original)), original)
+  expect_identical(
+    readBin("../_projr.yml", "raw", n = length(original)),
+    original
+  )
 })
 
 test_that("both first-build entry points write a root starter and retain existing directories", {
@@ -121,13 +195,24 @@ test_that("both first-build entry points write a root starter and retain existin
     config <- file.path(project, ".projr", "config")
     nested <- file.path(project, "analyses", "report")
     fs::dir_create(c(config, nested))
-    yaml::write_yaml(list(build = list(scripts = list())), file.path(config, "_projr-offline.yml"))
+    yaml::write_yaml(
+      list(build = list(scripts = list())),
+      file.path(config, "_projr-offline.yml")
+    )
     writeLines("1.0.0-1", file.path(project, "VERSION"))
     withr::with_dir(nested, {
       if (development) {
-        expect_no_error(projr_build_dev(scripts = character(), profile = "offline", project = project))
+        expect_no_error(projr_build_dev(
+          scripts = character(),
+          profile = "offline",
+          project = project
+        ))
       } else {
-        expect_no_error(projr_build_patch("First release", profile = "offline", project = project))
+        expect_no_error(projr_build_patch(
+          "First release",
+          profile = "offline",
+          project = project
+        ))
       }
       expect_false(file.exists("_projr.yml"))
       starter <- yaml::read_yaml(file.path(project, "_projr.yml"))
@@ -138,8 +223,15 @@ test_that("both first-build entry points write a root starter and retain existin
       expect_false(starter$build$git)
       # A nested, partial base config is already a project; preserve it on later builds.
       file.remove(file.path(project, "_projr.yml"))
-      yaml::write_yaml(list(directories = list(cache = list(path = "my-cache"))), file.path(config, "_projr.yml"))
-      expect_no_error(projr_build_dev(scripts = character(), profile = "offline", project = project))
+      yaml::write_yaml(
+        list(directories = list(cache = list(path = "my-cache"))),
+        file.path(config, "_projr.yml")
+      )
+      expect_no_error(projr_build_dev(
+        scripts = character(),
+        profile = "offline",
+        project = project
+      ))
       expect_false(file.exists(file.path(project, "_projr.yml")))
       expect_identical(names(projr_yml_get()$directories), "cache")
       expect_error(projr_path_get_dir("raw-data"), "not found")
@@ -154,7 +246,10 @@ test_that("an initial local repository build keeps commits local", {
   withr::local_dir(project)
   gert::git_init(project)
   .test_setup_project_git_config()
-  expect_no_error(projr_build_patch("First build in a local Git repository", project = project))
+  expect_no_error(projr_build_patch(
+    "First build in a local Git repository",
+    project = project
+  ))
   expect_identical(yaml::read_yaml("_projr.yml")$build$git, list(push = FALSE))
   expect_true(nrow(gert::git_log(repo = project)) > 0L)
 })

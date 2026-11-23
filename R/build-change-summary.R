@@ -30,7 +30,9 @@
     return(NULL)
   }
 
-  version_previous <- .build_change_summary_get_previous_version(version_current)
+  version_previous <- .build_change_summary_get_previous_version(
+    version_current
+  )
 
   if (is.null(version_previous)) {
     return(NULL)
@@ -38,7 +40,9 @@
 
   # Get manifest for both versions
   manifest_all <- tryCatch(
-    .manifest_read_project(version = paste0("v", c(version_previous, version_current))),
+    .manifest_read_project(
+      version = paste0("v", c(version_previous, version_current))
+    ),
     error = function(e) NULL
   )
 
@@ -56,7 +60,11 @@
     summary_lines <- c(
       summary_lines,
       .build_change_summary_format_section(
-        "Inputs", labels_input, manifest_all, version_previous, version_current
+        "Inputs",
+        labels_input,
+        manifest_all,
+        version_previous,
+        version_current
       )
     )
   }
@@ -65,7 +73,11 @@
     summary_lines <- c(
       summary_lines,
       .build_change_summary_format_section(
-        "Outputs", labels_output, manifest_all, version_previous, version_current
+        "Outputs",
+        labels_output,
+        manifest_all,
+        version_previous,
+        version_current
       )
     )
   }
@@ -82,7 +94,9 @@
 #' @param version_current Project version to compare.
 #' @return Character version string (without 'v' prefix), or NULL if no previous version.
 #' @keywords internal
-.build_change_summary_get_previous_version <- function(version_current = projr_version_get()) {
+.build_change_summary_get_previous_version <- function(
+  version_current = projr_version_get()
+) {
   directory <- .manifest_project_dir()
   history <- if (.manifest_store_ready(directory)) {
     .manifest_store_index(directory)
@@ -90,8 +104,12 @@
     .manifest_read_project()
   }
   versions <- sub("^v", "", unique(history$version))
-  previous <- versions[numeric_version(versions) < numeric_version(version_current)]
-  if (!length(previous)) return(NULL)
+  previous <- versions[
+    numeric_version(versions) < numeric_version(version_current)
+  ]
+  if (!length(previous)) {
+    return(NULL)
+  }
   previous[order(numeric_version(previous), decreasing = TRUE)[1L]]
 }
 
@@ -105,10 +123,25 @@
 #'
 #' @return Character vector of formatted lines for this section.
 #' @keywords internal
-.build_change_summary_format_section <- function(section_name, labels,
-                                                 manifest_all, version_prev,
-                                                 version_curr) {
-  lines <- c(paste0("**", section_name, " Changes (v", version_prev, " -> v", version_curr, ")**"), "")
+.build_change_summary_format_section <- function(
+  section_name,
+  labels,
+  manifest_all,
+  version_prev,
+  version_curr
+) {
+  lines <- c(
+    paste0(
+      "**",
+      section_name,
+      " Changes (v",
+      version_prev,
+      " -> v",
+      version_curr,
+      ")**"
+    ),
+    ""
+  )
 
   has_changes <- FALSE
 
@@ -133,7 +166,16 @@
     # Skip if no changes
     if (n_added == 0 && n_removed == 0 && n_modified == 0) {
       if (n_unchanged > 0) {
-        lines <- c(lines, paste0("- `", label, "`: No changes (", n_unchanged, " file(s) unchanged)"))
+        lines <- c(
+          lines,
+          paste0(
+            "- `",
+            label,
+            "`: No changes (",
+            n_unchanged,
+            " file(s) unchanged)"
+          )
+        )
       }
       next
     }
@@ -142,14 +184,22 @@
 
     # Format changes for this label
     label_lines <- .build_change_summary_format_label(
-      label, change_list, n_added, n_removed, n_modified, n_unchanged
+      label,
+      change_list,
+      n_added,
+      n_removed,
+      n_modified,
+      n_unchanged
     )
 
     lines <- c(lines, label_lines)
   }
 
   if (!has_changes) {
-    lines <- c(lines, paste0("- No changes detected in ", tolower(section_name)))
+    lines <- c(
+      lines,
+      paste0("- No changes detected in ", tolower(section_name))
+    )
   }
 
   c(lines, "")
@@ -166,16 +216,30 @@
 #'
 #' @return Character vector of formatted lines.
 #' @keywords internal
-.build_change_summary_format_label <- function(label, change_list, n_added,
-                                               n_removed, n_modified, n_unchanged) {
+.build_change_summary_format_label <- function(
+  label,
+  change_list,
+  n_added,
+  n_removed,
+  n_modified,
+  n_unchanged
+) {
   lines <- c(paste0("- `", label, "`:"))
 
   # Summary counts
   summary_parts <- c()
-  if (n_added > 0) summary_parts <- c(summary_parts, paste0(n_added, " added"))
-  if (n_removed > 0) summary_parts <- c(summary_parts, paste0(n_removed, " removed"))
-  if (n_modified > 0) summary_parts <- c(summary_parts, paste0(n_modified, " modified"))
-  if (n_unchanged > 0) summary_parts <- c(summary_parts, paste0(n_unchanged, " unchanged"))
+  if (n_added > 0) {
+    summary_parts <- c(summary_parts, paste0(n_added, " added"))
+  }
+  if (n_removed > 0) {
+    summary_parts <- c(summary_parts, paste0(n_removed, " removed"))
+  }
+  if (n_modified > 0) {
+    summary_parts <- c(summary_parts, paste0(n_modified, " modified"))
+  }
+  if (n_unchanged > 0) {
+    summary_parts <- c(summary_parts, paste0(n_unchanged, " unchanged"))
+  }
 
   lines <- c(lines, paste0("  - ", paste(summary_parts, collapse = ", ")))
 
@@ -183,13 +247,31 @@
   total_changes <- n_added + n_removed + n_modified
   if (total_changes < 10) {
     if (n_added > 0) {
-      lines <- c(lines, paste0("  - Added: ", paste(change_list[["fn_source_extra"]], collapse = ", ")))
+      lines <- c(
+        lines,
+        paste0(
+          "  - Added: ",
+          paste(change_list[["fn_source_extra"]], collapse = ", ")
+        )
+      )
     }
     if (n_removed > 0) {
-      lines <- c(lines, paste0("  - Removed: ", paste(change_list[["fn_dest_extra"]], collapse = ", ")))
+      lines <- c(
+        lines,
+        paste0(
+          "  - Removed: ",
+          paste(change_list[["fn_dest_extra"]], collapse = ", ")
+        )
+      )
     }
     if (n_modified > 0) {
-      lines <- c(lines, paste0("  - Modified: ", paste(change_list[["fn_diff"]], collapse = ", ")))
+      lines <- c(
+        lines,
+        paste0(
+          "  - Modified: ",
+          paste(change_list[["fn_diff"]], collapse = ", ")
+        )
+      )
     }
   }
 
@@ -206,8 +288,10 @@
 #' @param summary Change summary lines for this build.
 #' @return List with 'has_changes' (logical) and 'message' (character vector).
 #' @keywords internal
-.build_change_summary_get_debug <- function(output_run, summary = .build_change_summary_get(output_run)) {
-
+.build_change_summary_get_debug <- function(
+  output_run,
+  summary = .build_change_summary_get(output_run)
+) {
   if (is.null(summary)) {
     return(list(has_changes = FALSE, message = NULL))
   }
@@ -230,7 +314,10 @@
 #' @param bump_component Character. Version bump component.
 #'
 #' @keywords internal
-.build_change_summary_display <- function(bump_component, summary = .build_change_summary_get(output_run)) {
+.build_change_summary_display <- function(
+  bump_component,
+  summary = .build_change_summary_get(output_run)
+) {
   output_run <- .build_get_output_run(bump_component)
 
   # Only display for output builds

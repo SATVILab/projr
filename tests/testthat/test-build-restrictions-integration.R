@@ -14,7 +14,10 @@ test_that("build restrictions work in actual build", {
       expect_true(!is.null(current_branch))
 
       # Create a simple Rmd file to build
-      writeLines(c("---", "title: Test", "---", "", "Test content"), "test-script.Rmd")
+      writeLines(
+        c("---", "title: Test", "---", "", "Test content"),
+        "test-script.Rmd"
+      )
 
       # Set up build scripts
       projr_yml_git_set(commit = FALSE, push = FALSE)
@@ -101,7 +104,10 @@ test_that("build restrictions only apply to output builds", {
       current_branch <- .git_branch_get()
 
       # Create a simple Rmd file to build
-      writeLines(c("---", "title: Test", "---", "", "Test content"), "test-script.Rmd")
+      writeLines(
+        c("---", "title: Test", "---", "", "Test content"),
+        "test-script.Rmd"
+      )
 
       # Set up git to not commit or push
       projr_yml_git_set(commit = FALSE, push = FALSE)

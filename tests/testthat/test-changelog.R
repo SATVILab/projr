@@ -38,10 +38,19 @@ test_that(".changelog_add works", {
       expect_identical(
         .changelog_read() |> sub("\\):.*$", "\\)", x = _),
         c(
-          "# CHANGELOG", "", "- **Major** (v1.0.0): Miguel Julio Rodo (14:39:59)", # nolint
-          "  - Test", "", "___", "", "- *Minor* (v0.1.0): Miguel Julio Rodo (14:39:59)", # nolint
-          "  - Test", "", "- Patch (v0.0.1): Miguel Julio Rodo (14:39:59)",
-          "  - Test", ""
+          "# CHANGELOG",
+          "",
+          "- **Major** (v1.0.0): Miguel Julio Rodo (14:39:59)", # nolint
+          "  - Test",
+          "",
+          "___",
+          "",
+          "- *Minor* (v0.1.0): Miguel Julio Rodo (14:39:59)", # nolint
+          "  - Test",
+          "",
+          "- Patch (v0.0.1): Miguel Julio Rodo (14:39:59)",
+          "  - Test",
+          ""
         ) |>
           sub("\\):.*$", "\\)", x = _)
       )

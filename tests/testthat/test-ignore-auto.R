@@ -6,19 +6,31 @@ test_that("builds preserve manual ignore bytes around a regenerated block", {
     prefix <- "\ufeff# Start of projr section follows my rules  \r\n.vdoc.*\n# Start of projr section\r\n"
     suffix <- "# End of projr section\r\n!.vdoc.keep\n.vdoc.*"
     paths <- c(".gitignore", ".Rbuildignore")
-    for (path in paths) writeBin(charToRaw(paste0(prefix, ".vdoc.*\n", suffix)), path)
+    for (path in paths) {
+      writeBin(charToRaw(paste0(prefix, ".vdoc.*\n", suffix)), path)
+    }
     projr_build_dev(project = project, scripts = character())
     # Initialization of an existing project must also retain a repeated manual
     # rule after a negation, even if a legacy managed block used the same rule.
     projr_init_ignore()
     for (path in paths) {
       bytes <- readBin(path, "raw", file.size(path))
-      expect_identical(head(bytes, nchar(prefix, type = "bytes")), charToRaw(prefix))
-      expect_identical(tail(bytes, nchar(suffix, type = "bytes")), charToRaw(suffix))
+      expect_identical(
+        head(bytes, nchar(prefix, type = "bytes")),
+        charToRaw(prefix)
+      )
+      expect_identical(
+        tail(bytes, nchar(suffix, type = "bytes")),
+        charToRaw(suffix)
+      )
       expect_false(".vdoc.*" %in% .ignore_path_get_list(path)$content)
     }
     # A comment can mention a delimiter without declaring a managed block.
-    user_rules <- c("# Start of projr section example", ".vdoc.*", "# End of projr section example")
+    user_rules <- c(
+      "# Start of projr section example",
+      ".vdoc.*",
+      "# End of projr section example"
+    )
     writeLines(user_rules, ".gitignore")
     projr_ignore_auto()
     expect_identical(head(readLines(".gitignore"), 3L), user_rules)
@@ -33,51 +45,92 @@ test_that("builds preserve manual ignore bytes around a regenerated block", {
 test_that("projr_init keeps the original gitignore together outside the managed section", {
   skip_if(.is_test_select())
   project <- withr::local_tempdir()
-  usethis::with_project(project, {
-    original <- "# local rules  \r\ncache/\n!cache/example.csv\r\ncache/private/\ncache/"
-    bytes <- charToRaw(original)
-    writeBin(bytes, ".gitignore")
-    projr_init(git = FALSE, github = FALSE, dir = FALSE, readme = FALSE)
-    projr_ignore_auto()
-    sections <- .ignore_path_get_list(".gitignore")
-    expect_true(all(c(".vdoc.*", ".DS_Store", "Thumbs.db") %in% sections$start))
-    expect_identical(tail(readBin(".gitignore", "raw", file.size(".gitignore")), length(bytes)), bytes)
-    expect_identical(sections$end[-1L], c("# local rules  ", "cache/", "!cache/example.csv", "cache/private/", "cache/"))
-  }, force = TRUE, quiet = TRUE)
+  usethis::with_project(
+    project,
+    {
+      original <- "# local rules  \r\ncache/\n!cache/example.csv\r\ncache/private/\ncache/"
+      bytes <- charToRaw(original)
+      writeBin(bytes, ".gitignore")
+      projr_init(git = FALSE, github = FALSE, dir = FALSE, readme = FALSE)
+      projr_ignore_auto()
+      sections <- .ignore_path_get_list(".gitignore")
+      expect_true(all(
+        c(".vdoc.*", ".DS_Store", "Thumbs.db") %in% sections$start
+      ))
+      expect_identical(
+        tail(
+          readBin(".gitignore", "raw", file.size(".gitignore")),
+          length(bytes)
+        ),
+        bytes
+      )
+      expect_identical(
+        sections$end[-1L],
+        c(
+          "# local rules  ",
+          "cache/",
+          "!cache/example.csv",
+          "cache/private/",
+          "cache/"
+        )
+      )
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
 })
 
 test_that("a first build seeds removable editor ignores outside the managed block", {
   skip_if(.is_test_select())
   skip_if(.is_test_cran())
   project <- withr::local_tempdir()
-  usethis::with_project(project, {
-    writeLines(c("Package: study", "Version: 0.1.0", "Title: Study"), "DESCRIPTION")
-    writeLines(c("# my rules", "!.vdoc.keep"), ".gitignore")
-    projr_build_dev(project = project, scripts = character())
-    rules <- c(.gitignore = ".vdoc.*", .Rbuildignore = "(^|/)\\.vdoc\\.")
-    if (nzchar(Sys.which("git"))) {
-      repo <- withr::local_tempdir()
-      file.copy(".gitignore", repo)
-      withr::with_dir(repo, {
-        expect_equal(system2("git", c("init", "--quiet")), 0L)
-        expect_equal(system2("git", c("check-ignore", "--quiet", "nested/.vdoc.session")), 0L)
-        expect_equal(system2("git", c("check-ignore", "--quiet", "nested/.vdoc.keep")), 1L)
-      })
-    }
-    expect_match("nested/.vdoc.session", rules[[".Rbuildignore"]])
-    for (path in names(rules)) {
-      rule <- rules[[path]]
-      sections <- .ignore_path_get_list(path)
-      expect_true(rule %in% sections$start)
-      expect_false(rule %in% sections$content)
-      lines <- readLines(path)
-      writeLines(lines[lines != rule], path)
-    }
-    projr_ignore_auto()
-    projr_init_ignore()
-    projr_build_dev(project = project, scripts = character())
-    for (path in names(rules)) expect_false(rules[[path]] %in% readLines(path))
-  }, force = TRUE, quiet = TRUE)
+  usethis::with_project(
+    project,
+    {
+      writeLines(
+        c("Package: study", "Version: 0.1.0", "Title: Study"),
+        "DESCRIPTION"
+      )
+      writeLines(c("# my rules", "!.vdoc.keep"), ".gitignore")
+      projr_build_dev(project = project, scripts = character())
+      rules <- c(.gitignore = ".vdoc.*", .Rbuildignore = "(^|/)\\.vdoc\\.")
+      if (nzchar(Sys.which("git"))) {
+        repo <- withr::local_tempdir()
+        file.copy(".gitignore", repo)
+        withr::with_dir(repo, {
+          expect_equal(system2("git", c("init", "--quiet")), 0L)
+          expect_equal(
+            system2(
+              "git",
+              c("check-ignore", "--quiet", "nested/.vdoc.session")
+            ),
+            0L
+          )
+          expect_equal(
+            system2("git", c("check-ignore", "--quiet", "nested/.vdoc.keep")),
+            1L
+          )
+        })
+      }
+      expect_match("nested/.vdoc.session", rules[[".Rbuildignore"]])
+      for (path in names(rules)) {
+        rule <- rules[[path]]
+        sections <- .ignore_path_get_list(path)
+        expect_true(rule %in% sections$start)
+        expect_false(rule %in% sections$content)
+        lines <- readLines(path)
+        writeLines(lines[lines != rule], path)
+      }
+      projr_ignore_auto()
+      projr_init_ignore()
+      projr_build_dev(project = project, scripts = character())
+      for (path in names(rules)) {
+        expect_false(rules[[path]] %in% readLines(path))
+      }
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
 })
 
 # Tests for R/ignore-auto.R
@@ -142,9 +195,15 @@ test_that(".ignore_auto_quarto_rbuild returns FALSE when no directories exist", 
     path = dir_test,
     code = {
       # Remove any quarto directories if they exist
-      if (dir.exists("_extensions")) unlink("_extensions", recursive = TRUE)
-      if (dir.exists("index_files")) unlink("index_files", recursive = TRUE)
-      if (dir.exists(".quarto")) unlink(".quarto", recursive = TRUE)
+      if (dir.exists("_extensions")) {
+        unlink("_extensions", recursive = TRUE)
+      }
+      if (dir.exists("index_files")) {
+        unlink("index_files", recursive = TRUE)
+      }
+      if (dir.exists(".quarto")) {
+        unlink(".quarto", recursive = TRUE)
+      }
 
       # Run function
       result <- .ignore_auto_quarto_rbuild()
@@ -221,8 +280,12 @@ test_that(".ignore_auto_quarto_git returns FALSE when no directories exist", {
     path = dir_test,
     code = {
       # Remove directories
-      if (dir.exists("index_files")) unlink("index_files", recursive = TRUE)
-      if (dir.exists(".quarto")) unlink(".quarto", recursive = TRUE)
+      if (dir.exists("index_files")) {
+        unlink("index_files", recursive = TRUE)
+      }
+      if (dir.exists(".quarto")) {
+        unlink(".quarto", recursive = TRUE)
+      }
 
       result <- .ignore_auto_quarto_git()
       expect_false(result)
@@ -262,7 +325,9 @@ test_that(".ignore_auto_devcontainer returns FALSE when directory does not exist
     path = dir_test,
     code = {
       # Remove directory if it exists
-      if (dir.exists(".devcontainer")) unlink(".devcontainer", recursive = TRUE)
+      if (dir.exists(".devcontainer")) {
+        unlink(".devcontainer", recursive = TRUE)
+      }
 
       result <- .ignore_auto_devcontainer()
       expect_false(result)
@@ -298,7 +363,9 @@ test_that(".ignore_auto_github returns FALSE when directory does not exist", {
     path = dir_test,
     code = {
       # Remove directory if it exists
-      if (dir.exists(".github")) unlink(".github", recursive = TRUE)
+      if (dir.exists(".github")) {
+        unlink(".github", recursive = TRUE)
+      }
 
       result <- .ignore_auto_github()
       expect_false(result)
@@ -341,7 +408,11 @@ test_that(".ignore_auto_vscode ignores .code-workspace files", {
 
       # Check .Rbuildignore
       rbuildignore <- readLines(".Rbuildignore")
-      expect_true(any(grepl("code-workspace", rbuildignore, ignore.case = TRUE)))
+      expect_true(any(grepl(
+        "code-workspace",
+        rbuildignore,
+        ignore.case = TRUE
+      )))
     }
   )
 })
@@ -354,7 +425,9 @@ test_that(".ignore_auto_vscode handles .code-workspace files without .vscode dir
     path = dir_test,
     code = {
       # Remove .vscode directory
-      if (dir.exists(".vscode")) unlink(".vscode", recursive = TRUE)
+      if (dir.exists(".vscode")) {
+        unlink(".vscode", recursive = TRUE)
+      }
 
       # Create .code-workspace file
       file.create("test.code-workspace")
@@ -364,7 +437,11 @@ test_that(".ignore_auto_vscode handles .code-workspace files without .vscode dir
 
       # Check that .code-workspace pattern is in rbuildignore
       rbuildignore <- readLines(".Rbuildignore")
-      expect_true(any(grepl("code-workspace", rbuildignore, ignore.case = TRUE)))
+      expect_true(any(grepl(
+        "code-workspace",
+        rbuildignore,
+        ignore.case = TRUE
+      )))
     }
   )
 })
@@ -747,9 +824,21 @@ test_that("a rendered root README and its linked figures can be committed", {
   skip_if_not(rmarkdown::pandoc_available())
   skip_if(Sys.which("git") == "")
   project <- .test_setup_project(rm_engine = TRUE)
-  usethis::with_project(project,
+  usethis::with_project(
+    project,
     {
-      writeLines(c("---", "output: html_document", "---", "", "```{r scatter}", "plot(1:3)", "```"), "README.Rmd")
+      writeLines(
+        c(
+          "---",
+          "output: html_document",
+          "---",
+          "",
+          "```{r scatter}",
+          "plot(1:3)",
+          "```"
+        ),
+        "README.Rmd"
+      )
       writeLines("Hand-written HTML", "README.html")
       dir.create("reports")
       file.copy("README.Rmd", "reports/README.Rmd")
@@ -758,38 +847,85 @@ test_that("a rendered root README and its linked figures can be committed", {
       .yml_set(config, "default")
 
       # These README rules came from an earlier automatic refresh.
-      writeLines(c(
-        "/README_files/private.png", "# Start of projr section",
-        "# End of configured directory rules", "/README.html", "/README_files/", "# End of projr section"
-      ), ".gitignore")
-      writeLines(c(
-        "# Start of projr section", "# End of configured directory rules",
-        "^README\\.html$", "^README_files/", "^README_files$", "# End of projr section"
-      ), ".Rbuildignore")
+      writeLines(
+        c(
+          "/README_files/private.png",
+          "# Start of projr section",
+          "# End of configured directory rules",
+          "/README.html",
+          "/README_files/",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
+      writeLines(
+        c(
+          "# Start of projr section",
+          "# End of configured directory rules",
+          "^README\\.html$",
+          "^README_files/",
+          "^README_files$",
+          "# End of projr section"
+        ),
+        ".Rbuildignore"
+      )
 
       withr::with_dir("reports", projr_ignore_auto())
       .build_readme_rmd_render(TRUE)
-      figure <- list.files("README_files", "[.]png$", recursive = TRUE, full.names = TRUE)
+      figure <- list.files(
+        "README_files",
+        "[.]png$",
+        recursive = TRUE,
+        full.names = TRUE
+      )
       expect_length(figure, 1L)
       expect_true(any(grepl(figure, readLines("README.md"), fixed = TRUE)))
       expect_identical(readLines("README.html"), "Hand-written HTML")
 
-      ignored <- function(path) system2("git", c("check-ignore", "--no-index", "--quiet", "--", path)) == 0L
+      ignored <- function(path) {
+        system2(
+          "git",
+          c("check-ignore", "--no-index", "--quiet", "--", path)
+        ) ==
+          0L
+      }
       kept <- c("README.Rmd", "README.md", "README.html", figure)
       expect_false(any(vapply(kept, ignored, logical(1))))
-      expect_true(all(vapply(c(
-        "README_files/private.png", "README.knit.md", "README_cache/cache",
-        "reports/README.html", "reports/README_files/dependency.js"
-      ), ignored, logical(1))))
+      expect_true(all(vapply(
+        c(
+          "README_files/private.png",
+          "README.knit.md",
+          "README_cache/cache",
+          "reports/README.html",
+          "reports/README_files/dependency.js"
+        ),
+        ignored,
+        logical(1)
+      )))
       patterns <- readLines(".Rbuildignore")
       matches_readme <- function(pattern) {
-        any(grepl(pattern, c("README.html", "README.md", figure), perl = TRUE, ignore.case = TRUE))
+        any(grepl(
+          pattern,
+          c("README.html", "README.md", figure),
+          perl = TRUE,
+          ignore.case = TRUE
+        ))
       }
-      expect_false(any(vapply(patterns[nzchar(patterns)], matches_readme, logical(1))))
+      expect_false(any(vapply(
+        patterns[nzchar(patterns)],
+        matches_readme,
+        logical(1)
+      )))
       expect_identical(system2("git", c("add", "--", kept)), 0L)
-      expect_setequal(system2("git", c("ls-files", "--", kept), stdout = TRUE), kept)
+      expect_setequal(
+        system2("git", c("ls-files", "--", kept), stdout = TRUE),
+        kept
+      )
 
-      writeLines(c("---", "format: {html: default, gfm: default}", "---"), "README.qmd")
+      writeLines(
+        c("---", "format: {html: default, gfm: default}", "---"),
+        "README.qmd"
+      )
       projr_ignore_auto()
       expect_true(ignored("README.html"))
       expect_false(ignored("README.md"))
@@ -804,11 +940,18 @@ test_that("automatic document ignores are anchored to nested paths", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = TRUE, set_env_var = TRUE)
-  usethis::with_project(dir_test,
+  usethis::with_project(
+    dir_test,
     {
       dir.create("reports")
-      writeLines(c("---", "format: html", "output-file: custom.html", "---"), "reports/report.qmd")
-      writeLines(c("---", "output: html_document", "---"), "reports/analysis.Rmd")
+      writeLines(
+        c("---", "format: html", "output-file: custom.html", "---"),
+        "reports/report.qmd"
+      )
+      writeLines(
+        c("---", "output: html_document", "---"),
+        "reports/analysis.Rmd"
+      )
       file.create("reports/README.md", "reports/source.tex")
       config <- .yml_get("default")
       config[["build"]][["scripts"]] <- "reports/*"
@@ -817,16 +960,27 @@ test_that("automatic document ignores are anchored to nested paths", {
       withr::with_dir("reports", projr_ignore_auto())
 
       ignored <- c(
-        "reports/custom.html", "reports/report.tex", "reports/report_files/data.js",
-        "reports/analysis.html", "reports/analysis_cache/cache.rds", "reports/.quarto/scratch"
+        "reports/custom.html",
+        "reports/report.tex",
+        "reports/report_files/data.js",
+        "reports/analysis.html",
+        "reports/analysis_cache/cache.rds",
+        "reports/.quarto/scratch"
       )
-      kept <- c("reports/report.qmd", "reports/analysis.Rmd", "reports/source.tex", "reports/README.md")
+      kept <- c(
+        "reports/report.qmd",
+        "reports/analysis.Rmd",
+        "reports/source.tex",
+        "reports/README.md"
+      )
       check_ignored <- function(path) {
         system2("git", c("check-ignore", "--quiet", "--", path)) == 0L
       }
       expect_true(all(vapply(ignored, check_ignored, logical(1))))
       expect_false(any(vapply(kept, check_ignored, logical(1))))
-      expect_true(any(readLines(".Rbuildignore") == utils::glob2rx("reports/report.tex")))
+      expect_true(any(
+        readLines(".Rbuildignore") == utils::glob2rx("reports/report.tex")
+      ))
     },
     force = TRUE,
     quiet = TRUE
@@ -1149,10 +1303,13 @@ test_that(".ignore_auto_path_add adds patterns to projr section", {
     path = dir_test,
     code = {
       # Create .gitignore with projr section
-      writeLines(c(
-        "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
-        "# End of projr section"
-      ), ".gitignore")
+      writeLines(
+        c(
+          "# Start of projr section: do not edit by hand (update with projr_ignore_auto())",
+          "# End of projr section"
+        ),
+        ".gitignore"
+      )
 
       result <- .ignore_auto_path_add(c("pattern1", "pattern2"), ".gitignore")
       expect_true(result)
@@ -1208,7 +1365,9 @@ test_that(".ignore_auto_path_get_updated_content merges patterns", {
 
       # Test override = FALSE (merge)
       result <- .ignore_auto_path_get_updated_content(
-        FALSE, new_patterns, existing_content
+        FALSE,
+        new_patterns,
+        existing_content
       )
 
       # Should have all unique patterns
@@ -1234,7 +1393,9 @@ test_that(".ignore_auto_path_get_updated_content overrides when specified", {
 
       # Test override = TRUE
       result <- .ignore_auto_path_get_updated_content(
-        TRUE, new_patterns, existing_content
+        TRUE,
+        new_patterns,
+        existing_content
       )
 
       # Should only have new patterns

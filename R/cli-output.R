@@ -121,11 +121,13 @@
 #'
 #' @keywords internal
 # Generic CLI message function for logging and console output
-.cli_message <- function(...,
-                         log_type,
-                         console_level = "std",
-                         console_fn,
-                         .envir = parent.frame()) {
+.cli_message <- function(
+  ...,
+  log_type,
+  console_level = "std",
+  console_fn,
+  .envir = parent.frame()
+) {
   show <- .cli_should_show(console_level)
   if (!show && is.null(.log_build_file())) {
     return(invisible(NULL))
@@ -174,7 +176,9 @@
     ...,
     log_type = "debug",
     console_level = "debug",
-    console_fn = function(..., .envir) cli::cli_text("[DEBUG] ", ..., .envir = .envir),
+    console_fn = function(..., .envir) {
+      cli::cli_text("[DEBUG] ", ..., .envir = .envir)
+    },
     .envir = .envir
   )
 }
@@ -223,8 +227,12 @@
 #' @param .envir Environment for the process
 #'
 #' @keywords internal
-.cli_process_done <- function(id = NULL, msg_done = NULL, msg_failed = NULL,
-                              .envir = parent.frame()) {
+.cli_process_done <- function(
+  id = NULL,
+  msg_done = NULL,
+  msg_failed = NULL,
+  .envir = parent.frame()
+) {
   # Log the process completion
   if (!is.null(msg_done)) {
     .log_build_append(paste0("Process done: ", msg_done), "process")

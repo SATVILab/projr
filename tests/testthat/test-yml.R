@@ -16,8 +16,14 @@ test_that("basic yml functions work", {
   }
 
   gitignore <- c(
-    "# R", ".Rproj.user", ".Rhistory", ".RData",
-    ".Ruserdata", "", "# docs", "docs/*"
+    "# R",
+    ".Rproj.user",
+    ".Rhistory",
+    ".RData",
+    ".Ruserdata",
+    "",
+    "# docs",
+    "docs/*"
   )
   writeLines(gitignore, file.path(dir_test, ".gitignore"))
 
@@ -31,7 +37,8 @@ test_that("basic yml functions work", {
       expect_identical(class(.yml_bd_get()), "list")
       expect_identical(class(.desc_get()), c("matrix", "array"))
       yml.min <- list(
-        "directories" = NULL, "build" = list()
+        "directories" = NULL,
+        "build" = list()
       )
       .yml_set(yml.min)
       expect_identical(.yml_get_default_raw(), yml.min)
@@ -76,12 +83,15 @@ test_that("projr_yml_dest_add_* functions work", {
     code = {
       .test_yml_unset_remote()
       projr_yml_dest_add_local(
-        title = "test", content = "raw-data", path = "_archive"
+        title = "test",
+        content = "raw-data",
+        path = "_archive"
       )
       expect_true(!is.null(.yml_dest_get_type("local", "default")))
 
       projr_yml_dest_add_github(
-        title = "test", content = "raw-data"
+        title = "test",
+        content = "raw-data"
       )
       expect_true(!is.null(.yml_dest_get_type("github", "default")))
     }
@@ -313,22 +323,40 @@ test_that(".yml_get_profile_ind gets individual profile", {
 test_that("directory profiles inherit defaults and local settings", {
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
-  usethis::with_project(dir_test, {
-    .yml_set(list(directories = list(cache = list(path = "base", `ignore-git` = FALSE))))
-    .yml_set(list(directories = list(cache = list(path = "remote"))), "remote")
-    .yml_set(list(directories = list(cache = list(`ignore-rbuild` = TRUE))), "local")
+  usethis::with_project(
+    dir_test,
+    {
+      .yml_set(list(
+        directories = list(cache = list(path = "base", `ignore-git` = FALSE))
+      ))
+      .yml_set(
+        list(directories = list(cache = list(path = "remote"))),
+        "remote"
+      )
+      .yml_set(
+        list(directories = list(cache = list(`ignore-rbuild` = TRUE))),
+        "local"
+      )
 
-    withr::local_envvar(PROJR_PROFILE = "default")
-    directories <- .yml_dir_get_profiles()
-    expect_identical(names(directories), c("default", "remote"))
-    expect_identical(directories$default, .yml_dir_get(NULL))
-    expect_identical(directories$remote$cache, list(
-      path = "remote", `ignore-git` = FALSE, `ignore-rbuild` = TRUE
-    ))
+      withr::local_envvar(PROJR_PROFILE = "default")
+      directories <- .yml_dir_get_profiles()
+      expect_identical(names(directories), c("default", "remote"))
+      expect_identical(directories$default, .yml_dir_get(NULL))
+      expect_identical(
+        directories$remote$cache,
+        list(
+          path = "remote",
+          `ignore-git` = FALSE,
+          `ignore-rbuild` = TRUE
+        )
+      )
 
-    withr::local_envvar(PROJR_PROFILE = "first,second,third,remote")
-    expect_identical(directories$remote, .yml_dir_get(NULL))
-  }, force = TRUE, quiet = TRUE)
+      withr::local_envvar(PROJR_PROFILE = "first,second,third,remote")
+      expect_identical(directories$remote, .yml_dir_get(NULL))
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
 })
 
 test_that(".yml_get_profile_ind_raw reads raw profile file", {
@@ -594,9 +622,14 @@ test_that("configuration can be split between the root and .projr/config", {
   usethis::with_project(project, {
     fs::dir_create(".projr/config")
     fs::file_move("_projr.yml", ".projr/config/_projr.yml")
-    yaml::write_yaml(list(dev = list(scripts = "scripts/nested.R")), ".projr/config/_projr-lab.yml")
-    yaml::write_yaml(list(directories = list("raw-more" = list(path = "incoming/site-b"))),
-                    ".projr/config/_projr-cluster.yml")
+    yaml::write_yaml(
+      list(dev = list(scripts = "scripts/nested.R")),
+      ".projr/config/_projr-lab.yml"
+    )
+    yaml::write_yaml(
+      list(directories = list("raw-more" = list(path = "incoming/site-b"))),
+      ".projr/config/_projr-cluster.yml"
+    )
     yaml::write_yaml(list(), ".projr/config/_projr-local.yml")
     withr::local_envvar(c(PROJR_PROFILE = "lab"))
     root <- as.character(fs::path_real("."))
@@ -608,9 +641,16 @@ test_that("configuration can be split between the root and .projr/config", {
     })
     expect_false(file.exists("_projr.yml"))
     expect_true("/incoming/site-b/**" %in% readLines(".gitignore"))
-    expect_true(any(grepl(".projr/config/_projr-local.yml", readLines(".gitignore"), fixed = TRUE)))
+    expect_true(any(grepl(
+      ".projr/config/_projr-local.yml",
+      readLines(".gitignore"),
+      fixed = TRUE
+    )))
     .yml_set(list(dev = list(scripts = "updated.R")), "lab")
-    expect_identical(yaml::read_yaml(".projr/config/_projr-lab.yml")$dev$scripts, "updated.R")
+    expect_identical(
+      yaml::read_yaml(".projr/config/_projr-lab.yml")$dev$scripts,
+      "updated.R"
+    )
     yaml::write_yaml(list(dev = list(scripts = "root.R")), "_projr-lab.yml")
     expect_identical(.yml_dev_get_scripts(NULL), "root.R")
     expect_true(projr_profile_delete("lab"))

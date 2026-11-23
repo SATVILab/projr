@@ -13,7 +13,11 @@
 test_that("CRAN workflow: init -> build -> send to local -> restore", {
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -34,7 +38,9 @@ test_that("CRAN workflow: init -> build -> send to local -> restore", {
 
       # ===== Phase 3: Configure local remote =====
       temp_remote_path <- file.path(tempdir(), "projr_cran_remote")
-      if (dir.exists(temp_remote_path)) unlink(temp_remote_path, recursive = TRUE)
+      if (dir.exists(temp_remote_path)) {
+        unlink(temp_remote_path, recursive = TRUE)
+      }
 
       projr_yml_dest_add_local(
         title = "cran-test-remote",
@@ -100,7 +106,9 @@ test_that("CRAN workflow: dev build with local remote", {
 
       # Configure local remote with latest structure
       temp_remote_path <- file.path(tempdir(), "projr_cran_dev_remote")
-      if (dir.exists(temp_remote_path)) unlink(temp_remote_path, recursive = TRUE)
+      if (dir.exists(temp_remote_path)) {
+        unlink(temp_remote_path, recursive = TRUE)
+      }
 
       projr_yml_dest_add_local(
         title = "dev-remote",
@@ -117,7 +125,10 @@ test_that("CRAN workflow: dev build with local remote", {
 
       # Verify remote was created (cache may create cache-empty if truly empty)
       # The remote directory itself should exist after build
-      expect_true(dir.exists(temp_remote_path) || length(list.files(dirname(temp_remote_path))) > 0)
+      expect_true(
+        dir.exists(temp_remote_path) ||
+          length(list.files(dirname(temp_remote_path))) > 0
+      )
 
       # Clean up
       unlink(temp_remote_path, recursive = TRUE)
@@ -128,7 +139,11 @@ test_that("CRAN workflow: dev build with local remote", {
 test_that("CRAN workflow: multiple content types to local remote", {
   skip_if(.is_test_select())
 
-  dir_test <- .test_setup_project(git = TRUE, github = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
+  )
 
   usethis::with_project(
     path = dir_test,
@@ -146,7 +161,9 @@ test_that("CRAN workflow: multiple content types to local remote", {
 
       # Configure remotes for both
       temp_remote_base <- file.path(tempdir(), "projr_cran_multi_remote")
-      if (dir.exists(temp_remote_base)) unlink(temp_remote_base, recursive = TRUE)
+      if (dir.exists(temp_remote_base)) {
+        unlink(temp_remote_base, recursive = TRUE)
+      }
 
       projr_yml_dest_add_local(
         title = "raw-archive",
@@ -166,9 +183,18 @@ test_that("CRAN workflow: multiple content types to local remote", {
       projr_build_patch()
 
       # Verify both remotes received content
-      expect_true(dir.exists(file.path(temp_remote_base, "raw", "raw-data", "v0.0.1")))
+      expect_true(dir.exists(file.path(
+        temp_remote_base,
+        "raw",
+        "raw-data",
+        "v0.0.1"
+      )))
       # Cache with content creates cache-empty directory (projr convention for empty or actual content)
-      expect_true(dir.exists(file.path(temp_remote_base, "cache", "cache-empty")))
+      expect_true(dir.exists(file.path(
+        temp_remote_base,
+        "cache",
+        "cache-empty"
+      )))
 
       # Clear and restore raw-data
       file.remove(file.path(raw_data_dir, "raw.txt"))

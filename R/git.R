@@ -4,7 +4,8 @@
     return(invisible(FALSE))
   }
   .cli_debug("Initializing Git repository")
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_init_git(),
     "gert" = .git_init_gert(),
     stop(paste0(.git_system_get(), " not recognised"))
@@ -40,7 +41,8 @@
     return(invisible(FALSE))
   }
   msg <- .git_msg_get(msg)
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     # suppress warnings from adding deleted files
     "git" = suppressWarnings(.git_commit_file_git(file, msg)),
     "gert" = suppressWarnings(.git_commit_file_gert(file, msg)),
@@ -54,10 +56,22 @@
   if (status != 0L) {
     detail <- if (is.character(result) && length(result)) {
       # Captured Git diagnostics may include a credentialed remote URL.
-      result <- gsub("([[:alpha:]][[:alnum:]+.-]*://)[^/@[:space:]]+@", "\\1", result)
+      result <- gsub(
+        "([[:alpha:]][[:alnum:]+.-]*://)[^/@[:space:]]+@",
+        "\\1",
+        result
+      )
       paste0("\n", paste(result, collapse = "\n"))
     }
-    stop("git ", args[1L], " failed with exit status ", status, ".", detail, call. = FALSE)
+    stop(
+      "git ",
+      args[1L],
+      " failed with exit status ",
+      status,
+      ".",
+      detail,
+      call. = FALSE
+    )
   }
   invisible(result)
 }
@@ -73,9 +87,16 @@
 
 .git_commit_staged_git <- function(msg, paths = character(), ...) {
   status <- system2("git", c("diff", "--cached", "--quiet", "--", paths))
-  if (status == 0L) return(invisible(FALSE))
-  if (status != 1L) stop("git diff failed with exit status ", status, ".", call. = FALSE)
-  .git_run_write(c("commit", "--quiet", "-m", shQuote(.git_msg_get(msg)), "--", paths), ...)
+  if (status == 0L) {
+    return(invisible(FALSE))
+  }
+  if (status != 1L) {
+    stop("git diff failed with exit status ", status, ".", call. = FALSE)
+  }
+  .git_run_write(
+    c("commit", "--quiet", "-m", shQuote(.git_msg_get(msg)), "--", paths),
+    ...
+  )
 }
 
 .git_add_file_git <- function(file, ...) {
@@ -103,7 +124,8 @@
 
 # modified files
 .git_modified_get <- function() {
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_modified_get_git(),
     "gert" = .git_modified_get_gert(),
     stop(paste0(.git_system_get(), " not recognised"))
@@ -113,7 +135,8 @@
 .git_modified_get_git <- function() {
   git_status_output <- system2(
     "git",
-    args = "status --porcelain", stdout = TRUE
+    args = "status --porcelain",
+    stdout = TRUE
   )
   match_vec <- grep(
     "^M.|^A.|^D.|^.M|^.A|^.D",
@@ -137,7 +160,8 @@
 
 # new files
 .git_new_get <- function() {
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_new_get_git(),
     "gert" = .git_new_get_gert(),
     stop(paste0(.git_system_get(), " not recognised"))
@@ -147,10 +171,12 @@
 .git_new_get_git <- function() {
   git_status_output <- system2(
     "git",
-    args = "status --porcelain", stdout = TRUE
+    args = "status --porcelain",
+    stdout = TRUE
   )
   sub(
-    "^\\?\\? (.*)", "\\1",
+    "^\\?\\? (.*)",
+    "\\1",
     grep("^\\?\\?", git_status_output, value = TRUE)
   )
 }
@@ -192,7 +218,8 @@
   if (!.is_chr(path)) {
     stop("path must be a character vector")
   }
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_changed_filter_git(path),
     "gert" = .git_changed_filter_gert(path),
     stop(paste0(.git_system_get(), " not recognised"))
@@ -204,7 +231,11 @@
 }
 .git_changed_filter_git_ind <- function(path) {
   # Run git status with porcelain output
-  status <- system2("git", args = c("status", "--porcelain", path), stdout = TRUE)
+  status <- system2(
+    "git",
+    args = c("status", "--porcelain", path),
+    stdout = TRUE
+  )
   length(status) > 0
 }
 
@@ -213,7 +244,8 @@
   git_status_tbl <- gert::git_status(pathspec = path_known)
   # check if known files have been modified
   path_known_changed <- path_known[
-    path_known %in% git_status_tbl[["file"]] &
+    path_known %in%
+      git_status_tbl[["file"]] &
       git_status_tbl[["status"]] %in% c("modified", "new")
   ]
   # unknown files are a changed
@@ -272,12 +304,10 @@
 # install gert if not available
 .git_system_setup_gert <- function() {
   .cli_debug("Using gert package for Git operations")
-  switch(!.git_system_check_gert(),
-    {
-      .cli_debug("Installing gert package for Git operations")
-      .dep_install("gert")
-    }
-  )
+  switch(!.git_system_check_gert(), {
+    .cli_debug("Installing gert package for Git operations")
+    .dep_install("gert")
+  })
   if (!.git_system_check_gert()) {
     .cli_debug("Failed to install gert package")
     stop("Failed to install gert and Git executable not available")
@@ -294,7 +324,8 @@
   if (!.git_repo_check_exists()) {
     return(invisible(FALSE))
   }
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_remote_check_exists_git(),
     "gert" = .git_remote_check_exists_gert()
   )
@@ -311,7 +342,8 @@
   if (!.git_remote_check_exists()) {
     return(FALSE)
   }
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = {
       if (!.git_remote_check_upstream_git()) {
         warning("No upstream remote detected")
@@ -325,15 +357,24 @@
 }
 
 .git_remote_check_upstream_git <- function() {
-  upstream_branch <- system2("git", args = c(
-    "rev-parse", "--abbrev-ref", "--symbolic-full-name", paste0("HEAD", "@{upstream}")
-  ), stdout = TRUE, stderr = TRUE)
+  upstream_branch <- system2(
+    "git",
+    args = c(
+      "rev-parse",
+      "--abbrev-ref",
+      "--symbolic-full-name",
+      paste0("HEAD", "@{upstream}")
+    ),
+    stdout = TRUE,
+    stderr = TRUE
+  )
   !grepl("no upstream configured", upstream_branch)
 }
 
 # push
 .git_push <- function(...) {
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_push_git(...),
     "gert" = .git_push_gert(...),
     stop(paste0(.git_system_get(), " not recognised"))
@@ -346,14 +387,18 @@
   invisible(TRUE)
 }
 
-.git_push_gert <- function(..., verbose = interactive() && .cli_should_show("std")) {
+.git_push_gert <- function(
+  ...,
+  verbose = interactive() && .cli_should_show("std")
+) {
   gert::git_push(..., verbose = verbose)
   invisible(TRUE)
 }
 
 # author
 .git_config_get_name <- function() {
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_config_get_name_git(),
     "gert" = .git_config_get_name_gert(),
     stop(paste0(.git_system_get(), " not recognised"))
@@ -440,7 +485,8 @@
 
 # email
 .git_config_get_email <- function() {
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_config_get_email_git(),
     "gert" = .git_config_get_email_gert(),
     stop(paste0(.git_system_get(), " not recognised"))
@@ -530,7 +576,8 @@
   if (!.git_remote_check_exists()) {
     return(invisible(FALSE))
   }
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_check_behind_git(),
     "gert" = .git_check_behind_gert()
   )
@@ -552,7 +599,8 @@
 }
 
 .git_fetch <- function() {
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_fetch_git(),
     "gert" = .git_fetch_gert()
   )
@@ -601,7 +649,8 @@
   if (!is.null(path) && (path == "" || .is_len_0(path))) {
     path <- NULL
   }
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_clone_git(repo, path),
     "gert" = .git_clone_gert(repo, path),
     stop(paste0(.git_system_get(), " not recognised"))
@@ -641,7 +690,8 @@
     return(NULL)
   }
 
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_branch_get_git(),
     "gert" = .git_branch_get_gert(),
     NULL
@@ -683,7 +733,8 @@
     return(NULL)
   }
 
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_last_commit_get_git(),
     "gert" = .git_last_commit_get_gert(),
     NULL
@@ -737,7 +788,8 @@
     return(character(0))
   }
 
-  switch(.git_system_get(),
+  switch(
+    .git_system_get(),
     "git" = .git_untracked_not_ignored_get_git(),
     "gert" = .git_untracked_not_ignored_get_gert(),
     character(0)

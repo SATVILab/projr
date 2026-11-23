@@ -15,7 +15,9 @@
 #' @export
 projr_yml_get <- function(profile = NULL, check = FALSE) {
   .assert_flag(check, TRUE)
-  if (check) projr_yml_check(profile)
+  if (check) {
+    projr_yml_check(profile)
+  }
   .yml_get(profile)
 }
 
@@ -32,7 +34,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 
 .yml_get_profile <- function(profile) {
   .assert_string(profile)
-  switch(profile,
+  switch(
+    profile,
     "local" = .yml_get_local(),
     "default" = .yml_get_default(),
     .yml_get_profile_spec(profile)
@@ -45,13 +48,18 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   yml_projr_local <- .yml_get_local()
 
   .yml_merge(
-    yml_projr_root, yml_projr_profile, yml_projr_local
+    yml_projr_root,
+    yml_projr_profile,
+    yml_projr_local
   )
 }
 
-.yml_merge <- function(yml_projr_root_default,
-                       yml_projr_profile,
-                       yml_projr_local, parents = character()) {
+.yml_merge <- function(
+  yml_projr_root_default,
+  yml_projr_profile,
+  yml_projr_local,
+  parents = character()
+) {
   nm_vec <- names(yml_projr_root_default) |>
     c(names(yml_projr_profile), names(yml_projr_local)) |>
     unique()
@@ -59,14 +67,28 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     elem_default <- yml_projr_root_default[[nm]]
     elem_profile <- yml_projr_profile[[nm]]
     elem_local <- yml_projr_local[[nm]]
-    if (nm == "scripts" && length(parents) == 1L && parents %in% c("build", "dev")) {
+    if (
+      nm == "scripts" && length(parents) == 1L && parents %in% c("build", "dev")
+    ) {
       # A profile chooses one ordered script sequence, including an explicit [].
       return(elem_local %||% elem_profile %||% elem_default)
     }
-    if (length(parents) == 2L && parents[1L] == "build" && parents[2L] %in% c("local", "github")) {
+    if (
+      length(parents) == 2L &&
+        parents[1L] == "build" &&
+        parents[2L] %in% c("local", "github")
+    ) {
       # An explicitly bare selection chooses all content, overriding a lower profile's selection.
-      if (nm %in% names(yml_projr_local) && !length(elem_local)) return(elem_local)
-      if (!nm %in% names(yml_projr_local) && nm %in% names(yml_projr_profile) && !length(elem_profile)) return(elem_profile)
+      if (nm %in% names(yml_projr_local) && !length(elem_local)) {
+        return(elem_local)
+      }
+      if (
+        !nm %in% names(yml_projr_local) &&
+          nm %in% names(yml_projr_profile) &&
+          !length(elem_profile)
+      ) {
+        return(elem_profile)
+      }
     }
     # return early if highest-precedence element
     # is not a list.
@@ -165,7 +187,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
         append(lapply(1, function(x) list()))
     }
     yml_projr_profile <- .yml_merge_list_add(
-      yml_projr_profile, profile_list[(n_done + 1):end_iter_max]
+      yml_projr_profile,
+      profile_list[(n_done + 1):end_iter_max]
     )
     n_done <- end_iter_max
   }
@@ -179,7 +202,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
   if (is.list(settings) && "hash-engine" %in% names(settings)) {
     hashing <- settings[["hashing"]] %||% list()
     if (is.list(hashing)) {
-      hashing[["approach"]] <- hashing[["approach"]] %||% settings[["hash-engine"]]
+      hashing[["approach"]] <- hashing[["approach"]] %||%
+        settings[["hash-engine"]]
       settings[["hashing"]] <- hashing
     }
     settings[["hash-engine"]] <- NULL
@@ -268,14 +292,20 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     paste0("_projr-", profile, ".yml")
   }
   root <- .path_get()
-  paths <- c(file.path(root, filename), file.path(root, c(".projr/config", "_projr/config"), filename))
+  paths <- c(
+    file.path(root, filename),
+    file.path(root, c(".projr/config", "_projr/config"), filename)
+  )
   paths[match(TRUE, file.exists(paths), nomatch = 1L)]
 }
 
 .yml_config_files <- function(root = .path_get()) {
   pattern <- "^_projr(-[[:alnum:]_-]+)?\\.yml$"
   paths <- file.path(root, c("", ".projr/config", "_projr/config"))
-  as.character(fs::path_rel(list.files(paths, pattern = pattern, full.names = TRUE), root))
+  as.character(fs::path_rel(
+    list.files(paths, pattern = pattern, full.names = TRUE),
+    root
+  ))
 }
 
 .yml_set_root <- function(list_save) {
@@ -294,7 +324,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .yml_complete <- function(yml, nm, default) {
-  switch(class(default)[[1]],
+  switch(
+    class(default)[[1]],
     "NULL" = .yml_complete_null(yml, nm),
     .yml_complete_default(yml, nm, default)
   )
@@ -315,7 +346,9 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 .yml_order <- function(yml) {
   nm_vec <- character(0L)
   order_vec <- c(
-    "directories", par_nm_vec, "build"
+    "directories",
+    par_nm_vec,
+    "build"
   )
   for (x in order_vec) {
     if (x %in% names(yml)) {

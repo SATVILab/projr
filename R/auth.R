@@ -1,7 +1,9 @@
 # github
-.auth_get_github_pat <- function(init = FALSE,
-                                 use_gh_if_available = TRUE,
-                                 use_gitcreds_if_needed = TRUE) {
+.auth_get_github_pat <- function(
+  init = FALSE,
+  use_gh_if_available = TRUE,
+  use_gitcreds_if_needed = TRUE
+) {
   pat <- .auth_get_github_pat_find(
     use_gh_if_available = use_gh_if_available,
     use_gitcreds_if_needed = use_gitcreds_if_needed
@@ -14,9 +16,11 @@
 }
 
 
-.auth_get_github_pat_find <- function(api_url = NULL,
-                                      use_gh_if_available = TRUE,
-                                      use_gitcreds_if_needed = TRUE) {
+.auth_get_github_pat_find <- function(
+  api_url = NULL,
+  use_gh_if_available = TRUE,
+  use_gitcreds_if_needed = TRUE
+) {
   # 1. Direct env vars we explicitly honour
   pat <- .auth_token_normalize(Sys.getenv("GITHUB_PAT", unset = ""))
   if (.is_string(pat)) {
@@ -69,11 +73,11 @@
 
   creds <- tryCatch(
     suppressWarnings(gitcreds::gitcreds_get(host)),
-    gitcreds_nogit_error    = function(e) NULL,
+    gitcreds_nogit_error = function(e) NULL,
     gitcreds_no_credentials = function(e) NULL,
-    error                   = function(e) NULL,
+    error = function(e) NULL,
     # Catch any other condition types
-    condition               = function(e) NULL
+    condition = function(e) NULL
   )
 
   if (is.null(creds)) "" else .auth_token_normalize(creds$password)

@@ -25,7 +25,9 @@
 
 .gh_repo_get <- function() {
   repo <- getOption("projr.github.repo")
-  if (!is.null(repo)) return(repo)
+  if (!is.null(repo)) {
+    return(repo)
+  }
   if (.git_repo_is_worktree()) {
     git_file <- readLines(.path_get(".git"), warn = FALSE)
     git_file <- gsub("^gitdir: ", "", git_file)
@@ -54,8 +56,9 @@
     tool <- .git_system_get()
   }
 
-  switch(tool,
-    "git"  = .gh_guess_repo_git(path),
+  switch(
+    tool,
+    "git" = .gh_guess_repo_git(path),
     "gert" = .gh_guess_repo_gert(path),
     stop(paste0(.git_system_get(), " not recognised"))
   )
@@ -70,7 +73,8 @@
 }
 
 .gh_guess_repo_use_gh <- function(path = ".") {
-  requireNamespace("gh", quietly = TRUE) && !utils::file_test("-f", file.path(path, ".git"))
+  requireNamespace("gh", quietly = TRUE) &&
+    !utils::file_test("-f", file.path(path, ".git"))
 }
 
 .gh_guess_repo_gh <- function(path = ".") {
@@ -90,7 +94,11 @@
 }
 
 .gh_remote_url_from_git <- function(path = ".") {
-  git_args <- if (file.exists(file.path(path, "config"))) c("--git-dir", path) else c("-C", path)
+  git_args <- if (file.exists(file.path(path, "config"))) {
+    c("--git-dir", path)
+  } else {
+    c("-C", path)
+  }
 
   remote_url <- .gh_git_remote_url(git_args, "origin")
   if (nzchar(remote_url)) {
@@ -99,7 +107,9 @@
 
   remotes <- .gh_git_remote_list(git_args)
   if (length(remotes) == 0) {
-    stop("Could not detect any git remotes. Please ensure repository has a git remote.")
+    stop(
+      "Could not detect any git remotes. Please ensure repository has a git remote."
+    )
   }
 
   remote_url <- .gh_git_remote_url(git_args, remotes[1])
@@ -118,7 +128,9 @@
   }
 
   if (nrow(remotes) == 0) {
-    stop("Could not detect any git remotes. Please ensure repository has a git remote.")
+    stop(
+      "Could not detect any git remotes. Please ensure repository has a git remote."
+    )
   }
 
   remote_url <- .gh_gert_remote_url(remotes)
@@ -176,14 +188,23 @@
   remotes <- try_gert(path)
 
   # If path looks like a gitdir and gert couldn't read it, try parent-of-parent
-  if ((is.null(remotes) || nrow(remotes) == 0) && file.exists(file.path(path, "config"))) {
+  if (
+    (is.null(remotes) || nrow(remotes) == 0) &&
+      file.exists(file.path(path, "config"))
+  ) {
     alt <- dirname(dirname(path))
     remotes <- try_gert(alt)
   }
 
-  if (is.null(remotes)) remotes <- data.frame(name = character(), url = character())
+  if (is.null(remotes)) {
+    remotes <- data.frame(name = character(), url = character())
+  }
 
-  remotes[stats::complete.cases(remotes$url) & nzchar(remotes$url), , drop = FALSE]
+  remotes[
+    stats::complete.cases(remotes$url) & nzchar(remotes$url),
+    ,
+    drop = FALSE
+  ]
 }
 
 .gh_gert_remote_url <- function(remotes, remote = NULL) {
@@ -219,7 +240,10 @@
   owner_repo <- gsub("\\.git$", "", owner_repo)
   parts <- strsplit(owner_repo, "/")[[1]]
   if (length(parts) < 2 || !nzchar(parts[1]) || !nzchar(parts[2])) {
-    stop("Failed to get GitHub repository owner and name from git remote URL: ", remote_url)
+    stop(
+      "Failed to get GitHub repository owner and name from git remote URL: ",
+      remote_url
+    )
   }
   parts
 }

@@ -78,15 +78,17 @@
 #' Can also be set via PROJR_CLEAR_OUTPUT environment variable.
 #'
 #' @export
-projr_build <- function(bump_component,
-                        msg = NULL,
-                        args_engine = list(),
-                        profile = NULL,
-                        archive_github = FALSE,
-                        archive_local = FALSE,
-                        always_archive = TRUE,
-                        clear_output = NULL,
-                        project = NULL) {
+projr_build <- function(
+  bump_component,
+  msg = NULL,
+  args_engine = list(),
+  profile = NULL,
+  archive_github = FALSE,
+  archive_local = FALSE,
+  always_archive = TRUE,
+  clear_output = NULL,
+  project = NULL
+) {
   old_wd <- setwd(.build_prepare_project(project))
   on.exit(setwd(old_wd), add = TRUE)
   bump_component <- .build_output_get_bump_component(
@@ -108,14 +110,16 @@ projr_build <- function(bump_component,
 
 #' @rdname projr_build
 #' @export
-projr_build_major <- function(msg = NULL,
-                              args_engine = list(),
-                              profile = NULL,
-                              archive_github = FALSE,
-                              archive_local = FALSE,
-                              always_archive = TRUE,
-                              clear_output = NULL,
-                              project = NULL) {
+projr_build_major <- function(
+  msg = NULL,
+  args_engine = list(),
+  profile = NULL,
+  archive_github = FALSE,
+  archive_local = FALSE,
+  always_archive = TRUE,
+  clear_output = NULL,
+  project = NULL
+) {
   projr_build(
     bump_component = "major",
     msg = msg,
@@ -131,14 +135,16 @@ projr_build_major <- function(msg = NULL,
 
 #' @rdname projr_build
 #' @export
-projr_build_minor <- function(msg = NULL,
-                              args_engine = list(),
-                              profile = NULL,
-                              archive_github = FALSE,
-                              archive_local = FALSE,
-                              always_archive = TRUE,
-                              clear_output = NULL,
-                              project = NULL) {
+projr_build_minor <- function(
+  msg = NULL,
+  args_engine = list(),
+  profile = NULL,
+  archive_github = FALSE,
+  archive_local = FALSE,
+  always_archive = TRUE,
+  clear_output = NULL,
+  project = NULL
+) {
   projr_build(
     bump_component = "minor",
     msg = msg,
@@ -154,14 +160,16 @@ projr_build_minor <- function(msg = NULL,
 
 #' @rdname projr_build
 #' @export
-projr_build_patch <- function(msg = NULL,
-                              args_engine = list(),
-                              profile = NULL,
-                              archive_github = FALSE,
-                              archive_local = FALSE,
-                              always_archive = TRUE,
-                              clear_output = NULL,
-                              project = NULL) {
+projr_build_patch <- function(
+  msg = NULL,
+  args_engine = list(),
+  profile = NULL,
+  archive_github = FALSE,
+  archive_local = FALSE,
+  always_archive = TRUE,
+  clear_output = NULL,
+  project = NULL
+) {
   projr_build(
     bump_component = "patch",
     msg = msg,
@@ -225,17 +233,22 @@ projr_build_patch <- function(msg = NULL,
 #' }
 #'
 #' @export
-projr_build_dev <- function(scripts = NULL,
-                            bump = FALSE,
-                            old_dev_remove = TRUE,
-                            args_engine = list(),
-                            profile = NULL,
-                            clear_output = "never",
-                            project = NULL) {
+projr_build_dev <- function(
+  scripts = NULL,
+  bump = FALSE,
+  old_dev_remove = TRUE,
+  args_engine = list(),
+  profile = NULL,
+  clear_output = "never",
+  project = NULL
+) {
   .assert_flag(bump, TRUE)
   .assert_flag(old_dev_remove, TRUE)
   if (bump) {
-    warning("Development builds do not change the project version. Remove bump = TRUE.", call. = FALSE)
+    warning(
+      "Development builds do not change the project version. Remove bump = TRUE.",
+      call. = FALSE
+    )
   }
   old_wd <- setwd(.build_prepare_project(project))
   on.exit(setwd(old_wd), add = TRUE)
@@ -250,7 +263,12 @@ projr_build_dev <- function(scripts = NULL,
 }
 
 .build_init_config <- function(root) {
-  starter <- system.file("project_structure", "_projr.yml", package = "projr", mustWork = TRUE)
+  starter <- system.file(
+    "project_structure",
+    "_projr.yml",
+    package = "projr",
+    mustWork = TRUE
+  )
   config <- yaml::read_yaml(starter)
   if (!file.exists(file.path(root, ".git"))) {
     config$build$git <- FALSE
@@ -268,23 +286,32 @@ projr_build_dev <- function(scripts = NULL,
 
 .build_has_upstream <- function(root) {
   if (.git_system_get() == "git") {
-    args <- c("-C", shQuote(root), "rev-parse", "--verify", "--quiet", shQuote("@{upstream}"))
+    args <- c(
+      "-C",
+      shQuote(root),
+      "rev-parse",
+      "--verify",
+      "--quiet",
+      shQuote("@{upstream}")
+    )
     return(system2("git", args, stdout = FALSE, stderr = FALSE) == 0L)
   }
   upstream <- gert::git_info(repo = root)$upstream
   length(upstream) == 1L && !is.na(upstream) && nzchar(upstream)
 }
 
-.build <- function(scripts = NULL,
-                   bump_component,
-                   old_dev_remove = TRUE,
-                   msg = "",
-                   args_engine,
-                   profile,
-                   archive_github = FALSE,
-                   archive_local = FALSE,
-                   always_archive = TRUE,
-                   clear_output = NULL) {
+.build <- function(
+  scripts = NULL,
+  bump_component,
+  old_dev_remove = TRUE,
+  msg = "",
+  args_engine,
+  profile,
+  archive_github = FALSE,
+  archive_local = FALSE,
+  always_archive = TRUE,
+  clear_output = NULL
+) {
   if (!is.null(profile)) {
     old_profile <- Sys.getenv("PROJR_PROFILE")
     Sys.setenv(PROJR_PROFILE = profile)
@@ -300,7 +327,11 @@ projr_build_dev <- function(scripts = NULL,
     .build_ensure_version()
     .version_run_onwards_get(bump_component)
   }
-  version <- if (output_run) version_run_on_list$desc[["run"]] else .version_get_v(required = FALSE)
+  version <- if (output_run) {
+    version_run_on_list$desc[["run"]]
+  } else {
+    .version_get_v(required = FALSE)
+  }
   restore_context <- .template_context_start(version)
   on.exit(restore_context(), add = TRUE, after = FALSE)
   clear_output <- .build_get_clear_output(clear_output)
@@ -325,79 +356,116 @@ projr_build_dev <- function(scripts = NULL,
   }
   record_failure <- function(condition) {
     detail <- conditionMessage(condition)
-    if (inherits(condition, "interrupt") && (!length(detail) || !nzchar(detail))) {
+    if (
+      inherits(condition, "interrupt") && (!length(detail) || !nzchar(detail))
+    ) {
       detail <- "Build interrupted"
     }
-    tryCatch({
-      .log_build_append(detail, "error")
-      finish_log(FALSE)
-    }, error = function(log_error) {
-      message("Could not finish the build log: ", conditionMessage(log_error))
-    })
+    tryCatch(
+      {
+        .log_build_append(detail, "error")
+        finish_log(FALSE)
+      },
+      error = function(log_error) {
+        message("Could not finish the build log: ", conditionMessage(log_error))
+      }
+    )
     stop(condition)
   }
-  tryCatch(withCallingHandlers({
-    # Show initial build stage header
-    .cli_stage_header(
-      "Pre-Build Preparation", build_type
-    )
-
-    scripts <- .scripts_get(
-      scripts = scripts,
-      bump_component = bump_component,
-      profile = NULL
-    )
-
-    engines <- .engines_get(scripts)
-    restore_project <- .build_engines_backup_project(engines)
-    on.exit(restore_project(), add = TRUE, after = FALSE)
-    documents <- .build_document_sources(engines)
-    .build_pre(
-      bump_component, msg, clear_output,
-      archive_github, archive_local, always_archive, engines, documents, version_run_on_list
-    )
-    render_dirs <- if (any(names(engines) != "r")) {
-      unique(c(.path_get(), dirname(documents)))
-    } else {
-      character()
-    }
-    intermediates_before <- .ignore_auto_document_intermediates(render_dirs)
-    on.exit(
+  tryCatch(
+    withCallingHandlers(
       {
-        if (!build_success) {
-          .ignore_auto_failed_document_outputs(render_dirs, intermediates_before)
+        # Show initial build stage header
+        .cli_stage_header(
+          "Pre-Build Preparation",
+          build_type
+        )
+
+        scripts <- .scripts_get(
+          scripts = scripts,
+          bump_component = bump_component,
+          profile = NULL
+        )
+
+        engines <- .engines_get(scripts)
+        restore_project <- .build_engines_backup_project(engines)
+        on.exit(restore_project(), add = TRUE, after = FALSE)
+        documents <- .build_document_sources(engines)
+        .build_pre(
+          bump_component,
+          msg,
+          clear_output,
+          archive_github,
+          archive_local,
+          always_archive,
+          engines,
+          documents,
+          version_run_on_list
+        )
+        render_dirs <- if (any(names(engines) != "r")) {
+          unique(c(.path_get(), dirname(documents)))
+        } else {
+          character()
         }
+        intermediates_before <- .ignore_auto_document_intermediates(render_dirs)
+        on.exit(
+          {
+            if (!build_success) {
+              .ignore_auto_failed_document_outputs(
+                render_dirs,
+                intermediates_before
+              )
+            }
+          },
+          add = TRUE,
+          after = FALSE
+        )
+        engines <- .build_engines_override_project(
+          engines,
+          restore_project,
+          args_engine[["profile"]]
+        )
+
+        # Build stage
+        if (length(engines)) {
+          .cli_stage_header("Build", build_type)
+        } else {
+          .cli_info("No scripts or documents selected")
+        }
+        rendered <- .build_engines(engines, version_run_on_list, args_engine)
+
+        # Post-build stage
+        .cli_stage_header("Post-Build", build_type)
+        total_time <- Sys.time() - time_start
+        .build_post(
+          version_run_on_list,
+          bump_component,
+          msg,
+          old_dev_remove,
+          archive_github,
+          archive_local,
+          always_archive,
+          clear_output,
+          total_time,
+          rendered,
+          restore_project
+        )
+
+        build_success <- TRUE
       },
-      add = TRUE,
-      after = FALSE
-    )
-    engines <- .build_engines_override_project(engines, restore_project, args_engine[["profile"]])
-
-    # Build stage
-    if (length(engines)) {
-      .cli_stage_header("Build", build_type)
-    } else {
-      .cli_info("No scripts or documents selected")
-    }
-    rendered <- .build_engines(engines, version_run_on_list, args_engine)
-
-    # Post-build stage
-    .cli_stage_header("Post-Build", build_type)
-    total_time <- Sys.time() - time_start
-    .build_post(
-      version_run_on_list, bump_component, msg, old_dev_remove,
-      archive_github, archive_local, always_archive, clear_output, total_time,
-      rendered, restore_project
-    )
-
-    build_success <- TRUE
-  }, warning = function(w) {
-    .log_build_append(conditionMessage(w), "warning")
-  }), error = record_failure, interrupt = record_failure)
+      warning = function(w) {
+        .log_build_append(conditionMessage(w), "warning")
+      }
+    ),
+    error = record_failure,
+    interrupt = record_failure
+  )
 
   finish_log(TRUE)
   # The detailed log already ends with the build status.
-  if (.cli_should_show("std")) cli::cli_alert_success("Build completed successfully")
+  if (.cli_should_show("std")) {
+    cli::cli_alert_success("Build completed successfully")
+  }
   invisible(TRUE)
 }
 
@@ -412,22 +480,25 @@ projr_build_dev <- function(scripts = NULL,
 }
 
 .build_get_clear_output <- function(clear_output) {
-  clear_output <- clear_output %||% Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "pre")
+  clear_output <- clear_output %||%
+    Sys.getenv("PROJR_CLEAR_OUTPUT", unset = "pre")
   .assert_in_single(clear_output, c("pre", "post", "never"), TRUE)
   clear_output
 }
 
 # pre
 # ------------------------
-.build_pre <- function(bump_component,
-                       msg,
-                       clear_output,
-                       archive_github,
-                       archive_local,
-                       always_archive,
-                       engines,
-                       documents,
-                       version_run_on_list) {
+.build_pre <- function(
+  bump_component,
+  msg,
+  clear_output,
+  archive_github,
+  archive_local,
+  always_archive,
+  engines,
+  documents,
+  version_run_on_list
+) {
   .cli_step("Checking project configuration")
 
   projr_yml_check(NULL)
@@ -459,12 +530,16 @@ projr_build_dev <- function(scripts = NULL,
   # clear output and docs directories, and set
   # run version to output run version if need be
   .build_pre_setup_for_output_run(
-    version_run_on_list, output_run, clear_output
+    version_run_on_list,
+    output_run,
+    clear_output
   )
 
   # commit any unstaged files pre-run
   .build_pre_commit_git(
-    bump_component, version_run_on_list, msg
+    bump_component,
+    version_run_on_list,
+    msg
   )
 
   # Output Git information for debug (after pre-build commit)
@@ -482,26 +557,35 @@ projr_build_dev <- function(scripts = NULL,
 
 # post
 # ------------------------
-.build_post <- function(version_run_on_list,
-                        bump_component,
-                        msg,
-                        old_dev_remove,
-                        archive_github,
-                        archive_local,
-                        always_archive,
-                        clear_output,
-                        total_time,
-                        engines,
-                        restore_project) {
+.build_post <- function(
+  version_run_on_list,
+  bump_component,
+  msg,
+  old_dev_remove,
+  archive_github,
+  archive_local,
+  always_archive,
+  clear_output,
+  total_time,
+  engines,
+  restore_project
+) {
   output_run <- .build_get_output_run(bump_component)
 
   # move artefacts to unsafe, final directories
   .build_post_finalise_artefacts(
-    bump_component, version_run_on_list, clear_output, engines
+    bump_component,
+    version_run_on_list,
+    clear_output,
+    engines
   )
 
   # update documentation
-  .build_post_document(bump_component, version_run_on_list, msg, total_time,
+  .build_post_document(
+    bump_component,
+    version_run_on_list,
+    msg,
+    total_time,
     .buildlog_get_destinations(archive_github, archive_local)
   )
 
@@ -510,7 +594,10 @@ projr_build_dev <- function(scripts = NULL,
 
   # send to remotes
   .build_post_send_dest(
-    bump_component, old_dev_remove, archive_github, archive_local,
+    bump_component,
+    old_dev_remove,
+    archive_github,
+    archive_local,
     always_archive
   )
 
@@ -531,11 +618,13 @@ projr_build_dev <- function(scripts = NULL,
 
 # update lock file, help files, citation files, README
 # and CHANGELOG
-.build_post_document <- function(bump_component,
-                                 version_run_on_list,
-                                 msg,
-                                 total_time,
-                                 destinations = .buildlog_get_destinations()) {
+.build_post_document <- function(
+  bump_component,
+  version_run_on_list,
+  msg,
+  total_time,
+  destinations = .buildlog_get_destinations()
+) {
   output_run <- .build_get_output_run(bump_component)
   if (!output_run) {
     .cli_debug("Development builds skip production metadata and publication")
@@ -571,22 +660,30 @@ projr_build_dev <- function(scripts = NULL,
 
 
 # organise files and folders (clear and copy)
-.build_post_finalise_artefacts <- function(bump_component,
-                                           version_run_on_list,
-                                           clear_output,
-                                           engines) {
+.build_post_finalise_artefacts <- function(
+  bump_component,
+  version_run_on_list,
+  clear_output,
+  engines
+) {
   output_run <- .build_get_output_run(bump_component)
   .build_clear_post_safe(
-    output_run, clear_output, names(engines),
+    output_run,
+    clear_output,
+    names(engines),
     as.character(unlist(engines[names(engines) == "document_output"]))
   )
-  .build_copy(output_run, bump_component, version_run_on_list, engines, clear_output)
+  .build_copy(
+    output_run,
+    bump_component,
+    version_run_on_list,
+    engines,
+    clear_output
+  )
 }
 
 # record (version, rmd, git)
-.build_pre_commit_git <- function(bump_component,
-                                  version_run_on_list,
-                                  msg) {
+.build_pre_commit_git <- function(bump_component, version_run_on_list, msg) {
   output_run <- .build_get_output_run(bump_component)
 
   # commit any files generated by run
@@ -600,9 +697,7 @@ projr_build_dev <- function(scripts = NULL,
 }
 
 # record (version, rmd, git)
-.build_post_commit_git <- function(bump_component,
-                                   version_run_on_list,
-                                   msg) {
+.build_post_commit_git <- function(bump_component, version_run_on_list, msg) {
   output_run <- .build_get_output_run(bump_component)
 
   # commit any files generated by run
@@ -616,29 +711,36 @@ projr_build_dev <- function(scripts = NULL,
 }
 
 # send to remotes
-.build_post_send_dest <- function(bump_component,
-                                  old_dev_remove,
-                                  archive_github,
-                                  archive_local,
-                                  always_archive) {
+.build_post_send_dest <- function(
+  bump_component,
+  old_dev_remove,
+  archive_github,
+  archive_local,
+  always_archive
+) {
   # Lenient: prepare all required GitHub releases for this build (non-blocking)
   .dest_prepare_github_releases(
-    bump_component, archive_github, archive_local, always_archive,
+    bump_component,
+    archive_github,
+    archive_local,
+    always_archive,
     strict = FALSE
   )
 
   .dest_send(
-    bump_component, archive_github, archive_local, always_archive
+    bump_component,
+    archive_github,
+    archive_local,
+    always_archive
   )
   .build_clear_old(
-    .build_get_output_run(bump_component), old_dev_remove
+    .build_get_output_run(bump_component),
+    old_dev_remove
   )
 }
 
 # bump to dev
-.build_post_dev <- function(bump_component,
-                            version_run_on_list,
-                            msg) {
+.build_post_dev <- function(bump_component, version_run_on_list, msg) {
   output_run <- .build_get_output_run(bump_component)
 
   # Only bump to dev version for production builds

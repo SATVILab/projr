@@ -2,36 +2,61 @@
 # ---------------------------
 
 # Hash all labels in one build phase together, including when each has just one file.
-.manifest_hash_label <- function(label, output_run, version = NULL, engine = NULL) {
+.manifest_hash_label <- function(
+  label,
+  output_run,
+  version = NULL,
+  engine = NULL
+) {
   if (!length(label)) {
     return(.zero_tbl_get_manifest())
   }
   hashing <- .yml_settings_hashing()
   version <- .version_v_add(version %||% projr_version_get())
-  directories <- vapply(label, projr_path_get_dir, character(1),
-    safe = !output_run, format = "absolute", USE.NAMES = FALSE
+  directories <- vapply(
+    label,
+    projr_path_get_dir,
+    character(1),
+    safe = !output_run,
+    format = "absolute",
+    USE.NAMES = FALSE
   )
-  files <- Map(function(directory, label) {
-    .assert_dir_exists(directory, TRUE)
-    paths <- .hash_dir_files(directory, .build_label_get_dir_exc(label))
-    # Empty directories have one manifest row with blank filename and hash.
-    if (length(paths)) paths else ""
-  }, directories, label)
+  files <- Map(
+    function(directory, label) {
+      .assert_dir_exists(directory, TRUE)
+      paths <- .hash_dir_files(directory, .build_label_get_dir_exc(label))
+      # Empty directories have one manifest row with blank filename and hash.
+      if (length(paths)) paths else ""
+    },
+    directories,
+    label
+  )
 
   counts <- lengths(files)
   filenames <- unlist(files, use.names = FALSE)
-  rows <- data.frame(label = rep(label, counts), fn = filenames, version = version, hash = "")
+  rows <- data.frame(
+    label = rep(label, counts),
+    fn = filenames,
+    version = version,
+    hash = ""
+  )
   has_file <- nzchar(filenames)
   if (any(has_file)) {
     paths <- file.path(rep(directories, counts)[has_file], filenames[has_file])
-    hashes <- .hash_file(unique(paths), engine %||% hashing$approach, hashing$cores)
+    hashes <- .hash_file(
+      unique(paths),
+      engine %||% hashing$approach,
+      hashing$cores
+    )
     rows$hash[has_file] <- unname(hashes[paths])
   }
   rows
 }
 
-.manifest_hash_cache_filter <- function(hash_tbl, # nolint
-                                        label) {
+.manifest_hash_cache_filter <- function(
+  hash_tbl, # nolint
+  label
+) {
   if (!.yml_dir_label_class_detect_cache(label)) {
     return(hash_tbl)
   }
@@ -61,9 +86,11 @@
     .zero_tbl_get_manifest()
 }
 
-.manifest_filter_out_version_label <- function(manifest, # nolint
-                                               version,
-                                               label) {
+.manifest_filter_out_version_label <- function(
+  manifest, # nolint
+  version,
+  label
+) {
   label_vec_non <- manifest[["label"]] != label
   version_vec_non <- manifest[["version"]] != .version_v_add(version)
   manifest[label_vec_non & version_vec_non, ] %@@%
@@ -74,7 +101,8 @@
 # based on the project
 # ---------------------------
 
-.manifest_get_add_project <- function(manifest, label) { # nolint
+.manifest_get_add_project <- function(manifest, label) {
+  # nolint
   manifest_add <- .manifest_read_project(label, .version_get_v())
   if (nrow(manifest_add) == 0L) {
     return(.empty_tbl_get_manifest(label, projr::projr_version_get()))
@@ -92,7 +120,8 @@
     .manifest_write_impl(path, overwrite)
 }
 
-.manifest_append_previous <- function(manifest, append, path_previous) { # nolint
+.manifest_append_previous <- function(manifest, append, path_previous) {
+  # nolint
   if (!append) {
     return(manifest)
   }
@@ -106,14 +135,16 @@
   manifest |> .manifest_append_previous_impl(manifest_pre)
 }
 
-.manifest_append_previous_impl <- function(manifest, manifest_pre) { # nolint
+.manifest_append_previous_impl <- function(manifest, manifest_pre) {
+  # nolint
   rownames(manifest_pre) <- NULL
   manifest <- manifest_pre |> rbind(manifest)
   rownames(manifest) <- NULL
   manifest
 }
 
-.manifest_remove_duplicate <- function(manifest) { # nolint: object_length_linter, line_length_linter.
+.manifest_remove_duplicate <- function(manifest) {
+  # nolint: object_length_linter, line_length_linter.
   unique(manifest)
 }
 
@@ -127,7 +158,8 @@
   }
   .dir_create(dirname(path))
   utils::write.csv(
-    manifest, path,
+    manifest,
+    path,
     row.names = FALSE
   )
   invisible(path)
@@ -144,8 +176,12 @@
     index <- .manifest_store_read_index(path)
     return(.manifest_store_expand(index, dirname(dirname(path))))
   }
-  utils::read.csv(path, colClasses = "character", na.strings = character(),
-                  stringsAsFactors = FALSE)
+  utils::read.csv(
+    path,
+    colClasses = "character",
+    na.strings = character(),
+    stringsAsFactors = FALSE
+  )
 }
 
 .manifest_read_project <- function(label = NULL, version = NULL, fn = NULL) {
@@ -154,9 +190,15 @@
     return(.manifest_store_read(path_dir, label, version, fn))
   }
   rows <- .manifest_read(.path_get("manifest.csv"))
-  if (!is.null(label)) rows <- rows[rows$label %in% label, , drop = FALSE]
-  if (!is.null(version)) rows <- rows[rows$version %in% version, , drop = FALSE]
-  if (!is.null(fn)) rows <- rows[rows$fn %in% fn, , drop = FALSE]
+  if (!is.null(label)) {
+    rows <- rows[rows$label %in% label, , drop = FALSE]
+  }
+  if (!is.null(version)) {
+    rows <- rows[rows$version %in% version, , drop = FALSE]
+  }
+  if (!is.null(fn)) {
+    rows <- rows[rows$fn %in% fn, , drop = FALSE]
+  }
   rows
 }
 
@@ -173,7 +215,8 @@
     file.path("manifest.csv")
 }
 
-.manifest_version_get_latest <- function(manifest) { # nolint: object_length_linter, line_length_linter.
+.manifest_version_get_latest <- function(manifest) {
+  # nolint: object_length_linter, line_length_linter.
   manifest[["version"]] |> .version_get_earliest()
 }
 
@@ -203,7 +246,8 @@
   out_df
 }
 
-.version_file_update_project_version <- function(version_file) { # nolint: object_length_linter, line_length_linter.
+.version_file_update_project_version <- function(version_file) {
+  # nolint: object_length_linter, line_length_linter.
   if (.is_len_0(version_file)) {
     return(paste0("Project: ", projr_version_get()))
   }
@@ -213,9 +257,11 @@
   c(paste0("Project: ", projr_version_get()), version_file)
 }
 
-.version_file_update_label_version <- function(version_file, # nolint
-                                               label,
-                                               add_asterisk) {
+.version_file_update_label_version <- function(
+  version_file, # nolint
+  label,
+  add_asterisk
+) {
   version_add <- if (add_asterisk) {
     .version_get() |> paste0("*")
   } else {
@@ -238,23 +284,30 @@
   }
 }
 
-.version_file_check_update_label <- function(fn, # nolint: object_length_linter, line_length_linter.
-                                             version_file,
-                                             label) {
+.version_file_check_update_label <- function(
+  fn, # nolint: object_length_linter, line_length_linter.
+  version_file,
+  label
+) {
   is_change <- .is_len_pos(fn) # nolint
   is_label_present <- .version_file_check_update_label_present(
-    version_file, label
+    version_file,
+    label
   )
   is_change || !is_label_present
 }
 
-.version_file_check_update_label_present <- function(version_file, # nolint
-                                                     label) {
+.version_file_check_update_label_present <- function(
+  version_file, # nolint
+  label
+) {
   !.is_len_0(which(grepl(paste0("^", label, ": "), version_file)))
 }
 
-.version_file_check_label_trusted <- function(version_file, # nolint: object_length_linter, line_length_linter.
-                                              label) {
+.version_file_check_label_trusted <- function(
+  version_file, # nolint: object_length_linter, line_length_linter.
+  label
+) {
   version_file <- version_file[grepl(paste0("^", label, ": "), version_file)]
   if (.is_len_0(version_file)) {
     return(FALSE)
@@ -264,8 +317,10 @@
 }
 
 # get minimum acceptable version
-.manifest_get_version_earliest_match <- function(label, # nolint
-                                                 version_comp) {
+.manifest_get_version_earliest_match <- function(
+  label, # nolint
+  version_comp
+) {
   # begin with latest version (most conservative)
   version_earliest_match <- projr_version_get() |>
     .version_v_rm() |>
@@ -278,15 +333,24 @@
     index <- .manifest_store_index(store, label)
     versions <- package_version(sub("^v", "", index$version))
     current <- match(.version_get_v(), index$version)
-    if (is.na(current)) return(version_earliest_match)
-    eligible <- which(versions >= package_version(version_comp) & versions <= version_earliest_match)
-    if (!length(eligible)) return(version_earliest_match)
+    if (is.na(current)) {
+      return(version_earliest_match)
+    }
+    eligible <- which(
+      versions >= package_version(version_comp) &
+        versions <= version_earliest_match
+    )
+    if (!length(eligible)) {
+      return(version_earliest_match)
+    }
     # An archive can be trusted back through consecutive unchanged builds.
     # Reverting to earlier contents starts a new run for this comparison.
     eligible <- eligible[order(versions[eligible], decreasing = TRUE)]
     matches <- index$snapshot[eligible] == index$snapshot[current]
     consecutive <- match(FALSE, matches, nomatch = length(matches) + 1L) - 1L
-    if (!consecutive) return(version_earliest_match)
+    if (!consecutive) {
+      return(version_earliest_match)
+    }
     return(versions[eligible[consecutive]])
   }
   manifest_project <- .manifest_read_project(label)

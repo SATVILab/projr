@@ -18,10 +18,12 @@
 #'   when at least one send action occurs.
 #' @keywords internal
 #' @noRd
-.dest_send <- function(bump_component,
-                       archive_github,
-                       archive_local,
-                       always_archive) {
+.dest_send <- function(
+  bump_component,
+  archive_github,
+  archive_local,
+  always_archive
+) {
   # consider early exit
   # ------------------
   if (!.dest_send_check(bump_component)) {
@@ -41,13 +43,18 @@
     # content to archive (TRUE means all, otherwise
     # a character vector with the content names).
     archive_type <- .dest_send_get_archive_type(
-      type, archive_github, archive_local
+      type,
+      archive_github,
+      archive_local
     )
     # check if we are always archiving based on the parameter.
     # this may not be that important...
     always_archive <- .dest_send_get_always_archive(type, always_archive)
     .dest_send_type(
-      type, bump_component, archive_type, always_archive
+      type,
+      bump_component,
+      archive_type,
+      always_archive
     )
   }
 }
@@ -133,9 +140,7 @@
 #'   behavior.
 #' @keywords internal
 #' @noRd
-.dest_send_get_archive_type <- function(type,
-                                        archive_github,
-                                        archive_local) {
+.dest_send_get_archive_type <- function(type, archive_github, archive_local) {
   # Essentially, here we check whether we are
   # archiving based on a parameter call,
   # and if we are, we return either TRUE (meaning
@@ -154,9 +159,10 @@
   # - not NULL (same as above)
   # - and if the type is not already specified in the _projr.yml
   #  - _projr.yml takes precedence over the parameters.
-  switch(type,
+  switch(
+    type,
     "github" = .dest_send_check_is_archive_param_github(archive_github),
-    "local"  = .dest_send_check_is_archive_param_local(archive_local),
+    "local" = .dest_send_check_is_archive_param_local(archive_local),
     FALSE
   )
 }
@@ -169,7 +175,8 @@
 #' @keywords internal
 #' @noRd
 .dest_send_check_is_archive_param_github <- function(archive_github) {
-  is_param <- !isFALSE(archive_github) && !is.null(archive_github) &&
+  is_param <- !isFALSE(archive_github) &&
+    !is.null(archive_github) &&
     !"archive" %in% names(.yml_dest_get_type("github", NULL))
   if (is_param) archive_github else FALSE
 }
@@ -182,7 +189,8 @@
 #' @keywords internal
 #' @noRd
 .dest_send_check_is_archive_param_local <- function(archive_local) {
-  is_param <- !isFALSE(archive_local) && !is.null(archive_local) &&
+  is_param <- !isFALSE(archive_local) &&
+    !is.null(archive_local) &&
     !"archive" %in% names(.yml_dest_get_type("local", NULL))
   if (is_param) archive_local else FALSE
 }
@@ -224,10 +232,12 @@
 #'   otherwise.
 #' @keywords internal
 #' @noRd
-.dest_send_type <- function(type,
-                            bump_component,
-                            archive_type,
-                            always_archive) {
+.dest_send_type <- function(
+  type,
+  bump_component,
+  archive_type,
+  always_archive
+) {
   # ensure that these are not NULL only if not
   # specified in _projr.yml. Reaason is that,
   # if they are specified in the `yml`, the settings
@@ -243,7 +253,11 @@
 
   for (x in title_vec) {
     .dest_send_title(
-      x, type, bump_component, archive_type, always_archive
+      x,
+      type,
+      bump_component,
+      archive_type,
+      always_archive
     )
   }
 }
@@ -256,18 +270,22 @@
 #' @return Character vector of titles to process.
 #' @keywords internal
 #' @noRd
-.dest_send_type_get_title <- function(type,
-                                      archive_type,
-                                      profile = NULL) {
+.dest_send_type_get_title <- function(type, archive_type, profile = NULL) {
   selections <- .yml_dest_get_type(type, profile)
-  one_off <- if (!"archive" %in% names(selections)) .dest_send_type_get_title_param(archive_type)
+  one_off <- if (!"archive" %in% names(selections)) {
+    .dest_send_type_get_title_param(archive_type)
+  }
   unique(c(.dest_send_selected_titles(selections), one_off))
 }
 
 .dest_send_selected_titles <- function(selections) {
-  empty <- vapply(selections, function(entry) {
-    "content" %in% names(entry) && !length(entry[["content"]])
-  }, logical(1))
+  empty <- vapply(
+    selections,
+    function(entry) {
+      "content" %in% names(entry) && !length(entry[["content"]])
+    },
+    logical(1)
+  )
   names(selections)[!empty]
 }
 #' @title Titles from YAML configuration for a remote type
@@ -309,15 +327,21 @@
 #' @return Invisibly returns `FALSE` when skipped or `TRUE` when processed.
 #' @keywords internal
 #' @noRd
-.dest_send_title <- function(title,
-                             type,
-                             bump_component,
-                             archive_type,
-                             always_archive) {
+.dest_send_title <- function(
+  title,
+  type,
+  bump_component,
+  archive_type,
+  always_archive
+) {
   force(title)
 
   may_send <- .dest_send_title_check(
-    title, type, bump_component, archive_type, always_archive
+    title,
+    type,
+    bump_component,
+    archive_type,
+    always_archive
   )
 
   if (!may_send) {
@@ -328,21 +352,36 @@
   }
 
   content_vec <- .dest_send_title_get_content(
-    title, type, archive_type
+    title,
+    type,
+    archive_type
   )
 
   # GitHub provides source archives on the release tag itself.
   if (type == "github" && !"code" %in% names(.yml_dir_get(NULL))) {
     content_vec <- setdiff(content_vec, "code")
   }
-  if (!length(content_vec)) return(invisible(TRUE))
-  target <- .yml_dest_get_title_complete(title, type, NULL, archive_type, always_archive)
+  if (!length(content_vec)) {
+    return(invisible(TRUE))
+  }
+  target <- .yml_dest_get_title_complete(
+    title,
+    type,
+    NULL,
+    archive_type,
+    always_archive
+  )
   .cli_info("Updating {type} destination '{target$id}'")
   .with_github_repo(target[["repo"]], branch = target[["branch"]], {
     for (x in content_vec) {
       .dest_send_label(
-        x, title, type, .build_get_output_run(bump_component),
-        archive_type, always_archive, x == content_vec[length(content_vec)]
+        x,
+        title,
+        type,
+        .build_get_output_run(bump_component),
+        archive_type,
+        always_archive,
+        x == content_vec[length(content_vec)]
       )
     }
   })
@@ -356,14 +395,20 @@
 #' @return Logical indicating whether content should be sent.
 #' @keywords internal
 #' @noRd
-.dest_send_title_check <- function(title,
-                                   type,
-                                   bump_component,
-                                   archive_type,
-                                   always_archive) {
+.dest_send_title_check <- function(
+  title,
+  type,
+  bump_component,
+  archive_type,
+  always_archive
+) {
   force(title)
   .yml_dest_get_title_complete(
-    title, type, NULL, archive_type, always_archive
+    title,
+    type,
+    NULL,
+    archive_type,
+    always_archive
   )[["cue"]] |>
     .is_cue(bump_component)
 }
@@ -374,12 +419,11 @@
 #' @return Character vector of content labels to send.
 #' @keywords internal
 #' @noRd
-.dest_send_title_get_content <- function(title,
-                                         type,
-                                         archive_type) {
+.dest_send_title_get_content <- function(title, type, archive_type) {
   force(title)
   is_param_content <- .dest_send_title_get_content_check_yml(
-    title, archive_type
+    title,
+    archive_type
   )
   if (is_param_content) {
     .dest_send_title_get_content_param(archive_type)
@@ -395,8 +439,7 @@
 #'   YAML definitions apply.
 #' @keywords internal
 #' @noRd
-.dest_send_title_get_content_check_yml <- function(title,
-                                                   archive_type) {
+.dest_send_title_get_content_check_yml <- function(title, archive_type) {
   # we are not using yml if the title is "archive"
   # and archive_type is not FALSE (i.e. it has been specified
   # to request something and we've already confirmed

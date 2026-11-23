@@ -2,7 +2,9 @@ test_that("projr_init works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -41,7 +43,9 @@ test_that(".init_yml works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -77,7 +81,9 @@ test_that(".init_description works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -108,7 +114,9 @@ test_that(".init_dep works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -138,7 +146,9 @@ test_that(".init_ignore works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -169,7 +179,9 @@ test_that(".init_renv works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -200,7 +212,9 @@ test_that(".init_license works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -229,7 +243,9 @@ test_that(".init_readme works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -259,7 +275,9 @@ test_that("projr_init_bookdown works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -296,7 +314,9 @@ test_that("projr_init_quarto_project works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -339,7 +359,9 @@ test_that("projr_init_quarto_document works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -375,7 +397,9 @@ test_that("projr_init_rmd works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -417,7 +441,9 @@ test_that("projr_init with various parameters works", {
 
   # Test with minimal parameters (defaults)
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -440,7 +466,9 @@ test_that("projr_init with various parameters works", {
 
   # Test with git enabled
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -457,7 +485,9 @@ test_that("projr_init with various parameters works", {
 
   # Test with DESCRIPTION and license
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -479,7 +509,9 @@ test_that("projr_init with various parameters works", {
 
   # Test with projr_yml
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -499,7 +531,9 @@ test_that("projr_init with various parameters works", {
 
   # Test with lit_doc options
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -519,7 +553,9 @@ test_that("projr_init with various parameters works", {
 
   # Test with readme_rmd = FALSE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -543,7 +579,9 @@ test_that("projr_init_all works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -553,7 +591,11 @@ test_that("projr_init_all works", {
     path = dir_test,
     code = {
       # projr_init_all should enable desc, projr_yml, and optionally lit_doc and license
-      expect_true(projr_init_all(github = FALSE, license = "cc0", lit_doc = "rmd"))
+      expect_true(projr_init_all(
+        github = FALSE,
+        license = "cc0",
+        lit_doc = "rmd"
+      ))
       expect_true(file.exists("DESCRIPTION"))
       expect_true(file.exists("_projr.yml"))
       expect_true(file.exists("LICENSE.md"))
@@ -570,7 +612,9 @@ test_that("projr_init_cite works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -612,7 +656,9 @@ test_that("projr_init_git works", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -638,7 +684,9 @@ test_that("projr_init_git works", {
 
   # Test git init without commit
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -661,7 +709,9 @@ test_that("projr_init_license works with different license types", {
 
   # Test CC-BY license
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -684,7 +734,9 @@ test_that("projr_init_license works with different license types", {
 
   # Test Apache license
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -702,7 +754,9 @@ test_that("projr_init_license works with different license types", {
 
   # Test CC0 license
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -720,7 +774,9 @@ test_that("projr_init_license works with different license types", {
 
   # Test proprietary license
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -745,7 +801,9 @@ test_that("projr_init_renv works", {
     "Set PROJR_TEST_RENV=TRUE to run renv initialization tests"
   )
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -786,7 +844,9 @@ test_that(".init_usethis_std sets project correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -813,7 +873,9 @@ test_that(".init_dir_std creates directories when enabled", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -840,7 +902,9 @@ test_that(".init_dir_std creates directories when enabled", {
 
   # Test when init_dir = FALSE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -862,7 +926,9 @@ test_that(".init_readme_std handles various scenarios", {
 
   # Test with readme = TRUE, readme_rmd = TRUE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -883,7 +949,9 @@ test_that(".init_readme_std handles various scenarios", {
 
   # Test with readme = TRUE, readme_rmd = FALSE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -902,7 +970,9 @@ test_that(".init_readme_std handles various scenarios", {
 
   # Test with readme = FALSE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -921,7 +991,9 @@ test_that(".init_readme_std handles various scenarios", {
 
   # Test when README.Rmd already exists
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -946,7 +1018,9 @@ test_that(".init_desc_std creates DESCRIPTION when enabled", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -963,7 +1037,10 @@ test_that(".init_desc_std creates DESCRIPTION when enabled", {
 
       desc_content <- read.dcf("DESCRIPTION")
       expect_true("Package" %in% colnames(desc_content))
-      expect_identical(as.character(desc_content[1, "Package"]), basename(dir_test))
+      expect_identical(
+        as.character(desc_content[1, "Package"]),
+        basename(dir_test)
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -971,7 +1048,9 @@ test_that(".init_desc_std creates DESCRIPTION when enabled", {
 
   # Test with desc = FALSE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -989,7 +1068,9 @@ test_that(".init_desc_std creates DESCRIPTION when enabled", {
 
   # Test when DESCRIPTION already exists
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1000,7 +1081,10 @@ test_that(".init_desc_std creates DESCRIPTION when enabled", {
       result <- .init_desc_std(TRUE)
       expect_false(result)
       desc_content <- read.dcf("DESCRIPTION")
-      expect_identical(as.character(desc_content[1, "Package"]), "ExistingPackage")
+      expect_identical(
+        as.character(desc_content[1, "Package"]),
+        "ExistingPackage"
+      )
     },
     force = TRUE,
     quiet = TRUE
@@ -1014,7 +1098,9 @@ test_that(".init_license_std handles various license types", {
 
   # Test with NULL license
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1034,7 +1120,9 @@ test_that(".init_license_std handles various license types", {
 
   # Test with ccby license
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1052,7 +1140,9 @@ test_that(".init_license_std handles various license types", {
 
   # Test with CC-BY (alternative capitalization)
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1075,7 +1165,9 @@ test_that(".init_cite_std creates citation files when DESCRIPTION exists", {
 
   # Test with cite = FALSE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1095,7 +1187,9 @@ test_that(".init_cite_std creates citation files when DESCRIPTION exists", {
 
   # Test with cite = TRUE but no DESCRIPTION
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1113,7 +1207,9 @@ test_that(".init_cite_std creates citation files when DESCRIPTION exists", {
 
   # Test with cite = TRUE and DESCRIPTION exists
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1149,7 +1245,9 @@ test_that(".init_yml_std creates _projr.yml when enabled", {
 
   # Test with init_yml = FALSE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1168,7 +1266,9 @@ test_that(".init_yml_std creates _projr.yml when enabled", {
 
   # Test with init_yml = TRUE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1185,7 +1285,9 @@ test_that(".init_yml_std creates _projr.yml when enabled", {
 
   # Test when _projr.yml already exists
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1209,7 +1311,9 @@ test_that(".init_engine_std handles different literate documentation engines", {
 
   # Test with NULL lit_doc
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1232,7 +1336,9 @@ test_that(".init_engine_std handles different literate documentation engines", {
 
   # Test with bookdown
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1253,7 +1359,9 @@ test_that(".init_engine_std handles different literate documentation engines", {
 
   # Test with quarto
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1273,7 +1381,9 @@ test_that(".init_engine_std handles different literate documentation engines", {
 
   # Test with rmd
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1305,7 +1415,9 @@ test_that(".init_std_git initializes git repository correctly", {
 
   # Test with git = FALSE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1325,7 +1437,9 @@ test_that(".init_std_git initializes git repository correctly", {
 
   # Test with git = TRUE, commit = FALSE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1344,7 +1458,9 @@ test_that(".init_std_git initializes git repository correctly", {
 
   # Test with git = TRUE, commit = TRUE
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1378,7 +1494,9 @@ test_that("projr_init_prompt creates full project structure", {
   skip_if(.is_test_lite())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1426,7 +1544,9 @@ test_that("projr_init_prompt with custom yml_path_from", {
   skip_if(.is_test_lite())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1483,7 +1603,9 @@ test_that("projr_init_prompt with public = TRUE parameter", {
   skip_if(.is_test_lite())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1521,7 +1643,9 @@ test_that(".init_git_git initializes git with commit", {
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1558,7 +1682,9 @@ test_that(".init_git_git initializes git without commit", {
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1593,7 +1719,9 @@ test_that("projr_init_ignore creates ignore files", {
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1638,7 +1766,9 @@ test_that("projr_init_ignore updates existing ignore files", {
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1669,7 +1799,10 @@ test_that("projr_init_ignore updates existing ignore files", {
 
       # And has projr managed content (either with section markers or inline)
       # The section markers should be added when updating existing content
-      has_section_markers <- any(grepl("Start of projr section", gitignore_content))
+      has_section_markers <- any(grepl(
+        "Start of projr section",
+        gitignore_content
+      ))
       has_projr_dirs <- any(grepl("_tmp", gitignore_content)) ||
         any(grepl("_raw_data", gitignore_content)) ||
         any(grepl("_output", gitignore_content))
@@ -1706,7 +1839,9 @@ test_that("projr_init_license works with non-proprietary licenses without names"
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1737,7 +1872,9 @@ test_that(".init_cite_std_readme adds citation to README.Rmd when it exists", {
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1748,7 +1885,7 @@ test_that(".init_cite_std_readme adds citation to README.Rmd when it exists", {
     code = {
       # Create DESCRIPTION first (required for citation)
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
-      
+
       # Create README.Rmd first
       writeLines(c("# Test Project", "", "This is a test."), "README.Rmd")
 
@@ -1766,7 +1903,9 @@ test_that(".init_cite_std_readme adds citation to README.md when README.Rmd does
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1777,7 +1916,7 @@ test_that(".init_cite_std_readme adds citation to README.md when README.Rmd does
     code = {
       # Create DESCRIPTION first (required for citation)
       projr_init(git = FALSE, github = FALSE, desc = TRUE)
-      
+
       # Create only README.md (no README.Rmd)
       writeLines(c("# Test Project", "", "This is a test."), "README.md")
 
@@ -1795,7 +1934,9 @@ test_that(".init_cite_std_readme returns FALSE when no README exists", {
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1818,7 +1959,9 @@ test_that(".init_readme_std_check returns FALSE when README.md exists and readme
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1850,7 +1993,9 @@ test_that(".init_engine_std_bookdown handles existing files correctly", {
 
   # Test when _bookdown.yml already exists
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1878,7 +2023,9 @@ test_that(".init_engine_std_bookdown handles existing files correctly", {
 
   # Test when _output.yml already exists
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1903,7 +2050,9 @@ test_that(".init_engine_std_bookdown handles existing files correctly", {
 
   # Test when index.Rmd already exists
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
 
   usethis::with_project(
@@ -1933,7 +2082,9 @@ test_that(".init_engine_std_quarto_project handles file existence combinations",
 
   # Test when both files already exist (skipped = 2)
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -1978,7 +2129,9 @@ test_that("projr_init handles VERSION file already existing", {
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -2007,7 +2160,9 @@ test_that("projr_init handles DESCRIPTION file already existing", {
   skip_if(.is_test_select())
 
   dir_test <- .dir_get_tmp_random_path()
-  if (dir.exists(dir_test)) unlink(dir_test, recursive = TRUE)
+  if (dir.exists(dir_test)) {
+    unlink(dir_test, recursive = TRUE)
+  }
   .dir_create(dir_test)
   .test_set()
   withr::defer(.test_unset())
@@ -2037,7 +2192,9 @@ test_that("projr_init handles DESCRIPTION file already existing", {
 
 test_that("installed CodeMeta generates project metadata without an installer", {
   skip_if(.is_test_select())
-  if (!identical(Sys.getenv("GITHUB_ACTIONS"), "true")) skip_if_not_installed("codemeta")
+  if (!identical(Sys.getenv("GITHUB_ACTIONS"), "true")) {
+    skip_if_not_installed("codemeta")
+  }
   expect_true(requireNamespace("codemeta", quietly = TRUE))
   project <- .test_setup_project(rm_engine = TRUE)
   usethis::with_project(project, {

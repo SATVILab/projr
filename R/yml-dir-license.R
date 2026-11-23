@@ -43,11 +43,13 @@
 #' projr_yml_dir_license_set("Apache-2.0", "output")
 #' projr_yml_dir_license_set("Apache-2.0", "docs")
 #' }
-projr_yml_dir_license_set <- function(type,
-                                      label,
-                                      authors = NULL,
-                                      year = NULL,
-                                      profile = "default") {
+projr_yml_dir_license_set <- function(
+  type,
+  label,
+  authors = NULL,
+  year = NULL,
+  profile = "default"
+) {
   .assert_string(type, TRUE)
   .assert_string(label, TRUE)
   .assert_chr(authors)
@@ -217,7 +219,9 @@ projr_yml_dir_license_update <- function(labels = NULL, profile = "default") {
   }
 
   if (length(updated_labels) > 0) {
-    .cli_info("Updated license settings for: {paste(updated_labels, collapse = ', ')}")
+    .cli_info(
+      "Updated license settings for: {paste(updated_labels, collapse = ', ')}"
+    )
   } else {
     .cli_debug("No directories with license configurations found")
   }
@@ -271,11 +275,13 @@ projr_yml_dir_license_update <- function(labels = NULL, profile = "default") {
 #'   year = 2024
 #' )
 #' }
-projr_license_create_manual <- function(type,
-                                        labels = NULL,
-                                        authors = NULL,
-                                        year = NULL,
-                                        profile = "default") {
+projr_license_create_manual <- function(
+  type,
+  labels = NULL,
+  authors = NULL,
+  year = NULL,
+  profile = "default"
+) {
   .assert_string(type, TRUE)
   .assert_chr(labels)
   .assert_chr(authors)
@@ -304,7 +310,9 @@ projr_license_create_manual <- function(type,
     # Check if YAML config exists - if so, warn and skip
     if (!is.null(.yml_dir_get_license(label, profile))) {
       warning(
-        "Directory '", label, "' has license config in YAML. ",
+        "Directory '",
+        label,
+        "' has license config in YAML. ",
         "Use projr_yml_dir_license_set() to modify it, or remove the config first.",
         call. = FALSE
       )
@@ -321,7 +329,9 @@ projr_license_create_manual <- function(type,
     license_path <- file.path(path_dir, "LICENSE")
     if (file.exists(license_path)) {
       warning(
-        "LICENSE file already exists in '", label, "' directory. ",
+        "LICENSE file already exists in '",
+        label,
+        "' directory. ",
         "Skipping to avoid overwriting manual edits.",
         call. = FALSE
       )
@@ -334,8 +344,12 @@ projr_license_create_manual <- function(type,
   }
 
   if (length(created_labels) > 0) {
-    .cli_info("Created LICENSE files for: {paste(created_labels, collapse = ', ')}")
-    .cli_info("These licenses are not in YAML config and can be manually edited. They will not be overwritten during builds.")
+    .cli_info(
+      "Created LICENSE files for: {paste(created_labels, collapse = ', ')}"
+    )
+    .cli_info(
+      "These licenses are not in YAML config and can be manually edited. They will not be overwritten during builds."
+    )
   } else {
     .cli_debug("No LICENSE files created")
   }

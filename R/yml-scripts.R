@@ -14,27 +14,48 @@
   if (is.null(scripts)) {
     return(NULL)
   }
-  if (!is.null(names(scripts)) || !(is.character(scripts) || is.list(scripts))) {
-    stop(field, " must contain script paths or list entries such as '- exclude: scratch.R'.", call. = FALSE)
-  }
-  vapply(scripts, function(entry) {
-    if (.is_string_min(entry)) {
-      if (is.na(entry) || !nzchar(trimws(entry))) {
-        stop("Empty YAML script entry in ", field, '. Quote exclusions such as "!skip.R", ',
-          "use '- exclude: skip.R', or use scripts: [] to run nothing.",
-          call. = FALSE
-        )
-      }
-      return(entry)
-    }
-    if (is.list(entry) && identical(names(entry), "exclude") &&
-      .is_string(entry$exclude) && nzchar(trimws(entry$exclude))) {
-      return(paste0("!", trimws(entry$exclude)))
-    }
-    stop("Each entry in ", field, " must be a script path or an 'exclude' mapping with one non-empty path or glob.",
+  if (
+    !is.null(names(scripts)) || !(is.character(scripts) || is.list(scripts))
+  ) {
+    stop(
+      field,
+      " must contain script paths or list entries such as '- exclude: scratch.R'.",
       call. = FALSE
     )
-  }, character(1), USE.NAMES = FALSE)
+  }
+  vapply(
+    scripts,
+    function(entry) {
+      if (.is_string_min(entry)) {
+        if (is.na(entry) || !nzchar(trimws(entry))) {
+          stop(
+            "Empty YAML script entry in ",
+            field,
+            '. Quote exclusions such as "!skip.R", ',
+            "use '- exclude: skip.R', or use scripts: [] to run nothing.",
+            call. = FALSE
+          )
+        }
+        return(entry)
+      }
+      if (
+        is.list(entry) &&
+          identical(names(entry), "exclude") &&
+          .is_string(entry$exclude) &&
+          nzchar(trimws(entry$exclude))
+      ) {
+        return(paste0("!", trimws(entry$exclude)))
+      }
+      stop(
+        "Each entry in ",
+        field,
+        " must be a script path or an 'exclude' mapping with one non-empty path or glob.",
+        call. = FALSE
+      )
+    },
+    character(1),
+    USE.NAMES = FALSE
+  )
 }
 
 #' Get list of scripts to build for production builds

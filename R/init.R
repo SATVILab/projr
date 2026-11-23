@@ -63,7 +63,12 @@ projr_init_prompt <- function(
   .init_git_init(nm_list[["answer_git"]])
 
   # create GitHub remote
-  .init_github(!is.null(nm_list[["gh"]]), user = nm_list[["gh"]], org = NULL, public = public)
+  .init_github(
+    !is.null(nm_list[["gh"]]),
+    user = nm_list[["gh"]],
+    org = NULL,
+    public = public
+  )
 
   # create github remote
   invisible(TRUE)

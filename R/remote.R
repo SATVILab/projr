@@ -13,11 +13,10 @@
 #' @return Logical flag indicating whether the remote exists.
 #' @keywords internal
 #' @noRd
-.remote_check_exists <- function(type,
-                                 id,
-                                 ...) {
+.remote_check_exists <- function(type, id, ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_check_exists_local(path = id),
     "github" = .remote_check_exists_github(
       tag = .remote_misc_github_tag_get(id),
@@ -37,14 +36,16 @@
 #' @return Logical flag indicating whether the final remote exists.
 #' @keywords internal
 #' @noRd
-.remote_final_check_exists <- function(type,
-                                       id,
-                                       label,
-                                       structure,
-                                       path,
-                                       path_append_label,
-                                       version,
-                                       empty) {
+.remote_final_check_exists <- function(
+  type,
+  id,
+  label,
+  structure,
+  path,
+  path_append_label,
+  version,
+  empty
+) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
   version <- if (is.null(version)) {
     .version_get_v()
@@ -52,16 +53,33 @@
     version |> .version_v_add()
   }
   remote_pre <- .remote_final_get(
-    type, id, label, structure, path, path_append_label,
-    version, TRUE, empty
+    type,
+    id,
+    label,
+    structure,
+    path,
+    path_append_label,
+    version,
+    TRUE,
+    empty
   )
-  switch(type,
+  switch(
+    type,
     "local" = .remote_final_check_exists_local(
-      id, label, structure, path, path_append_label,
-      version, empty
+      id,
+      label,
+      structure,
+      path,
+      path_append_label,
+      version,
+      empty
     ),
     "github" = .remote_final_check_exists_github(
-      remote_pre, structure, label, version, empty
+      remote_pre,
+      structure,
+      label,
+      version,
+      empty
     )
   )
 }
@@ -79,11 +97,10 @@
 #'   remote.
 #' @keywords internal
 #' @noRd
-.remote_final_check_exists_direct <- function(type,
-                                              remote,
-                                              ...) {
+.remote_final_check_exists_direct <- function(type, remote, ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_final_check_exists_direct_local(remote),
     "github" = .remote_final_check_exists_direct_github(remote, ...)
   )
@@ -107,16 +124,14 @@
 #' @return Backend-specific identifier for the created remote.
 #' @keywords internal
 #' @noRd
-.remote_create <- function(type,
-                           id,
-                           name,
-                           ...) {
+.remote_create <- function(type, id, name, ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
   .cli_debug(
     "Remote create: type={type}, id={id}"
   )
 
-  switch(type,
+  switch(
+    type,
     "local" = .remote_create_local(path = id),
     "github" = .remote_create_github(
       tag = .remote_misc_github_tag_get(id),
@@ -139,11 +154,10 @@
 #'   final remotes.
 #' @keywords internal
 #' @noRd
-.remote_ls_final <- function(type,
-                             remote_pre,
-                             ...) {
+.remote_ls_final <- function(type, remote_pre, ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_ls_final_local(remote_pre),
     "github" = .remote_ls_final_github(remote_pre, ...)
   )
@@ -170,10 +184,10 @@
 #' @keywords internal
 #' @noRd
 
-.remote_get <- function(type,
-                        id) {
+.remote_get <- function(type, id) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_get_local(id = id),
     "github" = .remote_get_github(.remote_misc_github_tag_get(id)),
     stop(paste0("type '", type, "' not recognized"))
@@ -209,18 +223,21 @@
 #'   vector with names `tag` and `fn` for the release tag and asset name, respectively.
 #' @keywords internal
 #' @noRd
-.remote_final_get <- function(type,
-                              id,
-                              label,
-                              structure,
-                              path = NULL,
-                              path_append_label = TRUE,
-                              version = NULL,
-                              pre = FALSE,
-                              empty = FALSE) {
+.remote_final_get <- function(
+  type,
+  id,
+  label,
+  structure,
+  path = NULL,
+  path_append_label = TRUE,
+  version = NULL,
+  pre = FALSE,
+  empty = FALSE
+) {
   # pre: "one up" from the final remote, e.g. the directory
   # above for hierarchical. Does not apply to flat.
-  switch(type,
+  switch(
+    type,
     "local" = .remote_final_get_local(
       path = id,
       label = label,
@@ -273,17 +290,20 @@
 #'   vector with names `tag` and `fn` for the release tag and asset name, respectively.
 #' @keywords internal
 #' @noRd
-.remote_final_empty_get <- function(type,
-                                    id,
-                                    label,
-                                    structure,
-                                    path = NULL,
-                                    path_append_label = TRUE,
-                                    version = NULL,
-                                    ...) {
+.remote_final_empty_get <- function(
+  type,
+  id,
+  label,
+  structure,
+  path = NULL,
+  path_append_label = TRUE,
+  version = NULL,
+  ...
+) {
   # pre: "one up" from the final remote, e.g. the directory
   # above for hierarchical. Does not apply to flat.
-  switch(type,
+  switch(
+    type,
     "local" = .remote_final_empty_get_local(
       path = id,
       label = label,
@@ -329,21 +349,30 @@
 #'   remotes (GitHub asset names) and is ignored for hierarchical backends.
 #' @keywords internal
 #' @noRd
-.remote_final_get_if_exists <- function(type,
-                                        id,
-                                        label,
-                                        structure,
-                                        path,
-                                        path_append_label,
-                                        version,
-                                        pre,
-                                        empty = NULL) {
+.remote_final_get_if_exists <- function(
+  type,
+  id,
+  label,
+  structure,
+  path,
+  path_append_label,
+  version,
+  pre,
+  empty = NULL
+) {
   # always work with non-empty remote, and adapt it to be empty
   # remote if that is what is needed
   empty_init <- empty %||% FALSE
   remote_final_empty_init <- .remote_final_get_if_exists_impl(
-    type, id, label, structure, path, path_append_label,
-    version, pre, empty_init
+    type,
+    id,
+    label,
+    structure,
+    path,
+    path_append_label,
+    version,
+    pre,
+    empty_init
   )
   remote_exists <- !is.null(remote_final_empty_init)
   empty_specified <- !is.null(empty)
@@ -351,8 +380,15 @@
     return(remote_final_empty_init)
   }
   .remote_final_get_if_exists_impl(
-    type, id, label, structure, path, path_append_label,
-    version, pre, !empty_init
+    type,
+    id,
+    label,
+    structure,
+    path,
+    path_append_label,
+    version,
+    pre,
+    !empty_init
   )
 }
 
@@ -374,23 +410,40 @@
 #'   fallback logic when `empty = NULL` (attempt non-empty then empty).
 #' @keywords internal
 #' @noRd
-.remote_final_get_if_exists_impl <- function(type,
-                                             id,
-                                             label,
-                                             structure,
-                                             path = NULL,
-                                             path_append_label = TRUE,
-                                             version = NULL,
-                                             pre = FALSE,
-                                             empty = FALSE) {
+.remote_final_get_if_exists_impl <- function(
+  type,
+  id,
+  label,
+  structure,
+  path = NULL,
+  path_append_label = TRUE,
+  version = NULL,
+  pre = FALSE,
+  empty = FALSE
+) {
   exists <- .remote_final_check_exists(
-    type, id, label, structure, path, path_append_label, version, empty
+    type,
+    id,
+    label,
+    structure,
+    path,
+    path_append_label,
+    version,
+    empty
   )
   if (!exists) {
     return(NULL)
   }
   .remote_final_get(
-    type, id, label, structure, path, path_append_label, version, pre, empty
+    type,
+    id,
+    label,
+    structure,
+    path,
+    path_append_label,
+    version,
+    pre,
+    empty
   )
 }
 
@@ -416,16 +469,19 @@
 #' @return Character scalar representing the relative path/asset fragment.
 #' @keywords internal
 #' @noRd
-.remote_get_path_rel <- function(path,
-                                 path_append_label,
-                                 label,
-                                 structure,
-                                 type,
-                                 version,
-                                 pre,
-                                 empty) {
+.remote_get_path_rel <- function(
+  path,
+  path_append_label,
+  label,
+  structure,
+  type,
+  version,
+  pre,
+  empty
+) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_get_path_rel_hierarchy(
       path = path,
       path_append_label = path_append_label,
@@ -454,13 +510,15 @@
 #' @return Character relative path built according to structure/pre options.
 #' @keywords internal
 #' @noRd
-.remote_get_path_rel_hierarchy <- function(path,
-                                           path_append_label,
-                                           label,
-                                           structure,
-                                           version,
-                                           pre,
-                                           empty) {
+.remote_get_path_rel_hierarchy <- function(
+  path,
+  path_append_label,
+  label,
+  structure,
+  version,
+  pre,
+  empty
+) {
   .assert_string(path)
   .assert_flag(path_append_label, TRUE)
   .assert_in_single(structure, .opt_remote_get_structure(), TRUE)
@@ -469,7 +527,9 @@
     .assert_directory_labels(label)
   }
 
-  if (pre || (!path_append_label && structure == "latest")) return(path %||% character())
+  if (pre || (!path_append_label && structure == "latest")) {
+    return(path %||% character())
+  }
 
   args_list <- list()
   if (!is.null(path)) {
@@ -491,7 +551,8 @@
   }
   if (!is.null(empty) && isTRUE(empty)) {
     args_list[[length(args_list)]] <- paste0(
-      args_list[[length(args_list)]], "-empty"
+      args_list[[length(args_list)]],
+      "-empty"
     )
   }
 
@@ -507,12 +568,14 @@
 #' @return Character scalar describing the asset filename prefix.
 #' @keywords internal
 #' @noRd
-.remote_get_path_rel_flat <- function(path,
-                                      path_append_label,
-                                      label,
-                                      structure,
-                                      version,
-                                      empty) {
+.remote_get_path_rel_flat <- function(
+  path,
+  path_append_label,
+  label,
+  structure,
+  version,
+  empty
+) {
   .assert_string(path)
   .assert_flag(path_append_label, TRUE)
   .assert_in_single(structure, .opt_remote_get_structure(), TRUE)
@@ -556,11 +619,10 @@
 #' @return Invisibly returns `TRUE` when removal succeeds.
 #' @keywords internal
 #' @noRd
-.remote_final_rm_if_empty <- function(type,
-                                      remote,
-                                      ...) {
+.remote_final_rm_if_empty <- function(type, remote, ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_final_rm_if_empty_local(remote),
     "github" = .remote_final_rm_if_empty_github(remote, ...)
   )
@@ -578,11 +640,10 @@
 #' @return Invisibly returns `TRUE` when removal succeeds.
 #' @keywords internal
 #' @noRd
-.remote_rm <- function(type,
-                       remote,
-                       ...) {
+.remote_rm <- function(type, remote, ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_rm_local(remote),
     "github" = .remote_rm_github(remote, ...)
   )
@@ -592,16 +653,16 @@
 # Delete a final remote
 # ========================
 
-.remote_final_rm <- function(type,
-                             remote,
-                             ...) {
+.remote_final_rm <- function(type, remote, ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_final_rm_local(
       remote = remote
     ),
     "github" = .remote_final_rm_github(
-      remote = remote, ...
+      remote = remote,
+      ...
     )
   )
 }
@@ -620,11 +681,10 @@
 #' @return Metadata list or `NULL` when the backend does not expose information.
 #' @keywords internal
 #' @noRd
-.remote_final_get_info <- function(type,
-                                   remote_final,
-                                   ...) {
+.remote_final_get_info <- function(type, remote_final, ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = NULL,
     "github" = .remote_final_get_info_github(remote_final, ...)
   )
@@ -646,11 +706,10 @@
 #' @return Invisibly returns `TRUE` after the remote is emptied.
 #' @keywords internal
 #' @noRd
-.remote_final_empty <- function(type,
-                                remote,
-                                ...) {
+.remote_final_empty <- function(type, remote, ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_final_empty_local(remote),
     "github" = .remote_final_empty_github(
       remote,
@@ -673,15 +732,17 @@
 #' @return Manifest-like tibble containing filename/hash pairs.
 #' @keywords internal
 #' @noRd
-.remote_hash <- function(type,
-                         remote_final,
-                         version,
-                         label) {
+.remote_hash <- function(type, remote_final, version, label) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
-  hash_tbl <- .change_get_file_dir( # nolint
-    type, remote_final
+  hash_tbl <- .change_get_file_dir(
+    # nolint
+    type,
+    remote_final
   ) |>
-    .hash_dir(version, dir_exc = .remote_local_metadata_pattern(remote_final)) |>
+    .hash_dir(
+      version,
+      dir_exc = .remote_local_metadata_pattern(remote_final)
+    ) |>
     .manifest_hash_cache_filter(label)
   if (nrow(hash_tbl) == 0) {
     .zero_tbl_get_manifest()
@@ -707,14 +768,12 @@
 #' @return Absolute path to the directory containing downloaded files.
 #' @keywords internal
 #' @noRd
-.remote_file_get_all <- function(type,
-                                 remote,
-                                 path_dir_save_local,
-                                 ...) {
+.remote_file_get_all <- function(type, remote, path_dir_save_local, ...) {
   .assert_string(path_dir_save_local, TRUE)
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
   .dir_create(path_dir_save_local)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_file_get_all_local(
       remote = remote,
       path_dir_save_local = path_dir_save_local
@@ -739,14 +798,12 @@
 #' @return Absolute path to the saved file.
 #' @keywords internal
 #' @noRd
-.remote_file_get <- function(type,
-                             remote,
-                             fn,
-                             path_dir_save_local) {
+.remote_file_get <- function(type, remote, fn, path_dir_save_local) {
   .assert_string(path_dir_save_local, TRUE)
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
   .dir_create(path_dir_save_local)
-  switch(type,
+  switch(
+    type,
     "local" = .remote_file_get_local(
       remote = remote,
       fn = fn,
@@ -771,11 +828,11 @@
 #' @return Character vector (or list for complex backends) of filenames.
 #' @keywords internal
 #' @noRd
-.remote_file_ls <- function(type,
-                            remote) {
+.remote_file_ls <- function(type, remote) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
 
-  result <- switch(type,
+  result <- switch(
+    type,
     "local" = .remote_file_ls_local(remote),
     "github" = .remote_file_ls_github(remote)
   )
@@ -800,16 +857,15 @@
 #' @return Invisibly returns `TRUE` after deletion completes.
 #' @keywords internal
 #' @noRd
-.remote_file_rm <- function(type,
-                            fn,
-                            remote) {
+.remote_file_rm <- function(type, fn, remote) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
 
   .cli_debug(
     "Remote file remove: type={type}, removing {length(fn)} file(s)"
   )
 
-  switch(type,
+  switch(
+    type,
     "local" = .remote_file_rm_local(fn = fn, remote = remote),
     "github" = .remote_file_rm_github(fn = fn, remote = remote)
   )
@@ -827,16 +883,15 @@
 #' @return Invisibly returns `TRUE` after uploads finish.
 #' @keywords internal
 #' @noRd
-.remote_file_add <- function(type,
-                             remote,
-                             path_dir_local,
-                             fn,
-                             ...) {
+.remote_file_add <- function(type, remote, path_dir_local, fn, ...) {
   .assert_in_single(type, .opt_remote_get_type(), TRUE)
 
-  switch(type,
+  switch(
+    type,
     "local" = .remote_file_add_local(
-      fn = fn, path_dir_local = path_dir_local, remote = remote
+      fn = fn,
+      path_dir_local = path_dir_local,
+      remote = remote
     ),
     "github" = .remote_file_add_github(
       fn = fn,

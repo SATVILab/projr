@@ -1,8 +1,10 @@
-.build_copy <- function(output_run,
-                        bump_component,
-                        version_run_on_list,
-                        engines = .engines_get(),
-                        clear_output = "never") {
+.build_copy <- function(
+  output_run,
+  bump_component,
+  version_run_on_list,
+  engines = .engines_get(),
+  clear_output = "never"
+) {
   # copy document across to correct directories.
   # this always happens because rmds' and qmds'
   # outputs need to be collected after build
@@ -13,28 +15,47 @@
   plan <- .yml_dir_include_plan(directories, NULL, legacy = copy_output)
   for (target in names(plan)) {
     sources <- directories[[target]][["include"]]
-    if (!length(sources)) next
+    if (!length(sources)) {
+      next
+    }
     # These paths were cleared for this build. Existing files belong to a script.
-    safe_paths <- if (output_run && clear_output != "never") c(TRUE, FALSE) else TRUE
+    safe_paths <- if (output_run && clear_output != "never") {
+      c(TRUE, FALSE)
+    } else {
+      TRUE
+    }
     for (safe in safe_paths) {
-      root <- projr_path_get_dir(target, safe = safe, create = FALSE, format = "absolute")
+      root <- projr_path_get_dir(
+        target,
+        safe = safe,
+        create = FALSE,
+        format = "absolute"
+      )
       paths <- file.path(root, sources)
       conflict <- paths[file.exists(paths) | fs::link_exists(paths)]
       if (length(conflict)) {
-        stop("Rendered output conflicts with a directory include: ", conflict[1L], call. = FALSE)
+        stop(
+          "Rendered output conflicts with a directory include: ",
+          conflict[1L],
+          call. = FALSE
+        )
       }
     }
   }
 
   if (copy_output) {
     # Without receiver-side includes, preserve the existing copy order.
-    if (!length(plan)) .build_copy_dir(output_run)
+    if (!length(plan)) {
+      .build_copy_dir(output_run)
+    }
     .build_copy_to_unsafe(output_run)
     .build_copy_pkg(output_run)
   }
   # Include the source directories' licenses in every published copy.
   .license_dir_create_all_post(output_run)
-  if (length(plan)) .build_copy_includes(plan, directories, output_run)
+  if (length(plan)) {
+    .build_copy_includes(plan, directories, output_run)
+  }
 
   invisible(copy_output)
 }

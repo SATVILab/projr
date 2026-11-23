@@ -34,7 +34,8 @@
 }
 
 .yml_dir_complete_hash <- function(hash, label) {
-  switch(.yml_dir_label_class_get(label),
+  switch(
+    .yml_dir_label_class_get(label),
     "raw" = .yml_dir_complete_hash_raw(hash),
     "cache" = .yml_dir_complete_hash_cache(hash),
     "output" = .yml_dir_complete_hash_output(hash),
@@ -151,7 +152,8 @@
 }
 
 .yml_dir_complete_output <- function(output, label, profile) {
-  switch(class(output),
+  switch(
+    class(output),
     logical = .yml_dir_complete_output_lgl(output, label, profile),
     character = .yml_dir_complete_output_chr(output, label, profile),
     character()
@@ -186,8 +188,11 @@
 }
 
 .yml_dir_get_label_out <- function(profile) {
-  c(.yml_dir_get_label_output(profile), .yml_dir_get_label_docs(profile),
-    intersect("data", names(.yml_dir_get(profile))))
+  c(
+    .yml_dir_get_label_output(profile),
+    .yml_dir_get_label_docs(profile),
+    intersect("data", names(.yml_dir_get(profile)))
+  )
 }
 
 .yml_dir_get_label_output <- function(profile) {
@@ -232,9 +237,13 @@
 }
 
 .yml_dir_get_path <- function(label, profile) {
-  if (identical(label, "data")) return("data")
+  if (identical(label, "data")) {
+    return("data")
+  }
   directory <- .yml_dir_get_label(label, profile)
-  if (is.null(directory)) stop("label '", label, "' not found in _projr.yml", call. = FALSE)
+  if (is.null(directory)) {
+    stop("label '", label, "' not found in _projr.yml", call. = FALSE)
+  }
   path <- if (is.list(directory)) directory[["path"]]
   .assert_string(path, TRUE, nm = paste0("directories.", label, ".path"))
   .template_expand(path)
@@ -250,11 +259,13 @@
   .yml_set(yml_projr, profile)
 }
 
-.yml_dir_add_label <- function(path,
-                               package = NULL,
-                               output = NULL,
-                               label,
-                               profile) {
+.yml_dir_add_label <- function(
+  path,
+  package = NULL,
+  output = NULL,
+  label,
+  profile
+) {
   .assert_string(path, TRUE)
   .assert_string(label, TRUE)
   .assert_given(profile)
@@ -278,8 +289,14 @@
 
 .yml_dir_get <- function(profile) {
   directories <- .yml_get(profile)[["directories"]] %||% list()
-  if (!is.list(directories) || (length(directories) && is.null(names(directories)))) {
-    stop("directories must be a YAML mapping of labels to settings.", call. = FALSE)
+  if (
+    !is.list(directories) ||
+      (length(directories) && is.null(names(directories)))
+  ) {
+    stop(
+      "directories must be a YAML mapping of labels to settings.",
+      call. = FALSE
+    )
   }
   directories
 }
@@ -299,7 +316,8 @@
       .yml_get_profile_ind(profile)[["directories"]]
     }
     .yml_merge(default, directories, local)
-  }) |> stats::setNames(profiles)
+  }) |>
+    stats::setNames(profiles)
 }
 
 .yml_dir_set <- function(yml_dir, profile) {

@@ -1,11 +1,14 @@
-.change_get <- function(label,
-                        output_run,
-                        path_dir_local = NULL,
-                        inspect,
-                        type,
-                        remote) {
+.change_get <- function(
+  label,
+  output_run,
+  path_dir_local = NULL,
+  inspect,
+  type,
+  remote
+) {
   .change_get_check(label, path_dir_local, inspect)
-  switch(inspect,
+  switch(
+    inspect,
     "manifest" = .change_get_manifest(
       type_pre = type,
       remote_pre = remote,
@@ -24,9 +27,7 @@
   )
 }
 
-.change_get_check <- function(label,
-                              path_dir_local,
-                              inspect) {
+.change_get_check <- function(label, path_dir_local, inspect) {
   if (is.null(path_dir_local)) {
     .assert_string(label, required = TRUE)
   }
@@ -37,35 +38,53 @@
 # manifest-based
 # ------------------------
 
-.change_get_manifest <- function(type_pre,
-                                 remote_pre,
-                                 type_post,
-                                 remote_post,
-                                 label = NULL) {
+.change_get_manifest <- function(
+  type_pre,
+  remote_pre,
+  type_post,
+  remote_post,
+  label = NULL
+) {
   .assert_given_mid(label)
   version_pre_impl <- .remote_get_version_latest_label(
-    remote_pre, type_pre, label
+    remote_pre,
+    type_pre,
+    label
   )
   if (is.null(version_pre_impl)) {
     .cli_debug(
-      "No previous version found for label '", label, "' ",
-      "in the specified remote '", remote_pre, "'"
+      "No previous version found for label '",
+      label,
+      "' ",
+      "in the specified remote '",
+      remote_pre,
+      "'"
     )
     stop(
-      "No previous version found for label '", label, "' ",
-      "in the specified remote '", remote_pre, "'"
+      "No previous version found for label '",
+      label,
+      "' ",
+      "in the specified remote '",
+      remote_pre,
+      "'"
     )
   }
   version_post_impl <- .remote_get_version_latest_label(
-    remote_post, type_post, label
+    remote_post,
+    type_post,
+    label
   )
   if (is.null(version_post_impl)) {
     .cli_debug(
-      "No current version found for label '", label, "' ",
+      "No current version found for label '",
+      label,
+      "' ",
       "in the specified project"
     )
     stop(
-      "No current version found for label '", label, "' ",
+      "No current version found for label '",
+      label,
+      "' ",
       "in the specified project"
     )
   }
@@ -77,9 +96,12 @@
   manifest_post_full <- .remote_get_manifest(type_post, remote_post) |>
     .manifest_filter_label(label)
 
-  if (.change_get_manifest_check_nothing(
-    manifest_pre_full, manifest_post_full
-  )) {
+  if (
+    .change_get_manifest_check_nothing(
+      manifest_pre_full,
+      manifest_post_full
+    )
+  ) {
     # this is if no files are specified in either location
     return(.zero_list_manifest_get())
   }
@@ -89,8 +111,13 @@
     .manifest_filter_version(version_post_impl)
 
   manifest_pre <- .change_get_manifest_pre_final(
-    version_pre_impl, version_post_impl, manifest_post,
-    manifest_pre_full, manifest_post_full, type_pre, remote_pre
+    version_pre_impl,
+    version_post_impl,
+    manifest_post,
+    manifest_pre_full,
+    manifest_post_full,
+    type_pre,
+    remote_pre
   )
 
   if (.change_get_manifest_check_nothing(manifest_pre, manifest_post)) {
@@ -101,18 +128,19 @@
   .change_get_hash(hash_pre = manifest_pre, hash_post = manifest_post)
 }
 
-.change_get_manifest_check_nothing <- function(manifest_pre,
-                                               manifest_post) {
+.change_get_manifest_check_nothing <- function(manifest_pre, manifest_post) {
   nrow(manifest_pre) == 0L && nrow(manifest_post) == 0L
 }
 
-.change_get_manifest_pre_final <- function(version_pre_actual,
-                                           version_post_actual,
-                                           manifest_post,
-                                           manifest_pre_full,
-                                           manifest_post_full,
-                                           type_pre,
-                                           remote_pre) {
+.change_get_manifest_pre_final <- function(
+  version_pre_actual,
+  version_post_actual,
+  manifest_post,
+  manifest_pre_full,
+  manifest_post_full,
+  type_pre,
+  remote_pre
+) {
   if (.is_len_0(version_pre_actual)) {
     # has it directly if not available
     path_dir_local_pre <- .change_get_file_dir(
@@ -122,8 +150,11 @@
     .hash_dir(path_dir_local_pre)
   } else {
     version_pre_final <- .change_get_manifest_get_closest_mismatch(
-      version_pre_actual, version_post_actual, manifest_post,
-      manifest_pre_full, manifest_post_full
+      version_pre_actual,
+      version_post_actual,
+      manifest_post,
+      manifest_pre_full,
+      manifest_post_full
     )
     manifest_pre_full |>
       .manifest_filter_version(version_pre_final)
@@ -131,11 +162,14 @@
 }
 
 
-.change_get_manifest_get_closest_mismatch <- function(version_pre,
-                                                      version_post,
-                                                      manifest_post,
-                                                      manifest_pre_full,
-                                                      manifest_post_full) { # nolint
+.change_get_manifest_get_closest_mismatch <- function(
+  version_pre,
+  version_post,
+  manifest_post,
+  manifest_pre_full,
+  manifest_post_full
+) {
+  # nolint
   # get the closest mismatch to the latest version,
   # and if there are no mismatches just return the
   # previous version (furthest away version)
@@ -155,7 +189,9 @@
     version_curr <- version_vec_loop[[i]]
     manifest_curr <-
       .change_get_manifest_get_closest_mismatch_get_manifest_curr(
-        manifest_pre_full, manifest_post_full, version_curr
+        manifest_pre_full,
+        manifest_post_full,
+        version_curr
       )
     if (!identical(manifest_curr, manifest_post)) {
       version_closest_mismatch <- version_curr
@@ -187,10 +223,12 @@
 # file-based
 # ------------------------
 
-.change_get_file <- function(type_pre = NULL,
-                             remote_pre = NULL,
-                             type_post = NULL,
-                             remote_post = NULL) {
+.change_get_file <- function(
+  type_pre = NULL,
+  remote_pre = NULL,
+  type_post = NULL,
+  remote_post = NULL
+) {
   # get directories where files are found or saved to,
   # downloading them to there if necessary
   # type_: remote type (local, github)
@@ -205,15 +243,16 @@
   )
   # get hashes
   .change_get_dir(
-    path_dir_pre = path_dir_local_pre, path_dir_post = path_dir_local_post
+    path_dir_pre = path_dir_local_pre,
+    path_dir_post = path_dir_local_post
   )
 }
 
-.change_get_file_dir <- function(type,
-                                 remote) {
+.change_get_file_dir <- function(type, remote) {
   # to download the data to a local directory,
   # so that we can hash
-  switch(type,
+  switch(
+    type,
     "local" = .change_get_file_dir_local(remote),
     "github" = .change_get_file_dir_github(remote)
   )
@@ -229,7 +268,9 @@
     remote[["tag"]] <- .remote_misc_github_tag_format(remote[["tag"]])
   }
   .remote_file_get_all(
-    "github", remote, .dir_create_tmp_random()
+    "github",
+    remote,
+    .dir_create_tmp_random()
   )
 }
 
@@ -237,8 +278,7 @@
 # ------------------------
 
 # between two directories
-.change_get_dir <- function(path_dir_pre,
-                            path_dir_post) {
+.change_get_dir <- function(path_dir_pre, path_dir_post) {
   hash_tbl_pre <- .hash_dir(path_dir_pre)
   hash_tbl_post <- .hash_dir(path_dir_post)
   .change_get_hash(hash_pre = hash_tbl_pre, hash_post = hash_tbl_post)
@@ -251,7 +291,8 @@
   fn_vec_post_lgl_add <- !hash_post[["fn"]] %in% hash_pre[["fn"]]
   hash_post_kept <- hash_post[fn_vec_post_lgl_kept, ]
   hash_from_fn_pre <- stats::setNames(
-    hash_pre[["hash"]], hash_pre[["fn"]]
+    hash_pre[["hash"]],
+    hash_pre[["fn"]]
   )
   hash_vec_post_match <- hash_post_kept[["hash"]] ==
     hash_from_fn_pre[hash_post_kept[["fn"]]]

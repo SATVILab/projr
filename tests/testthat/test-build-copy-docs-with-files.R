@@ -15,14 +15,17 @@ test_that(".build_copy_docs uses scripts parameter to detect engine (qmd)", {
 
       # Create a .qmd file that we want to build
       qmd_file <- "test.qmd"
-      writeLines(c(
-        "---",
-        "title: Test",
-        "format: html",
-        "---",
-        "",
-        "# Test Content"
-      ), qmd_file)
+      writeLines(
+        c(
+          "---",
+          "title: Test",
+          "format: html",
+          "---",
+          "",
+          "# Test Content"
+        ),
+        qmd_file
+      )
 
       # Simulate building this qmd file (create output file)
       writeLines("<html><body>Test</body></html>", "test.html")
@@ -55,21 +58,27 @@ test_that(".build_copy_docs uses scripts parameter to detect engine (Rmd)", {
       unlink("_bookdown.yml")
       # Create a _quarto.yml file
       # This would normally make .engine_get_auto() return "quarto_project"
-      writeLines(c(
-        "project:",
-        "  type: website"
-      ), "_quarto.yml")
+      writeLines(
+        c(
+          "project:",
+          "  type: website"
+        ),
+        "_quarto.yml"
+      )
 
       # Create an .Rmd file that we want to build
       rmd_file <- "test.Rmd"
-      writeLines(c(
-        "---",
-        "title: Test",
-        "output: html_document",
-        "---",
-        "",
-        "# Test Content"
-      ), rmd_file)
+      writeLines(
+        c(
+          "---",
+          "title: Test",
+          "output: html_document",
+          "---",
+          "",
+          "# Test Content"
+        ),
+        rmd_file
+      )
 
       # Simulate building this Rmd file (create output file)
       writeLines("<html><body>Test</body></html>", "test.html")
@@ -121,10 +130,13 @@ test_that(".build_copy_docs with empty scripts vector skips document collection"
     path = dir_test,
     code = {
       # Create a quarto project
-      writeLines(c(
-        "project:",
-        "  type: website"
-      ), "_quarto.yml")
+      writeLines(
+        c(
+          "project:",
+          "  type: website"
+        ),
+        "_quarto.yml"
+      )
 
       # Call .build_copy_docs with empty scripts vector
       # Should skip document collection
@@ -148,14 +160,17 @@ test_that(".build_copy propagates scripts parameter correctly", {
 
       # Create test files
       qmd_file <- "test.qmd"
-      writeLines(c(
-        "---",
-        "title: Test",
-        "format: html",
-        "---",
-        "",
-        "# Test Content"
-      ), qmd_file)
+      writeLines(
+        c(
+          "---",
+          "title: Test",
+          "format: html",
+          "---",
+          "",
+          "# Test Content"
+        ),
+        qmd_file
+      )
       writeLines("<html><body>Test</body></html>", "test.html")
 
       # Mock version list
@@ -186,19 +201,36 @@ test_that(".build_copy propagates scripts parameter correctly", {
 test_that("R Markdown collection uses the renderer's actual output path", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE, rm_engine = TRUE)
+  dir_test <- .test_setup_project(
+    git = FALSE,
+    set_env_var = TRUE,
+    rm_engine = TRUE
+  )
 
-  usethis::with_project(dir_test,
+  usethis::with_project(
+    dir_test,
     {
       unlink("_output.yml")
-      writeLines(c(
-        "---", "output:", "  html_document:", "    self_contained: false", "---",
-        "", "# Test"
-      ), "report.Rmd")
+      writeLines(
+        c(
+          "---",
+          "output:",
+          "  html_document:",
+          "    self_contained: false",
+          "---",
+          "",
+          "# Test"
+        ),
+        "report.Rmd"
+      )
       rendered <- .build_engines(
         .engines_get("report.Rmd"),
         version_run_on_list = .version_run_onwards_get(NULL),
-        args_engine = list(output_file = "renamed.html", output_dir = "rendered", quiet = TRUE)
+        args_engine = list(
+          output_file = "renamed.html",
+          output_dir = "rendered",
+          quiet = TRUE
+        )
       )
       .build_copy_docs(output_run = FALSE, engines = rendered)
 
@@ -224,24 +256,42 @@ test_that("documents sharing a basename keep their companion assets in separate 
     })
     withr::local_envvar(c(PROJR_OUTPUT_LEVEL = "std"))
     expect_message(
-      .build_copy_docs(FALSE, stats::setNames(outputs, c("document_output", "document_output"))),
+      .build_copy_docs(
+        FALSE,
+        stats::setNames(outputs, c("document_output", "document_output"))
+      ),
       "Collected 2 rendered documents in"
     )
     docs <- projr_path_get_dir("docs", safe = TRUE)
     for (folder in c("first", "second")) {
-      expect_identical(readLines(file.path(docs, folder, "report.html")), folder)
-      expect_identical(readLines(file.path(docs, folder, "report_files", "plot.txt")), folder)
+      expect_identical(
+        readLines(file.path(docs, folder, "report.html")),
+        folder
+      )
+      expect_identical(
+        readLines(file.path(docs, folder, "report_files", "plot.txt")),
+        folder
+      )
     }
 
     writeLines("project page", file.path(docs, "index.html"))
     writeLines("standalone", "second/index.html")
-    .build_copy_docs(FALSE, list(quarto_project = NULL, document_output = "second/index.html"))
+    .build_copy_docs(
+      FALSE,
+      list(quarto_project = NULL, document_output = "second/index.html")
+    )
     expect_identical(readLines(file.path(docs, "index.html")), "project page")
-    expect_identical(readLines(file.path(docs, "second", "index.html")), "standalone")
+    expect_identical(
+      readLines(file.path(docs, "second", "index.html")),
+      "standalone"
+    )
 
     writeLines("conflicting root page", "index.html")
     expect_error(
-      .build_copy_docs(FALSE, list(quarto_project = NULL, document_output = "index.html")),
+      .build_copy_docs(
+        FALSE,
+        list(quarto_project = NULL, document_output = "index.html")
+      ),
       "distinct output filenames"
     )
     expect_identical(readLines(file.path(docs, "index.html")), "project page")
@@ -257,7 +307,10 @@ test_that("post-build clearing preserves a document rendered into its final dire
     writeLines("in place", output)
     .build_clear_post_safe_docs(TRUE, "document_output", output)
     withr::local_envvar(c(PROJR_OUTPUT_LEVEL = "std"))
-    expect_message(.build_copy_docs(TRUE, list(document_output = output)), "Collected 1 rendered document in")
+    expect_message(
+      .build_copy_docs(TRUE, list(document_output = output)),
+      "Collected 1 rendered document in"
+    )
     expect_identical(readLines(output), "in place")
   })
 })
@@ -266,7 +319,10 @@ test_that("Quarto Markdown outputs are collected with the rendered extension", {
   skip_if(.is_test_select())
   for (format in c("gfm", "commonmark", "markdown_strict")) {
     expect_identical(
-      .build_copy_docs_quarto_paths_get(list(format = format), "reports/report.qmd"),
+      .build_copy_docs_quarto_paths_get(
+        list(format = format),
+        "reports/report.qmd"
+      ),
       c("reports/report_files", "reports/report.md")
     )
   }

@@ -30,13 +30,28 @@ test_that("YAML script exclusion entries require one named pattern", {
   usethis::with_project(project, {
     for (section in c("build", "dev")) {
       for (entry in c(
-        "exclude: ''", "exclude: null", "exclude: [a.R, b.R]", "include: a.R",
-        "{exclude: a.R, other: b.R}", "123"
+        "exclude: ''",
+        "exclude: null",
+        "exclude: [a.R, b.R]",
+        "include: a.R",
+        "{exclude: a.R, other: b.R}",
+        "123"
       )) {
-        writeLines(c(paste0(section, ":"), "  scripts:", "    - a.R", paste0("    - ", entry)), "_projr-local.yml")
+        writeLines(
+          c(
+            paste0(section, ":"),
+            "  scripts:",
+            "    - a.R",
+            paste0("    - ", entry)
+          ),
+          "_projr-local.yml"
+        )
         expect_error(projr_yml_check(), paste0(section, "[.]scripts.*exclude"))
       }
-      writeLines(c(paste0(section, ":"), "  scripts: {exclude: a.R}"), "_projr-local.yml")
+      writeLines(
+        c(paste0(section, ":"), "  scripts: {exclude: a.R}"),
+        "_projr-local.yml"
+      )
       expect_error(projr_yml_check(), paste0(section, "[.]scripts.*exclude"))
     }
   })
@@ -211,7 +226,10 @@ test_that(".yml_dir_check_label validates label structure", {
       expect_true(projr_yml_check())
 
       # Invalid label with wrong key should fail
-      yml[["directories"]][["test-dir"]] <- list(path = "_test", invalid_key = TRUE)
+      yml[["directories"]][["test-dir"]] <- list(
+        path = "_test",
+        invalid_key = TRUE
+      )
       .yml_set(yml, "default")
       expect_error(projr_yml_check(), "invalid_key")
     },
@@ -429,7 +447,11 @@ test_that(".yml_build_check_git validates git settings", {
 
       # Valid git settings should pass
       yml <- .yml_get("default")
-      yml[["build"]][["git"]] <- list(commit = TRUE, push = FALSE, `add-untracked` = TRUE)
+      yml[["build"]][["git"]] <- list(
+        commit = TRUE,
+        push = FALSE,
+        `add-untracked` = TRUE
+      )
       .yml_set(yml, "default")
       expect_true(projr_yml_check())
 

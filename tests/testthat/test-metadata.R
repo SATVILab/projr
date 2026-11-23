@@ -6,7 +6,9 @@ test_that(".metadata_get_author_host works with git", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = FALSE
+    git = TRUE,
+    github = FALSE,
+    set_env_var = FALSE
   )
 
   usethis::with_project(
@@ -25,7 +27,9 @@ test_that(".metadata_get_author_host works without git", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = FALSE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = FALSE
   )
 
   usethis::with_project(
@@ -67,7 +71,8 @@ test_that(".metadata_get_author_host_env works", {
   expect_true(length(author) == 1)
 
   # Should match system environment
-  expected <- switch(os,
+  expected <- switch(
+    os,
     "Windows" = Sys.getenv("USERNAME"),
     "Linux" = Sys.getenv("USER"),
     "Darwin" = Sys.getenv("USER"),
@@ -93,7 +98,11 @@ test_that(".metadata_get_author_sys_info works", {
 
   if (.is_len_1(user_info) && .is_string(user_info)) {
     expect_identical(author, user_info)
-  } else if (.is_len_1(login_info) && !identical(login_info, "unknown") && .is_string(login_info)) {
+  } else if (
+    .is_len_1(login_info) &&
+      !identical(login_info, "unknown") &&
+      .is_string(login_info)
+  ) {
     expect_identical(author, login_info)
   } else {
     # Should fall back to HOSTNAME or "anonymous-user"
@@ -173,7 +182,9 @@ test_that(".metadata_get_author_host falls back to non_git when git config name 
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = FALSE
+    git = TRUE,
+    github = FALSE,
+    set_env_var = FALSE
   )
 
   usethis::with_project(
@@ -199,7 +210,9 @@ test_that(".metadata_get_author_host falls back to non_git when git config name 
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = FALSE
+    git = TRUE,
+    github = FALSE,
+    set_env_var = FALSE
   )
 
   usethis::with_project(
@@ -276,7 +289,9 @@ test_that(".metadata_get_author_sys_info handles various fallback scenarios", {
 
   # Author should be one of these values
   possible_values <- c(user_info, login_info, hostname, "anonymous-user")
-  possible_values <- possible_values[!is.na(possible_values) & nzchar(possible_values)]
+  possible_values <- possible_values[
+    !is.na(possible_values) & nzchar(possible_values)
+  ]
   expect_true(author %in% possible_values)
 })
 
@@ -289,7 +304,9 @@ test_that(".yml_metadata_get_nm works", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = FALSE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = FALSE
   )
 
   usethis::with_project(
@@ -312,7 +329,9 @@ test_that(".yml_metadata_set_nm works with non-empty value", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = FALSE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = FALSE
   )
 
   usethis::with_project(
@@ -333,7 +352,9 @@ test_that(".yml_metadata_set_nm works with empty value", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = FALSE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = FALSE
   )
 
   usethis::with_project(
@@ -357,7 +378,9 @@ test_that(".yml_metadata_get works", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = FALSE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = FALSE
   )
 
   usethis::with_project(
@@ -375,7 +398,9 @@ test_that(".yml_metadata_set works", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = FALSE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = FALSE
   )
 
   usethis::with_project(

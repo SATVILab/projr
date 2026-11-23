@@ -3,9 +3,13 @@ test_that("renv renders keep a populated library from the same checkout", {
   skip_if(.is_test_cran())
   local_mocked_bindings(project = function(...) NULL, .package = "renv")
   project <- withr::local_tempdir()
-  withr::local_envvar(c(RENV_PATHS_LIBRARY = NA, RENV_PATHS_LIBRARY_ROOT = NA,
-                        RENV_PATHS_RENV = NA, RENV_PROFILE = NA,
-                        R_USER_CACHE_DIR = withr::local_tempdir()))
+  withr::local_envvar(c(
+    RENV_PATHS_LIBRARY = NA,
+    RENV_PATHS_LIBRARY_ROOT = NA,
+    RENV_PATHS_RENV = NA,
+    RENV_PROFILE = NA,
+    R_USER_CACHE_DIR = withr::local_tempdir()
+  ))
   withr::local_dir(project)
   writeLines("directories: {cache: {path: _tmp}}", "_projr.yml")
   writeLines("{}", "renv.lock")
@@ -43,13 +47,21 @@ test_that("renv renders keep a populated library from the same checkout", {
   expect_equal(.libPaths()[1], normalizePath(canonical, winslash = "/"))
   expect_false(analysis %in% .libPaths())
   writeLines("---", "report.Rmd")
-  writeLines(c("directories: {cache: {path: _tmp}, docs: {path: docs}}",
-               "build: {scripts: [report.Rmd]}"), "_projr.yml")
+  writeLines(
+    c(
+      "directories: {cache: {path: _tmp}, docs: {path: docs}}",
+      "build: {scripts: [report.Rmd]}"
+    ),
+    "_projr.yml"
+  )
   files <- list.files(project, recursive = TRUE, all.files = TRUE)
   status <- projr_build_check_packages()
   expect_false(status$available)
   expect_true(all(c("knitr", "rmarkdown") %in% status$missing))
   expect_match(status$message, canonical, fixed = TRUE)
   expect_match(status$install_cmds, "renv::install", fixed = TRUE)
-  expect_identical(list.files(project, recursive = TRUE, all.files = TRUE), files)
+  expect_identical(
+    list.files(project, recursive = TRUE, all.files = TRUE),
+    files
+  )
 })

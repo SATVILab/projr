@@ -17,7 +17,7 @@ test_that(".yml_dir_get_source works with no source configured", {
       expect_true(is.null(source_val))
     }
   )
-})  
+})
 
 test_that(".yml_dir_get_source works with configured source", {
   skip_if(.is_test_cran())
@@ -253,7 +253,6 @@ test_that(".yml_dir_get_source_type returns NULL when type not in source", {
 
       .yml_dir_set_source(yml_source, "output", "default")
 
-
       source_type <- .yml_dir_get_source_type("local", "output", "default")
       expect_true(is.null(source_type))
     }
@@ -443,7 +442,11 @@ test_that(".yml_dir_get_source_type works with different profiles", {
       expect_identical(source_type$path, "/test/path")
 
       # Verify default profile has no source
-      source_type_default <- .yml_dir_get_source_type("local", "cache", "default")
+      source_type_default <- .yml_dir_get_source_type(
+        "local",
+        "cache",
+        "default"
+      )
       expect_true(is.null(source_type_default))
     }
   )

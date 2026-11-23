@@ -132,7 +132,11 @@ test_that(".yml_dir_get_label_nm functions work", {
     path = dir_test,
     code = {
       # Add some custom labels
-      .yml_dir_add_label("_output2", label = "output-results", profile = "default")
+      .yml_dir_add_label(
+        "_output2",
+        label = "output-results",
+        profile = "default"
+      )
       .yml_dir_add_label("_raw2", label = "raw-data-extra", profile = "default")
 
       # Test output labels
@@ -356,7 +360,11 @@ test_that(".yml_dir_get_output_nm and _complete work", {
     path = dir_test,
     code = {
       # Add another output directory
-      .yml_dir_add_label("_output2", label = "output-results", profile = "default")
+      .yml_dir_add_label(
+        "_output2",
+        label = "output-results",
+        profile = "default"
+      )
 
       # Set output dependency for output
       yml_dir <- .yml_dir_get_label("output", "default")
@@ -384,7 +392,11 @@ test_that(".yml_dir_complete_output_lgl works", {
     path = dir_test,
     code = {
       # Add output directories
-      .yml_dir_add_label("_output2", label = "output-results", profile = "default")
+      .yml_dir_add_label(
+        "_output2",
+        label = "output-results",
+        profile = "default"
+      )
       .yml_dir_add_label("_output3", label = "output-data", profile = "default")
 
       # Test FALSE returns empty
@@ -409,7 +421,11 @@ test_that(".yml_dir_complete_output_chr works", {
     path = dir_test,
     code = {
       # Add output directories
-      .yml_dir_add_label("_output2", label = "output-results", profile = "default")
+      .yml_dir_add_label(
+        "_output2",
+        label = "output-results",
+        profile = "default"
+      )
       .yml_dir_add_label("_output3", label = "output-data", profile = "default")
 
       # Test character vector filtering
@@ -456,7 +472,11 @@ test_that(".yml_dir_add_label works", {
     path = dir_test,
     code = {
       # Add simple label
-      .yml_dir_add_label("_new_output", label = "output-new", profile = "default")
+      .yml_dir_add_label(
+        "_new_output",
+        label = "output-new",
+        profile = "default"
+      )
       yml_dir <- .yml_dir_get_label("output-new", "default")
       expect_identical(yml_dir$path, "_new_output")
 
@@ -493,7 +513,11 @@ test_that(".yml_dir_set_label_empty works", {
     path = dir_test,
     code = {
       # Add a custom label
-      .yml_dir_add_label("_custom", label = "output-custom", profile = "default")
+      .yml_dir_add_label(
+        "_custom",
+        label = "output-custom",
+        profile = "default"
+      )
       yml_dir <- .yml_dir_get_label("output-custom", "default")
       expect_false(is.null(yml_dir))
 

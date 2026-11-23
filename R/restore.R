@@ -83,18 +83,22 @@
 #' @name projr_content_update
 #' @rdname projr_content_update
 #' @export
-projr_content_update <- function(label = NULL,
-                                 pos = NULL,
-                                 type = NULL,
-                                 title = NULL,
-                                 clear = FALSE,
-                                 destination = NULL) {
+projr_content_update <- function(
+  label = NULL,
+  pos = NULL,
+  type = NULL,
+  title = NULL,
+  clear = FALSE,
+  destination = NULL
+) {
   .assert_restore_filters(label, pos, type, title, destination)
   .assert_flag(clear, TRUE)
 
   .title <- title
-  if (!.manifest_store_ready(.manifest_project_dir()) &&
-      !file.exists(.path_get("manifest.csv"))) {
+  if (
+    !.manifest_store_ready(.manifest_project_dir()) &&
+      !file.exists(.path_get("manifest.csv"))
+  ) {
     msg <- "No project manifest found. Build the project before restoring." # nolint
     msg <- if (clear) paste0(msg, " No files cleared.") else msg
     stop(msg, call. = FALSE)
@@ -112,9 +116,21 @@ projr_content_update <- function(label = NULL,
   success <- TRUE
   for (i in seq_along(label)) {
     result <- tryCatch(
-      .content_update_label(label[[i]], pos, type, .title, destination = destination, clear = clear),
+      .content_update_label(
+        label[[i]],
+        pos,
+        type,
+        .title,
+        destination = destination,
+        clear = clear
+      ),
       error = function(e) {
-        msg <- paste0("Could not restore ", label[[i]], ": ", conditionMessage(e))
+        msg <- paste0(
+          "Could not restore ",
+          label[[i]],
+          ": ",
+          conditionMessage(e)
+        )
         warning(msg, call. = FALSE)
         FALSE
       }
@@ -160,7 +176,14 @@ projr_content_update <- function(label = NULL,
   invisible(TRUE)
 }
 
-.content_update_label <- function(label, pos, type, .title, destination = NULL, clear = FALSE) {
+.content_update_label <- function(
+  label,
+  pos,
+  type,
+  .title,
+  destination = NULL,
+  clear = FALSE
+) {
   if (!.content_update_label_recorded(label)) {
     return(invisible(FALSE))
   }
@@ -179,54 +202,88 @@ projr_content_update <- function(label = NULL,
   definition <- .yml_remote_definition(type, title, yml)
   if (is.null(destination) && title %in% names(yml$remotes[[type]])) {
     record <- .get_build_record(.buildlog_read(), NULL)
-    destination <- .get_remote_target(type, title, definition, record,
-      record$version %||% .template_version(), .template_checkout_head())
+    destination <- .get_remote_target(
+      type,
+      title,
+      definition,
+      record,
+      record$version %||% .template_version(),
+      .template_checkout_head()
+    )
   }
   yml_title <- .yml_dest_complete_title(definition, title, type, destination)
-  .with_github_repo(yml_title[["repo"]], .content_update_from(label, type, yml_title, clear))
+  .with_github_repo(
+    yml_title[["repo"]],
+    .content_update_from(label, type, yml_title, clear)
+  )
 }
 
 .content_update_from <- function(label, type, yml_title, clear) {
   remote_pre <- .remote_final_get(
-    type, yml_title[["id"]], label,
-    yml_title[["structure"]], yml_title[["path"]],
-    yml_title[["path-append-label"]], NULL, TRUE
+    type,
+    yml_title[["id"]],
+    label,
+    yml_title[["structure"]],
+    yml_title[["path"]],
+    yml_title[["path-append-label"]],
+    NULL,
+    TRUE
   )
   version_remote <- if (yml_title[["structure"]] == "latest") {
     .remote_get_version_latest_label_non_project_file(
-      remote_pre, type, label
+      remote_pre,
+      type,
+      label
     )
   } else {
     .remote_get_version_latest_label_non_project_archive(
-      remote_pre, type, label, "archive"
+      remote_pre,
+      type,
+      label,
+      "archive"
     )
   }
   if (!length(version_remote)) {
-    .cli_debug("Skipping {label} because the destination has no recorded version")
+    .cli_debug(
+      "Skipping {label} because the destination has no recorded version"
+    )
     return(invisible(FALSE))
   }
   # Check if version is marked as untrusted in VERSION file
   untrusted <- .remote_check_version_untrusted(
-    remote_pre, type, label
+    remote_pre,
+    type,
+    label
   )
   if (untrusted) {
     .cli_info("{label} at {version_remote} is marked as untrusted")
   }
 
   remote_exists <- .remote_final_check_exists(
-    type, yml_title[["id"]], label,
-    yml_title[["structure"]], yml_title[["path"]],
-    yml_title[["path-append-label"]], version_remote,
+    type,
+    yml_title[["id"]],
+    label,
+    yml_title[["structure"]],
+    yml_title[["path"]],
+    yml_title[["path-append-label"]],
+    version_remote,
     empty = FALSE
   )
   if (!remote_exists) {
     empty <- .remote_final_check_exists(
-      type, yml_title[["id"]], label,
-      yml_title[["structure"]], yml_title[["path"]],
-      yml_title[["path-append-label"]], version_remote, empty = TRUE
+      type,
+      yml_title[["id"]],
+      label,
+      yml_title[["structure"]],
+      yml_title[["path"]],
+      yml_title[["path-append-label"]],
+      version_remote,
+      empty = TRUE
     )
     if (empty && clear) {
-      .cli_info("Clearing {label} to match the empty snapshot at {version_remote}")
+      .cli_info(
+        "Clearing {label} to match the empty snapshot at {version_remote}"
+      )
       .dir_clear(projr_path_get_dir(label, safe = FALSE, format = "absolute"))
       return(invisible(TRUE))
     }
@@ -235,14 +292,23 @@ projr_content_update <- function(label = NULL,
 
   # Restore directly into the project directory rather than the cache build area
   remote_source <- .remote_final_get(
-    type, yml_title[["id"]], label,
-    yml_title[["structure"]], yml_title[["path"]],
-    yml_title[["path-append-label"]], version_remote,
-    FALSE, FALSE
+    type,
+    yml_title[["id"]],
+    label,
+    yml_title[["structure"]],
+    yml_title[["path"]],
+    yml_title[["path-append-label"]],
+    version_remote,
+    FALSE,
+    FALSE
   )
   path_dir_local <- projr_path_get_dir(label, safe = FALSE, format = "absolute")
-  .cli_info("Restoring {label} at {version_remote} from {type} destination {yml_title$id}")
-  if (clear) .dir_clear(path_dir_local)
+  .cli_info(
+    "Restoring {label} at {version_remote} from {type} destination {yml_title$id}"
+  )
+  if (clear) {
+    .dir_clear(path_dir_local)
+  }
   .remote_file_get_all(type, remote_source, path_dir_local)
 
   invisible(TRUE)
@@ -285,36 +351,50 @@ projr_content_update <- function(label = NULL,
   }
   # look within the type
   .content_update_label_get_source_source_type(
-    yml_source, type, .title
+    yml_source,
+    type,
+    .title
   )
 }
 
-.content_update_label_get_source_source_type <- function(yml_source, type, .title) {
+.content_update_label_get_source_source_type <- function(
+  yml_source,
+  type,
+  .title
+) {
   if (!is.null(type)) {
     .content_update_label_get_source_source_type_spec(
-      yml_source, type, .title
+      yml_source,
+      type,
+      .title
     )
   } else {
     .content_update_label_get_source_source_type_first(yml_source, .title)
   }
 }
 
-.content_update_label_get_source_source_type_spec <- function(yml_source,
-                                                              type,
-                                                              .title) {
+.content_update_label_get_source_source_type_spec <- function(
+  yml_source,
+  type,
+  .title
+) {
   if (type %in% names(yml_source)) {
     yml_type <- yml_source[[type]]
     .content_update_label_get_source_source_title(
-      yml_type, type, .title
+      yml_type,
+      type,
+      .title
     )
   } else {
     NULL
   }
 }
 
-.content_update_label_get_source_source_title <- function(yml_type,
-                                                          type,
-                                                          .title) {
+.content_update_label_get_source_source_title <- function(
+  yml_type,
+  type,
+  .title
+) {
   if (!is.null(.title)) {
     .content_update_label_get_source_source_title_spec(yml_type, type, .title)
   } else {
@@ -322,21 +402,34 @@ projr_content_update <- function(label = NULL,
   }
 }
 
-.content_update_label_get_source_source_title_spec <- function(yml_type, type, .title) {
+.content_update_label_get_source_source_title_spec <- function(
+  yml_type,
+  type,
+  .title
+) {
   if (is.list(yml_type)) {
     .content_update_label_get_source_source_title_spec_list(
-      yml_type, type, .title
+      yml_type,
+      type,
+      .title
     )
   } else if (all(is.character(yml_type))) {
     .content_update_label_get_source_source_title_spec_chr(
-      yml_type, type, .title
+      yml_type,
+      type,
+      .title
     )
   } else {
     NULL
   }
 }
 
-.content_update_label_get_source_source_title_spec_list <- function(yml_type, type, .title) { # nolint
+.content_update_label_get_source_source_title_spec_list <- function(
+  yml_type,
+  type,
+  .title
+) {
+  # nolint
   if (.title %in% names(yml_type)) {
     c("pos" = "source", "type" = type, "title" = .title)
   } else {
@@ -344,7 +437,12 @@ projr_content_update <- function(label = NULL,
   }
 }
 
-.content_update_label_get_source_source_title_spec_chr <- function(yml_type, type, .title) { # nolint
+.content_update_label_get_source_source_title_spec_chr <- function(
+  yml_type,
+  type,
+  .title
+) {
+  # nolint
   if (.title %in% yml_type) {
     c("pos" = "source", "type" = type, "title" = .title)
   } else {
@@ -352,7 +450,10 @@ projr_content_update <- function(label = NULL,
   }
 }
 
-.content_update_label_get_source_source_title_first <- function(yml_type, type) {
+.content_update_label_get_source_source_title_first <- function(
+  yml_type,
+  type
+) {
   if (all(is.character(yml_type))) {
     c("pos" = "source", "type" = type, "title" = yml_type[[1]])
   } else {
@@ -360,21 +461,32 @@ projr_content_update <- function(label = NULL,
   }
 }
 
-.content_update_label_get_source_source_type_first <- function(yml_source, .title) {
+.content_update_label_get_source_source_type_first <- function(
+  yml_source,
+  .title
+) {
   type <- names(yml_source)[[1]]
   .content_update_label_get_source_source_type_spec(
-    yml_source, type, .title
+    yml_source,
+    type,
+    .title
   )
 }
 
 # try find restore from destination
 
 .content_update_label_get_default_dest <- function(type) {
-  if ((is.null(type) || type == "github") && .git_remote_check_exists() &&
-      .remote_check_exists("github", "archive")) {
+  if (
+    (is.null(type) || type == "github") &&
+      .git_remote_check_exists() &&
+      .remote_check_exists("github", "archive")
+  ) {
     return(c("pos" = "dest", "type" = "github", "title" = "archive"))
   }
-  if ((is.null(type) || type == "local") && .remote_check_exists("local", "_archive")) {
+  if (
+    (is.null(type) || type == "local") &&
+      .remote_check_exists("local", "_archive")
+  ) {
     return(c("pos" = "dest", "type" = "local", "title" = "_archive"))
   }
   NULL
@@ -382,7 +494,11 @@ projr_content_update <- function(label = NULL,
 
 .content_update_label_get_source_dest <- function(label, type, .title) {
   yml <- .yml_get(NULL)
-  type_vec <- type %||% intersect(unique(c(names(yml$remotes), names(yml$build))), c("github", "local"))
+  type_vec <- type %||%
+    intersect(
+      unique(c(names(yml$remotes), names(yml$build))),
+      c("github", "local")
+    )
   # choose the first type and title
   # provided as the restore destination
   # if none specifically
@@ -392,7 +508,9 @@ projr_content_update <- function(label = NULL,
   for (tp in type_vec) {
     registered <- names(yml$remotes[[tp]])
     titles <- unique(c(registered, names(yml$build[[tp]])))
-    if (!is.null(.title) && .title %in% titles) titles <- .title
+    if (!is.null(.title) && .title %in% titles) {
+      titles <- .title
+    }
     for (tt in titles) {
       yml_title <- .yml_remote_definition(tp, tt, yml)
       if (!is.null(.title) && .title != tt) {
@@ -400,7 +518,9 @@ projr_content_update <- function(label = NULL,
         if (!identical(.template_expand(name), .title)) next
       }
       # A registry entry remains readable when a later build selects other labels.
-      if (!tt %in% registered && !label %in% yml_title[["content"]]) next
+      if (!tt %in% registered && !label %in% yml_title[["content"]]) {
+        next
+      }
       if ("source" %in% names(yml_title)) {
         source_vec <- yml_title[["source"]]
         if (isTRUE(source_vec)) {
@@ -420,7 +540,9 @@ projr_content_update <- function(label = NULL,
 
   # if nothing found, try parameter-specified removes
   if (is.null(tt_first)) {
-    if (!is.null(.title)) return(NULL)
+    if (!is.null(.title)) {
+      return(NULL)
+    }
     .content_update_label_get_default_dest(type)
   } else {
     c("pos" = "dest", "type" = tp_first, "title" = tt_first)

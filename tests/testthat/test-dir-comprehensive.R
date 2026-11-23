@@ -19,7 +19,10 @@ test_that("projr_path_get_dir works with different labels", {
       expect_true(is.character(projr_path_get_dir("docs")))
       expect_error(projr_path_get_dir("project"), "not found")
       expect_error(projr_path_get_dir("code"), "not found")
-      expect_identical(projr_path_get_dir("data", safe = FALSE, create = FALSE), "data")
+      expect_identical(
+        projr_path_get_dir("data", safe = FALSE, create = FALSE),
+        "data"
+      )
 
       # Test invalid label
       expect_error(projr_path_get_dir("invalid_label"))
@@ -50,7 +53,11 @@ test_that("projr_path_get_dir works with safe parameter", {
 
       # Test safe vs unsafe paths for docs
       path_safe_docs <- projr_path_get_dir("docs", safe = TRUE, create = FALSE)
-      path_unsafe_docs <- projr_path_get_dir("docs", safe = FALSE, create = FALSE)
+      path_unsafe_docs <- projr_path_get_dir(
+        "docs",
+        safe = FALSE,
+        create = FALSE
+      )
 
       expect_false(identical(path_safe_docs, path_unsafe_docs))
       expect_true(grepl("projr", path_safe_docs))
@@ -105,11 +112,19 @@ test_that("projr_path_get_dir relative and absolute parameters work", {
       path_default <- projr_path_get_dir("cache", create = FALSE)
 
       # Test relative
-      path_relative <- projr_path_get_dir("cache", create = FALSE, format = "relative")
+      path_relative <- projr_path_get_dir(
+        "cache",
+        create = FALSE,
+        format = "relative"
+      )
       expect_false(fs::is_absolute_path(path_relative))
 
       # Test absolute
-      path_absolute <- projr_path_get_dir("cache", create = FALSE, format = "absolute")
+      path_absolute <- projr_path_get_dir(
+        "cache",
+        create = FALSE,
+        format = "absolute"
+      )
       expect_true(fs::is_absolute_path(path_absolute))
 
       expect_identical(path_default, path_relative)
@@ -167,12 +182,22 @@ test_that("projr_path_get works for file paths", {
       expect_true(grepl("test\\.txt", path_file))
 
       # Test with subdirectory and filename
-      path_file_sub <- projr_path_get("cache", "subdir", "test.txt", create = FALSE)
+      path_file_sub <- projr_path_get(
+        "cache",
+        "subdir",
+        "test.txt",
+        create = FALSE
+      )
       expect_true(grepl("subdir", path_file_sub))
       expect_true(grepl("test\\.txt", path_file_sub))
 
       # Test parent directory creation
-      path_file_create <- projr_path_get("cache", "newdir", "file.txt", create = TRUE)
+      path_file_create <- projr_path_get(
+        "cache",
+        "newdir",
+        "file.txt",
+        create = TRUE
+      )
       expect_true(dir.exists(dirname(path_file_create)))
     },
     force = TRUE,
@@ -192,10 +217,18 @@ test_that("directory creation works", {
       .init()
 
       # Test directory creation using projr_path_get_dir with create = TRUE
-      path_raw_safe <- projr_path_get_dir("raw-data", safe = TRUE, create = TRUE)
+      path_raw_safe <- projr_path_get_dir(
+        "raw-data",
+        safe = TRUE,
+        create = TRUE
+      )
       expect_true(dir.exists(path_raw_safe))
 
-      path_raw_unsafe <- projr_path_get_dir("raw-data", safe = FALSE, create = TRUE)
+      path_raw_unsafe <- projr_path_get_dir(
+        "raw-data",
+        safe = FALSE,
+        create = TRUE
+      )
       expect_true(dir.exists(path_raw_unsafe))
 
       # Test cache directory creation
@@ -227,17 +260,28 @@ test_that("projr_path_get_cache_build_dir works", {
       .init()
 
       # Test basic cache build directory
-      path_cache_build <- projr_path_get_cache_build_dir(create = FALSE, profile = NULL)
+      path_cache_build <- projr_path_get_cache_build_dir(
+        create = FALSE,
+        profile = NULL
+      )
       expect_true(is.character(path_cache_build))
       expect_true(grepl("projr", path_cache_build))
       expect_true(grepl("v0\\.0\\.0-1", path_cache_build))
 
       # Test with subdirectory
-      path_cache_sub <- projr_path_get_cache_build_dir("output", create = FALSE, profile = NULL)
+      path_cache_sub <- projr_path_get_cache_build_dir(
+        "output",
+        create = FALSE,
+        profile = NULL
+      )
       expect_true(grepl("output", path_cache_sub))
 
       # Test creation
-      path_create <- projr_path_get_cache_build_dir("testdir", create = TRUE, profile = NULL)
+      path_create <- projr_path_get_cache_build_dir(
+        "testdir",
+        create = TRUE,
+        profile = NULL
+      )
       expect_true(dir.exists(path_create))
     },
     force = TRUE,
@@ -257,16 +301,29 @@ test_that("projr_path_get_cache_build works for files", {
       .init()
 
       # Test basic cache build path
-      path_cache_build <- projr_path_get_cache_build(create = FALSE, profile = NULL)
+      path_cache_build <- projr_path_get_cache_build(
+        create = FALSE,
+        profile = NULL
+      )
       expect_true(is.character(path_cache_build))
 
       # Test with subdirectory and file
-      path_file <- projr_path_get_cache_build("output", "test.txt", create = FALSE, profile = NULL)
+      path_file <- projr_path_get_cache_build(
+        "output",
+        "test.txt",
+        create = FALSE,
+        profile = NULL
+      )
       expect_true(grepl("output", path_file))
       expect_true(grepl("test\\.txt", path_file))
 
       # Test parent directory creation
-      path_create_file <- projr_path_get_cache_build("newdir", "file.txt", create = TRUE, profile = NULL)
+      path_create_file <- projr_path_get_cache_build(
+        "newdir",
+        "file.txt",
+        create = TRUE,
+        profile = NULL
+      )
       expect_true(dir.exists(dirname(path_create_file)))
     },
     force = TRUE,
@@ -329,7 +386,11 @@ test_that("directory functions handle edge cases", {
       expect_true(grepl("projr", path_data_safe))
 
       # Test data label with safe = FALSE
-      path_data_unsafe <- projr_path_get_dir("data", create = FALSE, safe = FALSE)
+      path_data_unsafe <- projr_path_get_dir(
+        "data",
+        create = FALSE,
+        safe = FALSE
+      )
       expect_identical(path_data_unsafe, "data")
     },
     force = TRUE,
@@ -357,8 +418,10 @@ test_that("directory path normalization works", {
 
       # Test path_get file normalization
       path_file <- projr_path_get("cache", "dir1", "file.txt", create = FALSE)
-      expect_true(file.path("cache", "dir1", "file.txt") != path_file ||
-        grepl("cache.*dir1.*file\\.txt", path_file))
+      expect_true(
+        file.path("cache", "dir1", "file.txt") != path_file ||
+          grepl("cache.*dir1.*file\\.txt", path_file)
+      )
     },
     force = TRUE,
     quiet = TRUE

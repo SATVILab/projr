@@ -32,7 +32,7 @@ See detailed guidelines in `.github/instructions/`:
 - Always add blank line between headings and bullets
 
 **Before committing:**
-- Run `devtools::document()`, `devtools::test()` (LITE mode), `styler::style_pkg()`
+- Run `devtools::document()`, `devtools::test()` (LITE mode), `air format --check R tests`
 - Update `_pkgdown.yml` when adding/removing exported functions
 - Verify with `pkgdown::check_pkgdown()`
 - Ensure files end with single newline, no trailing whitespace

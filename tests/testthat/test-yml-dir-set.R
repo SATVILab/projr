@@ -95,7 +95,11 @@ test_that("projr_yml_dir_path_set works with different profiles", {
       projr_profile_create("test-profile")
 
       # Set directory path in test profile
-      projr_yml_dir_path_set("output", "_profile_output", profile = "test-profile")
+      projr_yml_dir_path_set(
+        "output",
+        "_profile_output",
+        profile = "test-profile"
+      )
 
       # Check it's set in the test profile
       yml_dir <- .yml_dir_get_label("output", "test-profile")
@@ -118,7 +122,11 @@ test_that("projr_yml_dir_path_rm preserves other directory config", {
     code = {
       # Create a custom directory with path and license config
       projr_yml_dir_path_set("output-results", "_my_results")
-      projr_yml_dir_license_set("MIT", "output-results", authors = c("Test Author"))
+      projr_yml_dir_license_set(
+        "MIT",
+        "output-results",
+        authors = c("Test Author")
+      )
 
       # Verify both settings exist
       yml_dir_before <- .yml_dir_get_label("output-results", "default")

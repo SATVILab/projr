@@ -95,8 +95,12 @@ test_that(".script_run executes script in isolated environment", {
       cat("test_var <- 'isolated'; test_num <- 42", file = "test-script.R")
 
       # Ensure variables don't exist in global env
-      if (exists("test_var", inherits = FALSE)) rm(test_var)
-      if (exists("test_num", inherits = FALSE)) rm(test_num)
+      if (exists("test_var", inherits = FALSE)) {
+        rm(test_var)
+      }
+      if (exists("test_num", inherits = FALSE)) {
+        rm(test_num)
+      }
 
       # Run script
       .script_run("test-script.R")
@@ -330,7 +334,9 @@ test_that(".build_script_run processes scripts in order", {
       )
 
       # Remove existing order file if it exists
-      if (file.exists("order.txt")) unlink("order.txt")
+      if (file.exists("order.txt")) {
+        unlink("order.txt")
+      }
 
       # Run scripts
       .build_script_run(stage = "pre")

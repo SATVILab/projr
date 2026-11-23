@@ -7,7 +7,9 @@ test_that("projr_yml_dest_add* functions work", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
   usethis::with_project(
     path = dir_test,
@@ -230,7 +232,9 @@ test_that(".dest_send_get_type_yml returns configured types", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -275,7 +279,9 @@ test_that(".dest_send_get_type combines YAML and params", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -307,7 +313,9 @@ test_that(".dest_send_get_type removes duplicates", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -357,7 +365,9 @@ test_that(".dest_send_check_is_archive_param_github returns param when no YAML a
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -381,7 +391,9 @@ test_that(".dest_send_check_is_archive_param_github returns FALSE when YAML has 
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -419,7 +431,9 @@ test_that(".dest_send_check_is_archive_param_local returns param when no YAML ar
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -443,7 +457,9 @@ test_that(".dest_send_check_is_archive_param_local returns FALSE when YAML has a
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -487,7 +503,9 @@ test_that(".dest_send_get_archive_type uses github param for github type", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -527,7 +545,9 @@ test_that(".dest_send_get_archive_type uses local param for local type", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -563,7 +583,9 @@ test_that(".dest_send_get_always_archive returns NULL when YAML has archive", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -590,7 +612,9 @@ test_that(".dest_send_get_always_archive returns param when no YAML archive", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -656,7 +680,9 @@ test_that(".dest_send_type_get_title_yml returns configured titles", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -695,7 +721,9 @@ test_that(".dest_send_type_get_title combines YAML and param titles", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -725,7 +753,9 @@ test_that(".dest_send_type_get_title removes duplicates", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -789,7 +819,9 @@ test_that(".dest_send_title_get_content_param returns auto for TRUE", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -823,7 +855,9 @@ test_that(".dest_send_title_get_content_auto detects output directories", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -849,7 +883,9 @@ test_that(".dest_send_title_get_content_yml returns empty for NULL", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -880,7 +916,9 @@ test_that(".dest_send_title_get_content_yml returns empty for FALSE", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -911,7 +949,9 @@ test_that(".dest_send_title_get_content_yml auto-detects for TRUE", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -942,7 +982,9 @@ test_that(".dest_send_title_get_content_yml returns character vector", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -974,7 +1016,9 @@ test_that(".dest_send_title_get_content chooses param content for archive", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -999,7 +1043,9 @@ test_that(".dest_send_title_get_content chooses YAML content for non-archive", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -1067,7 +1113,9 @@ test_that(".dest_send returns FALSE when check fails", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = FALSE, github = FALSE, set_env_var = TRUE
+    git = FALSE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -1091,7 +1139,9 @@ test_that(".dest_send processes local destinations from YAML", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = TRUE
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -1143,7 +1193,9 @@ test_that(".dest_send handles archive parameter for github", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = TRUE
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -1179,7 +1231,9 @@ test_that(".dest_send_type processes titles for the type", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = TRUE
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -1227,7 +1281,9 @@ test_that(".dest_send_title respects cue logic", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = TRUE
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(
@@ -1281,7 +1337,9 @@ test_that(".dest_send_title_check evaluates cue correctly", {
   skip_if(.is_test_select())
 
   dir_test <- .test_setup_project(
-    git = TRUE, github = FALSE, set_env_var = TRUE
+    git = TRUE,
+    github = FALSE,
+    set_env_var = TRUE
   )
 
   usethis::with_project(

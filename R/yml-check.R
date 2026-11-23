@@ -18,7 +18,13 @@ projr_yml_check <- function(profile = NULL) {
     .assert_string(profile)
     old_profile <- Sys.getenv("PROJR_PROFILE", unset = NA_character_)
     Sys.setenv(PROJR_PROFILE = profile)
-    on.exit(if (is.na(old_profile)) Sys.unsetenv("PROJR_PROFILE") else Sys.setenv(PROJR_PROFILE = old_profile))
+    on.exit(
+      if (is.na(old_profile)) {
+        Sys.unsetenv("PROJR_PROFILE")
+      } else {
+        Sys.setenv(PROJR_PROFILE = old_profile)
+      }
+    )
     profile <- NULL
   }
   .yml_settings_hashing(profile)
@@ -38,19 +44,28 @@ projr_yml_check <- function(profile = NULL) {
   if (!is.list(settings) || (length(settings) && is.null(names(settings)))) {
     stop("settings must be a YAML mapping.", call. = FALSE)
   }
-  if (length(settings)) .assert_in(names(settings), "hashing", nm = "settings")
+  if (length(settings)) {
+    .assert_in(names(settings), "hashing", nm = "settings")
+  }
   hashing <- settings[["hashing"]] %||% list()
   if (!is.list(hashing) || (length(hashing) && is.null(names(hashing)))) {
     stop("settings.hashing must be a YAML mapping.", call. = FALSE)
   }
-  if (length(hashing)) .assert_in(names(hashing), c("approach", "cores"), nm = "settings.hashing")
+  if (length(hashing)) {
+    .assert_in(names(hashing), c("approach", "cores"), nm = "settings.hashing")
+  }
 
   approach <- hashing[["approach"]] %||% "cpp"
   .assert_string(approach, TRUE, nm = "settings.hashing.approach")
   .assert_in(approach, c("cpp", "legacy"), nm = "settings.hashing.approach")
 
   cores <- hashing[["cores"]] %||% 1L
-  .assert_count(cores, minimum = 1L, required = TRUE, nm = "settings.hashing.cores")
+  .assert_count(
+    cores,
+    minimum = 1L,
+    required = TRUE,
+    nm = "settings.hashing.cores"
+  )
   list(approach = approach, cores = as.integer(cores))
 }
 
@@ -75,12 +90,15 @@ projr_yml_check <- function(profile = NULL) {
   if (length(labels_ending_empty) > 0) {
     stop(
       "Directory labels must not end in '-empty'. ",
-      "Invalid label(s): ", paste0(labels_ending_empty, collapse = ", "),
+      "Invalid label(s): ",
+      paste0(labels_ending_empty, collapse = ", "),
       call. = FALSE
     )
   }
 
-  if (!length(nm_vec)) return(invisible(TRUE))
+  if (!length(nm_vec)) {
+    return(invisible(TRUE))
+  }
   for (x in nm_vec) {
     .yml_dir_check_label(x, profile)
   }
@@ -96,8 +114,17 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(
     names(yml_label),
     c(
-      "path", "ignore-git", "ignore-rbuild", "ignore", "ignore-even-if-inactive",
-      "output", "include", "source", "license", "hash", "package"
+      "path",
+      "ignore-git",
+      "ignore-rbuild",
+      "ignore",
+      "ignore-even-if-inactive",
+      "output",
+      "include",
+      "source",
+      "license",
+      "hash",
+      "package"
     )
   )
   yml_label |>
@@ -108,7 +135,11 @@ projr_yml_check <- function(profile = NULL) {
 }
 
 .yml_dir_check_label_path <- function(yml_label, label, profile) {
-  .assert_string(yml_label[["path"]], required = label != "data", nm = paste0("directories.", label, ".path"))
+  .assert_string(
+    yml_label[["path"]],
+    required = label != "data",
+    nm = paste0("directories.", label, ".path")
+  )
   .yml_dir_check_label_path_restricted(yml_label, label, profile)
 
   yml_label
@@ -116,14 +147,23 @@ projr_yml_check <- function(profile = NULL) {
 
 .yml_dir_check_label_path_restricted <- function(yml_label, label, profile) {
   restricted <- c("man", "R", "tests")
-  if (label %in% c(.yml_dir_get_label_in(profile), .yml_dir_get_label_output(profile))) {
-    .assert_path_not_sub(.path_resolve_root(yml_label[["path"]]), .path_get(restricted))
+  if (
+    label %in%
+      c(.yml_dir_get_label_in(profile), .yml_dir_get_label_output(profile))
+  ) {
+    .assert_path_not_sub(
+      .path_resolve_root(yml_label[["path"]]),
+      .path_get(restricted)
+    )
   }
   invisible(TRUE)
 }
 
 .yml_dir_check_label_ignore <- function(yml_label) {
-  .assert_flag(yml_label[["ignore-even-if-inactive"]], nm = "ignore-even-if-inactive")
+  .assert_flag(
+    yml_label[["ignore-even-if-inactive"]],
+    nm = "ignore-even-if-inactive"
+  )
   for (x in c("ignore", "ignore-git", "ignore-rbuild")) {
     .yml_dir_check_label_ignore_ind(yml_label, x)
   }
@@ -135,7 +175,9 @@ projr_yml_check <- function(profile = NULL) {
     val <- yml_label[[nm]]
     .assert_class_any(val, c("logical", "character"), TRUE)
     .assert_len_1(val, TRUE)
-    if (is.logical(val)) .assert_flag(val)
+    if (is.logical(val)) {
+      .assert_flag(val)
+    }
     if (is.character(val)) .assert_in(val, c("manual", "ignore", "no-ignore"))
   }
   invisible(TRUE)
@@ -198,8 +240,15 @@ projr_yml_check <- function(profile = NULL) {
   .assert_in(
     nm_vec,
     c(
-      "hooks", "scripts", "git",
-      "github", "package", "local", "cite", "restrictions", "renv"
+      "hooks",
+      "scripts",
+      "git",
+      "github",
+      "package",
+      "local",
+      "cite",
+      "restrictions",
+      "renv"
     )
   )
   .assert_flag(.yml_build_get_dev_output(profile))
@@ -248,36 +297,82 @@ projr_yml_check <- function(profile = NULL) {
     for (title in names(definitions)) {
       key <- paste("remotes", type, title, sep = ".")
       settings <- definitions[[title]]
-      fields <- c("structure", "source", "send", "path-append-label",
-        if (type == "local") c("path", "ignore") else c("repo", "tag", "branch"))
+      fields <- c(
+        "structure",
+        "source",
+        "send",
+        "path-append-label",
+        if (type == "local") c("path", "ignore") else c("repo", "tag", "branch")
+      )
       .yml_check_remote_mapping(settings, key, fields)
       if (!is.null(settings[["repo"]])) {
         repo <- settings[["repo"]]
         .assert_string(repo, TRUE, nm = paste0(key, ".repo"))
-        if (!grepl("^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", repo) ||
-            any(strsplit(repo, "/", fixed = TRUE)[[1L]] %in% c(".", ".."))) {
-          stop(key, ".repo must be a GitHub owner/repository name.", call. = FALSE)
+        if (
+          !grepl("^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", repo) ||
+            any(strsplit(repo, "/", fixed = TRUE)[[1L]] %in% c(".", ".."))
+        ) {
+          stop(
+            key,
+            ".repo must be a GitHub owner/repository name.",
+            call. = FALSE
+          )
         }
       }
-      .yml_check_remote_mapping(settings[["send"]], paste0(key, ".send"), c("cue", "inspect", "strategy"))
+      .yml_check_remote_mapping(
+        settings[["send"]],
+        paste0(key, ".send"),
+        c("cue", "inspect", "strategy")
+      )
       .yml_build_check_dest_title(settings, title, type, registered = TRUE)
     }
     for (title in names(selectors)) {
       selection <- selectors[[title]]
       key <- paste("build", type, title, sep = ".")
       if (title %in% names(definitions)) {
-        .yml_check_remote_mapping(selection, paste0(key, " (put remote settings under remotes.", type, ".", title, ")"), "content")
+        .yml_check_remote_mapping(
+          selection,
+          paste0(
+            key,
+            " (put remote settings under remotes.",
+            type,
+            ".",
+            title,
+            ")"
+          ),
+          "content"
+        )
         if ("content" %in% names(selection)) {
           content <- selection[["content"]]
-          if (is.null(content)) stop(key, ".content must list the labels to publish.", call. = FALSE)
-          if (length(content)) .assert_in(content, .opt_dir_get_label_send(profile, type), TRUE, nm = paste0(key, ".content"))
+          if (is.null(content)) {
+            stop(
+              key,
+              ".content must list the labels to publish.",
+              call. = FALSE
+            )
+          }
+          if (length(content)) {
+            .assert_in(
+              content,
+              .opt_dir_get_label_send(profile, type),
+              TRUE,
+              nm = paste0(key, ".content")
+            )
+          }
         }
       } else {
         .yml_check_remote_mapping(selection, key)
         if (length(selection)) {
           .yml_build_check_dest_title(selection, title, type)
         } else if (type == "local") {
-          stop("Define remotes.local.", title, ".path before selecting ", key, ".", call. = FALSE)
+          stop(
+            "Define remotes.local.",
+            title,
+            ".path before selecting ",
+            key,
+            ".",
+            call. = FALSE
+          )
         }
       }
     }
@@ -285,21 +380,38 @@ projr_yml_check <- function(profile = NULL) {
 }
 
 .yml_check_remote_mapping <- function(value, key, fields = NULL) {
-  if (!is.null(value) && (!is.list(value) || (length(value) &&
-      (is.null(names(value)) || any(!nzchar(names(value))))))) {
+  if (
+    !is.null(value) &&
+      (!is.list(value) ||
+        (length(value) &&
+          (is.null(names(value)) || any(!nzchar(names(value))))))
+  ) {
     stop(key, " must be a YAML mapping.", call. = FALSE)
   }
-  if (length(value) && !is.null(fields)) .assert_in(names(value), fields, nm = key)
+  if (length(value) && !is.null(fields)) {
+    .assert_in(names(value), fields, nm = key)
+  }
 }
 
-.yml_build_check_dest_title <- function(yml_title, title, type, registered = FALSE) {
+.yml_build_check_dest_title <- function(
+  yml_title,
+  title,
+  type,
+  registered = FALSE
+) {
   .assert_string(title, TRUE)
   .assert_string(yml_title[["title"]])
   if (type == "github") {
     .assert_string(yml_title[["tag"]])
     .assert_string(yml_title[["branch"]])
   }
-  if (!registered) .assert_in(yml_title[["content"]], .opt_dir_get_label_send(NULL, type), TRUE)
+  if (!registered) {
+    .assert_in(
+      yml_title[["content"]],
+      .opt_dir_get_label_send(NULL, type),
+      TRUE
+    )
+  }
   .assert_in_single(yml_title[["structure"]], .opt_remote_get_structure())
   .assert_string(yml_title[["path"]], type == "local")
   .assert_flag(yml_title[["path-append-label"]])
@@ -308,22 +420,28 @@ projr_yml_check <- function(profile = NULL) {
     get_list <- yml_title[["get"]]
     .assert_in(names(get_list), c("strategy", "conflict"))
     .assert_in(
-      get_list[["strategy"]], .opt_remote_strategy_get()
+      get_list[["strategy"]],
+      .opt_remote_strategy_get()
     )
     .assert_in(
-      get_list[["conflict"]], .opt_remote_conflict_get()
+      get_list[["conflict"]],
+      .opt_remote_conflict_get()
     )
   }
   if ("send" %in% names(yml_title)) {
     send_list <- yml_title[["send"]]
-    if (length(send_list)) .assert_in(names(send_list), .opt_remote_transfer_names_get())
+    if (length(send_list)) {
+      .assert_in(names(send_list), .opt_remote_transfer_names_get())
+    }
     .assert_in_single(send_list[["cue"]], .opt_cue_get())
     .assert_in_single(
-      send_list[["strategy"]], .opt_remote_strategy_get()
+      send_list[["strategy"]],
+      .opt_remote_strategy_get()
     )
     .assert_in(send_list[["conflict"]], .opt_remote_conflict_get())
     .assert_in_single(
-      send_list[["inspect"]], .opt_remote_inspect_get()
+      send_list[["inspect"]],
+      .opt_remote_inspect_get()
     )
   }
   if ("source" %in% names(yml_title)) {
@@ -457,7 +575,9 @@ projr_yml_check <- function(profile = NULL) {
   }
 
   # If it's neither logical nor list, it's invalid
-  stop("build.cite must be either a logical value or a list with keys: codemeta, cff, inst-citation")
+  stop(
+    "build.cite must be either a logical value or a list with keys: codemeta, cff, inst-citation"
+  )
 }
 
 # hooks existence check
@@ -485,7 +605,13 @@ projr_yml_check <- function(profile = NULL) {
         if (!is.null(dev_hooks)) {
           for (hook in dev_hooks) {
             if (!file.exists(hook)) {
-              stop(paste0("Dev hook '", hook, "' (stage: ", stage, ") does not exist."))
+              stop(paste0(
+                "Dev hook '",
+                hook,
+                "' (stage: ",
+                stage,
+                ") does not exist."
+              ))
             }
           }
         }

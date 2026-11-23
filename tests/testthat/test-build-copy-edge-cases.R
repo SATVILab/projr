@@ -11,7 +11,11 @@ test_that(".build_copy_to_unsafe handles empty safe directories gracefully", {
     code = {
       # Create empty safe directory
       safe_dir <- projr_path_get_dir("output", safe = TRUE)
-      unsafe_dir_path <- projr_path_get_dir("output", safe = FALSE, create = FALSE)
+      unsafe_dir_path <- projr_path_get_dir(
+        "output",
+        safe = FALSE,
+        create = FALSE
+      )
 
       # Remove any existing files
       if (dir.exists(safe_dir)) {
@@ -83,7 +87,10 @@ test_that(".build_copy_to_unsafe successfully copies when files exist", {
       file.create(projr_path_get("output", "test1.txt", safe = TRUE))
       file.create(projr_path_get("output", "test2.txt", safe = TRUE))
       writeLines("content", projr_path_get("output", "test1.txt", safe = TRUE))
-      writeLines("more content", projr_path_get("output", "test2.txt", safe = TRUE))
+      writeLines(
+        "more content",
+        projr_path_get("output", "test2.txt", safe = TRUE)
+      )
 
       safe_dir <- projr_path_get_dir("output", safe = TRUE, create = FALSE)
       unsafe_dir <- projr_path_get_dir("output", safe = FALSE, create = FALSE)
@@ -113,7 +120,10 @@ test_that(".build_copy_to_unsafe successfully copies when files exist", {
 
       # Verify content was preserved
       expect_equal(readLines(file.path(unsafe_dir, "test1.txt")), "content")
-      expect_equal(readLines(file.path(unsafe_dir, "test2.txt")), "more content")
+      expect_equal(
+        readLines(file.path(unsafe_dir, "test2.txt")),
+        "more content"
+      )
     },
     quiet = TRUE,
     force = TRUE

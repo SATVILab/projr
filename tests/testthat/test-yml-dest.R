@@ -387,7 +387,6 @@ test_that(".yml_dest_complete_title_id completes ID for different types", {
   yml <- list()
   result <- .yml_dest_complete_title_id(yml, "github", "my-release")
   expect_identical(result[["id"]], "my-release")
-
 })
 
 test_that(".yml_dest_complete_title applies all completions", {

@@ -45,10 +45,16 @@
 #' projr_yml_renv_set("auto", simplify_default = TRUE)
 #' }
 #' @export
-projr_yml_renv_set <- function(renv = NULL,
-                               simplify_default = TRUE,
-                               profile = "default") {
-  .yml_renv_set_check(renv = renv, simplify_default = simplify_default, profile = profile)
+projr_yml_renv_set <- function(
+  renv = NULL,
+  simplify_default = TRUE,
+  profile = "default"
+) {
+  .yml_renv_set_check(
+    renv = renv,
+    simplify_default = simplify_default,
+    profile = profile
+  )
 
   if (!is.null(renv)) {
     .yml_renv_set_impl(renv, simplify_default, profile)
@@ -64,7 +70,11 @@ projr_yml_renv_set <- function(renv = NULL,
 }
 
 .yml_renv_set_impl <- function(renv, simplify_default, profile) {
-  if (identical(renv, "auto") && simplify_default && (is.null(profile) || identical(profile, "default"))) {
+  if (
+    identical(renv, "auto") &&
+      simplify_default &&
+      (is.null(profile) || identical(profile, "default"))
+  ) {
     .yml_renv_set(NULL, profile)
     return(invisible(FALSE))
   }
@@ -82,7 +92,12 @@ projr_yml_renv_set <- function(renv = NULL,
 }
 
 .yml_renv_check_value <- function(value) {
-  if (!is.null(value) && !identical(value, "auto") && !isTRUE(value) && !isFALSE(value)) {
+  if (
+    !is.null(value) &&
+      !identical(value, "auto") &&
+      !isTRUE(value) &&
+      !isFALSE(value)
+  ) {
     stop('build.renv must be "auto", TRUE, or FALSE.', call. = FALSE)
   }
   invisible(TRUE)

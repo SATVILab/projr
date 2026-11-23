@@ -43,7 +43,9 @@ projr_env_set <- function(file = NULL) {
 
 .env_set <- function(file = NULL, unset = FALSE) {
   .assert_chr_min(file)
-  if (length(file)) .assert_chr(file)
+  if (length(file)) {
+    .assert_chr(file)
+  }
   .assert_flag(unset, TRUE)
   .file_rm(.env_file_get_path_list())
   if (!is.null(file)) {
@@ -56,7 +58,8 @@ projr_env_set <- function(file = NULL) {
   env_profile_vec <- .env_profile_get()
   for (i in seq_along(env_profile_vec)) {
     .env_file_activate_ind(
-      paste0("_environment-", env_profile_vec[[i]]), unset
+      paste0("_environment-", env_profile_vec[[i]]),
+      unset
     )
   }
   .env_file_activate_ind("_environment", unset)
@@ -149,7 +152,8 @@ projr_env_set <- function(file = NULL) {
   unspecified <- !nzchar(Sys.getenv(env_var_nm))
   if (unspecified) {
     warning(paste0(
-      "Environment variable `", env_var_nm,
+      "Environment variable `",
+      env_var_nm,
       "` unset but in _environment.required"
     ))
   }

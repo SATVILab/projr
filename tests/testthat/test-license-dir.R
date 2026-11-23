@@ -68,13 +68,17 @@ test_that(".license_config_parse handles simple string", {
   skip_if(.is_test_select())
 
   project <- .test_setup_project(git = FALSE)
-  usethis::with_project(project, {
-    config <- .license_config_parse("CC-BY")
-    expect_identical(config$type, "CC-BY")
-    expect_true(!is.null(config$authors))
-    expect_true(!is.null(config$year))
-    expect_true(is.integer(config$year))
-  }, force = TRUE)
+  usethis::with_project(
+    project,
+    {
+      config <- .license_config_parse("CC-BY")
+      expect_identical(config$type, "CC-BY")
+      expect_true(!is.null(config$authors))
+      expect_true(!is.null(config$year))
+      expect_true(is.integer(config$year))
+    },
+    force = TRUE
+  )
 })
 
 test_that(".license_config_parse handles full config", {
