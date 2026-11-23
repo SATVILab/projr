@@ -165,8 +165,11 @@
 
 .init_git_config_ind_set <- function(key, val) {
   switch(.git_system_get(),
-    "git" = system2("git", c("config", "--global", key, val)),
-    "gert" = gert::git_config_global_set(key, val)
+    "git" = {
+      status <- system2("git", c("-C", shQuote(.path_get()), "config", "--local", key, shQuote(val)))
+      if (status != 0L) stop("Could not set ", key, " in the project Git configuration.")
+    },
+    "gert" = gert::git_config_set(key, val, repo = .path_get())
   )
   invisible(TRUE)
 }

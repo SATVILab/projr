@@ -119,71 +119,13 @@
   )
 }
 
-.test_setup_project_git_config <- function(global_only = FALSE) {
-  env <- parent.frame()
-  .test_git_identity_env_set(env)
-
-  if (global_only) {
-    return(invisible(TRUE))
+.test_setup_project_git_config <- function(repo = getwd()) {
+  if (!dir.exists(file.path(repo, ".git")) ||
+      !fs::path_has_parent(fs::path_real(repo), fs::path_real(tempdir()))) {
+    stop("Set the test Git identity only in a temporary fixture repository.")
   }
-
-  .test_git_identity_local_set()
-  invisible(TRUE)
-}
-
-.test_git_identity_env_set <- function(env) {
-  env_vars <- c(
-    "GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL",
-    "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"
-  )
-  old_values <- Sys.getenv(env_vars, unset = NA_character_)
-  withr::defer(
-    {
-      to_restore <- !is.na(old_values)
-      if (any(to_restore)) {
-        restore_list <- as.list(stats::setNames(old_values[to_restore], env_vars[to_restore]))
-        do.call(Sys.setenv, restore_list)
-      }
-      to_clear <- is.na(old_values)
-      if (any(to_clear)) {
-        Sys.unsetenv(env_vars[to_clear])
-      }
-    },
-    envir = env
-  )
-
-  new_vals <- as.list(stats::setNames(
-    c(
-      "DarthVader", "number_one_fan@tellytubbies.com",
-      "DarthVader", "number_one_fan@tellytubbies.com"
-    ),
-    env_vars
-  ))
-  do.call(Sys.setenv, new_vals)
-  invisible(TRUE)
-}
-
-.test_git_identity_local_set <- function() {
-  cfg <- list(
-    list(name = "user.name", value = "DarthVader"),
-    list(name = "user.email", value = "number_one_fan@tellytubbies.com")
-  )
-
-  for (item in cfg) {
-    tryCatch(
-      gert::git_config_set(item$name, item$value),
-      error = function(e) invisible(NULL)
-    )
-    tryCatch(
-      system2(
-        "git",
-        c("config", "--local", item$name, item$value),
-        stdout = NULL, stderr = NULL
-      ),
-      warning = function(w) invisible(NULL),
-      error = function(e) invisible(NULL)
-    )
-  }
+  gert::git_config_set("user.name", "DarthVader", repo = repo)
+  gert::git_config_set("user.email", "number_one_fan@tellytubbies.com", repo = repo)
   invisible(TRUE)
 }
 
@@ -270,9 +212,8 @@
   }
   # Package should be installed via Suggests
   .dep_install_only("gert")
-  .test_setup_project_git_config(TRUE)
   gert::git_init(path_dir)
-  with_dir(path_dir, .test_setup_project_git_config(FALSE))
+  .test_setup_project_git_config(path_dir)
   gert::git_add(".", repo = path_dir)
   gert::git_commit(
     message = "Initial commit", repo = path_dir

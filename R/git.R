@@ -10,10 +10,7 @@
     stop(paste0(.git_system_get(), " not recognised"))
   )
 
-  if (.is_test()) {
-    gert::git_config_set("user.name", "DarthVader")
-    gert::git_config_set("user.email", "number_one_fan@tellytubbies.com")
-  }
+  invisible(TRUE)
 }
 
 .git_repo_check_exists <- function() {
