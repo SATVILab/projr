@@ -1,0 +1,30 @@
+---
+config:
+  theme: base
+  htmlLabels: false
+  flowchart:
+    useMaxWidth: false
+    nodeSpacing: 18
+    rankSpacing: 28
+  themeVariables:
+    fontFamily: "Arial, sans-serif"
+    fontSize: 16px
+    lineColor: "#52716e"
+---
+flowchart TB
+  accTitle: Build and restore one version of an analysis
+  accDescr: A published build records a Git commit and archives its inputs and results on GitHub. Open the commit in a fresh copy of the project and run projr_restore() to recover the matching inputs.
+  build("Build with<br/>archive_github = TRUE")
+  code["Git commit<br/>Code for this version"]
+  archive["GitHub release<br/>Inputs and results"]
+  checkout["Open that commit<br/>in a fresh copy"]
+  restore("Run projr_restore()")
+  inputs["Matching inputs<br/>in _raw_data/"]
+  build --> code & archive
+  code --> checkout --> restore
+  archive --> restore
+  restore --> inputs
+  classDef action fill:#e5f3ed,stroke:#08765e,color:#103d32,stroke-width:1.5px;
+  classDef file fill:#f2f5f4,stroke:#637e7b,color:#173a36;
+  class build,restore action;
+  class code,archive,checkout,inputs file;
