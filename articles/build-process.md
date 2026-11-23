@@ -431,11 +431,11 @@ projr_manifest_last_change()
 
 Control console verbosity with `PROJR_OUTPUT_LEVEL`:
 
-| Level     | Description                                    |
-|-----------|------------------------------------------------|
-| `"none"`  | Errors only                                    |
-| `"std"`   | Major step progress (default)                  |
-| `"debug"` | Detailed operations, file counts, remote plans |
+| Level     | Description                                                     |
+|-----------|-----------------------------------------------------------------|
+| `"none"`  | Hide projr progress messages. Warnings and errors still appear. |
+| `"std"`   | Major step progress (default)                                   |
+| `"debug"` | Detailed operations, file counts, remote plans                  |
 
 ``` r
 
@@ -443,20 +443,17 @@ Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")
 projr_build_patch(msg = "Debug run")
 ```
 
-At the `"debug"` level you will see messages like:
-
-    → Checking required packages
-    → Snapshotting renv
-    → Setting build version
-    → Running build hook: setup.R
-    → Remote: github/archive (12 files)
-    → Strategy: sync-diff — 3 modified, 2 added, 1 removed
+Standard output follows the work selected for this build. For example, a
+development build that runs one R script shows the script it runs. A
+configured post-build hook appears when it starts. If the build fails,
+the detailed log keeps the steps leading up to the error.
 
 #### Log files
 
-Detailed logs are written to the cache directory:
+With the starter configuration, projr saves each build log under
+`_tmp/projr/log/`. A custom cache path changes that location.
 
-    cache/projr/log/
+    _tmp/projr/log/
     ├── output/                    # Production build logs
     │   ├── history/builds.md      # All build records
     │   └── output/YYYY-MMM-DD/

@@ -282,7 +282,8 @@
 <h3 id="logging">Logging<a class="anchor" aria-label="anchor" href="#logging"></a></h3>
 <ul><li>Use <code><a href="reference/dot-cli_debug.html">.cli_debug()</a></code>, <code>.cli_info()</code>, <code><a href="reference/dot-cli_success.html">.cli_success()</a></code>, <code><a href="reference/dot-cli_step.html">.cli_step()</a></code> — they automatically read the <code>PROJR_OUTPUT_LEVEL</code> environment variable.</li>
 <li>Do <strong>not</strong> pass <code>output_level</code> as a function parameter.</li>
-<li>Do <strong>not</strong> log inside tight loops over many files; log summaries instead.</li>
+<li>Announce steps at the point the build attempts them. Reserve success messages for confirmed outcomes and keep routine skips out of standard output.</li>
+<li>Record the build version, active profiles, script and hook paths, destination decisions, and failure reason in the detailed log. Summarize file operations per directory or batch. Preserve prior history and the current log through cache cleanup.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="tests">Tests<a class="anchor" aria-label="anchor" href="#tests"></a></h3>

@@ -421,8 +421,13 @@ Internal functions (`.` prefix) must **not** have `@export`.
   — they automatically read the `PROJR_OUTPUT_LEVEL` environment
   variable.
 - Do **not** pass `output_level` as a function parameter.
-- Do **not** log inside tight loops over many files; log summaries
-  instead.
+- Announce steps at the point the build attempts them. Reserve success
+  messages for confirmed outcomes and keep routine skips out of standard
+  output.
+- Record the build version, active profiles, script and hook paths,
+  destination decisions, and failure reason in the detailed log.
+  Summarize file operations per directory or batch. Preserve prior
+  history and the current log through cache cleanup.
 
 ### Tests
 

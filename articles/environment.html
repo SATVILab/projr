@@ -238,14 +238,15 @@ reserved and filtered out automatically.</p>
 </tbody>
 </table>
 <p><code>PROJR_OUTPUT_LEVEL</code> controls console verbosity.
-<code>debug</code> shows detailed messages including remote
-operations.</p>
+<code>debug</code> shows detailed messages including remote operations.
+Warnings and errors remain visible at every level.</p>
 <p><code>PROJR_CLEAR_OUTPUT</code> controls when output directories are
 cleared: <code>pre</code> clears before build, <code>post</code> after,
 <code>never</code> skips clearing.</p>
 <p><code>PROJR_LOG_DETAILED</code> controls detailed <code>.qmd</code>
-log files in <code>cache/projr/log/</code>. Build history
-(<code>builds.md</code>) is always maintained.</p>
+log files under the configured cache directory (normally
+<code>_tmp/projr/log/</code>). Build history (<code>builds.md</code>) is
+always maintained.</p>
 <p><code>PROJR_AUTO_INSTALL</code> auto-installs missing R packages
 without prompting. When unset, interactive sessions prompt the user;
 non-interactive sessions error.</p>

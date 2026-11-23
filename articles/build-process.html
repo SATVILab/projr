@@ -543,6 +543,10 @@ history and writes subsequent updates under
 </h4>
 <p>Control console verbosity with <code>PROJR_OUTPUT_LEVEL</code>:</p>
 <table class="table">
+<colgroup>
+<col width="35%">
+<col width="65%">
+</colgroup>
 <thead><tr class="header">
 <th>Level</th>
 <th>Description</th>
@@ -550,7 +554,7 @@ history and writes subsequent updates under
 <tbody>
 <tr class="odd">
 <td><code>"none"</code></td>
-<td>Errors only</td>
+<td>Hide projr progress messages. Warnings and errors still appear.</td>
 </tr>
 <tr class="even">
 <td><code>"std"</code></td>
@@ -565,19 +569,18 @@ history and writes subsequent updates under
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>msg <span class="op">=</span> <span class="st">"Debug run"</span><span class="op">)</span></span></code></pre></div>
-<p>At the <code>"debug"</code> level you will see messages like:</p>
-<pre><code>→ Checking required packages
-→ Snapshotting renv
-→ Setting build version
-→ Running build hook: setup.R
-→ Remote: github/archive (12 files)
-→ Strategy: sync-diff — 3 modified, 2 added, 1 removed</code></pre>
+<p>Standard output follows the work selected for this build. For
+example, a development build that runs one R script shows the script it
+runs. A configured post-build hook appears when it starts. If the build
+fails, the detailed log keeps the steps leading up to the error.</p>
 </div>
 <div class="section level4">
 <h4 id="log-files">Log files<a class="anchor" aria-label="anchor" href="#log-files"></a>
 </h4>
-<p>Detailed logs are written to the cache directory:</p>
-<pre><code>cache/projr/log/
+<p>With the starter configuration, projr saves each build log under
+<code>_tmp/projr/log/</code>. A custom cache path changes that
+location.</p>
+<pre><code>_tmp/projr/log/
 ├── output/                    # Production build logs
 │   ├── history/builds.md      # All build records
 │   └── output/YYYY-MMM-DD/
@@ -586,10 +589,10 @@ history and writes subsequent updates under
     └── ...</code></pre>
 <p>History tracking (<code>builds.md</code>) is always maintained.
 Detailed per-build logs can be disabled:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_LOG_DETAILED <span class="op">=</span> <span class="st">"FALSE"</span><span class="op">)</span></span></code></pre></div>
 <p>View or clear logs:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_log_view.html">projr_log_view</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_log_clear.html">projr_log_clear</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -599,25 +602,25 @@ Detailed per-build logs can be disabled:</p>
 <ol style="list-style-type: decimal">
 <li>Enable debug output and re-run:</li>
 </ol>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>msg <span class="op">=</span> <span class="st">"Debug run"</span><span class="op">)</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li><p>Review the detailed log file in the cache directory.</p></li>
 <li><p>Check git status:</p></li>
 </ol>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git status"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git diff"</span><span class="op">)</span></span></code></pre></div>
 <ol start="4" style="list-style-type: decimal">
 <li>Verify package requirements:</li>
 </ol>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_check_packages.html">projr_build_check_packages</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <ol start="5" style="list-style-type: decimal">
 <li>If authentication is the issue:</li>
 </ol>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/instr_auth.html">projr_instr_auth_github</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -628,7 +631,7 @@ Detailed per-build logs can be disabled:</p>
 <div class="section level4">
 <h4 id="projr_build_patch-projr_build_minor-projr_build_major">projr_build_patch / projr_build_minor / projr_build_major<a class="anchor" aria-label="anchor" href="#projr_build_patch-projr_build_minor-projr_build_major"></a>
 </h4>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span></span>
 <span>  msg <span class="op">=</span> <span class="st">"Build message"</span>,</span>
 <span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -642,7 +645,7 @@ Detailed per-build logs can be disabled:</p>
 <div class="section level4">
 <h4 id="projr_build_dev">projr_build_dev<a class="anchor" aria-label="anchor" href="#projr_build_dev"></a>
 </h4>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span></span>
 <span>  scripts <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bump <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -655,7 +658,7 @@ Detailed per-build logs can be disabled:</p>
 <div class="section level4">
 <h4 id="configuration-helpers">Configuration helpers<a class="anchor" aria-label="anchor" href="#configuration-helpers"></a>
 </h4>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Validate configuration</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_check.html">projr_yml_check</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -672,7 +675,7 @@ Detailed per-build logs can be disabled:</p>
 <h3 id="complete-lifecycle-example">Complete Lifecycle Example<a class="anchor" aria-label="anchor" href="#complete-lifecycle-example"></a>
 </h3>
 <p>A typical workflow from setup through production build:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1. Check configuration is valid</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_check.html">projr_yml_check</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
