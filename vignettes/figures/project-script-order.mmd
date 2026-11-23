@@ -1,0 +1,24 @@
+---
+config:
+  theme: base
+  htmlLabels: false
+  flowchart:
+    useMaxWidth: false
+    rankSpacing: 25
+  themeVariables:
+    fontFamily: "Arial, sans-serif"
+    fontSize: 16px
+    lineColor: "#52716e"
+---
+flowchart TB
+  accTitle: Execution order for scripts mixed with Quarto project documents
+  accDescr: prepare.R and tables.R run first. At the position of report.qmd, Quarto renders analysis.qmd and report.qmd together. summarize.R runs after the project.
+  prepare["Run prepare.R"]
+  tables["Run tables.R"]
+  project("Render the Quarto project once<br/>analysis.qmd and report.qmd")
+  summarize["Run summarize.R"]
+  prepare --> tables --> project --> summarize
+  classDef script fill:#f2f5f4,stroke:#637e7b,color:#173a36;
+  classDef render fill:#e5f3ed,stroke:#08765e,color:#103d32,stroke-width:1.5px;
+  class prepare,tables,summarize script;
+  class project render;
