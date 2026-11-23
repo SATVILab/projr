@@ -62,6 +62,15 @@ Copy whole directories from a completed build into
 \verb{out/<label>/}. projr verifies each file against the build manifest
 before installing any of the selected directories.
 }
+\details{
+To inspect an archive's records, open \verb{manifests/<label>/versions.csv}
+at a local destination. On GitHub, download the release's \code{manifest.zip}
+and open \verb{<label>/versions.csv} inside it. The \code{snapshot} column
+identifies the matching \verb{files-<snapshot>.csv}, which
+lists the expected paths and hashes. Several builds can share a file list.
+To query build history in a checkout, use \code{\link[=projr_manifest_changes]{projr_manifest_changes()}} or
+\code{\link[=projr_manifest_file_history]{projr_manifest_file_history()}}.
+}
 \examples{
 \dontrun{
 projr_get_local(path = "../analysis", label = "output", out = "downloads")

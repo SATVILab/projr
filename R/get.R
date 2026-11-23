@@ -3,6 +3,13 @@
 #' @description Copy whole directories from a completed build into
 #'   `out/<label>/`. projr verifies each file against the build manifest
 #'   before installing any of the selected directories.
+#' @details To inspect an archive's records, open `manifests/<label>/versions.csv`
+#'   at a local destination. On GitHub, download the release's `manifest.zip`
+#'   and open `<label>/versions.csv` inside it. The `snapshot` column
+#'   identifies the matching `files-<snapshot>.csv`, which
+#'   lists the expected paths and hashes. Several builds can share a file list.
+#'   To query build history in a checkout, use [projr_manifest_changes()] or
+#'   [projr_manifest_file_history()].
 #' @param type A source type, `"local"` or `"github"`.
 #' @param ... Arguments for `projr_get_local()` or `projr_get_github()`.
 #' @param path Path to the local analysis that produced the files.
