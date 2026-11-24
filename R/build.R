@@ -67,11 +67,16 @@
 #' Ignored if there is a release named `archive`
 #' already specified as a destination in
 #' the `projr` configuration file.
-#' @param args_engine list.
-#' Arguments passed to the
-#' rendering engine
-#' (`rmarkdown::render`, `quarto::quarto_render` or `bookdown::render_book`).
-#' Quarto renders in the foreground so subsequent scripts and hooks see the completed output.
+#' @param args_engine List of options for the selected build engines. For one
+#'   engine, use its native arguments directly, e.g. `list(quiet = TRUE)` for
+#'   one or more standalone R Markdown documents. When multiple engines run,
+#'   group options by engine, e.g.
+#'   `list(quarto_project = list(profile = "print"), rmd = list(quiet = TRUE))`.
+#'   Use `quarto_project` or `quarto_document` for [quarto::quarto_render()],
+#'   `rmd` for [rmarkdown::render()] and `bookdown` for [bookdown::render_book()].
+#'   Plain R scripts (`r`) take no render options. Omit any engine to use its
+#'   defaults. The default `list()` works for any selection.
+#'   Quarto renders in the foreground so later scripts and hooks see its output.
 #' @param clear_output character.
 #' When to clear output directories: "pre" (before build, default),
 #' "post" (after build), or "never".
@@ -212,11 +217,6 @@ projr_build_patch <- function(
 #' @param old_dev_remove logical.
 #' If `TRUE`, then previous development builds are deleted
 #' after a successful run.
-#' @param args_engine list.
-#' Arguments passed to the
-#' rendering engine
-#' (`rmarkdown::render`, `quarto::quarto_render` or `bookdown::render_book`).
-#' Quarto renders in the foreground so subsequent scripts and hooks see the completed output.
 #' @param profile character.
 #' `projr` profile to use. Will set the environment variable
 #' .PROFILE` to this value at the start of the build,
@@ -320,6 +320,13 @@ projr_build_dev <- function(
   # set and unset environment variables
   .env_set(unset = TRUE)
   on.exit(.env_unset(), add = TRUE, after = FALSE)
+  engines <- tryCatch(
+    .engines_get(.scripts_get(scripts, bump_component, profile = NULL)),
+    error = identity
+  )
+  if (!inherits(engines, "error")) {
+    args_by_engine <- .build_args_by_engine(engines, args_engine)
+  }
   restore_library <- .build_renv_library_start()
   on.exit(restore_library(), add = TRUE, after = FALSE)
   output_run <- .build_get_output_run(bump_component)
@@ -381,13 +388,10 @@ projr_build_dev <- function(
           build_type
         )
 
-        scripts <- .scripts_get(
-          scripts = scripts,
-          bump_component = bump_component,
-          profile = NULL
-        )
-
-        engines <- .engines_get(scripts)
+        # Report script-selection errors through the normal build log.
+        if (inherits(engines, "error")) {
+          stop(engines)
+        }
         restore_project <- .build_engines_backup_project(engines)
         on.exit(restore_project(), add = TRUE, after = FALSE)
         documents <- .build_document_sources(engines)
@@ -423,7 +427,7 @@ projr_build_dev <- function(
         engines <- .build_engines_override_project(
           engines,
           restore_project,
-          args_engine[["profile"]]
+          args_by_engine[["quarto_project"]][["profile"]]
         )
 
         # Build stage
@@ -432,7 +436,7 @@ projr_build_dev <- function(
         } else {
           .cli_info("No scripts or documents selected")
         }
-        rendered <- .build_engines(engines, version_run_on_list, args_engine)
+        rendered <- .build_engines(engines, version_run_on_list, args_by_engine)
 
         # Post-build stage
         .cli_stage_header("Post-Build", build_type)

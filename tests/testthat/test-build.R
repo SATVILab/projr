@@ -461,15 +461,14 @@ test_that("projr_build_dev runs and collects only scripts selected by the caller
   )
 })
 
-# Test args_engine parameter passing
-test_that("args_engine parameter works correctly", {
+test_that("repeated standalone documents accept flat renderer arguments", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  dir_test <- .test_setup_project(git = FALSE, rm_engine = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create a simple Rmd file that can use parameters
+      unlink("_output.yml")
       writeLines(
         c(
           "---",
@@ -479,23 +478,17 @@ test_that("args_engine parameter works correctly", {
           "---",
           "",
           "```{r}",
-          "cat(params$message)",
+          "cat(params$message, '\\n', file = 'messages.txt', append = TRUE, sep = '')",
           "```"
         ),
         "params.Rmd"
       )
 
-      # Test args_engine with parameters for rmarkdown
-      custom_args <- list(
-        params = list(message = "Custom message from args_engine")
+      projr_build_dev(
+        scripts = c("params.Rmd", "params.Rmd"),
+        args_engine = list(params = list(message = "Custom message"))
       )
-
-      # Test with dev build
-      projr_build_dev(args_engine = custom_args)
-
-      # Check if parameter was correctly passed (would need content checking)
-      # This is a simplified check just to verify the build didn't error
-      expect_true(dir.exists("_tmp/projr/v0.0.0-1/docs"))
+      expect_identical(readLines("messages.txt"), rep("Custom message", 2L))
     },
     quiet = TRUE,
     force = TRUE

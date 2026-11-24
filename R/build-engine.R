@@ -79,6 +79,17 @@
 .build_engine_quarto_project <- function(args_engine) {
   .dep_install("quarto")
   .cli_step("Rendering Quarto project")
+  if (length(args_engine[["profile"]])) {
+    # A profile can override the staging directory set in the root Quarto YAML.
+    output_dir <- .yml_quarto_get_output_dir()
+    if (length(output_dir)) {
+      args_engine$quarto_args <- c(
+        args_engine$quarto_args,
+        "--output-dir",
+        output_dir
+      )
+    }
+  }
   x_return <- try(.build_quarto_render(args_engine))
   err_msg <- .try_err_msg_get(x_return, require_try_error = FALSE)
   if (is.null(err_msg)) {

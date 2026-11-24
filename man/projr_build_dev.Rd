@@ -40,11 +40,16 @@ build with the project's existing version, if any.}
 If \code{TRUE}, then previous development builds are deleted
 after a successful run.}
 
-\item{args_engine}{list.
-Arguments passed to the
-rendering engine
-(\code{rmarkdown::render}, \code{quarto::quarto_render} or \code{bookdown::render_book}).
-Quarto renders in the foreground so subsequent scripts and hooks see the completed output.}
+\item{args_engine}{List of options for the selected build engines. For one
+engine, use its native arguments directly, e.g. \code{list(quiet = TRUE)} for
+one or more standalone R Markdown documents. When multiple engines run,
+group options by engine, e.g.
+\code{list(quarto_project = list(profile = "print"), rmd = list(quiet = TRUE))}.
+Use \code{quarto_project} or \code{quarto_document} for \code{\link[quarto:quarto_render]{quarto::quarto_render()}},
+\code{rmd} for \code{\link[rmarkdown:render]{rmarkdown::render()}} and \code{bookdown} for \code{\link[bookdown:render_book]{bookdown::render_book()}}.
+Plain R scripts (\code{r}) take no render options. Omit any engine to use its
+defaults. The default \code{list()} works for any selection.
+Quarto renders in the foreground so later scripts and hooks see its output.}
 
 \item{profile}{character.
 \code{projr} profile to use. Will set the environment variable

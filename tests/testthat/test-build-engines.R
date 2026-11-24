@@ -149,14 +149,20 @@ for (project in c("quarto_project", "quarto_book", "bookdown")) {
         .yml_set(config, "default")
 
         args_engine <- list()
+        if (project == "quarto_project") {
+          writeLines("project: {output-dir: print-site}", "_quarto-print.yml")
+          args_engine <- list(quarto_project = list(profile = "print"))
+        }
         if (project == "bookdown") {
           # A prior standalone render using bookdown::gitbook caches the old YAML.
           rmarkdown::render(chapters[[1L]], quiet = TRUE)
           unlink("order.txt")
           args_engine <- list(
-            envir = list2env(
-              list(expected_root = getwd()),
-              parent = globalenv()
+            bookdown = list(
+              envir = list2env(
+                list(expected_root = getwd()),
+                parent = globalenv()
+              )
             )
           )
           cat(
@@ -199,6 +205,7 @@ for (project in c("quarto_project", "quarto_book", "bookdown")) {
         expect_true(file.exists(file.path(docs, "index.html")))
         if (project == "quarto_project") {
           expect_true(file.exists(file.path(docs, "reports", "chapter.html")))
+          expect_false(dir.exists("print-site"))
         }
       },
       force = TRUE,
@@ -206,6 +213,35 @@ for (project in c("quarto_project", "quarto_book", "bookdown")) {
     )
   })
 }
+
+test_that("unscoped arguments for multiple engines fail before a production build writes files", {
+  skip_if(.is_test_select())
+  project <- withr::local_tempdir()
+  usethis::with_project(
+    project,
+    {
+      writeLines(
+        c(
+          "directories: {cache: {path: cache}, docs: {path: docs}}",
+          "build: {git: false, scripts: [analysis.R, report.Rmd]}"
+        ),
+        "_projr.yml"
+      )
+      writeLines("file.create('ran-script')", "analysis.R")
+      writeLines("# Report", "report.Rmd")
+      before <- list.files(all.files = TRUE)
+      error <- expect_error(
+        projr_build(project = project, args_engine = list(quiet = TRUE)),
+        "args_engine"
+      )
+      expect_match(conditionMessage(error), "\\br\\b")
+      expect_match(conditionMessage(error), "\\brmd\\b")
+      expect_identical(list.files(all.files = TRUE), before)
+    },
+    force = TRUE,
+    quiet = TRUE
+  )
+})
 
 test_that("a failed render restores project selection and ignores new TeX files", {
   skip_if(.is_test_cran())
@@ -536,7 +572,11 @@ for (project_type in c("bookdown", "quarto_book")) {
           )
           config$dev$hooks <- list(post = "check-config.R")
           .yml_set(config)
-          args <- if (quarto) list(profile = "report") else list()
+          args <- if (quarto) {
+            list(quarto_project = list(profile = "report"))
+          } else {
+            list()
+          }
           projr_build_dev(args_engine = args)
           expect_identical(readLines("order.txt"), c("chapter", "R"))
           during <- readRDS("during-render.rds")

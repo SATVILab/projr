@@ -188,11 +188,7 @@
       .license_dir_create(cache, safe = FALSE)
     }
     engines <- .build_engines_override_project(engines, restore_project)
-    rendered <- .build_engines(
-      engines,
-      version_run_on_list = NULL,
-      args_engine = list()
-    )
+    rendered <- .build_engines(engines, version_run_on_list = NULL)
     # Validate again before collecting files from native renderer output paths.
     dirs <- .reproduce_check_dirs(sources, native_cache)
     products <- .build_copy_docs_targets(rendered)$source

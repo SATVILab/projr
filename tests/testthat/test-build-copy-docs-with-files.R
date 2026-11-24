@@ -198,7 +198,7 @@ test_that(".build_copy propagates scripts parameter correctly", {
   )
 })
 
-test_that("R Markdown collection uses the renderer's actual output path", {
+test_that("mixed standalone documents collect the outputs requested for each engine", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(
@@ -223,21 +223,30 @@ test_that("R Markdown collection uses the renderer's actual output path", {
         ),
         "report.Rmd"
       )
-      rendered <- .build_engines(
-        .engines_get("report.Rmd"),
-        version_run_on_list = .version_run_onwards_get(NULL),
+      writeLines("# Quarto report", "summary.qmd")
+      projr_build_dev(
+        scripts = c("report.Rmd", "summary.qmd"),
         args_engine = list(
-          output_file = "renamed.html",
-          output_dir = "rendered",
-          quiet = TRUE
+          rmd = list(
+            output_file = "renamed.html",
+            output_dir = "rendered",
+            quiet = TRUE
+          ),
+          quarto_document = list(
+            output_format = "gfm",
+            output_file = "brief.md"
+          )
         )
       )
-      .build_copy_docs(output_run = FALSE, engines = rendered)
 
       docs <- projr_path_get_dir("docs", safe = TRUE)
       expect_true(file.exists(file.path(docs, "renamed.html")))
       expect_true(dir.exists(file.path(docs, "renamed_files")))
       expect_false(file.exists("rendered/renamed.html"))
+      expect_true(any(grepl(
+        "Quarto report",
+        readLines(file.path(docs, "brief.md"))
+      )))
     },
     force = TRUE,
     quiet = TRUE

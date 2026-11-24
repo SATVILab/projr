@@ -1,4 +1,36 @@
-.build_engines <- function(engines, version_run_on_list, args_engine) {
+.build_args_by_engine <- function(engines, args_engine) {
+  .assert_class(args_engine, "list", nm = "args_engine")
+  if (!length(args_engine) || !length(engines)) {
+    return(list())
+  }
+  selected <- unique(names(engines))
+  known <- c("quarto_project", "quarto_document", "bookdown", "rmd", "r")
+  keys <- names(args_engine)
+  if (length(selected) == 1L && !any(keys %in% known)) {
+    return(stats::setNames(list(args_engine), selected))
+  }
+  if (
+    is.null(keys) ||
+      anyDuplicated(keys) ||
+      !all(keys %in% known) ||
+      !all(vapply(args_engine, is.list, logical(1)))
+  ) {
+    stop(
+      "Supply args_engine as a named list of argument lists, one per engine. ",
+      "Selected engines: ",
+      paste(selected, collapse = ", "),
+      ".",
+      call. = FALSE
+    )
+  }
+  args_engine[intersect(selected, keys)]
+}
+
+.build_engines <- function(
+  engines,
+  version_run_on_list,
+  args_by_engine = list()
+) {
   collected <- list()
   for (index in seq_along(engines)) {
     engine <- names(engines)[[index]]
@@ -6,7 +38,7 @@
     outputs <- .build_engine(
       scripts = engines[[index]],
       version_run_on_list = version_run_on_list,
-      args_engine = args_engine,
+      args_engine = args_by_engine[[engine]] %||% list(),
       engine = engine,
       collect_paths = standalone
     )
