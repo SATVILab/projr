@@ -253,6 +253,21 @@ files.
 
 ### Named archives and retrieving files
 
+- Before a production build changes its version, renders, or creates a
+  release, compare the local last completed build and proposed version
+  with the selected archives. Report each destination’s version and
+  outcome. `build.restrictions.not_behind_remote` defaults to the
+  planned publishing destinations, including one-off archives. A list
+  selects specific remote titles, including read-only destinations.
+  `false` skips the check. `build.restrictions.rule` defaults to
+  `base_version_not_behind` (`base`), requiring local base \>= remote
+  and proposed \> remote. `target_version_not_behind` (`target`)
+  requires only proposed \> remote. Empty archives pass. Keep Git’s
+  upstream check separate under `not_behind_git`, accepting the
+  historical `not_behind` spelling. Development builds skip both checks.
+- Advance the archive’s project version only after publishing its final
+  selected directory and changelog. An earlier successful label in an
+  interrupted upload must preserve the last completed archive version.
 - Define reusable local and GitHub archives under
   `remotes.<type>.<title>`. Store the address, layout and sending
   options there. A registered title omitted from `build.<type>` remains

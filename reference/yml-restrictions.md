@@ -1,17 +1,8 @@
-# Set build restrictions
+# Set restrictions for production builds
 
-`projr_yml_restrictions_set` sets build restrictions in `_projr.yml`.
-
-The options are:
-
-- branch: controls which branches can perform builds. If `TRUE`
-  (default), builds are allowed on any branch. If a character vector,
-  builds are only allowed on matching branches. If `FALSE`, builds are
-  restricted (treated as empty character vector).
-
-- not_behind: whether to check if branch is behind remote upstream. If
-  `TRUE` (default), build fails if branch is behind remote. If `FALSE`,
-  no check is performed.
+Configure which branches may build and how projr checks Git and archive
+versions before a production build. Omit a setting or pass `NULL` to
+leave its current value in place.
 
 ## Usage
 
@@ -19,7 +10,10 @@ The options are:
 projr_yml_restrictions_set(
   branch = NULL,
   not_behind = NULL,
-  profile = "default"
+  profile = "default",
+  not_behind_git = NULL,
+  not_behind_remote = NULL,
+  rule = NULL
 )
 ```
 
@@ -27,40 +21,53 @@ projr_yml_restrictions_set(
 
 - branch:
 
-  logical or character. Controls which branches can perform builds. If
-  `TRUE`, builds allowed on any branch (default). If a character vector,
-  builds only allowed on these branches. If `FALSE`, builds restricted
-  on all branches. If `NULL`, setting is not changed. Default is `NULL`.
+  `TRUE` allows any branch (default), a character vector allows the
+  named branches, and `FALSE` prevents production builds on any branch.
 
 - not_behind:
 
-  logical. Controls whether to check if branch is behind remote
-  upstream. If `TRUE` (default), build fails if branch is behind. If
-  `FALSE`, no check is performed. If `NULL`, setting is not changed.
-  Default is `NULL`.
+  Earlier spelling of `not_behind_git`.
 
 - profile:
 
-  character. The profile to write to. Default is "default", in which
-  case it writes to `_projr.yml`.
+  Name of the profile to update. The default is `"default"`.
+
+- not_behind_git:
+
+  Whether to check if the local branch is behind its Git upstream.
+  Defaults to `TRUE`.
+
+- not_behind_remote:
+
+  Which archives to check. `TRUE` (default) checks the destinations
+  selected for publication by this build. `FALSE` skips archive version
+  checks. To check specific destinations, supply a character vector of
+  archive titles or a named list such as
+  `list(github = "reports", local = "backup")`. Include the type when a
+  title applies to more than one archive. Selected archives are checked
+  even when the build will not publish to them.
+
+- rule:
+
+  Which project version must be at least as recent as each selected
+  archive's completed version. `"base_version_not_behind"` (or `"base"`,
+  the default) compares the version before the bump.
+  `"target_version_not_behind"` (or `"target"`) compares the version the
+  build will create.
+
+## Value
+
+Invisibly returns `TRUE`.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# Allow builds on any branch (default)
-projr_yml_restrictions_set(branch = TRUE)
-
-# Allow builds only on main and dev branches
 projr_yml_restrictions_set(branch = c("main", "dev"))
-
-# Restrict builds on all branches
-projr_yml_restrictions_set(branch = FALSE)
-
-# Disable check for being behind remote
-projr_yml_restrictions_set(not_behind = FALSE)
-
-# Enable check for being behind remote (default)
-projr_yml_restrictions_set(not_behind = TRUE)
+projr_yml_restrictions_set(not_behind_git = FALSE)
+projr_yml_restrictions_set(
+  not_behind_remote = list(github = "reports", local = "backup"),
+  rule = "target"
+)
 } # }
 ```

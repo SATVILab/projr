@@ -14,7 +14,8 @@ GitHub Enterprise via `api_url`.
   dest_dir,
   api_url = NULL,
   token = NULL,
-  overwrite = TRUE
+  overwrite = TRUE,
+  asset = NULL
 )
 ```
 
@@ -49,6 +50,10 @@ GitHub Enterprise via `api_url`.
 - overwrite:
 
   Logical. If FALSE, existing files are left untouched.
+
+- asset:
+
+  Optional asset metadata from an existing release listing.
 
 ## Value
 

@@ -225,7 +225,9 @@ nested source documents.
 | `build.renv` | `auto` (default) snapshots when the project has `renv.lock` or `renv/activate.R`. `true` requests snapshots even for a first lockfile. `false` disables build snapshots. A production build checks dependencies before rendering and snapshots again without prompting afterward. |
 | `build.git` | A boolean, or a mapping with booleans `commit`, `add-untracked`, and `push`. The first build writes `false` when there is no Git checkout, or disables push when the branch has no upstream. For an existing configuration with these settings omitted the normal production defaults enable all three. |
 | `build.restrictions.branch` | `true` allows any branch (default), a name or list allows those branches, and `false` or `[]` allows none. |
-| `build.restrictions.not_behind` | Defaults to true. Checks whether the local branch is behind its upstream before a versioned build. |
+| `build.restrictions.not_behind_git` | Defaults to `true`. Checks whether the local Git branch is behind its upstream. Existing configurations can use `not_behind`. |
+| `build.restrictions.not_behind_remote` | Defaults to `true`. Checks the archives selected for publication, including one-off archives. Set `false` to skip archive version checks or supply the titles of the archives to check. |
+| `build.restrictions.rule` | `base_version_not_behind` (or `base`, the default) checks the last completed local version and the proposed version. `target_version_not_behind` (or `target`) checks just the proposed version. |
 | `build.cite` | A boolean or a mapping of booleans `cff`, `inst-citation`, and `codemeta`. Selects citation files for production build updates. |
 | `metadata.version-format` | Defaults to `major.minor.patch-dev`. Supported formats also allow `major.minor` or `major` before the development component, a dot separator before it, and a final `1` or `9000` in place of `dev`. |
 | `parameters` | Project-specific values available inside scripts, for example `parameters: {seed: 42}` and `projr_par_get("seed")`. |
@@ -258,6 +260,50 @@ packages. A populated new library takes precedence, and explicit renv
 library settings are respected. A missing renderer dependency stops the
 build with the package names and the installation command for the
 project library.
+
+### Archive version checks
+
+Before a production build publishes, projr shows the last completed
+version in the checkout, the proposed build version, and the version
+recorded by each selected archive. A new or empty archive passes. For an
+existing archive the proposed version must be newer than its last
+successful upload. By default the checkout must also be at least as
+recent as that upload.
+
+The local base comes from the latest build recorded in
+`.projr/BUILDLOG.md`. For an older checkout without a recorded build,
+projr can use its stable project version. A development version alone
+does not establish a completed build.
+
+The archive records its completed project version after all selected
+directories have uploaded. If a populated archive has missing or
+unreadable version information, the build stops so you can inspect it
+before publishing.
+
+For example, suppose your checkout last built `0.1.0` and the archive
+already contains `0.2.0`. The default rule stops even if you request a
+major build to `1.0.0`. Choose `rule: target` when you intend to publish
+that version from the older checkout. Both rules stop a proposed build
+of `0.2.0`, since the archive already has that version.
+
+By default projr checks the destinations this build is scheduled to
+publish to, including those requested with `archive_github` or
+`archive_local`. To check specific archives on every production build,
+list their configured titles. This also checks registered archives that
+the build only reads.
+
+``` yaml
+build:
+  restrictions:
+    not_behind_remote: [reports, backup]
+    rule: target
+```
+
+If the same title appears under both `remotes.github` and
+`remotes.local`, qualify it by type, for example
+`not_behind_remote: {github: [reports]}`. Set `not_behind_remote: false`
+to skip archive checks. Git upstream checks have their own
+`not_behind_git` setting. Development builds skip both checks.
 
 ## Hashing and history
 

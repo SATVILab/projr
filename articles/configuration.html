@@ -420,9 +420,25 @@ those branches, and <code>false</code> or <code>[]</code> allows
 none.</td>
 </tr>
 <tr class="even">
-<td><code>build.restrictions.not_behind</code></td>
-<td>Defaults to true. Checks whether the local branch is behind its
-upstream before a versioned build.</td>
+<td><code>build.restrictions.not_behind_git</code></td>
+<td>Defaults to <code>true</code>. Checks whether the local Git branch
+is behind its upstream. Existing configurations can use
+<code>not_behind</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>build.restrictions.not_behind_remote</code></td>
+<td>Defaults to <code>true</code>. Checks the archives selected for
+publication, including one-off archives. Set <code>false</code> to skip
+archive version checks or supply the titles of the archives to
+check.</td>
+</tr>
+<tr class="even">
+<td><code>build.restrictions.rule</code></td>
+<td>
+<code>base_version_not_behind</code> (or <code>base</code>, the
+default) checks the last completed local version and the proposed
+version. <code>target_version_not_behind</code> (or <code>target</code>)
+checks just the proposed version.</td>
 </tr>
 <tr class="odd">
 <td><code>build.cite</code></td>
@@ -470,14 +486,53 @@ same packages. A populated new library takes precedence, and explicit
 renv library settings are respected. A missing renderer dependency stops
 the build with the package names and the installation command for the
 project library.</p>
+<div class="section level3">
+<h3 id="archive-version-checks">Archive version checks<a class="anchor" aria-label="anchor" href="#archive-version-checks"></a>
+</h3>
+<p>Before a production build publishes, projr shows the last completed
+version in the checkout, the proposed build version, and the version
+recorded by each selected archive. A new or empty archive passes. For an
+existing archive the proposed version must be newer than its last
+successful upload. By default the checkout must also be at least as
+recent as that upload.</p>
+<p>The local base comes from the latest build recorded in
+<code>.projr/BUILDLOG.md</code>. For an older checkout without a
+recorded build, projr can use its stable project version. A development
+version alone does not establish a completed build.</p>
+<p>The archive records its completed project version after all selected
+directories have uploaded. If a populated archive has missing or
+unreadable version information, the build stops so you can inspect it
+before publishing.</p>
+<p>For example, suppose your checkout last built <code>0.1.0</code> and
+the archive already contains <code>0.2.0</code>. The default rule stops
+even if you request a major build to <code>1.0.0</code>. Choose
+<code>rule: target</code> when you intend to publish that version from
+the older checkout. Both rules stop a proposed build of
+<code>0.2.0</code>, since the archive already has that version.</p>
+<p>By default projr checks the destinations this build is scheduled to
+publish to, including those requested with <code>archive_github</code>
+or <code>archive_local</code>. To check specific archives on every
+production build, list their configured titles. This also checks
+registered archives that the build only reads.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="at">  </span><span class="fu">restrictions</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">    </span><span class="fu">not_behind_remote</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">reports</span><span class="kw">,</span><span class="at"> backup</span><span class="kw">]</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="fu">rule</span><span class="kw">:</span><span class="at"> target</span></span></code></pre></div>
+<p>If the same title appears under both <code>remotes.github</code> and
+<code>remotes.local</code>, qualify it by type, for example
+<code>not_behind_remote: {github: [reports]}</code>. Set
+<code>not_behind_remote: false</code> to skip archive checks. Git
+upstream checks have their own <code>not_behind_git</code> setting.
+Development builds skip both checks.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="hashing-and-history">Hashing and history<a class="anchor" aria-label="anchor" href="#hashing-and-history"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">settings</span><span class="kw">:</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hashing</span><span class="kw">:</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">    </span><span class="fu">approach</span><span class="kw">:</span><span class="at"> cpp</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="fu">cores</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">settings</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hashing</span><span class="kw">:</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">    </span><span class="fu">approach</span><span class="kw">:</span><span class="at"> cpp</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="at">    </span><span class="fu">cores</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span></code></pre></div>
 <p><code>cpp</code> streams files through the native implementation.
 <code>legacy</code> uses the historical R hashing method. Both produce
 the same file MD5s and use the same directory histories.
@@ -540,25 +595,25 @@ build writes to. This example keeps a complete local archive called
 <code>shared</code> and sends just the figures to a GitHub repository.
 The project declares <code>output-figures</code> under
 <code>directories</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> ../team-archives/study</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="at">      </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> research-team/study-results</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="at">      </span><span class="fu">tag</span><span class="kw">:</span><span class="at"> </span><span class="st">"figures-@branch"</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="at">      </span><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="at">      </span><span class="fu">send</span><span class="kw">:</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="at">        </span><span class="fu">inspect</span><span class="kw">:</span><span class="at"> manifest</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="at">        </span><span class="fu">strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
-<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-figures</span><span class="kw">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> ../team-archives/study</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">      </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> research-team/study-results</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">      </span><span class="fu">tag</span><span class="kw">:</span><span class="at"> </span><span class="st">"figures-@branch"</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="at">      </span><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="at">      </span><span class="fu">send</span><span class="kw">:</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="at">        </span><span class="fu">inspect</span><span class="kw">:</span><span class="at"> manifest</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="at">        </span><span class="fu">strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-figures</span><span class="kw">]</span></span></code></pre></div>
 <p>For a name declared under <code>remotes</code>, the matching entry
 under <code>build</code> has three forms.</p>
 <table class="table">
@@ -777,7 +832,7 @@ checkout, projr can read a root <code>BUILDLOG.md</code>. The next build
 or restore moves that history into <code>.projr/</code>. The changelog
 stays at the root. Pass it back as <code>destination</code> to restore
 from the same place later.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">projr</span><span class="fu">::</span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span></span>
 <span>  label <span class="op">=</span> <span class="st">"output-delivery"</span>, pos <span class="op">=</span> <span class="st">"dest"</span>, type <span class="op">=</span> <span class="st">"local"</span>, title <span class="op">=</span> <span class="st">"shared"</span>,</span>
 <span>  destination <span class="op">=</span> <span class="st">"../team-archives/study"</span></span>

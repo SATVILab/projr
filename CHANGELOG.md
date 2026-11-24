@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add production archive version checks for configured and one-off
+  destinations. Record the destination’s completed project version after
+  its last upload. The Git upstream restriction now uses
+  `not_behind_git` and accepts the historical `not_behind` key.
+
 - Resolve `args_engine` against the selected build engines before
   rendering. Each engine uses its own options for rendering and output
   collection.

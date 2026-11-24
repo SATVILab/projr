@@ -43,7 +43,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="projr-development-version">projr (development version)<a class="anchor" aria-label="anchor" href="#projr-development-version"></a></h2>
-<ul><li>Builds that mix document types can pass different options to each build engine through <code>args_engine</code>. For example, use <code>list(quarto_project = list(profile = "print"), rmd = list(quiet = TRUE))</code> to build a Quarto project with its print profile and render a standalone R Markdown document quietly. A single engine still accepts a flat list.</li>
+<ul><li><p>Production builds check the versions already published to their archives before rendering. By default they stop if the checkout is behind an archive or the proposed version already exists there. Set <code>build.restrictions.rule</code> to <code>target</code> to publish a newer version from an older checkout.</p></li>
+<li><p>Builds that mix document types can pass different options to each build engine through <code>args_engine</code>. For example, use <code>list(quarto_project = list(profile = "print"), rmd = list(quiet = TRUE))</code> to build a Quarto project with its print profile and render a standalone R Markdown document quietly. A single engine still accepts a flat list.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="projr-070">projr 0.7.0<a class="anchor" aria-label="anchor" href="#projr-070"></a></h2>

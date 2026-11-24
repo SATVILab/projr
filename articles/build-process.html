@@ -156,6 +156,11 @@ with <code>build.git: false</code>
 </li>
 <li>For a push, the local branch needs an upstream. By default, projr
 also checks that the local branch is up to date</li>
+<li>For each archive selected for publication, projr shows its last
+successful upload alongside the local base and proposed build version.
+An empty archive passes. By default the local base must be at least as
+recent as the upload, and the proposed version must be newer. See <a href="configuration.html#archive-version-checks">archive version
+checks</a> to change the rule or the selection.</li>
 </ol>
 <p>Run <code><a href="../reference/projr_build_check_packages.html">projr_build_check_packages()</a></code> at any time to check
 package requirements. Production builds also check for

@@ -97,6 +97,13 @@ The build validates the environment before starting:
     with `build.git: false`
 6.  For a push, the local branch needs an upstream. By default, projr
     also checks that the local branch is up to date
+7.  For each archive selected for publication, projr shows its last
+    successful upload alongside the local base and proposed build
+    version. An empty archive passes. By default the local base must be
+    at least as recent as the upload, and the proposed version must be
+    newer. See [archive version
+    checks](https://satvilab.github.io/projr/articles/configuration.html#archive-version-checks)
+    to change the rule or the selection.
 
 Run
 [`projr_build_check_packages()`](https://satvilab.github.io/projr/reference/projr_build_check_packages.md)

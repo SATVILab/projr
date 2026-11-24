@@ -261,7 +261,7 @@ Functions for managing \_projr.yml configuration
   : Build hook-related functions
 
 - [`projr_yml_restrictions_set()`](https://satvilab.github.io/projr/reference/yml-restrictions.md)
-  : Set build restrictions
+  : Set restrictions for production builds
 
 - [`projr_license_create_manual()`](https://satvilab.github.io/projr/reference/projr_license_create_manual.md)
   : Manually create LICENSE files without YAML configuration
