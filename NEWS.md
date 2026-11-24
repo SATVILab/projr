@@ -1,5 +1,10 @@
 # projr (development version)
 
+* Production builds check the versions already published to their archives
+  before rendering. By default they stop if the checkout is behind an archive
+  or the proposed version already exists there. Set `build.restrictions.rule`
+  to `target` to publish a newer version from an older checkout.
+
 * Builds that mix document types can pass different options to each build
   engine through `args_engine`. For example, use
   `list(quarto_project = list(profile = "print"), rmd = list(quiet = TRUE))`

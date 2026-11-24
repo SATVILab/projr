@@ -11,7 +11,8 @@
   dest_dir,
   api_url = NULL,
   token = NULL,
-  overwrite = TRUE
+  overwrite = TRUE,
+  asset = NULL
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ Created if it does not exist.}
 \code{.auth_get_github_pat_find()} is used.}
 
 \item{overwrite}{Logical. If FALSE, existing files are left untouched.}
+
+\item{asset}{Optional asset metadata from an existing release listing.}
 }
 \value{
 Character vector of downloaded file paths (invisibly).

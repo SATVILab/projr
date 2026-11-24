@@ -331,8 +331,7 @@ projr_build_dev <- function(
   on.exit(restore_library(), add = TRUE, after = FALSE)
   output_run <- .build_get_output_run(bump_component)
   version_run_on_list <- if (output_run) {
-    .build_ensure_version()
-    .version_run_onwards_get(bump_component)
+    .version_run_onwards_get(bump_component, initial = "0.0.1")
   }
   version <- if (output_run) {
     version_run_on_list$desc[["run"]]
@@ -509,6 +508,17 @@ projr_build_dev <- function(
   .yml_hooks_check_exist(NULL)
   # whether it's an output run  or not
   output_run <- .build_get_output_run(bump_component)
+
+  if (output_run) {
+    .build_check_remote_versions(
+      version_run_on_list$desc[["run"]],
+      bump_component,
+      archive_github,
+      archive_local,
+      always_archive
+    )
+    .build_ensure_version()
+  }
 
   # check required env vars are present, and
   # that we're not behind upstream remote,
