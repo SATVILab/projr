@@ -1167,10 +1167,6 @@
 ) {
   # nolint
   version_remote <- .remote_get_version_file(type, remote_pre)
-  version_remote <- .version_file_update_project_version(
-    version_remote
-  )
-
   if (update_label) {
     # Check if the previous version had an asterisk (was untrusted)
     # Check if we need to force add or remove the asterisk
@@ -1996,10 +1992,12 @@
 .dsl_ip_log <- function(version_file, manifest, type, remote_pre, changelog) {
   .cli_debug("Updating {type} destination manifest")
   .remote_write_manifest(type, remote_pre, manifest)
-  .remote_write_version_file(type, remote_pre, version_file)
   if (changelog) {
     .remote_write_changelog(type, remote_pre)
+    # Advance the destination's completed version only after the final label.
+    version_file <- .version_file_update_project_version(version_file)
   }
+  .remote_write_version_file(type, remote_pre, version_file)
   invisible(TRUE)
 }
 

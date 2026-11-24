@@ -22,7 +22,7 @@ test_that("unlabeled local destinations keep manifests separate from their paylo
       .yml_dest_set_title(destination, layout, "local", TRUE, "default")
     }
     send <- function(layout) {
-      .dest_send_label("raw-data", layout, "local", TRUE, FALSE, FALSE, FALSE)
+      .dest_send_label("raw-data", layout, "local", TRUE, FALSE, FALSE, TRUE)
     }
     for (version in c("1.0.0", "1.0.1-2")) {
       projr_version_set(version)

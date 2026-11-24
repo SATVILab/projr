@@ -78,6 +78,40 @@ for (labels in list("raw-data", c("raw-data", "output-figures"))) {
   )
 }
 
+test_that("a failed second upload preserves the previous completed release version", {
+  skip_if(.is_test_select())
+  skip_if_not_installed("httr")
+  fail_upload <- .test_local_github_releases("archive")
+  project <- .test_setup_project(git = FALSE, rm_engine = TRUE)
+  usethis::with_project(project, {
+    config <- list(
+      directories = list(
+        `raw-one` = list(path = "first"),
+        `raw-two` = list(path = "second"),
+        cache = list(path = "_cache")
+      ),
+      build = list(git = FALSE, scripts = list())
+    )
+    .yml_set(config, "default")
+    first <- projr_path_get("raw-one", "input.txt")
+    second <- projr_path_get("raw-two", "input.txt")
+    projr_version_set("0.1.0-1")
+    writeLines("original", first)
+    writeLines("original", second)
+    projr_build_minor(archive_github = TRUE)
+
+    writeLines("updated", first)
+    writeLines("updated", second)
+    fail_upload("raw-two-v0.3.0.zip")
+    expect_error(projr_build_minor(archive_github = TRUE), "503")
+    assets <- .remote_ls_final_github_httr(.gh_repo_get(), "archive")
+    expect_true("raw-one-v0.3.0.zip" %in% assets)
+    expect_false("raw-two-v0.3.0.zip" %in% assets)
+    version <- .remote_get_version_file("github", c(tag = "archive"))
+    expect_identical(grep("^Project:", version, value = TRUE), "Project: 0.2.0")
+  })
+})
+
 test_that("same-named GitHub assets stay independent throughout cleanup", {
   skip_if(.is_test_select())
   skip_if_not_installed("httr")
@@ -251,11 +285,38 @@ test_that("GitHub manifest and VERSION archives round-trip offline", {
       digest::digest(file = incomplete)
     )
 
-    .remote_write_version_file("github", c(tag = tags[2]), "v1.2.3")
+    version_remote <- c(tag = tags[2])
+    repo <- .gh_repo_get()
+    version_zip <- file.path(stage, "VERSION.zip")
+    writeLines("v1.2.2", file.path(stage, "VERSION"))
+    extra <- as.raw(c(0, 1, 255))
+    writeBin(extra, file.path(stage, "notes.bin"))
+    withr::with_dir(
+      stage,
+      utils::zip(version_zip, c("VERSION", "notes.bin"), flags = "-q")
+    )
+    .gh_release_asset_upload_httr(repo, tags[2], version_zip)
+
+    .remote_write_version_file("github", version_remote, "v1.2.3")
     expect_identical(
-      .remote_get_version_file("github", c(tag = tags[2])),
+      .remote_get_version_file("github", version_remote),
       "v1.2.3"
     )
+    .remote_file_get_all_github_httr(repo, tags[2], "VERSION.zip", stage)
+    retained_note <- utils::unzip(
+      version_zip,
+      "notes.bin",
+      exdir = withr::local_tempdir()
+    )
+    expect_identical(readBin(retained_note, "raw", 4L), extra)
+    previous_hash <- digest::digest(file = version_zip)
+    fail_next_upload("VERSION.zip")
+    expect_error(
+      .remote_write_version_file("github", version_remote, "v1.2.4"),
+      "503"
+    )
+    .remote_file_get_all_github_httr(repo, tags[2], "VERSION.zip", stage)
+    expect_identical(digest::digest(file = version_zip), previous_hash)
   })
 })
 
