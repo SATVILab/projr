@@ -1,6 +1,6 @@
 # Technical changelog
 
-## Unreleased
+## 0.8.0
 
 - Add production archive version checks for configured and one-off
   destinations. Record the destination’s completed project version after
