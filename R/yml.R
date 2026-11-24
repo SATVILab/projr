@@ -74,6 +74,13 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
       return(elem_local %||% elem_profile %||% elem_default)
     }
     if (
+      nm == "not_behind_remote" &&
+        identical(parents, c("build", "restrictions"))
+    ) {
+      # A profile selects the complete set of archive titles to check.
+      return(elem_local %||% elem_profile %||% elem_default)
+    }
+    if (
       length(parents) == 2L &&
         parents[1L] == "build" &&
         parents[2L] %in% c("local", "github")
@@ -208,6 +215,17 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     }
     settings[["hash-engine"]] <- NULL
     yml[["settings"]] <- settings
+  }
+  if (is.list(yml[["build"]])) {
+    restrictions <- yml[["build"]][["restrictions"]]
+    if ("not_behind" %in% names(restrictions)) {
+      restrictions[["not_behind_git"]] <- .yml_restrictions_git_value(
+        restrictions[["not_behind_git"]],
+        restrictions[["not_behind"]]
+      )
+      restrictions[["not_behind"]] <- NULL
+      yml[["build"]][["restrictions"]] <- restrictions
+    }
   }
   .yml_get_filter_top_level(yml)
 }
