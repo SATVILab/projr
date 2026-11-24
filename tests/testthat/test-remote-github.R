@@ -27,6 +27,57 @@ test_that("GitHub remote names include the selected release and archive version"
   })
 })
 
+for (labels in list("raw-data", c("raw-data", "output-figures"))) {
+  test_that(
+    paste("a GitHub archive round-trips", paste(labels, collapse = " and ")),
+    {
+      skip_if(.is_test_select())
+      skip_if_not_installed("httr")
+      .test_local_github_releases("archive")
+      project <- withr::local_tempdir()
+      input <- as.raw(c(0, 10, 128, 255))
+      usethis::with_project(
+        project,
+        {
+          directories <- list(
+            `raw-data` = list(path = "inputs"),
+            cache = list(path = "_cache")
+          )
+          dir.create("inputs")
+          writeBin(input, "inputs/sample.bin")
+          if ("output-figures" %in% labels) {
+            directories[["output-figures"]] <- list(path = "figures")
+            writeLines(
+              'writeBin(rev(readBin("inputs/sample.bin", "raw", 4L)), "figures/sample.bin")',
+              "analysis.R"
+            )
+          }
+          yaml::write_yaml(
+            list(directories = directories, build = list(git = FALSE)),
+            "_projr.yml"
+          )
+          projr_build(archive_github = TRUE, project = project)
+        },
+        quiet = TRUE,
+        force = TRUE
+      )
+
+      out <- withr::local_tempdir()
+      fetched <- projr_get_github(
+        repo = "fixture/project",
+        tag = "archive",
+        out = out
+      )
+      expect_setequal(names(fetched), labels)
+      for (label in labels) {
+        file <- file.path(out, label, "sample.bin")
+        expected <- if (label == "raw-data") input else rev(input)
+        expect_identical(readBin(file, "raw", file.size(file)), expected)
+      }
+    }
+  )
+}
+
 test_that("same-named GitHub assets stay independent throughout cleanup", {
   skip_if(.is_test_select())
   skip_if_not_installed("httr")
