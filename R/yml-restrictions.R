@@ -1,182 +1,172 @@
-# restrictions
-# -----------------
-
 #' @rdname yml-restrictions
-#' @title Set build restrictions
-#' @export
-#'
-#' @description
-#'
-#' `projr_yml_restrictions_set` sets build restrictions in `_projr.yml`.
-#'
-#' The options are:
-#' \itemize{
-#'  \item branch: controls which branches can perform builds.
-#'    If `TRUE` (default), builds are allowed on any branch.
-#'    If a character vector, builds are only allowed on matching branches.
-#'    If `FALSE`, builds are restricted (treated as empty character vector).
-#'  \item not_behind: whether to check if branch is behind remote upstream.
-#'    If `TRUE` (default), build fails if branch is behind remote.
-#'    If `FALSE`, no check is performed.
-#' }
-#'
-#' @param branch logical or character.
-#' Controls which branches can perform builds.
-#' If `TRUE`, builds allowed on any branch (default).
-#' If a character vector, builds only allowed on these branches.
-#' If `FALSE`, builds restricted on all branches.
-#' If `NULL`, setting is not changed.
-#' Default is `NULL`.
-#' @param not_behind logical.
-#' Controls whether to check if branch is behind remote upstream.
-#' If `TRUE` (default), build fails if branch is behind.
-#' If `FALSE`, no check is performed.
-#' If `NULL`, setting is not changed.
-#' Default is `NULL`.
-#' @param profile character.
-#' The profile to write to.
-#' Default is "default", in which case it writes to `_projr.yml`.
-#'
+#' @title Set restrictions for production builds
+#' @description Configure which branches may build and how projr checks Git
+#'   and archive versions before a production build. Omit a setting or pass
+#'   `NULL` to leave its current value in place.
+#' @param branch `TRUE` allows any branch (default), a character vector allows
+#'   the named branches, and `FALSE` prevents production builds on any branch.
+#' @param not_behind Earlier spelling of `not_behind_git`.
+#' @param profile Name of the profile to update. The default is `"default"`.
+#' @param not_behind_git Whether to check if the local branch is behind its
+#'   Git upstream. Defaults to `TRUE`.
+#' @param not_behind_remote Which archives to check. `TRUE` (default) checks
+#'   the destinations selected for publication by this build. `FALSE` skips
+#'   archive version checks. To check specific destinations, supply a character
+#'   vector of archive titles or a named list such as
+#'   `list(github = "reports", local = "backup")`. Include the type when a
+#'   title applies to more than one archive. Selected archives are checked even
+#'   when the build will not publish to them.
+#' @param rule Which project version must be at least as recent as each
+#'   selected archive's completed version. `"base_version_not_behind"` (or
+#'   `"base"`, the default) compares the version before the bump.
+#'   `"target_version_not_behind"` (or `"target"`) compares the version the
+#'   build will create.
+#' @return Invisibly returns `TRUE`.
 #' @examples
 #' \dontrun{
-#' # Allow builds on any branch (default)
-#' projr_yml_restrictions_set(branch = TRUE)
-#'
-#' # Allow builds only on main and dev branches
 #' projr_yml_restrictions_set(branch = c("main", "dev"))
-#'
-#' # Restrict builds on all branches
-#' projr_yml_restrictions_set(branch = FALSE)
-#'
-#' # Disable check for being behind remote
-#' projr_yml_restrictions_set(not_behind = FALSE)
-#'
-#' # Enable check for being behind remote (default)
-#' projr_yml_restrictions_set(not_behind = TRUE)
+#' projr_yml_restrictions_set(not_behind_git = FALSE)
+#' projr_yml_restrictions_set(
+#'   not_behind_remote = list(github = "reports", local = "backup"),
+#'   rule = "target"
+#' )
 #' }
-#'
+#' @export
 projr_yml_restrictions_set <- function(
   branch = NULL,
   not_behind = NULL,
-  profile = "default"
+  profile = "default",
+  not_behind_git = NULL,
+  not_behind_remote = NULL,
+  rule = NULL
 ) {
-  .yml_restrictions_set_check(
-    branch = branch,
-    not_behind = not_behind,
-    profile = profile
+  profile <- profile %||% "default"
+  .assert_string(profile, TRUE)
+  .yml_restrictions_check_branch(branch)
+  git <- .yml_restrictions_git_value(not_behind_git, not_behind)
+  if (!is.null(not_behind_remote)) {
+    not_behind_remote <- .yml_restrictions_remote_value(not_behind_remote)
+  }
+  if (!is.null(rule)) {
+    rule <- .yml_restrictions_rule_value(rule)
+  }
+
+  updates <- Filter(
+    Negate(is.null),
+    list(
+      branch = if (isFALSE(branch)) list() else branch,
+      not_behind_git = git,
+      not_behind_remote = not_behind_remote,
+      rule = rule
+    )
   )
-
-  if (!is.null(branch)) {
-    .yml_restrictions_set_branch(branch, profile)
+  if (!length(updates)) {
+    return(invisible(TRUE))
   }
-
-  if (!is.null(not_behind)) {
-    .yml_restrictions_set_not_behind(not_behind, profile)
+  restrictions <- .yml_restrictions_get(profile) %||% list()
+  for (key in names(updates)) {
+    value <- updates[[key]]
+    # A named profile may need an explicit default to override its base.
+    omit <- profile == "default" &&
+      (isTRUE(value) || (key == "rule" && value == "base_version_not_behind"))
+    restrictions[[key]] <- if (omit) NULL else value
   }
-
+  .yml_build_set_nm(restrictions, "restrictions", profile)
   invisible(TRUE)
 }
 
-.yml_restrictions_set_check <- function(branch, not_behind, profile) {
-  if (!is.null(branch)) {
-    if (!is.logical(branch) && !is.character(branch)) {
-      stop("branch must be logical or character")
-    }
-    if (is.logical(branch)) {
-      .assert_flag(branch)
-    }
-    if (is.character(branch)) {
-      .assert_chr(branch, required = TRUE)
-    }
+.yml_restrictions_check_branch <- function(branch) {
+  if (is.null(branch) || (is.list(branch) && !length(branch))) {
+    return(invisible(TRUE))
   }
-  if (!is.null(not_behind)) {
-    .assert_flag(not_behind)
+  if (!is.logical(branch) && !is.character(branch)) {
+    stop(
+      "build.restrictions.branch must be logical or character",
+      call. = FALSE
+    )
   }
-  .assert_string(profile)
+  if (is.logical(branch)) {
+    .assert_flag(branch)
+  } else {
+    .assert_chr(branch)
+  }
 }
 
-.yml_restrictions_set_branch <- function(branch, profile) {
-  # Convert FALSE to empty list (YAML will serialize this as [])
-  if (isFALSE(branch)) {
-    branch <- list()
+.yml_restrictions_git_value <- function(git, legacy) {
+  .assert_flag(git, nm = "build.restrictions.not_behind_git")
+  .assert_flag(legacy, nm = "build.restrictions.not_behind")
+  if (!is.null(git) && !is.null(legacy) && !identical(git, legacy)) {
+    stop("Conflicting values for not_behind_git and not_behind.", call. = FALSE)
   }
-
-  # Get current restrictions
-  yml_restrictions <- .yml_restrictions_get(profile) %||% list()
-
-  # Set or remove branch restriction
-  if (isTRUE(branch)) {
-    # TRUE means no restriction - remove the key
-    yml_restrictions[["branch"]] <- NULL
-  } else {
-    yml_restrictions[["branch"]] <- branch
-  }
-
-  # Set restrictions in YAML
-  if (length(yml_restrictions) == 0) {
-    # Remove entire restrictions section if empty
-    .yml_restrictions_set(NULL, profile)
-  } else {
-    .yml_restrictions_set(yml_restrictions, profile)
-  }
-
-  invisible(TRUE)
+  git %||% legacy
 }
 
-.yml_restrictions_set_not_behind <- function(not_behind, profile) {
-  # Get current restrictions
-  yml_restrictions <- .yml_restrictions_get(profile) %||% list()
-
-  # Set or remove not_behind restriction
-  if (isTRUE(not_behind)) {
-    # TRUE is the default - remove the key
-    yml_restrictions[["not_behind"]] <- NULL
-  } else {
-    yml_restrictions[["not_behind"]] <- not_behind
+.yml_restrictions_remote_titles <- function(titles) {
+  key <- "build.restrictions.not_behind_remote"
+  if (!is.null(names(titles)) || is.null(titles)) {
+    stop(key, " expects a list of archive titles.", call. = FALSE)
   }
-
-  # Set restrictions in YAML
-  if (length(yml_restrictions) == 0) {
-    # Remove entire restrictions section if empty
-    .yml_restrictions_set(NULL, profile)
-  } else {
-    .yml_restrictions_set(yml_restrictions, profile)
+  if (is.list(titles)) {
+    for (title in titles) {
+      .assert_string(title, TRUE, nm = key)
+    }
+    titles <- vapply(titles, identity, character(1), USE.NAMES = FALSE)
   }
+  if (identical(titles, character())) {
+    return(titles)
+  }
+  .assert_chr(titles, TRUE, nm = key)
+  unique(titles)
+}
 
-  invisible(TRUE)
+.yml_restrictions_remote_value <- function(selection) {
+  key <- "build.restrictions.not_behind_remote"
+  if (is.logical(selection)) {
+    .assert_flag(selection, TRUE, nm = key)
+    return(selection)
+  }
+  if (is.list(selection) && length(names(selection))) {
+    .assert_in(names(selection), c("github", "local"), TRUE, nm = key)
+    if (anyDuplicated(names(selection))) {
+      stop(key, " repeats a remote type.", call. = FALSE)
+    }
+    return(lapply(selection, .yml_restrictions_remote_titles))
+  }
+  .yml_restrictions_remote_titles(selection)
+}
+
+.yml_restrictions_rule_value <- function(rule) {
+  rules <- c("base_version_not_behind", "target_version_not_behind")
+  .assert_in_single(
+    rule,
+    c(rules, "base", "target"),
+    TRUE,
+    nm = "build.restrictions.rule"
+  )
+  switch(rule, base = rules[[1L]], target = rules[[2L]], rule)
 }
 
 .yml_restrictions_get_branch <- function(profile) {
-  yml_restrictions <- .yml_restrictions_get(profile)
-  if (is.null(yml_restrictions)) {
-    return(TRUE) # Default: no restrictions
-  }
-  if (is.null(yml_restrictions[["branch"]])) {
-    return(TRUE) # Default: no restrictions
-  }
-  branch <- yml_restrictions[["branch"]]
-  # Convert empty list to empty character vector for consistency
-  if (is.list(branch) && length(branch) == 0) {
-    return(character(0))
-  }
-  branch
+  branch <- .yml_restrictions_get(profile)[["branch"]] %||% TRUE
+  if (is.list(branch) && !length(branch)) character(0) else branch
 }
 
-.yml_restrictions_get_not_behind <- function(profile) {
-  yml_restrictions <- .yml_restrictions_get(profile)
-  if (is.null(yml_restrictions)) {
-    return(TRUE) # Default: check enabled
-  }
-  if (is.null(yml_restrictions[["not_behind"]])) {
-    return(TRUE) # Default: check enabled
-  }
-  yml_restrictions[["not_behind"]]
+.yml_restrictions_get_not_behind_git <- function(profile) {
+  .yml_restrictions_get(profile)[["not_behind_git"]] %||% TRUE
+}
+
+.yml_restrictions_get_not_behind <- .yml_restrictions_get_not_behind_git
+
+.yml_restrictions_get_not_behind_remote <- function(profile) {
+  selection <- .yml_restrictions_get(profile)[["not_behind_remote"]] %||% TRUE
+  .yml_restrictions_remote_value(selection)
+}
+
+.yml_restrictions_get_rule <- function(profile) {
+  rule <- .yml_restrictions_get(profile)[["rule"]] %||% "base"
+  .yml_restrictions_rule_value(rule)
 }
 
 .yml_restrictions_get <- function(profile) {
   .yml_get(profile)[["build"]][["restrictions"]]
-}
-
-.yml_restrictions_set <- function(yml_restrictions, profile) {
-  .yml_build_set_nm(yml_restrictions, "restrictions", profile)
 }

@@ -632,33 +632,24 @@ projr_yml_check <- function(profile = NULL) {
   }
 
   # Check that only valid keys exist
-  valid_keys <- c("branch", "not_behind")
-  .assert_in(names(yml_restrictions), valid_keys)
-
-  # Check branch restriction if present
-  if ("branch" %in% names(yml_restrictions)) {
-    branch <- yml_restrictions[["branch"]]
-    if (!is.null(branch)) {
-      # Must be logical, character, or empty list (from YAML serialization)
-      is_empty_list <- is.list(branch) && length(branch) == 0
-      if (!is.logical(branch) && !is.character(branch) && !is_empty_list) {
-        stop("build.restrictions.branch must be logical or character")
-      }
-      if (is.logical(branch)) {
-        .assert_flag(branch)
-      }
-      if (is.character(branch)) {
-        .assert_chr(branch)
-      }
-    }
+  if (
+    !is.list(yml_restrictions) ||
+      (length(yml_restrictions) && is.null(names(yml_restrictions)))
+  ) {
+    stop("build.restrictions must be a named list.", call. = FALSE)
   }
-
-  # Check not_behind restriction if present
-  if ("not_behind" %in% names(yml_restrictions)) {
-    not_behind <- yml_restrictions[["not_behind"]]
-    if (!is.null(not_behind)) {
-      .assert_flag(not_behind)
-    }
+  valid_keys <- c("branch", "not_behind_git", "not_behind_remote", "rule")
+  .assert_in(names(yml_restrictions), valid_keys)
+  .yml_restrictions_check_branch(yml_restrictions[["branch"]])
+  .assert_flag(
+    yml_restrictions[["not_behind_git"]],
+    nm = "build.restrictions.not_behind_git"
+  )
+  if (!is.null(yml_restrictions[["not_behind_remote"]])) {
+    .yml_restrictions_remote_value(yml_restrictions[["not_behind_remote"]])
+  }
+  if (!is.null(yml_restrictions[["rule"]])) {
+    .yml_restrictions_rule_value(yml_restrictions[["rule"]])
   }
 
   invisible(TRUE)

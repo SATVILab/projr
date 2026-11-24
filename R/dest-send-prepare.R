@@ -18,7 +18,18 @@
     return(invisible(FALSE))
   }
 
-  targets <- .dest_github_targets(archive_github, always_archive, NULL)
+  archive_type <- .dest_send_get_archive_type(
+    "github",
+    archive_github,
+    archive_local
+  )
+  titles <- .dest_send_publish_titles(
+    "github",
+    bump_component,
+    archive_type,
+    always_archive
+  )
+  targets <- .dest_github_targets(archive_github, always_archive, NULL, titles)
   if (.is_len_0(targets)) {
     return(invisible(FALSE))
   }
@@ -57,9 +68,13 @@
   unique(vapply(targets, `[[`, character(1), "tag", USE.NAMES = FALSE))
 }
 
-.dest_github_targets <- function(archive_github, always_archive, profile) {
+.dest_github_targets <- function(
+  archive_github,
+  always_archive,
+  profile,
+  titles = .dest_send_type_get_title("github", archive_github, profile)
+) {
   yml_github <- .yml_dest_get_type("github", profile)
-  titles <- .dest_send_type_get_title("github", archive_github, profile)
 
   targets <- list()
   for (title in titles) {

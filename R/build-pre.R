@@ -341,8 +341,7 @@
     return(invisible(FALSE))
   }
 
-  # Check if not_behind restriction is enabled
-  not_behind <- .yml_restrictions_get_not_behind(NULL)
+  not_behind <- .yml_restrictions_get_not_behind_git(NULL)
   if (!isTRUE(not_behind)) {
     # Check is disabled
     return(invisible(FALSE))
@@ -354,7 +353,7 @@
       "Remote is ahead of local.\n",
       "Merge remote changes before proceeding\n",
       "(e.g by running `git fetch`, then `git merge`).\n",
-      "To disable this check, set build.restrictions.not_behind to FALSE in _projr.yml",
+      "To disable this check, set build.restrictions.not_behind_git to FALSE in _projr.yml",
       call. = FALSE
     )
   }

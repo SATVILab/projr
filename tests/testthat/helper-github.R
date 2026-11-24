@@ -59,12 +59,23 @@
   )
   next_id <- 100L
   fail_upload <- NULL
-  releases <- paste0(api, "/repos/", repo, "/releases")
+  repository <- paste0(api, "/repos/", repo)
+  releases <- paste0(repository, "/releases")
   release_urls <- paste0(releases, "/", seq_along(tags))
   upload_urls <- paste0(release_urls, "/assets")
 
   handle <- function(req) {
     url <- sub("[?].*$", "", req$url)
+    if (req$method == "GET" && identical(url, repository)) {
+      return(.test_github_response(200, list(full_name = repo)))
+    }
+    if (
+      req$method == "GET" &&
+        startsWith(url, paste0(api, "/repos/")) &&
+        !startsWith(url, paste0(repository, "/"))
+    ) {
+      return(.test_github_response(404))
+    }
     index <- match(url, paste0(releases, "/tags/", tags))
     if (req$method == "GET" && !is.na(index)) {
       owned <- which(assets$release == index)

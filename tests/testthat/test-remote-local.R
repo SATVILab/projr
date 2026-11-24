@@ -1149,6 +1149,9 @@ test_that("various upload strategies run", {
 
       # --- sync-purge ---
 
+      # The destination already contains a file from an earlier upload.
+      writeLines("Project: 1.0.0", file.path(remote_base, "VERSION"))
+
       # set up sync-purge
       projr_yml_dest_add_local(
         title = "test-local",

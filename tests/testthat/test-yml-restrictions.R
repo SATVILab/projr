@@ -109,7 +109,7 @@ test_that("projr_yml_restrictions_set works correctly", {
       # Test not_behind setting
       projr_yml_restrictions_set(not_behind = FALSE)
       yml <- .yml_get("default")
-      expect_equal(yml[["build"]][["restrictions"]][["not_behind"]], FALSE)
+      expect_equal(yml[["build"]][["restrictions"]][["not_behind_git"]], FALSE)
 
       # Set not_behind to TRUE (default, should remove)
       projr_yml_restrictions_set(not_behind = TRUE)
@@ -120,7 +120,7 @@ test_that("projr_yml_restrictions_set works correctly", {
       projr_yml_restrictions_set(branch = "main", not_behind = FALSE)
       yml <- .yml_get("default")
       expect_equal(yml[["build"]][["restrictions"]][["branch"]], "main")
-      expect_equal(yml[["build"]][["restrictions"]][["not_behind"]], FALSE)
+      expect_equal(yml[["build"]][["restrictions"]][["not_behind_git"]], FALSE)
     },
     force = TRUE,
     quiet = TRUE
@@ -240,5 +240,98 @@ test_that(".build_check_branch_restriction enforces logical FALSE from YAML", {
     },
     force = TRUE,
     quiet = TRUE
+  )
+})
+
+test_that("archive restrictions validate before writing and preserve profile selections", {
+  skip_if(.is_test_select())
+  project <- withr::local_tempdir()
+  withr::local_envvar(c(PROJR_PROFILE = "analysis"))
+  usethis::with_project(
+    project,
+    {
+      writeLines(
+        c(
+          "build:",
+          "  restrictions:",
+          "    not_behind: false",
+          "    not_behind_remote: {github: [reports], local: [backup]}",
+          "    rule: target"
+        ),
+        "_projr.yml"
+      )
+      expect_false(.yml_restrictions_get_not_behind_git(NULL))
+      expect_identical(
+        .yml_restrictions_get_rule(NULL),
+        "target_version_not_behind"
+      )
+      expect_identical(
+        .yml_restrictions_get_not_behind_remote(NULL),
+        list(github = "reports", local = "backup")
+      )
+
+      projr_yml_restrictions_set(
+        not_behind_git = TRUE,
+        not_behind_remote = list(local = c("mirror", "store")),
+        rule = "base",
+        profile = "analysis"
+      )
+      expect_true(.yml_restrictions_get_not_behind_git(NULL))
+      expect_identical(
+        .yml_restrictions_get_rule(NULL),
+        "base_version_not_behind"
+      )
+      expect_identical(
+        .yml_restrictions_get_not_behind_remote(NULL),
+        list(local = c("mirror", "store"))
+      )
+      writeLines(
+        "build: {restrictions: {not_behind: false}}",
+        "_projr-local.yml"
+      )
+      expect_false(.yml_restrictions_get_not_behind_git(NULL))
+
+      # Invalid later arguments must not write the earlier Git or branch settings.
+      previous <- readLines("_projr.yml")
+      expect_error(
+        projr_yml_restrictions_set(branch = FALSE, rule = "ahead"),
+        "restrictions.rule"
+      )
+      expect_error(
+        projr_yml_restrictions_set(not_behind_git = TRUE, not_behind = FALSE),
+        "Conflicting"
+      )
+      expect_error(
+        projr_yml_restrictions_set(not_behind_remote = list(osf = "reports")),
+        "osf"
+      )
+      expect_error(
+        projr_yml_restrictions_set(
+          not_behind_remote = list(github = list(reports = "base"))
+        ),
+        "archive titles"
+      )
+      expect_identical(readLines("_projr.yml"), previous)
+
+      projr_yml_restrictions_set(
+        not_behind = FALSE,
+        not_behind_remote = c("reports", "backup")
+      )
+      saved <- yaml::read_yaml("_projr.yml")$build$restrictions
+      expect_false(saved$not_behind_git)
+      expect_false("not_behind" %in% names(saved))
+      expect_identical(
+        .yml_restrictions_get_not_behind_remote("default"),
+        c("reports", "backup")
+      )
+
+      writeLines(
+        "build: {restrictions: {not_behind_git: true, not_behind: false}}",
+        "_projr-local.yml"
+      )
+      expect_error(.yml_restrictions_get_not_behind_git(NULL), "Conflicting")
+    },
+    quiet = TRUE,
+    force = TRUE
   )
 })

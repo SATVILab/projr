@@ -50,7 +50,7 @@
     }
   )
   on.exit(.gh_release_asset_delete_id(repo, claim$id), add = TRUE)
-  previous <- .remote_manifest_download(repo, tag, store)
+  .remote_manifest_download(repo, tag, store)
   .manifest_store_write(manifest, store, file.path(store, "manifest.csv"))
 
   # Each release publishes a single archive, including all labels and versions.
@@ -71,30 +71,35 @@
   if (status != 0L) {
     stop("Could not create manifest.zip.", call. = FALSE)
   }
+  .remote_replace_metadata_zip(
+    repo,
+    tag,
+    zip_path,
+    file.path(stage, "manifest.zip")
+  )
+  invisible(TRUE)
+}
+
+.remote_replace_metadata_zip <- function(repo, tag, replacement, previous) {
+  name <- basename(previous)
+  replacing <- file.exists(previous)
   tryCatch(
     .gh_release_asset_upload_httr(
       repo,
       tag,
-      zip_path,
-      asset_name = "manifest.zip"
+      replacement,
+      asset_name = name,
+      overwrite = replacing
     ),
     error = function(e) {
-      # GitHub replaces assets by deleting the old file before the upload.
-      # Restore its original bytes if an interrupted upload left the slot empty.
-      if (
-        previous && !"manifest.zip" %in% .remote_ls_final_github_httr(repo, tag)
-      ) {
-        .gh_release_asset_upload_httr(
-          repo,
-          tag,
-          file.path(stage, "manifest.zip"),
-          overwrite = FALSE
-        )
+      # GitHub deletes the old asset before accepting its replacement. Only
+      # restore it into a vacant slot; a concurrent upload may have succeeded.
+      if (replacing && !name %in% .remote_ls_final_github_httr(repo, tag)) {
+        .gh_release_asset_upload_httr(repo, tag, previous, overwrite = FALSE)
       }
       stop(e)
     }
   )
-  invisible(TRUE)
 }
 
 # All snapshot paths are derived from validated index entries.
@@ -216,13 +221,27 @@
   path_dir_save <- .dir_create_tmp_random()
   on.exit(unlink(path_dir_save, recursive = TRUE), add = TRUE)
   writeLines(version_file, file.path(path_dir_save, "VERSION"))
-  remote <- if (type == "github") {
-    remote_pre[["fn"]] <- "VERSION.zip"
-    remote_pre
+  if (type == "github") {
+    repo <- .gh_repo_get()
+    tag <- .remote_misc_github_tag_format(remote_pre[["tag"]])
+    previous <- file.path(path_dir_save, "VERSION.zip")
+    replacement <- file.path(path_dir_save, "new-version.zip")
+    if ("VERSION.zip" %in% .remote_ls_final_github_httr(repo, tag)) {
+      .remote_file_get_all_github_httr(repo, tag, "VERSION.zip", path_dir_save)
+      # Replace just VERSION, retaining any other entries in the original ZIP.
+      fs::file_copy(previous, replacement)
+    }
+    status <- with_dir(
+      path_dir_save,
+      utils::zip(replacement, "VERSION", flags = "-q")
+    )
+    if (status != 0L) {
+      stop("Could not create VERSION.zip.", call. = FALSE)
+    }
+    .remote_replace_metadata_zip(repo, tag, replacement, previous)
   } else {
-    remote_pre
+    .remote_file_add(type, remote_pre, path_dir_save, "VERSION")
   }
-  .remote_file_add(type, remote, path_dir_save, "VERSION")
   invisible(TRUE)
 }
 

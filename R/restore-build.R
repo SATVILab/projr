@@ -281,9 +281,22 @@ projr_restore <- function(
 }
 
 .restore_build_version <- function(version) {
-  if (!is.null(version)) {
-    version <- .version_v_add(version)
-  } else if (.version_exists()) {
+  if (is.null(version)) {
+    version <- .version_completed_file() %||% .buildlog_last_version()
+    if (is.null(version)) {
+      stop(
+        "No completed build recorded in this checkout. Supply version.",
+        call. = FALSE
+      )
+    }
+  }
+  version <- .version_v_add(version)
+  .version_check(version)
+  version
+}
+
+.version_completed_file <- function() {
+  if (.version_exists()) {
     components <- .version_format_list_get(NULL)$component
     if (
       !"dev" %in% components ||
@@ -292,22 +305,16 @@ projr_restore <- function(
       return(.version_get_v())
     }
   }
-  if (is.null(version)) {
-    headers <- grep(
-      "^#{2,4} v[0-9]+([.-][0-9]+)*:",
-      .buildlog_read(),
-      value = TRUE
-    )
-    if (!length(headers)) {
-      stop(
-        "No completed build recorded in this checkout. Supply version.",
-        call. = FALSE
-      )
-    }
-    version <- sub("^#{2,4} (v[0-9.-]+):.*$", "\\1", headers[1L])
-  }
-  .version_check(version)
-  version
+  NULL
+}
+
+.buildlog_last_version <- function() {
+  headers <- grep(
+    "^#{2,4} v[0-9]+([.-][0-9]+)*:",
+    .buildlog_read(),
+    value = TRUE
+  )
+  if (length(headers)) sub("^#{2,4} (v[0-9.-]+):.*$", "\\1", headers[1L])
 }
 
 .restore_build_snapshot <- function(store, csv, label, version) {

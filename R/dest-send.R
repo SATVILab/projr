@@ -49,12 +49,11 @@
     )
     # check if we are always archiving based on the parameter.
     # this may not be that important...
-    always_archive <- .dest_send_get_always_archive(type, always_archive)
     .dest_send_type(
       type,
       bump_component,
       archive_type,
-      always_archive
+      .dest_send_get_always_archive(type, always_archive)
     )
   }
 }
@@ -357,10 +356,6 @@
     archive_type
   )
 
-  # GitHub provides source archives on the release tag itself.
-  if (type == "github" && !"code" %in% names(.yml_dir_get(NULL))) {
-    content_vec <- setdiff(content_vec, "code")
-  }
   if (!length(content_vec)) {
     return(invisible(TRUE))
   }
@@ -373,15 +368,15 @@
   )
   .cli_info("Updating {type} destination '{target$id}'")
   .with_github_repo(target[["repo"]], branch = target[["branch"]], {
-    for (x in content_vec) {
+    for (index in seq_along(content_vec)) {
       .dest_send_label(
-        x,
+        content_vec[[index]],
         title,
         type,
         .build_get_output_run(bump_component),
         archive_type,
         always_archive,
-        x == content_vec[length(content_vec)]
+        index == length(content_vec)
       )
     }
   })
@@ -425,11 +420,42 @@
     title,
     archive_type
   )
-  if (is_param_content) {
+  content <- if (is_param_content) {
     .dest_send_title_get_content_param(archive_type)
   } else {
     .dest_send_title_get_content_yml(title, type)
   }
+  # GitHub provides source archives on the release tag itself.
+  if (
+    type == "github" &&
+      "code" %in% content &&
+      !"code" %in% names(.yml_dir_get(NULL))
+  ) {
+    content <- setdiff(content, "code")
+  }
+  content
+}
+
+.dest_send_publish_titles <- function(
+  type,
+  bump_component,
+  archive_type,
+  always_archive
+) {
+  titles <- .dest_send_type_get_title(type, archive_type)
+  Filter(
+    function(title) {
+      .dest_send_title_check(
+        title,
+        type,
+        bump_component,
+        archive_type,
+        always_archive
+      ) &&
+        length(.dest_send_title_get_content(title, type, archive_type)) > 0L
+    },
+    titles
+  )
 }
 #' @title Check if content should come from parameters
 #' @description Detects whether the `archive_type` parameter should define the

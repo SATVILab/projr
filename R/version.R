@@ -122,8 +122,13 @@ projr_name_get <- function() basename(.path_get())
   invisible(TRUE)
 }
 
-.version_current_vec_get <- function(dev_force = FALSE) {
-  version_vec_init <- .version_current_vec_get_init()
+.version_current_vec_get <- function(dev_force = FALSE, initial = NULL) {
+  version_vec_init <- if (!is.null(initial) && !.version_exists()) {
+    .version_check(initial)
+    strsplit(initial, "[.-]")[[1L]]
+  } else {
+    .version_current_vec_get_init()
+  }
 
   version_format <- .version_format_list_get(NULL)[["component"]]
   # if not forcing there to be a dev version
@@ -181,8 +186,11 @@ projr_name_get <- function() basename(.path_get())
   strsplit(version_file, split = "\\-|\\.")[[1]]
 }
 
-.version_run_onwards_get <- function(bump_component) {
-  version_orig_vec <- .version_current_vec_get(dev_force = TRUE)
+.version_run_onwards_get <- function(bump_component, initial = NULL) {
+  version_orig_vec <- .version_current_vec_get(
+    dev_force = TRUE,
+    initial = initial
+  )
   version_format_list <- .version_format_list_get(NULL)
 
   if (is.null(bump_component)) {

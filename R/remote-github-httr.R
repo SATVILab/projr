@@ -303,7 +303,8 @@
   repo,
   tag,
   api_url = NULL,
-  token = NULL
+  token = NULL,
+  missing_ok = FALSE
 ) {
   .dep_install_only("httr")
 
@@ -321,8 +322,33 @@
   status <- httr::status_code(resp)
 
   if (status == 200L) {
-    return(httr::content(resp, as = "parsed")$assets)
+    assets <- httr::content(resp, as = "parsed")$assets
+    if (missing_ok && !is.list(assets)) {
+      stop(
+        "GitHub returned an invalid asset list for '",
+        tag,
+        "' in ",
+        repo,
+        ".",
+        call. = FALSE
+      )
+    }
+    return(assets)
   } else if (status == 404L) {
+    if (missing_ok) {
+      # GitHub returns 404 for private repositories the caller cannot read.
+      if (
+        .gh_repo_check_exists_httr(dirname(repo), basename(repo), api_url, tok)
+      ) {
+        return(list())
+      }
+      stop(
+        "Cannot read GitHub repository '",
+        repo,
+        "'. Check its name and access.",
+        call. = FALSE
+      )
+    }
     stop("Release not found: ", tag, " in ", repo, call. = FALSE)
   } else {
     stop(
@@ -542,6 +568,7 @@
 #' @param repo Character string. Repository in format "owner/repo".
 #' @param tag Character string. Release tag.
 #' @param fn Character string. Asset filename to download.
+#' @param asset Optional asset metadata from an existing release listing.
 #' @param dest_dir Character string. Local directory to save assets into.
 #'   Created if it does not exist.
 #' @param api_url Character string. Optional GitHub API URL.
@@ -558,18 +585,20 @@
   dest_dir,
   api_url = NULL,
   token = NULL,
-  overwrite = TRUE
+  overwrite = TRUE,
+  asset = NULL
 ) {
   .dep_install_only("httr")
 
   # Get release info (includes assets) using existing helper
-  asset <- .remote_final_get_info_github_httr(
-    repo = repo,
-    tag = tag,
-    asset_name = fn,
-    api_url = api_url,
-    token = token
-  )
+  asset <- asset %||%
+    .remote_final_get_info_github_httr(
+      repo = repo,
+      tag = tag,
+      asset_name = fn,
+      api_url = api_url,
+      token = token
+    )
 
   # Ensure destination directory exists
   if (!dir.exists(dest_dir)) {

@@ -335,9 +335,10 @@ projr_get_github <- function(
       source$repo,
       source$tag,
       "VERSION.zip",
-      workspace
+      workspace,
+      asset = source$version_asset
     )
-    if (!"VERSION" %in% utils::unzip(zip, list = TRUE)$Name) {
+    if (sum(utils::unzip(zip, list = TRUE)$Name == "VERSION") != 1L) {
       return(NULL)
     }
     con <- unz(zip, "VERSION")
@@ -346,11 +347,21 @@ projr_get_github <- function(
   } else {
     text <- .remote_get_version_file_read(file.path(source$root, "VERSION"))
   }
-  value <- .remote_get_version_latest_label_non_project_file_extract(
-    text,
-    "Project"
-  )
-  if (length(value) == 1L && grepl("^v?[0-9]+([.-][0-9]+)*$", value)) {
+  # Older VERSION files can contain just the version instead of labelled lines.
+  text <- trimws(text)
+  if (length(text) != 1L || grepl(":", text, fixed = TRUE)) {
+    text <- sub(
+      "^Project:[[:space:]]*",
+      "",
+      grep("^Project:", text, value = TRUE)
+    )
+  }
+  value <- sub("\\*$", "", text)
+  if (
+    length(value) == 1L &&
+      grepl("^v?[0-9]+([.-][0-9]+)*$", value) &&
+      !is.na(numeric_version(sub("^v", "", value), strict = FALSE))
+  ) {
     .version_v_add(value)
   }
 }
