@@ -1,3 +1,11 @@
+# projr (development version)
+
+* Builds that mix document types can pass different options to each build
+  engine through `args_engine`. For example, use
+  `list(quarto_project = list(profile = "print"), rmd = list(quiet = TRUE))`
+  to build a Quarto project with its print profile and render a standalone
+  R Markdown document quietly. A single engine still accepts a flat list.
+
 # projr 0.7.0
 
 * `projr_reproduce()` runs a completed build in a fresh clone and shows which
