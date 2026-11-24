@@ -1,5 +1,11 @@
 # Technical changelog
 
+## Unreleased
+
+- Resolve `args_engine` against the selected build engines before
+  rendering. Each engine uses its own options for rendering and output
+  collection.
+
 ## 0.7.0
 
 - Add

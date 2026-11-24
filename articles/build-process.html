@@ -315,25 +315,75 @@ in R) skips script execution and document rendering.</p>
 <div class="section level4">
 <h4 id="document-rendering">Document rendering<a class="anchor" aria-label="anchor" href="#document-rendering"></a>
 </h4>
-<p>The rendering engine is detected from the selected scripts and
-project configuration:</p>
-<ul>
-<li>Quarto for <code>.qmd</code> files or Quarto projects</li>
-<li>Bookdown for <code>.Rmd</code> files selected in a project with
-<code>_bookdown.yml</code>
-</li>
-<li>R Markdown for <code>.Rmd</code> files</li>
-</ul>
+<p>projr chooses a build engine for each selected script or project.</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Engine</th>
+<th>What runs</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>r</code></td>
+<td>A plain R script.</td>
+</tr>
+<tr class="even">
+<td><code>rmd</code></td>
+<td>R Markdown renders a standalone <code>.Rmd</code> file.</td>
+</tr>
+<tr class="odd">
+<td><code>quarto_document</code></td>
+<td>Quarto renders a standalone <code>.qmd</code> file.</td>
+</tr>
+<tr class="even">
+<td><code>quarto_project</code></td>
+<td>Quarto renders the project defined by <code>_quarto.yml</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>bookdown</code></td>
+<td>Bookdown renders the book defined by
+<code>_bookdown.yml</code>.</td>
+</tr>
+</tbody>
+</table>
 <p>Explicitly selected scripts run in order. A project renders its
 selected documents together at the position of its last selected
 document. For an automatic build, a project renders first, followed by
 top-level R scripts.</p>
-<p>Pass custom arguments to the document renderers:</p>
+</div>
+<div class="section level4">
+<h4 id="options-for-a-build-engine">Options for a build engine<a class="anchor" aria-label="anchor" href="#options-for-a-build-engine"></a>
+</h4>
+<p>If the build uses one engine, pass its options directly in
+<code>args_engine</code>. For example, this renders two standalone R
+Markdown documents quietly.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span></span>
-<span>  msg <span class="op">=</span> <span class="st">"Update analysis"</span>,</span>
-<span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">FALSE</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span></span>
+<span>  scripts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"summary.Rmd"</span>, <span class="st">"appendix.Rmd"</span><span class="op">)</span>,</span>
+<span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p>When the build uses several engines, group the options by engine
+name. For example, this builds a Quarto project with its
+<code>print</code> profile and renders a standalone R Markdown appendix
+quietly.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span></span>
+<span>  scripts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"index.qmd"</span>, <span class="st">"appendix.Rmd"</span><span class="op">)</span>,</span>
+<span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    quarto_project <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="st">"print"</span><span class="op">)</span>,</span>
+<span>    rmd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>projr collects the site in the configured <code>docs</code> directory
+(in the cache for a development build), even when the Quarto profile
+sets <code>project.output-dir</code>.</p>
+<p>Omit an engine to use its defaults. Plain R scripts take no render
+options. You can omit <code>args_engine</code> entirely for any build.
+If you pass ungrouped options to a mixed build, projr reports the
+selected engine names before starting the build.</p>
 </div>
 <div class="section level4">
 <h4 id="script-execution">Script execution<a class="anchor" aria-label="anchor" href="#script-execution"></a>
@@ -341,7 +391,7 @@ top-level R scripts.</p>
 <p>R build scripts and hooks run via <code><a href="https://rdrr.io/r/base/source.html" class="external-link">source()</a></code>. Use
 <code><a href="../reference/projr_path_get_dir.html">projr_path_get_dir()</a></code> inside a script to write to the
 correct output directories.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_path_get_dir.html">projr_path_get_dir</a></span><span class="op">(</span><span class="st">"output"</span>, safe <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">results</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="st">"results.csv"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <hr>
@@ -367,18 +417,18 @@ cleared before copying.</p>
 <p>An output directory can include other declared directories by label.
 For example, to publish a bundle of raw measurements, rendered reports
 and tables, configure the receiving output:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="at">  </span><span class="fu">cache</span><span class="kw">:</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _tmp</span></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-measurements</span><span class="kw">:</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> inputs/measurements</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="at">  </span><span class="fu">docs</span><span class="kw">:</span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> reports</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="at">  </span><span class="fu">output-tables</span><span class="kw">:</span></span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> tables</span></span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="at">  </span><span class="fu">output-bundle</span><span class="kw">:</span></span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> publication</span></span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="at">    </span><span class="fu">include</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-measurements</span><span class="kw">,</span><span class="at"> docs</span><span class="kw">,</span><span class="at"> output-tables</span><span class="kw">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="at">  </span><span class="fu">cache</span><span class="kw">:</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _tmp</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-measurements</span><span class="kw">:</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> inputs/measurements</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="at">  </span><span class="fu">docs</span><span class="kw">:</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> reports</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="at">  </span><span class="fu">output-tables</span><span class="kw">:</span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> tables</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="at">  </span><span class="fu">output-bundle</span><span class="kw">:</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> publication</span></span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="at">    </span><span class="fu">include</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-measurements</span><span class="kw">,</span><span class="at"> docs</span><span class="kw">,</span><span class="at"> output-tables</span><span class="kw">]</span></span></code></pre></div>
 <p>This creates <code>publication/raw-measurements/</code>,
 <code>publication/docs/</code> and
 <code>publication/output-tables/</code>. Development builds collect the
@@ -425,19 +475,19 @@ commands in a plain R code block or use an R chunk with
 <code>eval = FALSE</code> so rendering the README only displays
 them.</p>
 <p>Example BUILDLOG entry:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">## v0.0.2 (2024-01-15)</span></span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>Build completed in 45.2 seconds</span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="fu">### Changes from v0.0.1 → v0.0.2</span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="fu">#### Input Changes</span></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="ss">- </span>Modified: 2 files</span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="ss">- </span>Added: 1 file</span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="fu">#### Output Changes</span></span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="ss">- </span>Modified: 5 files</span>
-<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="ss">- </span>Added: 3 files</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">## v0.0.2 (2024-01-15)</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>Build completed in 45.2 seconds</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="fu">### Changes from v0.0.1 → v0.0.2</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="fu">#### Input Changes</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="ss">- </span>Modified: 2 files</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="ss">- </span>Added: 1 file</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="fu">#### Output Changes</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="ss">- </span>Modified: 5 files</span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="ss">- </span>Added: 3 files</span></code></pre></div>
 <p>When total changes are fewer than 10, individual filenames are
 listed. Otherwise only counts are shown.</p>
 </div>
@@ -500,7 +550,7 @@ directories). The behavior is controlled by four parameters in
 <p>For quick archiving without editing <code>_projr.yml</code>, use the
 <code>archive_github</code> or <code>archive_local</code>
 parameters:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Archive declared raw, output and docs directories to a GitHub release</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>msg <span class="op">=</span> <span class="st">"Release v0.0.2"</span>, archive_github <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -532,13 +582,13 @@ follow-up commit uses the development version in its message, such as
 <p>Pushes all commits (pre-build, post-build, dev version) if
 <code>build.git.push</code> is <code>TRUE</code>.</p>
 <p>Configure git behavior in <code>_projr.yml</code>:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="at">  </span><span class="fu">git</span><span class="kw">:</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="at">    </span><span class="fu">commit</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="at">    </span><span class="fu">push</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="at">    </span><span class="fu">add-untracked</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="at">  </span><span class="fu">git</span><span class="kw">:</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="at">    </span><span class="fu">commit</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="at">    </span><span class="fu">push</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="at">    </span><span class="fu">add-untracked</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div>
 <p>Or from R:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/yml-git.html">projr_yml_git_set</a></span><span class="op">(</span>commit <span class="op">=</span> <span class="cn">TRUE</span>, push <span class="op">=</span> <span class="cn">TRUE</span>, add_untracked <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -570,7 +620,7 @@ history and writes subsequent updates under
 <code>.projr/manifests/</code>.</p>
 <p>Use these functions in the analysis checkout to query its recorded
 history.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Changes between two versions</span></span>
 <span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projr_manifest_query.html">projr_manifest_changes</a></span><span class="op">(</span><span class="st">"0.0.1"</span>, <span class="st">"0.0.2"</span><span class="op">)</span></span>
 <span><span class="va">changes</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"label"</span>, <span class="st">"fn"</span>, <span class="st">"change_type"</span><span class="op">)</span><span class="op">]</span></span>
@@ -613,7 +663,7 @@ history.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>msg <span class="op">=</span> <span class="st">"Debug run"</span><span class="op">)</span></span></code></pre></div>
 <p>Standard output follows the work selected for this build. For
@@ -635,10 +685,10 @@ project root.</p>
     └── ...</code></pre>
 <p>History tracking (<code>builds.md</code>) is always maintained.
 Detailed per-build logs can be disabled:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_LOG_DETAILED <span class="op">=</span> <span class="st">"FALSE"</span><span class="op">)</span></span></code></pre></div>
 <p>View or clear logs:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_log_view.html">projr_log_view</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_log_clear.html">projr_log_clear</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -648,7 +698,7 @@ Detailed per-build logs can be disabled:</p>
 <ol style="list-style-type: decimal">
 <li>Enable debug output and re-run:</li>
 </ol>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_OUTPUT_LEVEL <span class="op">=</span> <span class="st">"debug"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>msg <span class="op">=</span> <span class="st">"Debug run"</span><span class="op">)</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
@@ -656,18 +706,18 @@ Detailed per-build logs can be disabled:</p>
 <code><a href="../reference/projr_log_view.html">projr_log_view()</a></code>.</p></li>
 <li><p>Check git status:</p></li>
 </ol>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git status"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git diff"</span><span class="op">)</span></span></code></pre></div>
 <ol start="4" style="list-style-type: decimal">
 <li>Verify package requirements:</li>
 </ol>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_check_packages.html">projr_build_check_packages</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <ol start="5" style="list-style-type: decimal">
 <li>If authentication is the issue:</li>
 </ol>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/instr_auth.html">projr_instr_auth_github</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -678,7 +728,7 @@ Detailed per-build logs can be disabled:</p>
 <div class="section level4">
 <h4 id="projr_build_patch-projr_build_minor-projr_build_major">projr_build_patch / projr_build_minor / projr_build_major<a class="anchor" aria-label="anchor" href="#projr_build_patch-projr_build_minor-projr_build_major"></a>
 </h4>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span></span>
 <span>  msg <span class="op">=</span> <span class="st">"Build message"</span>,</span>
 <span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -692,7 +742,7 @@ Detailed per-build logs can be disabled:</p>
 <div class="section level4">
 <h4 id="projr_build_dev">projr_build_dev<a class="anchor" aria-label="anchor" href="#projr_build_dev"></a>
 </h4>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span></span>
 <span>  scripts <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bump <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -705,7 +755,7 @@ Detailed per-build logs can be disabled:</p>
 <div class="section level4">
 <h4 id="configuration-helpers">Configuration helpers<a class="anchor" aria-label="anchor" href="#configuration-helpers"></a>
 </h4>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Validate configuration</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_check.html">projr_yml_check</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -722,7 +772,7 @@ Detailed per-build logs can be disabled:</p>
 <h3 id="complete-lifecycle-example">Complete Lifecycle Example<a class="anchor" aria-label="anchor" href="#complete-lifecycle-example"></a>
 </h3>
 <p>A typical workflow from setup through production build:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1. Check configuration is valid</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_check.html">projr_yml_check</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>

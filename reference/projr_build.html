@@ -136,11 +136,16 @@ at which the commit was made.</p></dd>
 
 
 <dt id="arg-args-engine">args_engine<a class="anchor" aria-label="anchor" href="#arg-args-engine"></a></dt>
-<dd><p>list.
-Arguments passed to the
-rendering engine
-(<code><a href="https://pkgs.rstudio.com/rmarkdown/reference/render.html" class="external-link">rmarkdown::render</a></code>, <code><a href="https://quarto-dev.github.io/quarto-r/reference/quarto_render.html" class="external-link">quarto::quarto_render</a></code> or <code><a href="https://pkgs.rstudio.com/bookdown/reference/render_book.html" class="external-link">bookdown::render_book</a></code>).
-Quarto renders in the foreground so subsequent scripts and hooks see the completed output.</p></dd>
+<dd><p>List of options for the selected build engines. For one
+engine, use its native arguments directly, e.g. <code>list(quiet = TRUE)</code> for
+one or more standalone R Markdown documents. When multiple engines run,
+group options by engine, e.g.
+<code>list(quarto_project = list(profile = "print"), rmd = list(quiet = TRUE))</code>.
+Use <code>quarto_project</code> or <code>quarto_document</code> for <code><a href="https://quarto-dev.github.io/quarto-r/reference/quarto_render.html" class="external-link">quarto::quarto_render()</a></code>,
+<code>rmd</code> for <code><a href="https://pkgs.rstudio.com/rmarkdown/reference/render.html" class="external-link">rmarkdown::render()</a></code> and <code>bookdown</code> for <code><a href="https://pkgs.rstudio.com/bookdown/reference/render_book.html" class="external-link">bookdown::render_book()</a></code>.
+Plain R scripts (<code>r</code>) take no render options. Omit any engine to use its
+defaults. The default <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> works for any selection.
+Quarto renders in the foreground so later scripts and hooks see its output.</p></dd>
 
 
 <dt id="arg-profile">profile<a class="anchor" aria-label="anchor" href="#arg-profile"></a></dt>

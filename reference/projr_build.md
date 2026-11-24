@@ -78,13 +78,21 @@ projr_build_patch(
 
 - args_engine:
 
-  list. Arguments passed to the rendering engine
-  ([`rmarkdown::render`](https://pkgs.rstudio.com/rmarkdown/reference/render.html),
-  [`quarto::quarto_render`](https://quarto-dev.github.io/quarto-r/reference/quarto_render.html)
-  or
-  [`bookdown::render_book`](https://pkgs.rstudio.com/bookdown/reference/render_book.html)).
-  Quarto renders in the foreground so subsequent scripts and hooks see
-  the completed output.
+  List of options for the selected build engines. For one engine, use
+  its native arguments directly, e.g. `list(quiet = TRUE)` for one or
+  more standalone R Markdown documents. When multiple engines run, group
+  options by engine, e.g.
+  `list(quarto_project = list(profile = "print"), rmd = list(quiet = TRUE))`.
+  Use `quarto_project` or `quarto_document` for
+  [`quarto::quarto_render()`](https://quarto-dev.github.io/quarto-r/reference/quarto_render.html),
+  `rmd` for
+  [`rmarkdown::render()`](https://pkgs.rstudio.com/rmarkdown/reference/render.html)
+  and `bookdown` for
+  [`bookdown::render_book()`](https://pkgs.rstudio.com/bookdown/reference/render_book.html).
+  Plain R scripts (`r`) take no render options. Omit any engine to use
+  its defaults. The default [`list()`](https://rdrr.io/r/base/list.html)
+  works for any selection. Quarto renders in the foreground so later
+  scripts and hooks see its output.
 
 - profile:
 

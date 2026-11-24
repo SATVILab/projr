@@ -112,6 +112,14 @@ on exit.
   native options, including Quarto’s `execute-dir` and R Markdown’s
   `knit_root_dir`. Run Quarto synchronously so output collection and
   post-build hooks see the completed render in RStudio.
+- Keep `args_engine` as the public build argument. Count distinct
+  selected build engines. One engine accepts flat options even across
+  repeated documents. With several engines, require named option lists
+  for any overrides and list the selected engine names on an ambiguous
+  call before build work. Omitted engines and an empty list use
+  defaults. Use the matching options for rendering, Quarto profile
+  selection and output collection. Plain R scripts have no render
+  options.
 - In `build.scripts` and `dev.scripts`, allow `- exclude: path-or-glob`
   among path entries. Each exclusion takes one string. Quoted
   `"!path-or-glob"` entries remain supported. Apply exclusions to the

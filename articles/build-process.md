@@ -228,27 +228,58 @@ skips script execution and document rendering.
 
 #### Document rendering
 
-The rendering engine is detected from the selected scripts and project
-configuration:
+projr chooses a build engine for each selected script or project.
 
-- Quarto for `.qmd` files or Quarto projects
-- Bookdown for `.Rmd` files selected in a project with `_bookdown.yml`
-- R Markdown for `.Rmd` files
+| Engine            | What runs                                             |
+|-------------------|-------------------------------------------------------|
+| `r`               | A plain R script.                                     |
+| `rmd`             | R Markdown renders a standalone `.Rmd` file.          |
+| `quarto_document` | Quarto renders a standalone `.qmd` file.              |
+| `quarto_project`  | Quarto renders the project defined by `_quarto.yml`.  |
+| `bookdown`        | Bookdown renders the book defined by `_bookdown.yml`. |
 
 Explicitly selected scripts run in order. A project renders its selected
 documents together at the position of its last selected document. For an
 automatic build, a project renders first, followed by top-level R
 scripts.
 
-Pass custom arguments to the document renderers:
+#### Options for a build engine
+
+If the build uses one engine, pass its options directly in
+`args_engine`. For example, this renders two standalone R Markdown
+documents quietly.
 
 ``` r
 
-projr_build_patch(
-  msg = "Update analysis",
-  args_engine = list(quiet = FALSE, clean = TRUE)
+projr_build_dev(
+  scripts = c("summary.Rmd", "appendix.Rmd"),
+  args_engine = list(quiet = TRUE)
 )
 ```
+
+When the build uses several engines, group the options by engine name.
+For example, this builds a Quarto project with its `print` profile and
+renders a standalone R Markdown appendix quietly.
+
+``` r
+
+projr_build_dev(
+  scripts = c("index.qmd", "appendix.Rmd"),
+  args_engine = list(
+    quarto_project = list(profile = "print"),
+    rmd = list(quiet = TRUE)
+  )
+)
+```
+
+projr collects the site in the configured `docs` directory (in the cache
+for a development build), even when the Quarto profile sets
+`project.output-dir`.
+
+Omit an engine to use its defaults. Plain R scripts take no render
+options. You can omit `args_engine` entirely for any build. If you pass
+ungrouped options to a mixed build, projr reports the selected engine
+names before starting the build.
 
 #### Script execution
 

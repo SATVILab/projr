@@ -370,12 +370,15 @@ Automatic R discovery skips configured hooks, underscore-prefixed
 scripts and <code>renv_repos.R</code>.</p>
 <p>Renderers retain their own working-directory conventions, including
 Quarto’s <code>execute-dir</code> and R Markdown’s
-<code>knit_root_dir</code>. Pass native renderer arguments through
-<code>args_engine</code> when needed. The collected document and its
-companion assets stay together. Where basenames collide, projr preserves
-the affected documents’ project-relative subdirectories. Renderer
-intermediates such as generated TeX files receive project-relative
-ignore rules, including for nested source documents.</p>
+<code>knit_root_dir</code>. To pass options from R, use
+<code>args_engine</code> in the build call. Group options by engine when
+the selection mixes engines. See <a href="build-process.html#options-for-a-build-engine">options for a build
+engine</a>.</p>
+<p>The collected document and its companion assets stay together. Where
+basenames collide, projr preserves the affected documents’
+project-relative subdirectories. Renderer intermediates such as
+generated TeX files receive project-relative ignore rules, including for
+nested source documents.</p>
 </div>
 <div class="section level2">
 <h2 id="builds-dependencies-and-versions">Builds, dependencies and versions<a class="anchor" aria-label="anchor" href="#builds-dependencies-and-versions"></a>

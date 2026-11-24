@@ -207,13 +207,16 @@ Automatic R discovery skips configured hooks, underscore-prefixed
 scripts and `renv_repos.R`.
 
 Renderers retain their own working-directory conventions, including
-Quarto’s `execute-dir` and R Markdown’s `knit_root_dir`. Pass native
-renderer arguments through `args_engine` when needed. The collected
-document and its companion assets stay together. Where basenames
-collide, projr preserves the affected documents’ project-relative
-subdirectories. Renderer intermediates such as generated TeX files
-receive project-relative ignore rules, including for nested source
-documents.
+Quarto’s `execute-dir` and R Markdown’s `knit_root_dir`. To pass options
+from R, use `args_engine` in the build call. Group options by engine
+when the selection mixes engines. See [options for a build
+engine](https://satvilab.github.io/projr/articles/build-process.html#options-for-a-build-engine).
+
+The collected document and its companion assets stay together. Where
+basenames collide, projr preserves the affected documents’
+project-relative subdirectories. Renderer intermediates such as
+generated TeX files receive project-relative ignore rules, including for
+nested source documents.
 
 ## Builds, dependencies and versions
 
