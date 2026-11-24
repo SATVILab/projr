@@ -1,4 +1,4 @@
-# projr (development version)
+# projr 0.8.0
 
 * Production builds check the versions already published to their archives
   before rendering. By default they stop if the checkout is behind an archive
