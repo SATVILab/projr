@@ -1,18 +1,33 @@
-#' @rdname projr_content_update
+#' @title Clone a project and fetch its directories
+#' @description
+#' `projr_restore_repo()` clones a GitHub repository and fetches its
+#' directories with [projr_source()]. `projr_restore_repo_wd()` clones into
+#' the current directory.
+#'
+#' @param repo character. GitHub repository, as `"owner/repo"`, or `"repo"`
+#'   for one owned by the authenticated user.
+#' @param path character. Directory to clone into. Defaults to the
+#'   repository name.
+#' @inheritParams projr_source
+#' @return Invisibly returns `TRUE` after fetching, or `FALSE` with a message
+#'   if the clone or fetch fails.
+#' @seealso [projr_source()], [projr_restore()]
+#' @examples
+#' \dontrun{
+#' projr_restore_repo("owner/repo")
+#' projr_restore_repo("owner/repo", label = "raw-data", remote = "github:archive")
+#' }
 #' @export
 projr_restore_repo <- function(
   repo,
   path = NULL,
   label = NULL,
-  pos = NULL,
-  type = NULL,
-  title = NULL,
-  destination = NULL
+  remote = NULL
 ) {
   .assert_string(repo, TRUE)
   .assert_string(path)
   .assert_chr(label)
-  remote <- .restore_remote(type, title, destination)
+  .assert_string(remote)
 
   result <- tryCatch(
     {
@@ -28,25 +43,10 @@ projr_restore_repo <- function(
   invisible(result)
 }
 
-#' @rdname projr_content_update
+#' @rdname projr_restore_repo
 #' @export
-projr_restore_repo_wd <- function(
-  repo,
-  label = NULL,
-  pos = NULL,
-  type = NULL,
-  title = NULL,
-  destination = NULL
-) {
-  projr_restore_repo(
-    repo,
-    path = ".",
-    label = label,
-    pos = pos,
-    type = type,
-    title = title,
-    destination = destination
-  )
+projr_restore_repo_wd <- function(repo, label = NULL, remote = NULL) {
+  projr_restore_repo(repo, path = ".", label = label, remote = remote)
 }
 
 .restore_repo_labels <- function(path, label, remote) {

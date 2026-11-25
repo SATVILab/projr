@@ -1,3 +1,9 @@
+# projr (development version)
+
+* Breaking: `projr_restore_repo()` and `projr_restore_repo_wd()` take
+  `remote` (a title, or `<type>:<title>`), as `projr_source()` does, in place
+  of `pos`, `type`, `title` and `destination`.
+
 # projr 0.9.0
 
 * Fetch raw inputs before a build runs. Register a remote under `remotes` and

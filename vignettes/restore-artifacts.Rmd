@@ -159,8 +159,7 @@ projr_restore_repo(
   repo,          # "owner/repo" or "repo"
   path = NULL,   # clone destination (default: subdirectory named after repo)
   label = NULL,  # which artifacts (default: all raw-* labels)
-  type = NULL,   # "github" or "local", used with title
-  title = NULL   # remote title under `remotes` in _projr.yml
+  remote = NULL  # a remote under `remotes`: "archive" or "github:archive"
 )
 ```
 
@@ -185,8 +184,7 @@ A convenience wrapper that clones directly into the current working directory.
 projr_restore_repo_wd(
   repo,
   label = NULL,
-  type = NULL,
-  title = NULL
+  remote = NULL
 )
 ```
 
@@ -235,9 +233,8 @@ projr_source(remote = "local:network-backup")
   `output`, and `docs`. Prefer regenerating `output`/`docs` with
   `projr_build_dev()` rather than restoring them.
 
-- `remote` (`projr_source()`) -- a remote registered under `remotes`, named
-  by its title or as `<type>:<title>`. `projr_restore_repo()` builds it from
-  `type` and `title`.
+- `remote` (`projr_source()`, `projr_restore_repo()`) -- a remote
+  registered under `remotes`, named by its title or as `<type>:<title>`.
 
 - `conflict` (`projr_source()`) -- what to do with local files changed since
   the last fetch. `"error"` stops before changing anything, `"local"` keeps
