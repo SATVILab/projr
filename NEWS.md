@@ -1,6 +1,12 @@
 # projr (development version)
 
-* GitHub release uploads that return a server error or lose the connection now check the release, accept an asset that was fully stored, and otherwise retry once.
+* Breaking: `projr_restore_repo()` and `projr_restore_repo_wd()` take
+  `remote` (a title, or `<type>:<title>`), as `projr_source()` does, in place
+  of `pos`, `type`, `title` and `destination`.
+
+* GitHub release uploads that return a server error after storing the file no
+  longer fail. projr checks the release, accepts a fully stored asset, and
+  otherwise retries once.
 
 # projr 0.9.0
 

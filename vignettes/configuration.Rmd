@@ -483,8 +483,7 @@ projr::projr_source(label = "output-delivery", remote = "local:shared")
 
 `projr_restore_repo("owner/repo")` clones a repository and fetches its
 directories with `projr_source()`. Use `projr_restore_repo_wd("owner/repo")`
-to clone into the current directory. Both accept `label`, and `type` and
-`title` to name the remote.
+to clone into the current directory. Both accept `label` and `remote`.
 
 ## Fetching raw inputs
 
