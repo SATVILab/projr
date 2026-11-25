@@ -535,8 +535,7 @@ projr::projr_source(label = "output-delivery", remote = "local:shared")
 directories with
 [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md).
 Use `projr_restore_repo_wd("owner/repo")` to clone into the current
-directory. Both accept `label`, and `type` and `title` to name the
-remote.
+directory. Both accept `label` and `remote`.
 
 ## Fetching raw inputs
 

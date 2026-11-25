@@ -168,8 +168,7 @@ projr_restore_repo(
   repo,          # "owner/repo" or "repo"
   path = NULL,   # clone destination (default: subdirectory named after repo)
   label = NULL,  # which artifacts (default: all raw-* labels)
-  type = NULL,   # "github" or "local", used with title
-  title = NULL   # remote title under `remotes` in _projr.yml
+  remote = NULL  # a remote under `remotes`: "archive" or "github:archive"
 )
 ```
 
@@ -198,8 +197,7 @@ directory.
 projr_restore_repo_wd(
   repo,
   label = NULL,
-  type = NULL,
-  title = NULL
+  remote = NULL
 )
 ```
 
@@ -257,11 +255,10 @@ projr_source(remote = "local:network-backup")
   rather than restoring them.
 
 - `remote`
-  ([`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md))
+  ([`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md),
+  [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore_repo.md))
   – a remote registered under `remotes`, named by its title or as
   `<type>:<title>`.
-  [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
-  builds it from `type` and `title`.
 
 - `conflict`
   ([`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md))

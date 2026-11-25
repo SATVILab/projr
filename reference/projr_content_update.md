@@ -3,32 +3,13 @@
 `projr_content_update()` is deprecated. Use
 [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md),
 which it now calls with the latest version and `cue = "always"`.
-`projr_restore_repo()` clones a GitHub repository and then fetches its
-directories with
+[`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore_repo.md)
+clones a GitHub repository and then fetches its directories with
 [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md).
 
 ## Usage
 
 ``` r
-projr_restore_repo(
-  repo,
-  path = NULL,
-  label = NULL,
-  pos = NULL,
-  type = NULL,
-  title = NULL,
-  destination = NULL
-)
-
-projr_restore_repo_wd(
-  repo,
-  label = NULL,
-  pos = NULL,
-  type = NULL,
-  title = NULL,
-  destination = NULL
-)
-
 projr_content_update(
   label = NULL,
   pos = NULL,
@@ -40,17 +21,6 @@ projr_content_update(
 ```
 
 ## Arguments
-
-- repo:
-
-  character. GitHub repository (`"owner/repo"` or `"repo"`). (Only for
-  repository restoration functions.)
-
-- path:
-
-  character or NULL. Local path for cloning the repository. Default is
-  `NULL`, creating a subdirectory named after the repo. `"."` restores
-  directly into the current directory.
 
 - label:
 
@@ -72,22 +42,34 @@ projr_content_update(
   Default is `NULL`, using `build.source` or the single registered
   remote that published each label.
 
-- destination:
-
-  No longer supported. Must be `NULL`;
-  [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md)
-  reads the address of the registered remote.
-
 - clear:
 
   logical. If `TRUE`, local changes are replaced
   (`conflict = "remote"`). Otherwise, local changes stop the restore
   (`conflict = "error"`). Default is `FALSE`.
 
+- destination:
+
+  No longer supported. Must be `NULL`;
+  [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md)
+  reads the address of the registered remote.
+
+- repo:
+
+  character. GitHub repository (`"owner/repo"` or `"repo"`). (Only for
+  repository restoration functions.)
+
+- path:
+
+  character or NULL. Local path for cloning the repository. Default is
+  `NULL`, creating a subdirectory named after the repo. `"."` restores
+  directly into the current directory.
+
 ## Value
 
-Invisibly returns `TRUE`. `projr_restore_repo()` returns `FALSE` if
-cloning or restoration fails.
+Invisibly returns `TRUE`.
+[`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore_repo.md)
+returns `FALSE` if cloning or restoration fails.
 
 ## Examples
 

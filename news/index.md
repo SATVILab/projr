@@ -1,5 +1,15 @@
 # Changelog
 
+## projr (development version)
+
+- Breaking:
+  [`projr_restore_repo()`](https://satvilab.github.io/projr/reference/projr_restore_repo.md)
+  and
+  [`projr_restore_repo_wd()`](https://satvilab.github.io/projr/reference/projr_restore_repo.md)
+  take `remote` (a title, or `<type>:<title>`), as
+  [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md)
+  does, in place of `pos`, `type`, `title` and `destination`.
+
 ## projr 0.9.0
 
 - Fetch raw inputs before a build runs. Register a remote under

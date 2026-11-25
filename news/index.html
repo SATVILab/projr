@@ -42,6 +42,10 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="projr-development-version">projr (development version)<a class="anchor" aria-label="anchor" href="#projr-development-version"></a></h2>
+<ul><li>Breaking: <code><a href="../reference/projr_restore_repo.html">projr_restore_repo()</a></code> and <code><a href="../reference/projr_restore_repo.html">projr_restore_repo_wd()</a></code> take <code>remote</code> (a title, or <code>&lt;type&gt;:&lt;title&gt;</code>), as <code><a href="../reference/projr_source.html">projr_source()</a></code> does, in place of <code>pos</code>, <code>type</code>, <code>title</code> and <code>destination</code>.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.0" id="projr-090">projr 0.9.0<a class="anchor" aria-label="anchor" href="#projr-090"></a></h2>
 <ul><li><p>Fetch raw inputs before a build runs. Register a remote under <code>remotes</code> and list it under <code>build.source</code>. Before any hook or script, the build checks the remote, stops if you have changed files locally since the last fetch, and then installs verified files. Pin a build with <code>version: "1.2.3"</code>, or follow the latest build within a major or minor version with <code>"1"</code> or <code>"1.2"</code>. Folders that already hold files are left alone by default, so offline builds keep working.</p></li>
 <li><p><code><a href="../reference/projr_source.html">projr_source()</a></code> fetches inputs outside a build. It uses <code>build.source</code>, or finds the registered remote that has published each directory, and asks whether to keep or replace files you have changed. <code><a href="../reference/projr_restore.html">projr_restore()</a></code>, <code><a href="../reference/projr_source.html">projr_source()</a></code> and <code><a href="../reference/projr_get.html">projr_get_github()</a></code>/<code><a href="../reference/projr_get.html">projr_get_local()</a></code> now share the same verified download code.</p></li>
