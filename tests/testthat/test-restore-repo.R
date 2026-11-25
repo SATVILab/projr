@@ -89,55 +89,15 @@ test_that("projr_restore_repo validates label parameter correctly", {
   )
 })
 
-test_that("projr_restore_repo validates type parameter correctly", {
-  skip_if(.is_test_cran())
+test_that("projr_restore_repo validates remote parameter correctly", {
   skip_if(.is_test_select())
-
-  # Non-character type
   expect_error(
-    projr_restore_repo(repo = "test/repo", type = 123),
-    "type must be a non-empty string"
+    projr_restore_repo(repo = "test/repo", remote = 123),
+    "remote must be a non-empty string"
   )
-
-  # Empty vector
   expect_error(
-    projr_restore_repo(repo = "test/repo", type = character(0)),
-    "type must be a non-empty string"
-  )
-
-  # Multiple values
-  expect_error(
-    projr_restore_repo(repo = "test/repo", type = c("local", "github")),
-    "type must be a non-empty string"
-  )
-
-  # Invalid value
-  expect_error(
-    projr_restore_repo(repo = "test/repo", type = "invalid"),
-    "type must be one of local, github"
-  )
-})
-
-test_that("projr_restore_repo validates title parameter correctly", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # Non-character title
-  expect_error(
-    projr_restore_repo(repo = "test/repo", title = 123),
-    "title must be a non-empty string"
-  )
-
-  # Empty vector
-  expect_error(
-    projr_restore_repo(repo = "test/repo", title = character(0)),
-    "title must be a non-empty string"
-  )
-
-  # Multiple values
-  expect_error(
-    projr_restore_repo(repo = "test/repo", title = c("title1", "title2")),
-    "title must be a non-empty string"
+    projr_restore_repo(repo = "test/repo", remote = c("a", "b")),
+    "remote must be a non-empty string"
   )
 })
 
@@ -147,14 +107,6 @@ test_that("repo restoration clones into the requested path and forwards selectio
   remote <- .test_setup_project()
   parent <- withr::local_tempdir()
   expect_error(projr_restore_repo_wd(NULL), "repo must be given")
-  expect_error(
-    projr_restore_repo("fixture/project", destination = "bundles"),
-    "no longer supported"
-  )
-  expect_error(
-    projr_restore_repo("fixture/project", type = "github"),
-    "Name one with `title`"
-  )
   labels <- c("raw-data", "output")
   received <- NULL
   testthat::local_mocked_bindings(
@@ -173,8 +125,7 @@ test_that("repo restoration clones into the requested path and forwards selectio
       "fixture/project",
       "one",
       labels,
-      type = "local",
-      title = "archive"
+      remote = "local:archive"
     ))
     expect_identical(
       received,
@@ -182,7 +133,7 @@ test_that("repo restoration clones into the requested path and forwards selectio
     )
     dir.create("two")
     withr::with_dir("two", {
-      expect_true(projr_restore_repo_wd("fixture/project", title = "archive"))
+      expect_true(projr_restore_repo_wd("fixture/project", remote = "archive"))
       expect_identical(
         received,
         list(NULL, "archive", "always", "error", normalizePath("."))
