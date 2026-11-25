@@ -478,7 +478,11 @@ projr_source <- function(
   if (!length(earlier)) {
     return(NULL)
   }
-  earlier[[which.max(numeric_version(sub("^v", "", earlier)))]]
+  # order() rather than which.max(): R < 4.6 cannot coerce numeric_version.
+  earlier[[order(
+    numeric_version(sub("^v", "", earlier)),
+    decreasing = TRUE
+  )[[1L]]]]
 }
 
 .source_plan_label <- function(
