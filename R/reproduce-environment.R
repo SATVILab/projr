@@ -128,7 +128,9 @@
       )
     }
     dir.create(library, recursive = TRUE, showWarnings = FALSE)
-    .libPaths(library, include.site = FALSE)
+    # pak's worker process loads pak from .libPaths(); `lib` alone decides
+    # which installed packages count.
+    .libPaths(c(library, dirname(find.package("pak"))), include.site = FALSE)
     options(repos = repos)
     pak::local_install_deps(
       root = getwd(),

@@ -251,10 +251,6 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
 
   rscript <- .path_rscript_get()
 
-  if (rscript == "") {
-    return(list(success = FALSE, error = "Rscript executable not found."))
-  }
-
   stdout_file <- tempfile("rscript_stdout_")
   stderr_file <- tempfile("rscript_stderr_")
 
@@ -346,13 +342,12 @@ projr_renv_test <- function(files_to_copy = NULL, delete_lib = TRUE) {
   }
 
   if (res != 0) {
-    error_msg <- tryCatch(
-      {
-        paste(readLines(stderr_file, warn = FALSE), collapse = "\n")
-      },
-      error = function(e) {
-        "Unknown error."
-      }
+    output <- unlist(lapply(c(stderr_file, stdout_file), function(path) {
+      tryCatch(readLines(path, warn = FALSE), error = function(e) character())
+    }))
+    error_msg <- paste(
+      c(paste0("Rscript exited with status ", res, "."), output),
+      collapse = "\n"
     )
     return(list(success = FALSE, error = error_msg))
   }

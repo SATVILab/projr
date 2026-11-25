@@ -476,11 +476,8 @@ with_dir <- function(new, code) {
 }
 
 .path_rscript_get <- function() {
-  rscript <- Sys.which("Rscript")
-  if (nzchar(rscript)) {
-    return(rscript)
-  }
-  # Fallback to default R installation path
+  # Use the running R's Rscript: PATH may hold another R or, under
+  # R CMD check --as-cran, a stub that refuses to run.
   file.path(R.home("bin"), "Rscript")
 }
 

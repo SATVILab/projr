@@ -57,6 +57,8 @@ test_that("renv and pak install the selected analysis packages before rendering"
     RENV_PATHS_LIBRARY_ROOT = file.path(caller, "lib"),
     RENV_PATHS_LOCKFILE = file.path(caller, "wrong.lock"),
     PKG_CRAN_MIRROR = unname(repos),
+    # pkgcache refuses the user cache during R CMD check.
+    R_USER_CACHE_DIR = file.path(root, "user-cache"),
     PKG_USE_BIOCONDUCTOR = "false",
     PKG_SYSREQS_DB_UPDATE = "false",
     http_proxy = "http://127.0.0.1:9",
