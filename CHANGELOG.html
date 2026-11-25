@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,16 @@
 
 <div id="technical-changelog" class="section level1">
 
+<div class="section level2">
+<h2 id="id_090">0.9.0<a class="anchor" aria-label="anchor" href="#id_090"></a></h2>
+<ul><li>Add <code>build.source</code> and <code>remotes.&lt;type&gt;.&lt;title&gt;.get</code> (<code>version</code>, <code>cue</code>, <code>inspect</code>, <code>strategy</code>, <code>conflict</code>). Builds plan fetches into staging before any hook, stop on conflicts before local changes, and install verified files before hashing raw inputs. Fetch records live in the Git-ignored <code>.projr/source/</code>; production builds log sources in <code>BUILDLOG.md</code>.</li>
+<li>Add <code><a href="reference/projr_source.html">projr_source()</a></code>. Split <code>.get_content()</code> into <code>.get_resolve()</code> and <code>.get_install()</code>, shared by <code>projr_get_*()</code>, <code><a href="reference/projr_source.html">projr_source()</a></code> and <code><a href="reference/projr_restore.html">projr_restore()</a></code>. Deprecate <code><a href="reference/projr_content_update.html">projr_content_update()</a></code> and delete its internals.</li>
+<li>Add <code>build.dest</code> with <code>&lt;type&gt;:&lt;title&gt;</code> remote names and reserved option words. Remove inline <code>build.local</code>/<code>build.github</code>, <code>directories.&lt;label&gt;.source</code> and the remote <code>source:</code> field. <code>.yml_set()</code> refuses to save the expanded merged form.</li>
+<li>Register one-off archives under <code>remotes</code> before the pre-build commit.</li>
+<li>Add top-level <code>pipelines</code> with <code>build.pipeline</code>/<code>dev.pipeline</code> and a <code>pipeline</code> build argument (names, lists, globs, <code>FALSE</code>). Inline entries are ordered by key position in the highest-precedence file setting <code>pipeline</code>. Record the resolved plan in <code>BUILDLOG.md</code>.</li>
+<li>Add the <code>profile</code> configuration key and <code>&lt;profile&gt;.yml</code> names in <code>.projr/config/</code>. <code>profile.renv</code> is reserved for a later release.</li>
+<li>Rename <code>air.toml</code> to <code>.air.toml</code>, and move <code>codecov.yml</code> to <code>.github/</code> and <code>index.md</code> to <code>pkgdown/</code>.</li>
+</ul></div>
 <div class="section level2">
 <h2 id="id_080">0.8.0<a class="anchor" aria-label="anchor" href="#id_080"></a></h2>
 <ul><li><p>Add production archive version checks for configured and one-off destinations. Record the destination’s completed project version after its last upload. The Git upstream restriction now uses <code>not_behind_git</code> and accepts the historical <code>not_behind</code> key.</p></li>

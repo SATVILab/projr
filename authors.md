@@ -15,13 +15,13 @@ Source:
 
 Rodo M (2026). *projr: Facilitate Reproducible and Archived Projects*.
 [doi:10.5281/zenodo.18402379](https://doi.org/10.5281/zenodo.18402379).
-R package version 0.8.0, <https://satvilab.github.io/projr/>.
+R package version 0.9.0, <https://satvilab.github.io/projr/>.
 
     @Manual{,
       title = {projr: Facilitate Reproducible and Archived Projects},
       author = {Miguel Rodo},
       year = {2026},
-      note = {R package version 0.8.0},
+      note = {R package version 0.9.0},
       url = {https://satvilab.github.io/projr/},
       doi = {10.5281/zenodo.18402379},
     }

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">projr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,19 @@
       <small>Source: <a href="https://github.com/SATVILab/projr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.9.0" id="projr-090">projr 0.9.0<a class="anchor" aria-label="anchor" href="#projr-090"></a></h2>
+<ul><li><p>Fetch raw inputs before a build runs. Register a remote under <code>remotes</code> and list it under <code>build.source</code>. Before any hook or script, the build checks the remote, stops if you have changed files locally since the last fetch, and then installs verified files. Pin a build with <code>version: "1.2.3"</code>, or follow the latest build within a major or minor version with <code>"1"</code> or <code>"1.2"</code>. Folders that already hold files are left alone by default, so offline builds keep working.</p></li>
+<li><p><code><a href="../reference/projr_source.html">projr_source()</a></code> fetches inputs outside a build. It uses <code>build.source</code>, or finds the registered remote that has published each directory, and asks whether to keep or replace files you have changed. <code><a href="../reference/projr_restore.html">projr_restore()</a></code>, <code><a href="../reference/projr_source.html">projr_source()</a></code> and <code><a href="../reference/projr_get.html">projr_get_github()</a></code>/<code><a href="../reference/projr_get.html">projr_get_local()</a></code> now share the same verified download code.</p></li>
+<li><p>Choose where a production build publishes with <code>build.dest</code>, as a name (<code>dest: archive</code>), a list, or a mapping with per-archive settings. Name a remote as <code>github:archive</code> when the same title is used for a GitHub and a local archive.</p></li>
+<li><p>Breaking: archives can no longer be defined inline under <code>build.github</code> or <code>build.local</code>. Move each one to <code>remotes.github.&lt;title&gt;</code> or <code>remotes.local.&lt;title&gt;</code> and list it under <code>build.dest</code>. The error message says what to change. <code>directories.&lt;label&gt;.source</code> and a remote’s <code>source:</code> field are also removed; use <code>build.source</code> instead.</p></li>
+<li><p>Breaking: <code><a href="../reference/projr_content_update.html">projr_content_update()</a></code> is deprecated in favour of <code><a href="../reference/projr_source.html">projr_source()</a></code>. Its <code>destination</code> argument now errors, and <code>clear = FALSE</code> stops when local files differ instead of overwriting them.</p></li>
+<li><p>Run named pipelines. Define ordered scripts and hooks under <code>pipelines</code> and select them with <code>build.pipeline</code> or <code>dev.pipeline</code>, or for one build with <code>projr_build_patch(pipeline = "sensitivity")</code>. Select several pipelines or a glob such as <code>model-*</code>. Inline <code>scripts</code> and <code>hooks</code> run before or after the pipeline depending on where you place them relative to <code>pipeline</code>. <code>pipeline = FALSE</code> runs only the inline scripts.</p></li>
+<li><p>Choose profiles in configuration. A <code>profile</code> key in <code>_projr.yml</code> or <code>_projr-local.yml</code> selects projr profiles, or projr and Quarto profiles separately. The build’s <code>profile</code> argument and the <code>PROJR_PROFILE</code> and <code>QUARTO_PROFILE</code> environment variables still take precedence.</p></li>
+<li><p>Configuration files in <code>.projr/config/</code> can use short names such as <code>analysis.yml</code>, <code>default.yml</code> and <code>local.yml</code>.</p></li>
+<li><p>A one-off <code>archive_github = TRUE</code> or <code>archive_local = TRUE</code> build records the archive under <code>remotes</code>, so later restores know where it went.</p></li>
+<li><p><code>build.restrictions.not_behind_remote</code> lists remote names, using <code>github:reports</code> when a title is ambiguous.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.0" id="projr-080">projr 0.8.0<a class="anchor" aria-label="anchor" href="#projr-080"></a></h2>
 <ul><li><p>Production builds check the versions already published to their archives before rendering. By default they stop if the checkout is behind an archive or the proposed version already exists there. Set <code>build.restrictions.rule</code> to <code>target</code> to publish a newer version from an older checkout.</p></li>

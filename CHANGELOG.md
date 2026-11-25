@@ -1,5 +1,37 @@
 # Technical changelog
 
+## 0.9.0
+
+- Add `build.source` and `remotes.<type>.<title>.get` (`version`, `cue`,
+  `inspect`, `strategy`, `conflict`). Builds plan fetches into staging
+  before any hook, stop on conflicts before local changes, and install
+  verified files before hashing raw inputs. Fetch records live in the
+  Git-ignored `.projr/source/`; production builds log sources in
+  `BUILDLOG.md`.
+- Add
+  [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md).
+  Split `.get_content()` into `.get_resolve()` and `.get_install()`,
+  shared by `projr_get_*()`,
+  [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md)
+  and
+  [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md).
+  Deprecate
+  [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
+  and delete its internals.
+- Add `build.dest` with `<type>:<title>` remote names and reserved
+  option words. Remove inline `build.local`/`build.github`,
+  `directories.<label>.source` and the remote `source:` field.
+  `.yml_set()` refuses to save the expanded merged form.
+- Register one-off archives under `remotes` before the pre-build commit.
+- Add top-level `pipelines` with `build.pipeline`/`dev.pipeline` and a
+  `pipeline` build argument (names, lists, globs, `FALSE`). Inline
+  entries are ordered by key position in the highest-precedence file
+  setting `pipeline`. Record the resolved plan in `BUILDLOG.md`.
+- Add the `profile` configuration key and `<profile>.yml` names in
+  `.projr/config/`. `profile.renv` is reserved for a later release.
+- Rename `air.toml` to `.air.toml`, and move `codecov.yml` to `.github/`
+  and `index.md` to `pkgdown/`.
+
 ## 0.8.0
 
 - Add production archive version checks for configured and one-off

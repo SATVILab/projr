@@ -1,5 +1,68 @@
 # Changelog
 
+## projr 0.9.0
+
+- Fetch raw inputs before a build runs. Register a remote under
+  `remotes` and list it under `build.source`. Before any hook or script,
+  the build checks the remote, stops if you have changed files locally
+  since the last fetch, and then installs verified files. Pin a build
+  with `version: "1.2.3"`, or follow the latest build within a major or
+  minor version with `"1"` or `"1.2"`. Folders that already hold files
+  are left alone by default, so offline builds keep working.
+
+- [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md)
+  fetches inputs outside a build. It uses `build.source`, or finds the
+  registered remote that has published each directory, and asks whether
+  to keep or replace files you have changed.
+  [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md),
+  [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md)
+  and
+  [`projr_get_github()`](https://satvilab.github.io/projr/reference/projr_get.md)/[`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md)
+  now share the same verified download code.
+
+- Choose where a production build publishes with `build.dest`, as a name
+  (`dest: archive`), a list, or a mapping with per-archive settings.
+  Name a remote as `github:archive` when the same title is used for a
+  GitHub and a local archive.
+
+- Breaking: archives can no longer be defined inline under
+  `build.github` or `build.local`. Move each one to
+  `remotes.github.<title>` or `remotes.local.<title>` and list it under
+  `build.dest`. The error message says what to change.
+  `directories.<label>.source` and a remote’s `source:` field are also
+  removed; use `build.source` instead.
+
+- Breaking:
+  [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
+  is deprecated in favour of
+  [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md).
+  Its `destination` argument now errors, and `clear = FALSE` stops when
+  local files differ instead of overwriting them.
+
+- Run named pipelines. Define ordered scripts and hooks under
+  `pipelines` and select them with `build.pipeline` or `dev.pipeline`,
+  or for one build with `projr_build_patch(pipeline = "sensitivity")`.
+  Select several pipelines or a glob such as `model-*`. Inline `scripts`
+  and `hooks` run before or after the pipeline depending on where you
+  place them relative to `pipeline`. `pipeline = FALSE` runs only the
+  inline scripts.
+
+- Choose profiles in configuration. A `profile` key in `_projr.yml` or
+  `_projr-local.yml` selects projr profiles, or projr and Quarto
+  profiles separately. The build’s `profile` argument and the
+  `PROJR_PROFILE` and `QUARTO_PROFILE` environment variables still take
+  precedence.
+
+- Configuration files in `.projr/config/` can use short names such as
+  `analysis.yml`, `default.yml` and `local.yml`.
+
+- A one-off `archive_github = TRUE` or `archive_local = TRUE` build
+  records the archive under `remotes`, so later restores know where it
+  went.
+
+- `build.restrictions.not_behind_remote` lists remote names, using
+  `github:reports` when a title is ambiguous.
+
 ## projr 0.8.0
 
 - Production builds check the versions already published to their
