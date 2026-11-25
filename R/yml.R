@@ -51,7 +51,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     yml_projr_root,
     yml_projr_profile,
     yml_projr_local
-  )
+  ) |>
+    .yml_build_dest_resolve()
 }
 
 .yml_merge <- function(
@@ -74,28 +75,12 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
       return(elem_local %||% elem_profile %||% elem_default)
     }
     if (
-      nm == "not_behind_remote" &&
-        identical(parents, c("build", "restrictions"))
+      (nm == "not_behind_remote" &&
+        identical(parents, c("build", "restrictions"))) ||
+        (nm %in% c("dest", "source") && identical(parents, "build"))
     ) {
       # A profile selects the complete set of archive titles to check.
       return(elem_local %||% elem_profile %||% elem_default)
-    }
-    if (
-      length(parents) == 2L &&
-        parents[1L] == "build" &&
-        parents[2L] %in% c("local", "github")
-    ) {
-      # An explicitly bare selection chooses all content, overriding a lower profile's selection.
-      if (nm %in% names(yml_projr_local) && !length(elem_local)) {
-        return(elem_local)
-      }
-      if (
-        !nm %in% names(yml_projr_local) &&
-          nm %in% names(yml_projr_profile) &&
-          !length(elem_profile)
-      ) {
-        return(elem_profile)
-      }
     }
     # return early if highest-precedence element
     # is not a list.
@@ -296,6 +281,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 .yml_set <- function(list_save, profile = "default") {
+  # Merged settings expand build.dest into build.<type>; never save that form.
+  .yml_build_legacy_stop(list_save[["build"]])
   path_yml <- .yml_get_path(profile)
   yaml::write_yaml(list_save, path_yml)
   .newline_append(path_yml)

@@ -58,10 +58,14 @@ projr_restore <- function(
   fs::dir_create(workspace)
   on.exit(unlink(workspace, recursive = TRUE, expand = FALSE), add = TRUE)
 
-  project_store <- .path_get(".projr", "manifests")
-  project_csv <- .path_get("manifest.csv")
+  # The checkout's own manifest records what each label should contain.
+  project <- list(
+    type = "metadata",
+    store = .path_get(".projr", "manifests"),
+    csv = .path_get("manifest.csv")
+  )
   snapshots <- lapply(labels, function(label) {
-    .restore_build_snapshot(project_store, project_csv, label, version)
+    .restore_build_snapshot(project$store, project$csv, label, version)
   })
   paths <- vapply(
     labels,
@@ -73,18 +77,17 @@ projr_restore <- function(
   )
   .restore_build_check_paths(paths)
   .cli_info("Checking {paste(labels, collapse = ', ')} against build {version}")
-  current <- lapply(paths, .restore_build_hashes)
-  complete <- vapply(
+  todo <- !vapply(
     seq_along(labels),
     function(i) {
       !is.null(snapshots[[i]]$files) &&
         dir.exists(paths[i]) &&
-        identical(current[[i]], snapshots[[i]]$files)
+        identical(.restore_build_hashes(paths[i]), snapshots[[i]]$files)
     },
     logical(1)
   )
-  store <- file.path(workspace, "manifests")
-  needs_release <- !complete &
+  # Recorded empty directories need no release access.
+  release <- todo &
     vapply(
       snapshots,
       function(snapshot) {
@@ -92,191 +95,77 @@ projr_restore <- function(
       },
       logical(1)
     )
-  if (any(needs_release)) {
+  sources <- list(project)
+  producer <- list()
+  if (any(release)) {
     record <- .get_build_record(.buildlog_read(), version)
-    yml <- record$yml
-    if (!destination %in% names(yml$remotes$github)) {
-      yml <- .yml_get(NULL)
-    }
-    settings <- yml$remotes$github[[destination]]
-    if (destination %in% names(yml$remotes$github)) {
-      destination <- .get_remote_target(
-        "github",
-        destination,
-        settings,
-        record,
-        version,
-        .template_checkout_head()
-      )
-    }
-    repo <- settings[["repo"]] %||% .gh_repo_get()
-    .cli_debug(
-      "Looking up snapshots for {version} in GitHub release {repo}/{destination}"
+    registered <- destination %in%
+      c(names(record$yml$remotes$github), names(.yml_get(NULL)$remotes$github))
+    resolved <- .get_resolve(
+      "github",
+      if (!registered) .gh_repo_get(),
+      if (registered) destination,
+      if (!registered) destination,
+      labels[release],
+      version,
+      workspace,
+      metadata = project
     )
-    assets <- .remote_ls_final_github_httr(repo, destination)
-    if ("manifest.zip" %in% assets) {
-      .remote_manifest_download(
-        repo,
-        destination,
-        store,
-        label = labels[needs_release],
-        version = version
-      )
-    } else if ("manifest.csv" %in% assets) {
-      .remote_file_get_all_github_httr(repo, destination, "manifest.csv", store)
-    }
+    sources <- resolved$sources
+    producer <- resolved$producer
   }
-  tmp <- backup <- rep("", length(labels))
-  installed <- rep(FALSE, length(labels))
-  success <- FALSE
-  on.exit(
-    {
-      for (i in which(nzchar(tmp))) {
-        if (!success && installed[i]) {
-          unlink(paths[i], recursive = TRUE, expand = FALSE)
-        }
-        if (dir.exists(backup[i])) {
-          if (success) {
-            unlink(backup[i], recursive = TRUE, expand = FALSE)
-          } else if (!file.rename(backup[i], paths[i])) {
-            warning("Original files retained in ", backup[i], call. = FALSE)
-          }
-        }
-        unlink(tmp[i], recursive = TRUE, expand = FALSE)
-      }
-    },
-    add = TRUE
-  )
+  producer$hashing <- .yml_settings_hashing()
+  if (any(todo)) {
+    .get_install(
+      sources,
+      labels[todo],
+      version,
+      producer,
+      workspace,
+      clear,
+      workspace,
+      paths = paths[todo],
+      option = "clear"
+    )
+  }
+  # Record snapshots recovered from the release in the checkout's manifest.
   recovered <- list()
-  for (i in which(!complete)) {
-    label <- labels[i]
-    remote <- .restore_build_snapshot(
-      store,
-      file.path(store, "manifest.csv"),
-      label,
+  for (i in which(release & vapply(snapshots, \(x) is.null(x$files), TRUE))) {
+    archive <- sources[[length(sources)]]
+    snapshot <- .restore_build_snapshot(
+      archive$store,
+      archive$csv,
+      labels[i],
       version
     )
-    local <- snapshots[[i]]
+    rows <- snapshot$rows
+    first <- snapshot$versions[1L]
     if (
-      !is.null(local) && !is.null(remote) && !identical(local$id, remote$id)
+      first != version &&
+        is.null(.restore_build_snapshot(
+          project$store,
+          project$csv,
+          labels[i],
+          first
+        ))
     ) {
-      stop(
-        "Project and release disagree about ",
-        label,
-        " at ",
-        version,
-        ".",
-        call. = FALSE
-      )
+      original <- rows
+      original$version <- first
+      rows <- rbind(original, rows)
     }
-    snapshot <- if (!is.null(local$files)) local else remote
-    if (is.null(snapshot$files)) {
-      stop("No snapshot for ", label, " at ", version, ".", call. = FALSE)
-    }
-    if (is.null(local$files)) {
-      recovered[[label]] <- snapshot$rows
-      first <- snapshot$versions[1L]
-      if (
-        first != version &&
-          is.null(.restore_build_snapshot(
-            project_store,
-            project_csv,
-            label,
-            first
-          ))
-      ) {
-        original <- snapshot$rows
-        original$version <- first
-        recovered[[label]] <- rbind(original, snapshot$rows)
-      }
-    }
-    if (dir.exists(paths[i]) && identical(current[[i]], snapshot$files)) {
-      next
-    }
-    if (
-      !clear &&
-        length(current[[i]]) &&
-        !identical(
-          unname(current[[i]]),
-          unname(snapshot$files[names(current[[i]])])
-        )
-    ) {
-      stop(
-        "Local files in ",
-        paths[i],
-        " differ from ",
-        version,
-        ". Use clear = TRUE to replace them.",
-        call. = FALSE
-      )
-    }
-
-    fs::dir_create(dirname(paths[i]))
-    tmp[i] <- tempfile(".projr-restore-", tmpdir = dirname(paths[i]))
-    backup[i] <- tempfile(".projr-original-", tmpdir = dirname(paths[i]))
-    fs::dir_create(tmp[i])
-    if (length(snapshot$files)) {
-      versions <- unique(c(
-        version,
-        snapshot$versions,
-        remote$versions,
-        .restore_matching_versions(store, label, snapshot)
-      ))
-      candidates <- vapply(
-        versions,
-        function(v) {
-          .remote_get_path_rel_github(
-            settings[["path"]],
-            settings[["path-append-label"]] %||% TRUE,
-            label,
-            settings[["structure"]] %||% "archive",
-            v,
-            FALSE
-          )
-        },
-        character(1)
-      )
-      asset <- intersect(candidates, assets)
-      if (!length(asset)) {
-        stop(
-          "No matching archive for ",
-          label,
-          " at ",
-          version,
-          " in release ",
-          destination,
-          ".",
-          call. = FALSE
-        )
-      }
-      .cli_info("Downloading {asset[1L]} from GitHub release {destination}")
-      zip <- .remote_file_get_all_github_httr(
-        repo,
-        destination,
-        asset[1L],
-        workspace
-      )
-      .restore_build_unpack(zip, tmp[i], snapshot$files)
-    }
-  }
-  # All selected inputs have been checked. Rename within each destination's filesystem.
-  for (i in which(nzchar(tmp))) {
-    if (dir.exists(paths[i]) && !file.rename(paths[i], backup[i])) {
-      stop("Could not move existing inputs from ", paths[i], ".", call. = FALSE)
-    }
-    if (!file.rename(tmp[i], paths[i])) {
-      stop("Could not install inputs in ", paths[i], ".", call. = FALSE)
-    }
-    installed[i] <- TRUE
+    recovered[[labels[i]]] <- rows
   }
   if (length(recovered)) {
-    .manifest_store_write(do.call(rbind, recovered), project_store, project_csv)
+    .manifest_store_write(do.call(rbind, recovered), project$store, project$csv)
   }
   if (missing_version) {
     .version_set_file(version)
   }
-  success <- TRUE
-  .cli_success("Verified {paste(labels, collapse = ', ')} for build {version}")
+  if (!any(todo)) {
+    .cli_success(
+      "Verified {paste(labels, collapse = ', ')} for build {version}"
+    )
+  }
   invisible(TRUE)
 }
 

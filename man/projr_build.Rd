@@ -95,9 +95,11 @@ If \code{FALSE}, then no directories are uploaded.
 If a character vector, then only the directories
 specified are uploaded.
 Default is \code{FALSE}.
-Ignored if there is a release named \code{archive}
-already specified as a destination in
-the \code{projr} configuration file.}
+Ignored if a release named \code{archive}
+is already selected under \code{build.dest} in
+the \code{projr} configuration file.
+Otherwise, \code{remotes.github.archive} is registered in \verb{_projr.yml}
+if absent, without adding it to \code{build.dest}.}
 
 \item{archive_local}{\code{TRUE}, \code{FALSE} or character vector of
 directory labels.
@@ -106,7 +108,9 @@ are archived to a local directory.
 If \code{FALSE}, then no directories are archived locally.
 If a character vector, then only the directories
 specified are archived.
-Default is \code{FALSE}.}
+Default is \code{FALSE}.
+When used, \code{remotes.local.archive} (with \verb{path: _archive}) is registered
+in \verb{_projr.yml} if absent, without adding it to \code{build.dest}.}
 
 \item{always_archive}{logical.
 If \code{TRUE}, then the directories are uploaded
@@ -114,8 +118,8 @@ regardless of whether the directory to be uploaded
 has exactly the same contents as the latest version
 of the directory on the GitHub release.
 Default is \code{TRUE}.
-Ignored if there is a release named \code{archive}
-already specified as a destination in
+Ignored if a release named \code{archive}
+is already selected under \code{build.dest} in
 the \code{projr} configuration file.}
 
 \item{clear_output}{character.

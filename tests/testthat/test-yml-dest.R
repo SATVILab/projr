@@ -10,30 +10,56 @@ test_that(".yml_dest_opt_vec returns expected remote types", {
   expect_identical(.yml_dest_opt_vec(), c("local", "github"))
 })
 
-test_that(".yml_dest_set_type and .yml_dest_get_type work", {
+test_that(".yml_dest_get_type returns resolved selections", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
   dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
   usethis::with_project(
     path = dir_test,
     code = {
-      # Set a local destination
-      yml_type <- list(
-        "test-dest" = list(
-          content = "raw-data",
-          path = "_archive"
-        )
+      projr_yml_dest_add_local(
+        title = "test-dest",
+        content = "raw-data",
+        path = "_archive"
       )
-      .yml_dest_set_type(yml_type, "local", "default")
 
-      # Get it back
-      result <- .yml_dest_get_type("local", "default")
+      # The raw file holds only the registry and the selection
+      raw <- .yml_get("default")
+      expect_identical(
+        raw[["remotes"]][["local"]][["test-dest"]][["path"]],
+        "_archive"
+      )
+      expect_identical(
+        raw[["build"]][["dest"]][["test-dest"]][["content"]],
+        "raw-data"
+      )
+      expect_null(raw[["build"]][["local"]])
+
+      # The merged configuration exposes the resolved selection
+      result <- .yml_dest_get_type("local", NULL)
       expect_identical(result[["test-dest"]][["content"]], "raw-data")
-      expect_identical(result[["test-dest"]][["path"]], "_archive")
+      expect_null(.yml_dest_get_type("github", NULL))
 
-      # Test with invalid type
-      expect_error(.yml_dest_set_type(yml_type, "invalid", "default"))
-      expect_error(.yml_dest_get_type("invalid", "default"))
+      expect_error(.yml_dest_get_type("invalid", NULL))
+    }
+  )
+})
+
+test_that("inline archives under build.<type> are rejected", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      yml <- .yml_get("default")
+      yml[["build"]][["local"]] <- list(old = list(path = "_archive"))
+      expect_error(
+        .yml_set(yml, "default"),
+        "build.local is no longer supported"
+      )
+      yaml::write_yaml(yml, "_projr.yml")
+      expect_error(.yml_get(NULL), "build.local is no longer supported")
     }
   )
 })
@@ -118,9 +144,12 @@ test_that(".yml_dest_rm_title removes specific title", {
       .yml_dest_rm_title("archive1", "local", "default")
 
       # Check only archive2 remains
-      yml_type <- .yml_dest_get_type("local", "default")
+      yml_type <- .yml_dest_get_type("local", NULL)
       expect_null(yml_type[["archive1"]])
-      expect_identical(yml_type[["archive2"]][["path"]], "_archive2")
+      expect_identical(yml_type[["archive2"]][["content"]], "raw-data")
+      raw <- .yml_get("default")
+      expect_identical(names(raw[["remotes"]][["local"]]), "archive2")
+      expect_identical(names(raw[["build"]][["dest"]]), "archive2")
     }
   )
 })
@@ -147,8 +176,12 @@ test_that(".yml_dest_rm_type removes entire type", {
       .yml_dest_rm_type("local", "default")
 
       # Check local is gone but github remains
-      expect_null(.yml_dest_get_type("local", "default"))
-      expect_true(!is.null(.yml_dest_get_type("github", "default")))
+      expect_null(.yml_dest_get_type("local", NULL))
+      expect_false(is.null(.yml_dest_get_type("github", NULL)))
+      expect_identical(
+        names(.yml_get("default")[["build"]][["dest"]]),
+        "release"
+      )
     }
   )
 })
@@ -175,42 +208,8 @@ test_that(".yml_dest_rm_type_all removes all destination types", {
       .yml_dest_rm_type_all("default")
 
       # Check all are gone
-      expect_null(.yml_dest_get_type("local", "default"))
-      expect_null(.yml_dest_get_type("github", "default"))
-    }
-  )
-})
-
-test_that(".yml_dest_used_get returns currently used types", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      .yml_dest_rm_type_all("default")
-
-      # No destinations
-      expect_length(.yml_dest_used_get("default"), 0)
-
-      # Add local
-      projr_yml_dest_add_local(
-        title = "archive",
-        content = "output",
-        path = "_archive"
-      )
-      used <- .yml_dest_used_get("default")
-      expect_true("local" %in% used)
-      expect_false("github" %in% used)
-
-      # Add github
-      projr_yml_dest_add_github(
-        title = "release",
-        content = "output"
-      )
-      used <- .yml_dest_used_get("default")
-      expect_true("local" %in% used)
-      expect_true("github" %in% used)
+      expect_null(.yml_dest_get_type("local", NULL))
+      expect_null(.yml_dest_get_type("github", NULL))
     }
   )
 })
@@ -466,7 +465,7 @@ test_that(".yml_dest_set_send_cue updates cue", {
       .yml_dest_set_send_cue("always", "archive", "local", "default")
 
       yml_title <- .yml_dest_get_title("archive", "local", "default")
-      expect_identical(yml_title[["cue"]], "always")
+      expect_identical(yml_title[["send"]][["cue"]], "always")
 
       # Invalid cue should error
       expect_error(
@@ -616,6 +615,126 @@ test_that(".yml_dest_add works through the full pipeline", {
       expect_identical(yml_title[["structure"]], "archive")
       expect_identical(yml_title[["send"]][["cue"]], "always")
       expect_identical(yml_title[["send"]][["strategy"]], "sync-diff")
+    }
+  )
+})
+
+# =============================================================================
+# remotes registry and build.dest round trips
+# =============================================================================
+
+test_that("adding then removing a destination leaves no empty remotes or build.dest", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      before <- .yml_get("default")
+      projr_yml_dest_add_local(
+        title = "backup",
+        content = "raw-data",
+        path = "_archive",
+        send_cue = "always"
+      )
+      raw <- .yml_get("default")
+      expect_identical(
+        raw[["remotes"]][["local"]][["backup"]],
+        list(path = "_archive", send = list(cue = "always"))
+      )
+      expect_identical(
+        raw[["build"]][["dest"]],
+        list(backup = list(content = "raw-data"))
+      )
+
+      .yml_dest_rm_title("backup", "local", "default")
+      after <- .yml_get("default")
+      expect_false("remotes" %in% names(after))
+      expect_false("dest" %in% names(after[["build"]]))
+      expect_identical(after, before)
+
+      projr_yml_dest_add_github(title = "release", content = "output")
+      .yml_dest_rm_type_all("default")
+      expect_identical(.yml_get("default"), before)
+    }
+  )
+})
+
+test_that("a title registered under both types is selected as <type>:<title>", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      projr_yml_dest_add_local(
+        title = "archive",
+        content = "output",
+        path = "_archive"
+      )
+      projr_yml_dest_add_github(title = "archive", content = "raw-data")
+
+      # The bare local selection would now be ambiguous, so both are qualified
+      dest <- .yml_get("default")[["build"]][["dest"]]
+      expect_setequal(names(dest), c("local:archive", "github:archive"))
+      expect_identical(dest[["local:archive"]][["content"]], "output")
+      expect_identical(dest[["github:archive"]][["content"]], "raw-data")
+
+      merged <- .yml_get(NULL)[["build"]]
+      expect_identical(merged[["local"]][["archive"]][["content"]], "output")
+      expect_identical(merged[["github"]][["archive"]][["content"]], "raw-data")
+      expect_identical(
+        .yml_dest_get_title("archive", "github", "default")[["content"]],
+        "raw-data"
+      )
+
+      # Removing the GitHub remote drops only its qualified selection
+      .yml_dest_rm_title("archive", "github", "default")
+      raw <- .yml_get("default")
+      expect_identical(names(raw[["build"]][["dest"]]), "local:archive")
+      expect_null(raw[["remotes"]][["github"]])
+      expect_identical(names(raw[["remotes"]][["local"]]), "archive")
+    }
+  )
+})
+
+test_that("overwriting or updating a destination keeps one selection", {
+  skip_if(.is_test_cran())
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = TRUE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      projr_yml_dest_add_local(
+        title = "archive",
+        content = "output",
+        path = "_archive"
+      )
+      .yml_dest_set_send_strategy("upload-all", "archive", "local", "default")
+      .yml_dest_set_send_cue("always", "archive", "local", "default")
+
+      raw <- .yml_get("default")
+      expect_identical(
+        raw[["remotes"]][["local"]][["archive"]],
+        list(
+          path = "_archive",
+          send = list(strategy = "upload-all", cue = "always")
+        )
+      )
+      expect_identical(
+        raw[["build"]][["dest"]],
+        list(archive = list(content = "output"))
+      )
+
+      # Overwriting without content selects every eligible label
+      .yml_dest_set_title(list(path = "_new"), "archive", "local", TRUE, NULL)
+      raw <- .yml_get("default")
+      expect_identical(
+        raw[["remotes"]][["local"]][["archive"]][["path"]],
+        "_new"
+      )
+      expect_length(raw[["build"]][["dest"]][["archive"]], 0L)
+      expect_null(.yml_dest_get_title("archive", "local", NULL)[["content"]])
     }
   )
 })

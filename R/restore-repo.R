@@ -11,14 +11,14 @@ projr_restore_repo <- function(
 ) {
   .assert_string(repo, TRUE)
   .assert_string(path)
-  .assert_restore_filters(label, pos, type, title, destination)
+  .assert_chr(label)
+  remote <- .restore_remote(type, title, destination)
 
-  .title <- title
   result <- tryCatch(
     {
       path <- path %||% basename(repo)
       .git_clone(repo, path)
-      .restore_repo_labels(path, label, pos, type, .title, destination)
+      .restore_repo_labels(path, label, remote)
     },
     error = function(e) {
       .cli_info("Error in projr_restore_repo: {e$message}")
@@ -49,18 +49,9 @@ projr_restore_repo_wd <- function(
   )
 }
 
-.restore_repo_labels <- function(
-  path,
-  label,
-  pos,
-  type,
-  .title,
-  destination = NULL
-) {
-  if (!is.null(path)) {
-    orig_wd <- getwd()
-    on.exit(setwd(orig_wd), add = TRUE)
-    setwd(path)
-  }
-  projr_content_update(label, pos, type, .title, destination = destination)
+.restore_repo_labels <- function(path, label, remote) {
+  orig_wd <- getwd()
+  on.exit(setwd(orig_wd), add = TRUE)
+  setwd(path)
+  projr_source(label, remote, cue = "always", conflict = "error")
 }

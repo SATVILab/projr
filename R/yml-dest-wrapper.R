@@ -5,11 +5,13 @@
 #' @title Add a local directory as a destination
 #'
 #' @description
-#' Add a local directory as a destination
-#' to a _projr.yml file.
+#' Register a local directory as an archive and select it for production
+#' builds. The address and transfer settings are written under
+#' `remotes.local.<title>`, and the selection, with its `content`, under
+#' `build.dest`.
 #'
 #' @param title character.
-#' Required name for this local destination in `_projr.yml`.
+#' Required name for this local archive under `remotes.local`.
 #' Supply this name as `title` when selecting the configuration for a restore.
 #' @param content character vector.
 #' Labels of directories to include in the upload.
@@ -28,7 +30,7 @@
 #' a directory for each version.
 #' If not supplied, will be `archive`.
 #' @param overwrite logical.
-#' Whether to rewrite an existing entry of the same
+#' Whether to rewrite an existing archive of the same
 #' title in the specified `projr` configuration file.
 #' Default is TRUE.
 #' @param send_cue "always" or "if-change".
@@ -91,10 +93,12 @@ projr_yml_dest_add_local <- function(
 #' @title Add a GitHub release as a destination
 #'
 #' @description
-#' Add a GitHub release as a destination
-#' to a _projr.yml file.
+#' Register a GitHub release as an archive and select it for production
+#' builds. The release settings are written under `remotes.github.<title>`,
+#' and the selection, with its `content`, under `build.dest`.
 #'
-#' @param title character. GitHub release tag. The tag can contain
+#' @param title character. Name of the archive under `remotes.github`, also
+#'   used as the GitHub release tag and title. It can contain
 #'   `@branch`, `@version`, and `@uuid`.
 #' @param branch character or NULL. GitHub branch whose current commit a new
 #'   release should target. Use `@branch` for the current checkout branch.

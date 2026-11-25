@@ -111,6 +111,15 @@ projr_yml_check <- function(profile = NULL) {
 
 .yml_dir_check_label <- function(label, profile) {
   yml_label <- .yml_dir_get_label(label, profile)
+  if ("source" %in% names(yml_label)) {
+    stop(
+      "directories.",
+      label,
+      ".source is no longer supported. Register the remote under remotes ",
+      "and select it with build.source.",
+      call. = FALSE
+    )
+  }
   .assert_in(
     names(yml_label),
     c(
@@ -121,7 +130,6 @@ projr_yml_check <- function(profile = NULL) {
       "ignore-even-if-inactive",
       "output",
       "include",
-      "source",
       "license",
       "hash",
       "package"
@@ -226,6 +234,7 @@ projr_yml_check <- function(profile = NULL) {
   .yml_build_check_git(profile)
   .yml_build_check_renv(profile)
   .yml_build_check_dest(profile)
+  .yml_build_check_source(profile)
 }
 
 # build: label
@@ -248,7 +257,9 @@ projr_yml_check <- function(profile = NULL) {
       "local",
       "cite",
       "restrictions",
-      "renv"
+      "renv",
+      "dest",
+      "source"
     )
   )
   .assert_flag(.yml_build_get_dev_output(profile))
@@ -287,6 +298,10 @@ projr_yml_check <- function(profile = NULL) {
 
 .yml_build_check_dest <- function(profile) {
   yml <- .yml_get(profile)
+  if (!is.null(profile)) {
+    # A single profile's file is read unresolved.
+    .yml_build_legacy_stop(yml[["build"]])
+  }
   registry <- yml[["remotes"]]
   .yml_check_remote_mapping(registry, "remotes", .opt_remote_get_type())
   for (type in .opt_remote_get_type()) {
@@ -296,11 +311,27 @@ projr_yml_check <- function(profile = NULL) {
     .yml_check_remote_mapping(selectors, paste0("build.", type))
     for (title in names(definitions)) {
       key <- paste("remotes", type, title, sep = ".")
+      if (title %in% .opt_remote_reserved_titles()) {
+        stop(
+          key,
+          ": ",
+          title,
+          " is a reserved option name. Rename the remote.",
+          call. = FALSE
+        )
+      }
       settings <- definitions[[title]]
+      if ("source" %in% names(settings)) {
+        stop(
+          key,
+          ".source is no longer supported. Select sources with build.source.",
+          call. = FALSE
+        )
+      }
       fields <- c(
         "structure",
-        "source",
         "send",
+        "get",
         "path-append-label",
         if (type == "local") c("path", "ignore") else c("repo", "tag", "branch")
       )
@@ -324,58 +355,99 @@ projr_yml_check <- function(profile = NULL) {
         paste0(key, ".send"),
         c("cue", "inspect", "strategy")
       )
+      .yml_check_remote_mapping(
+        settings[["get"]],
+        paste0(key, ".get"),
+        names(.opt_remote_fetch_get())
+      )
+      .yml_check_remote_fetch(settings[["get"]], paste0(key, ".get"))
       .yml_build_check_dest_title(settings, title, type, registered = TRUE)
     }
+    # build.dest has been expanded into registered selections here.
     for (title in names(selectors)) {
       selection <- selectors[[title]]
-      key <- paste("build", type, title, sep = ".")
-      if (title %in% names(definitions)) {
-        .yml_check_remote_mapping(
-          selection,
-          paste0(
-            key,
-            " (put remote settings under remotes.",
-            type,
-            ".",
-            title,
-            ")"
-          ),
-          "content"
-        )
-        if ("content" %in% names(selection)) {
-          content <- selection[["content"]]
-          if (is.null(content)) {
-            stop(
-              key,
-              ".content must list the labels to publish.",
-              call. = FALSE
-            )
-          }
-          if (length(content)) {
-            .assert_in(
-              content,
-              .opt_dir_get_label_send(profile, type),
-              TRUE,
-              nm = paste0(key, ".content")
-            )
-          }
+      key <- paste0("build.dest.", title)
+      .yml_check_remote_mapping(
+        selection,
+        paste0(
+          key,
+          " (put remote settings under remotes.",
+          type,
+          ".",
+          title,
+          ")"
+        ),
+        c("content", .opt_build_send_names())
+      )
+      .assert_in_single(
+        selection[["cue"]],
+        .opt_cue_get(),
+        nm = paste0(key, ".cue")
+      )
+      .assert_in_single(
+        selection[["inspect"]],
+        .opt_remote_inspect_get(),
+        nm = paste0(key, ".inspect")
+      )
+      .assert_in_single(
+        selection[["strategy"]],
+        .opt_remote_strategy_get(),
+        nm = paste0(key, ".strategy")
+      )
+      if ("content" %in% names(selection)) {
+        content <- selection[["content"]]
+        if (is.null(content)) {
+          stop(key, ".content must list the labels to publish.", call. = FALSE)
         }
-      } else {
-        .yml_check_remote_mapping(selection, key)
-        if (length(selection)) {
-          .yml_build_check_dest_title(selection, title, type)
-        } else if (type == "local") {
-          stop(
-            "Define remotes.local.",
-            title,
-            ".path before selecting ",
-            key,
-            ".",
-            call. = FALSE
+        if (length(content)) {
+          .assert_in(
+            content,
+            .opt_dir_get_label_send(profile, type),
+            TRUE,
+            nm = paste0(key, ".content")
           )
         }
       }
     }
+  }
+}
+
+.yml_build_check_source <- function(profile) {
+  yml <- .yml_get(profile)
+  sources <- .yml_build_source_get(profile)
+  labels <- names(yml[["directories"]])
+  for (ref in names(sources)) {
+    remote <- sources[[ref]]
+    key <- paste0("build.source.", ref)
+    .yml_check_remote_fetch(remote, key)
+    if (length(remote[["content"]])) {
+      .assert_in(
+        remote[["content"]],
+        labels[.yml_dir_label_class_detect_raw(labels)],
+        nm = paste0(key, ".content")
+      )
+    }
+  }
+  invisible(TRUE)
+}
+
+.yml_check_remote_fetch <- function(settings, key) {
+  fetch <- .opt_remote_fetch_get()
+  version <- settings[["version"]]
+  .assert_string(version, nm = paste0(key, ".version"))
+  if (
+    !is.null(version) &&
+      !version %in% fetch[["version"]] &&
+      !grepl("^[0-9]+(\\.[0-9]+){0,2}$", version)
+  ) {
+    stop(
+      key,
+      ".version must be latest or an x, x.y or x.y.z version.",
+      call. = FALSE
+    )
+  }
+  for (nm in setdiff(names(fetch), "version")) {
+    .assert_in_single(settings[[nm]], fetch[[nm]], nm = paste0(key, ".", nm))
   }
 }
 
@@ -416,7 +488,8 @@ projr_yml_check <- function(profile = NULL) {
   .assert_string(yml_title[["path"]], type == "local")
   .assert_flag(yml_title[["path-append-label"]])
   .assert_nchar(yml_title[["id"]], 5L)
-  if ("get" %in% names(yml_title)) {
+  # Inline destinations keep their historical, unused `get` settings readable.
+  if (!registered && "get" %in% names(yml_title)) {
     get_list <- yml_title[["get"]]
     .assert_in(names(get_list), c("strategy", "conflict"))
     .assert_in(
@@ -443,18 +516,6 @@ projr_yml_check <- function(profile = NULL) {
       send_list[["inspect"]],
       .opt_remote_inspect_get()
     )
-  }
-  if ("source" %in% names(yml_title)) {
-    source_elem <- yml_title[["source"]]
-    if (!isTRUE(source_elem) && !isFALSE(source_elem)) {
-      .assert_chr(source_elem)
-      for (i in seq_along(source_elem)) {
-        .assert_in(
-          source_elem[[i]],
-          .opt_dir_get_label_send(NULL)
-        )
-      }
-    }
   }
   invisible(TRUE)
 }

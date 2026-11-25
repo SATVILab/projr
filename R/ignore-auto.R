@@ -125,7 +125,8 @@ projr_ignore_auto <- function() {
 .ignore_project_state <- function() {
   .ignore_auto_file_git(c(
     "/.projr/manifests/.versions.lock",
-    "/.projr/logs/**"
+    "/.projr/logs/**",
+    "/.projr/source/**"
   ))
   if (file.exists(.path_get("DESCRIPTION"))) .ignore_auto_dir_rbuild(".projr")
 }

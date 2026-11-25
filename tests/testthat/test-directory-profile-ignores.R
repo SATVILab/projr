@@ -305,7 +305,10 @@ test_that("templated directories and destinations cover parallel builds from the
         cache = list(path = "cache-@branch"),
         "raw-literal" = list(path = "@branching")
       ),
-      build = list(local = list(archive = list(path = "out+put/export-@uuid")))
+      remotes = list(
+        local = list(archive = list(path = "out+put/export-@uuid"))
+      ),
+      build = list(dest = "archive")
     ))
     .yml_set(
       list(directories = list("raw-data" = list(path = "local/lab"))),
@@ -355,7 +358,7 @@ test_that("templated directories and destinations cover parallel builds from the
     # The same generated path can belong to an archive and a directory.
     # Moving the directory on a manual refresh must keep the archive rule.
     settings <- projr_yml_get("default")
-    settings$directories$output$path <- settings$build$local$archive$path
+    settings$directories$output$path <- settings$remotes$local$archive$path
     .yml_set(settings)
     projr_ignore_auto()
     settings$directories$output$path <- "new-results"

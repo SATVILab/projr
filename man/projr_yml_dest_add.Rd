@@ -18,7 +18,7 @@ projr_yml_dest_add_local(
 }
 \arguments{
 \item{title}{character.
-Required name for this local destination in \verb{_projr.yml}.
+Required name for this local archive under \code{remotes.local}.
 Supply this name as \code{title} when selecting the configuration for a restore.}
 
 \item{content}{character vector.
@@ -41,7 +41,7 @@ a directory for each version.
 If not supplied, will be \code{archive}.}
 
 \item{overwrite}{logical.
-Whether to rewrite an existing entry of the same
+Whether to rewrite an existing archive of the same
 title in the specified \code{projr} configuration file.
 Default is TRUE.}
 
@@ -63,6 +63,8 @@ otherwise written to \verb{_projr-<profile>.yml}.
 The default is "default".}
 }
 \description{
-Add a local directory as a destination
-to a _projr.yml file.
+Register a local directory as an archive and select it for production
+builds. The address and transfer settings are written under
+\verb{remotes.local.<title>}, and the selection, with its \code{content}, under
+\code{build.dest}.
 }

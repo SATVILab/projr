@@ -255,7 +255,7 @@ test_that("archive restrictions validate before writing and preserve profile sel
           "build:",
           "  restrictions:",
           "    not_behind: false",
-          "    not_behind_remote: {github: [reports], local: [backup]}",
+          "    not_behind_remote: [github:reports, backup]",
           "    rule: target"
         ),
         "_projr.yml"
@@ -267,12 +267,12 @@ test_that("archive restrictions validate before writing and preserve profile sel
       )
       expect_identical(
         .yml_restrictions_get_not_behind_remote(NULL),
-        list(github = "reports", local = "backup")
+        c("github:reports", "backup")
       )
 
       projr_yml_restrictions_set(
         not_behind_git = TRUE,
-        not_behind_remote = list(local = c("mirror", "store")),
+        not_behind_remote = c("mirror", "local:store"),
         rule = "base",
         profile = "analysis"
       )
@@ -283,7 +283,7 @@ test_that("archive restrictions validate before writing and preserve profile sel
       )
       expect_identical(
         .yml_restrictions_get_not_behind_remote(NULL),
-        list(local = c("mirror", "store"))
+        c("mirror", "local:store")
       )
       writeLines(
         "build: {restrictions: {not_behind: false}}",
@@ -303,13 +303,13 @@ test_that("archive restrictions validate before writing and preserve profile sel
       )
       expect_error(
         projr_yml_restrictions_set(not_behind_remote = list(osf = "reports")),
-        "osf"
+        "<type>:<title>"
       )
       expect_error(
         projr_yml_restrictions_set(
-          not_behind_remote = list(github = list(reports = "base"))
+          not_behind_remote = list(list("reports"))
         ),
-        "archive titles"
+        "not_behind_remote"
       )
       expect_identical(readLines("_projr.yml"), previous)
 

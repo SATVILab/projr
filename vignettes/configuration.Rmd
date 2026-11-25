@@ -109,7 +109,6 @@ store their own files there can still build and look up those paths.
 | `include` | On an output label, list declared raw, docs or output labels to copy under their label names. An empty list requests no includes. |
 | `output` | Older source-side form. Use an output label or list to copy into those outputs, `true` for all other outputs, or `false` to skip. |
 | `package` | On an output label, `true` also builds the R source package and copies it under `pkg/`. |
-| `source` | Preferred restore configuration by remote type. For example, `source: {local: shared}` selects a named local destination called `shared`. |
 | `license` | A license identifier such as `CC-BY`, or a mapping containing `type`, `authors` and `year`. See `vignette("directory-licenses")`. |
 | `ignore` | Controls both Git and R build rules. Defaults to false for package datasets (`data`) and true for other declared directories, including `raw-data`. Accepts YAML booleans, `ignore`, `no-ignore`, or `manual`. |
 | `ignore-git`, `ignore-rbuild` | Set either type separately. When `ignore` is also supplied, the choices must agree. |
@@ -270,7 +269,8 @@ build:
 ```
 
 If the same title appears under both `remotes.github` and `remotes.local`,
-qualify it by type, for example `not_behind_remote: {github: [reports]}`.
+write it as `<type>:<title>`, for example
+`not_behind_remote: [github:reports]`.
 Set `not_behind_remote: false` to skip archive checks. Git upstream checks
 have their own `not_behind_git` setting. Development builds skip both checks.
 
@@ -316,9 +316,10 @@ see [restoring an earlier build](restore-artifacts.html#when-builds-share-the-sa
 ## Saving artifacts
 
 Use `remotes` to give an archive a name and record where it lives. Use
-`build` to select which archives a production build writes to. This example
-keeps a complete local archive called `shared` and sends just the figures to
-a GitHub repository. The project declares `output-figures` under `directories`.
+`build.dest` to select which archives a production build writes to. This
+example keeps a complete local archive called `shared` and sends just the
+figures to a GitHub repository. The project declares `output-figures` under
+`directories`.
 
 ```yaml
 remotes:
@@ -335,29 +336,31 @@ remotes:
         inspect: manifest
         strategy: sync-diff
 build:
-  local:
-    shared: {}
-  github:
+  dest:
+    shared:
     reports:
       content: [output-figures]
 ```
 
-For a name declared under `remotes`, the matching entry under `build`
-has three forms.
+`build.dest` takes one of three forms.
 
-| Entry under `build.github` or `build.local` | What a production build sends |
+| `build.dest` | What a production build sends |
 |---|---|
-| Omit the name | Nothing to this archive. Its saved files remain available to readers. |
-| `reports: {}` or a bare `reports:` | All declared raw, output and docs labels. Cache is included only when explicitly selected. |
-| `reports: {content: [output-figures]}` | Only the listed labels. |
+| `dest: shared` | All declared raw, output and docs labels to one archive. Cache is included only when explicitly selected. |
+| `dest: [shared, reports]` | All of those labels to each listed archive. |
+| A mapping | Each key is an archive name or a setting. A setting (`content`, `cue`, `inspect` or `strategy`) applies to every listed archive. Settings under an archive's name apply to that archive only. |
 
-Put the address, layout and transfer settings under `remotes` and only
-`content` in the matching build entry. Readers can ask for any label
-actually saved for a build, even after its publishing selection changes.
-Existing configurations that define a destination entirely under `build`
-still work. To move an existing `build.github.archive` to the named layout,
-move its address, `structure` and `send` settings to `remotes.github.archive`.
-Leave its `content` selection under `build.github.archive`.
+A per-archive setting takes precedence over a setting for the whole of
+`build.dest`, which takes precedence over `remotes.<type>.<title>.send`.
+An archive left out of `build.dest` receives nothing, but its saved files
+remain available to readers. Readers can ask for any label actually saved
+for a build, even after its publishing selection changes. A profile's
+`build.dest` replaces the default selection, so `dest: []` in a profile
+turns uploads off.
+
+Name an archive by its title when no other type uses that title, or as
+`<type>:<title>`, for example `github:reports`. The words `content`, `cue`,
+`inspect`, `strategy`, `conflict` and `version` cannot be archive titles.
 
 For GitHub, `repo` defaults to the repository that produced the build.
 The name under `remotes.github` supplies the release tag and title unless
@@ -367,7 +370,7 @@ repository. `repo: research-team/study-results` sends the files to a
 separate repository. A release such as `figures-main` can hold files from
 several project versions.
 
-| Destination field | Values and effect |
+| Field under `remotes.<type>.<title>` | Values and effect |
 |---|---|
 | `path` | Local archive path, relative to the project root or absolute. |
 | `repo` | GitHub repository in `owner/repo` form. Defaults to the repository where the analysis is built. |
@@ -378,15 +381,13 @@ several project versions.
 | `send.cue` | `if-change` (default) or `always`. |
 | `send.inspect` | `manifest` (default) compares recorded hashes, `file` inspects the files themselves, and `none` treats the destination as empty for comparison. |
 | `send.strategy` | `sync-diff` sends changes and removes obsolete files. `sync-purge` replaces the remote contents, `upload-all` sends every local file, and `upload-missing` sends only absent names. Defaults to `sync-diff`, or `upload-all` with `inspect: none`. |
-| `source` | Set true to prefer this destination for restores, false to skip it, or list the labels for which it is preferred. |
-
-In an older inline `build.github` entry, `title` can also supply the release
-name. Under `remotes.github`, the mapping key names the destination and `tag`
-sets the release name.
 
 For a one-off production archive, pass labels to `archive_local` or
 `archive_github`. `TRUE` chooses the available archive labels. `always_archive`
 controls whether those one-off archives are sent even when unchanged.
+The first one-off archive also registers `remotes.github.archive: {}` or
+`remotes.local.archive: {path: _archive}` in `_projr.yml`, so projr knows
+where the files went. It does not add the archive to `build.dest`.
 
 ### Naming a destination for a branch or build
 
@@ -429,28 +430,101 @@ development commit. Supply `version = "1.2.3"` for a specific build or
 paths and MD5s before installing any downloads. Local changes and extra files
 stop the restore unless you explicitly allow replacement with `clear = TRUE`.
 
-In a checkout with manifest history, run `projr_content_update()` to restore
-the raw labels. Supply `label` to restore other directories. Projr first
-considers a directory's configured `source` and then eligible build
-destinations. Use `pos = "source"` or `"dest"` to limit the search, `type` to
-select local or GitHub, and `title` to select the configuration entry.
-Within the selected destination, restore chooses its latest available version
-for the label. `clear = TRUE` can remove existing local files, including when
-the archive records an empty version.
+Run `projr_source()` to fetch the raw labels from their latest builds on the
+remotes registered under `remotes`. Supply `label` to fetch other directories
+and `remote` (a title, or `<type>:<title>`) to choose the remote. Without
+`remote`, projr uses `build.source`, or else the single registered remote that
+published each label. `conflict = "remote"` replaces local changes, including
+when the archive records an empty version. `projr_content_update()` is
+deprecated and now calls `projr_source()`.
 
 If a destination contained `@uuid`, find its concrete path or release tag in
 the **Resolved archive destinations** section of that build's `.projr/BUILDLOG.md`.
 In an older checkout, projr can read a root `BUILDLOG.md`. The next build
 or restore moves that history into `.projr/`. The changelog stays at the root.
-Pass it back as `destination` to restore from the same place later.
 
 ```r
-projr::projr_content_update(
-  label = "output-delivery", pos = "dest", type = "local", title = "shared",
-  destination = "../team-archives/study"
-)
+projr::projr_source(label = "output-delivery", remote = "local:shared")
 ```
 
-`projr_restore_repo("owner/repo")` clones a repository and restores its
-artifacts. Use `projr_restore_repo_wd("owner/repo")` to clone into the current
-directory. Both accept the same label, source and destination selectors.
+`projr_restore_repo("owner/repo")` clones a repository and fetches its
+directories with `projr_source()`. Use `projr_restore_repo_wd("owner/repo")`
+to clone into the current directory. Both accept `label`, and `type` and
+`title` to name the remote.
+
+## Fetching raw inputs
+
+Use `build.source` to fetch raw inputs from registered remotes before a
+build runs. It takes the same three forms as `build.dest`. By default each
+listed remote supplies every declared raw label. This example takes the
+latest survey files from a colleague's GitHub release and pins the codebook
+to their build 0.6.3 in a local archive.
+
+```yaml
+remotes:
+  github:
+    survey-team:
+      repo: example/survey
+      tag: archive
+      get:
+        cue: if-change
+  local:
+    shared:
+      path: ../team-archives/survey
+
+directories:
+  raw-survey:
+    path: _raw_data/survey
+  raw-codebook:
+    path: _raw_data/codebook
+
+build:
+  source:
+    survey-team:
+      content: [raw-survey]
+    local:shared:
+      content: [raw-codebook]
+      version: "0.6.3"
+```
+
+Set defaults under `remotes.<type>.<title>.get`. A setting under
+`build.source` applies to every listed remote, and a setting under a
+remote's name applies to that remote only.
+
+| `get` setting | Values and effect |
+|---|---|
+| `version` | `latest` (default), `x` for the latest build within major version `x`, `x.y` for the latest within that minor version, or an exact `x.y.z`. |
+| `cue` | `if-empty` (default in builds) fetches only into empty folders, without contacting the remote. `if-change` fetches when the remote's snapshot differs. `always` fetches every time. `never` skips the remote. |
+| `inspect` | `manifest` (default) trusts the remote's recorded hashes. `file` downloads and hashes the files. `none` skips the comparison. |
+| `strategy` | `sync-diff` (default) and `sync-purge` mirror the remote and remove local files it lacks. `download-all` never deletes. `download-missing` never overwrites. |
+| `conflict` | `error` (default) stops the build. `local` keeps local edits and `remote` replaces them. |
+
+Before any hook or script runs, the build plans every fetch, downloading
+only into a temporary staging folder. It stops on a conflict before changing
+any files, then installs the verified files before hashing raw inputs. A
+pinned version that is already in place needs no network access.
+
+A conflict is a local file edited since the last fetch that the fetch would
+overwrite or delete. Fetch records are kept in the Git-ignored
+`.projr/source/<label>.json` and stay on that machine. A fresh clone has no
+record, so local files that differ from the remote count as conflicts until
+resolved. A `LICENSE` that projr writes into a licensed raw folder is not a
+local change. Production builds record each label's remote, version and
+snapshot under **Raw-input sources** in `.projr/BUILDLOG.md`, and the
+console reports each update.
+
+`directories.<label>.source` and a `source` field under `remotes` are no
+longer supported. Use `build.source` instead.
+
+Run `projr_source()` to fetch outside a build or to resolve a conflict. Its
+arguments (`label`, `remote`, `version`, `cue`, `strategy`, `inspect` and
+`conflict`) override the configuration, and `cue` defaults to `if-change`.
+In an interactive session, a conflict asks whether to keep the local files,
+replace them or cancel. Otherwise `conflict` decides. If two registered
+remotes publish the same label and `build.source` does not choose one,
+name it with `remote`. `version = "current"` restores this checkout's
+recorded build, as `projr_restore()` does.
+
+```r
+projr::projr_source(label = "raw-survey", conflict = "remote")
+```

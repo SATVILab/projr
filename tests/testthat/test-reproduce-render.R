@@ -17,7 +17,7 @@ test_that("replay renders production scripts between its hooks using empty outpu
         "build:",
         "  scripts: fail.R",
         "  hooks: {pre: pre.R, post: post.R}",
-        "  local: {shared: {}}",
+        "  dest: shared",
         "dev: {scripts: fail.R}",
         "remotes: {local: {shared: {path: elsewhere}}}"
       )

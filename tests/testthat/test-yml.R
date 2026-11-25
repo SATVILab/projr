@@ -81,19 +81,26 @@ test_that("projr_yml_dest_add_* functions work", {
   usethis::with_project(
     path = dir_test,
     code = {
-      .test_yml_unset_remote()
+      .yml_dest_rm_type_all("default")
       projr_yml_dest_add_local(
         title = "test",
         content = "raw-data",
         path = "_archive"
       )
-      expect_true(!is.null(.yml_dest_get_type("local", "default")))
+      expect_false(is.null(.yml_dest_get_type("local", NULL)))
+      expect_identical(
+        .yml_get("default")[["remotes"]][["local"]][["test"]][["path"]],
+        "_archive"
+      )
 
       projr_yml_dest_add_github(
-        title = "test",
+        title = "release",
         content = "raw-data"
       )
-      expect_true(!is.null(.yml_dest_get_type("github", "default")))
+      expect_false(is.null(.yml_dest_get_type("github", NULL)))
+      expect_true(
+        "release" %in% names(.yml_get("default")[["remotes"]][["github"]])
+      )
     }
   )
 })
@@ -252,7 +259,14 @@ test_that(".yml_get_default filters top-level keys", {
       expect_true(is.list(yml_default))
 
       # Should only contain allowed top-level keys
-      allowed_keys <- c("directories", "build", "dev", "metadata")
+      allowed_keys <- c(
+        "directories",
+        "remotes",
+        "build",
+        "dev",
+        "settings",
+        "metadata"
+      )
       expect_true(all(names(yml_default) %in% allowed_keys))
     }
   )

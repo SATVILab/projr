@@ -51,7 +51,7 @@ test_that("CRAN workflow: init -> build -> send to local -> restore", {
       )
 
       # Verify remote configuration
-      dest_config <- .yml_dest_get_type("local", "default")
+      dest_config <- .yml_dest_get_type("local", NULL)
       expect_true("cran-test-remote" %in% names(dest_config))
 
       # ===== Phase 4: Build project and send to remote =====
@@ -72,7 +72,7 @@ test_that("CRAN workflow: init -> build -> send to local -> restore", {
       expect_false(file.exists(file.path(raw_data_dir, "data1.txt")))
 
       # Restore from remote
-      result <- projr_content_update(label = "raw-data", type = "local")
+      result <- projr_source("raw-data", "local:cran-test-remote")
       expect_true(result)
 
       # Verify files were restored
@@ -198,7 +198,7 @@ test_that("CRAN workflow: multiple content types to local remote", {
 
       # Clear and restore raw-data
       file.remove(file.path(raw_data_dir, "raw.txt"))
-      result <- projr_content_update(label = "raw-data", type = "local")
+      result <- projr_source("raw-data", "local:raw-archive")
       expect_true(result)
       expect_true(file.exists(file.path(raw_data_dir, "raw.txt")))
 

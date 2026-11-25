@@ -7,7 +7,7 @@
 # Tests focus on:
 # - Parameter validation for all inputs
 # - Error handling for invalid inputs
-# - Integration with .git_clone() and projr_content_update()
+# - Integration with .git_clone() and projr_source()
 # - Edge cases and failure scenarios
 
 # =============================================================================
@@ -89,35 +89,6 @@ test_that("projr_restore_repo validates label parameter correctly", {
   )
 })
 
-test_that("projr_restore_repo validates pos parameter correctly", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  # Non-character pos
-  expect_error(
-    projr_restore_repo(repo = "test/repo", pos = 123),
-    "pos must be a non-empty character vector"
-  )
-
-  # Empty vector
-  expect_error(
-    projr_restore_repo(repo = "test/repo", pos = character(0)),
-    "pos must be a non-empty character vector"
-  )
-
-  # Invalid value
-  expect_error(
-    projr_restore_repo(repo = "test/repo", pos = "invalid"),
-    "pos must be one of source, dest"
-  )
-
-  # Multiple invalid values
-  expect_error(
-    projr_restore_repo(repo = "test/repo", pos = c("source", "invalid")),
-    "pos must be one of source, dest.*invalid"
-  )
-})
-
 test_that("projr_restore_repo validates type parameter correctly", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
@@ -176,24 +147,24 @@ test_that("repo restoration clones into the requested path and forwards selectio
   remote <- .test_setup_project()
   parent <- withr::local_tempdir()
   expect_error(projr_restore_repo_wd(NULL), "repo must be given")
+  expect_error(
+    projr_restore_repo("fixture/project", destination = "bundles"),
+    "no longer supported"
+  )
+  expect_error(
+    projr_restore_repo("fixture/project", type = "github"),
+    "Name one with `title`"
+  )
   labels <- c("raw-data", "output")
-  positions <- c("source", "dest")
   received <- NULL
   testthat::local_mocked_bindings(
     .git_clone = function(repo, path) {
       stopifnot(repo == "fixture/project")
       gert::git_clone(remote, path)
     },
-    projr_content_update = function(label, pos, type, title, destination) {
+    projr_source = function(label, remote, cue, conflict) {
       expect_true(file.exists("_projr.yml"))
-      received <<- list(
-        label,
-        pos,
-        type,
-        title,
-        destination,
-        normalizePath(".")
-      )
+      received <<- list(label, remote, cue, conflict, normalizePath("."))
       invisible(TRUE)
     }
   )
@@ -202,28 +173,19 @@ test_that("repo restoration clones into the requested path and forwards selectio
       "fixture/project",
       "one",
       labels,
-      positions,
-      "local",
-      "archive",
-      destination = "bundles"
+      type = "local",
+      title = "archive"
     ))
     expect_identical(
       received,
-      list(
-        labels,
-        positions,
-        "local",
-        "archive",
-        "bundles",
-        normalizePath("one")
-      )
+      list(labels, "local:archive", "always", "error", normalizePath("one"))
     )
     dir.create("two")
     withr::with_dir("two", {
-      expect_true(projr_restore_repo_wd("fixture/project", type = "github"))
+      expect_true(projr_restore_repo_wd("fixture/project", title = "archive"))
       expect_identical(
         received,
-        list(NULL, NULL, "github", NULL, NULL, normalizePath("."))
+        list(NULL, "archive", "always", "error", normalizePath("."))
       )
     })
   })
@@ -236,7 +198,7 @@ test_that("repo restoration reports failures and restores the working directory"
     .git_clone = function(repo, path) {
       if (repo == "fixture/missing") stop("repository missing")
     },
-    projr_content_update = function(...) stop("restore failed")
+    projr_source = function(...) stop("restore failed")
   )
   withr::with_dir(parent, {
     expect_false(projr_restore_repo("fixture/missing"))

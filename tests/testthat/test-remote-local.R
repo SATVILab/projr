@@ -395,11 +395,7 @@ test_that("upload and restore from `latest` local remotes", {
       projr_path_get_dir("raw-data", safe = FALSE)
 
       # Restore from local remote
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-latest"
-      )
+      result <- projr_source("raw-data", "local:test-local-latest")
 
       # Verify restoration
       expect_true(result)
@@ -421,11 +417,7 @@ test_that("upload and restore from `latest` local remotes", {
       projr_path_get_dir("raw-data", safe = FALSE)
 
       # Restore from local remote
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-latest"
-      )
+      result <- projr_source("raw-data", "local:test-local-latest")
 
       # Verify restoration
       expect_true(result)
@@ -438,11 +430,11 @@ test_that("upload and restore from `latest` local remotes", {
         projr_path_get("raw-data", "extrafile.txt")
       )
       writeLines("overwrite", projr_path_get("raw-data", "file1.txt"))
-      projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-latest",
-        clear = FALSE
+      projr_source(
+        "raw-data",
+        "local:test-local-latest",
+        strategy = "download-all",
+        conflict = "remote"
       )
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_true("extrafile.txt" %in% fn_vec)
@@ -460,11 +452,11 @@ test_that("upload and restore from `latest` local remotes", {
         "another extra file content",
         projr_path_get("raw-data", "extrafile2.txt")
       )
-      projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-latest",
-        clear = TRUE
+      projr_source(
+        "raw-data",
+        "local:test-local-latest",
+        cue = "always",
+        conflict = "remote"
       )
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(
@@ -492,11 +484,11 @@ test_that("upload and restore from `latest` local remotes", {
       expect_true(has_empty_marker || has_empty_dir)
 
       # restore without clearing, should be the same
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-latest",
-        clear = FALSE
+      result <- projr_source(
+        "raw-data",
+        "local:test-local-latest",
+        strategy = "download-all",
+        conflict = "remote"
       )
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(fn_vec, character(0L))
@@ -506,38 +498,42 @@ test_that("upload and restore from `latest` local remotes", {
         "new file content",
         projr_path_get("raw-data", "newfile.txt")
       )
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-latest",
-        clear = FALSE
+      result <- projr_source(
+        "raw-data",
+        "local:test-local-latest",
+        strategy = "download-all",
+        conflict = "remote"
       )
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(fn_vec, "newfile.txt")
 
       # restore with clearing, should be empty
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-latest",
-        clear = TRUE
+      result <- projr_source(
+        "raw-data",
+        "local:test-local-latest",
+        cue = "always",
+        conflict = "remote"
       )
       fn_vec <- .file_ls(projr_path_get("raw-data"))
       expect_identical(fn_vec, character(0L))
       expect_true(result)
 
-      # A missing archive is different from a recorded empty directory.
+      # Inspecting files distinguishes a missing archive from an empty one.
       unlink(
         file.path(remote_base, c("raw-data", "raw-data-empty")),
         recursive = TRUE
       )
       writeLines("keep", projr_path_get("raw-data", "newfile.txt"))
-      expect_false(projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-latest",
-        clear = TRUE
-      ))
+      expect_error(
+        projr_source(
+          "raw-data",
+          "local:test-local-latest",
+          cue = "always",
+          inspect = "file",
+          conflict = "remote"
+        ),
+        "No matching files"
+      )
       expect_identical(
         readLines(projr_path_get("raw-data", "newfile.txt")),
         "keep"
@@ -632,14 +628,10 @@ test_that("upload and restore from `archive` local remotes", {
       expect_true(version_empty_build_label_empty %in% remote_vec_final)
 
       # Restore from local remote
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-archive"
-      )
+      result <- projr_source("raw-data", "local:test-local-archive")
 
       # Verify restoration
-      expect_false(result)
+      expect_true(result)
       expect_identical(.file_ls(projr_path_get("raw-data")), character(0L))
 
       # add files
@@ -718,12 +710,7 @@ test_that("upload and restore from `archive` local remotes", {
       projr_path_get_dir("raw-data", safe = FALSE)
 
       # Restore from local remote
-      # debugonce(.content_update_label)
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-archive"
-      )
+      result <- projr_source("raw-data", "local:test-local-archive")
 
       # Verify restoration
       expect_true(result)
@@ -751,11 +738,7 @@ test_that("upload and restore from `archive` local remotes", {
       projr_path_get_dir("raw-data", safe = FALSE)
 
       # Restore from local remote
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local-archive"
-      )
+      result <- projr_source("raw-data", "local:test-local-archive")
 
       # Verify restoration
       expect_true(result)

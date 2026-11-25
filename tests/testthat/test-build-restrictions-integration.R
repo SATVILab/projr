@@ -114,7 +114,7 @@ test_that("production checks both one-off archives before publishing or running 
         unavailable = list(repo = "fixture/missing")
       )
       config$build$restrictions <- list(
-        not_behind_remote = list(github = c("fresh", "unavailable"))
+        not_behind_remote = c("fresh", "unavailable")
       )
       yaml::write_yaml(config, "_projr.yml")
       error <- expect_error(projr_build_patch(project = project))
@@ -147,8 +147,10 @@ test_that("production checks both one-off archives before publishing or running 
       dir.create("partial")
       writeLines("unidentified payload", "partial/data.txt")
       config$remotes$local$incomplete <- list(path = "partial")
-      config$build$local <- list(incomplete = list(content = "raw-data"))
-      config$build$github <- list(fresh = list(content = "raw-data"))
+      config$build$dest <- list(
+        incomplete = list(content = "raw-data"),
+        fresh = list(content = "raw-data")
+      )
       yaml::write_yaml(config, "_projr.yml")
       unlink("ran-script")
       before <- readLines("VERSION")
@@ -170,8 +172,7 @@ test_that("production checks both one-off archives before publishing or running 
       expect_false(.remote_check_exists("github", "fresh"))
 
       # Disabling the guard explicitly allows publishing to an archive that is ahead.
-      config$build$github <- NULL
-      config$build$local <- NULL
+      config$build$dest <- NULL
       config$build$restrictions <- list(not_behind_remote = FALSE)
       yaml::write_yaml(config, "_projr.yml")
       projr_build_patch(archive_local = TRUE, project = project)
@@ -203,7 +204,7 @@ test_that("an explicit read-only restriction distinguishes completed and propose
         build = list(
           git = FALSE,
           scripts = "analysis.R",
-          local = list(publisher = list(content = "raw-data")),
+          dest = list(publisher = list(content = "raw-data")),
           restrictions = list(not_behind_remote = "baseline", rule = "base")
         )
       )
@@ -245,7 +246,7 @@ test_that("an explicit read-only restriction distinguishes completed and propose
       expect_true(file.remove("ran-script"))
 
       config$build$restrictions <- list(
-        not_behind_remote = list(local = "baseline"),
+        not_behind_remote = "local:baseline",
         rule = "target_version_not_behind"
       )
       yaml::write_yaml(config, "_projr.yml")

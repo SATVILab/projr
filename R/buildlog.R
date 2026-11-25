@@ -70,6 +70,7 @@
     metadata_txt,
     summary,
     destinations,
+    .buildlog_get_sources(),
     system_resources_txt,
     projr_yml_txt,
     session_info_txt,

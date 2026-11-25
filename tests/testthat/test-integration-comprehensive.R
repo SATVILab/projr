@@ -212,7 +212,7 @@ test_that("comprehensive workflow: bookdown to quarto with remotes, hooks, clone
           setwd(clone_dir)
           # The partial clone has a manifest but no copied local archives.
           expect_true(.manifest_store_ready(file.path(".projr", "manifests")))
-          expect_false(projr_content_update(label = "raw-data", type = "local"))
+          expect_error(projr_source("raw-data"), "No registered remote")
         },
         finally = {
           setwd(old_wd)
@@ -372,10 +372,10 @@ test_that("comprehensive workflow: rmarkdown with dev builds, iterative changes,
       expect_true(all(file.exists(raw_files)))
       expect_true(all(file.remove(raw_files)))
       expect_false(any(file.exists(raw_files)))
-      expect_true(projr_content_update(
-        label = "raw-data",
-        type = "local",
-        clear = TRUE
+      expect_true(projr_source(
+        "raw-data",
+        "local:backup-always",
+        conflict = "remote"
       ))
       expect_identical(
         .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0"),
@@ -525,17 +525,17 @@ test_that("comprehensive workflow: quarto with multiple content types, configura
       expect_true(all(file.exists(raw_files)))
       expect_true(all(file.remove(raw_files)))
       expect_false(any(file.exists(raw_files)))
-      expect_true(projr_content_update(
-        label = "raw-data",
-        type = "local",
-        clear = TRUE
+      expect_true(projr_source(
+        "raw-data",
+        "local:combined-latest",
+        conflict = "remote"
       ))
       expect_identical(
         .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0"),
         expected_raw
       )
       # Cache archives were removed from the configuration in Phase 5.
-      expect_false(projr_content_update(label = "cache", type = "local"))
+      expect_error(projr_source("cache"), "No registered remote")
     }
   )
 })
@@ -707,10 +707,10 @@ test_that("comprehensive workflow: from scratch with extensive iteration, clone 
           expect_true(all(file.exists(raw_files)))
           expect_true(all(file.remove(raw_files)))
           expect_false(any(file.exists(raw_files)))
-          expect_true(projr_content_update(
-            label = "raw-data",
-            type = "local",
-            clear = TRUE
+          expect_true(projr_source(
+            "raw-data",
+            "local:backup2",
+            conflict = "remote"
           ))
           expect_identical(
             .hash_dir(projr_path_get_dir("raw-data"), version = "1.0.0"),

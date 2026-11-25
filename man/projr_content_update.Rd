@@ -36,88 +36,45 @@ projr_content_update(
 }
 \arguments{
 \item{repo}{character. GitHub repository (\code{"owner/repo"} or \code{"repo"}).
-(Only for repository restoration functions.)
-Must be a single non-empty character string.}
+(Only for repository restoration functions.)}
 
 \item{path}{character or NULL. Local path for cloning the repository. Default is \code{NULL},
 creating a subdirectory named after the repo. \code{"."} restores directly into the
-current directory. Must be NULL or a single non-empty character string.}
+current directory.}
 
-\item{label}{character vector or NULL. Specifies labels of artefacts to restore.
-Default is \code{NULL}, restoring all \code{raw} artefacts (e.g. \code{raw-data}).
-Must be NULL or a non-empty character vector with valid directory labels.}
+\item{label}{character vector or NULL. Directory labels to restore.
+Default is \code{NULL}, restoring every declared raw directory.}
 
-\item{pos}{character vector or NULL. Specifies preferred source: \code{"source"} (directories)
-or \code{"dest"} (build destinations). Default is \code{NULL}, checking both in order.
-Must be NULL or one/both of \code{"source"} and \code{"dest"}.}
+\item{pos}{Ignored. Kept for compatibility.}
 
-\item{type}{character or NULL. Remote type: \code{"local"} or \code{"github"}.
-Default is \code{NULL}, automatically choosing the first available remote.
-Must be NULL or one of the valid remote types.}
+\item{type}{character or NULL. Remote type, \code{"local"} or \code{"github"}, used
+with \code{title} to name the remote as \verb{<type>:<title>}.}
 
-\item{title}{character or NULL. Remote title as specified in \verb{_projr.yml}.
-Default is \code{NULL}, using the first available title for the selected type.
-Must be NULL or a single non-empty character string.}
+\item{title}{character or NULL. Title of a remote registered under
+\code{remotes}. Default is \code{NULL}, using \code{build.source} or the single
+registered remote that published each label.}
 
-\item{destination}{character or NULL. A concrete GitHub release tag or local
-archive path recorded by an earlier build. Overrides the configured
-destination when restoring across versions, branches, or build UUIDs.
-Select its configuration with \code{title} if the project has several.}
+\item{destination}{No longer supported. Must be \code{NULL}; \code{\link[=projr_source]{projr_source()}}
+reads the address of the registered remote.}
 
-\item{clear}{logical. If \code{TRUE}, clears existing local artefact directories
-before restoration. Default is \code{FALSE}.}
+\item{clear}{logical. If \code{TRUE}, local changes are replaced
+(\code{conflict = "remote"}). Otherwise, local changes stop the restore
+(\code{conflict = "error"}). Default is \code{FALSE}.}
 }
 \value{
-Invisibly returns \code{TRUE} if all restorations are successful, \code{FALSE} otherwise.
-For \code{projr_content_update()}, returns \code{FALSE} if no labels are found to restore or if any
-restoration fails. For \code{projr_restore_repo()}, returns \code{FALSE} if cloning or
-restoration fails.
+Invisibly returns \code{TRUE}. \code{projr_restore_repo()} returns \code{FALSE} if
+cloning or restoration fails.
 }
 \description{
-Use \code{projr_content_update()} to restore all artefacts needed for the current project.
-If the project isn't available locally yet,
-\code{projr_restore_repo()} will clone it and then restore its artefacts.
-}
-\details{
-These functions restore artefact directories from remote sources:
-\itemize{
-\item \code{projr_content_update()} restores artefacts in an existing local project without any cloning required.
-Reads directory histories in \verb{.projr/manifests/} or a legacy root \code{manifest.csv}.
-\item \code{projr_restore_repo()} clones a GitHub repository into a subdirectory (or specified path),
-then restores artefacts from that repository's remote sources.
-\item \code{projr_restore_repo_wd()} clones directly into the current working directory, then restores artefacts.
-}
-
-\strong{Input Validation:}
-All parameters are validated before execution:
-\itemize{
-\item \code{label}: Must be NULL or a non-empty character vector of valid directory labels
-\item \code{pos}: Must be NULL or contain only "source" and/or "dest"
-\item \code{type}: Must be NULL or one of "local" or "github"
-\item \code{title}: Must be NULL or a single character string
-\item \code{repo}: Must be a single non-empty character string
-\item \code{path}: Must be NULL or a single non-empty character string
-}
-
-\strong{Error Handling:}
-The functions handle errors gracefully:
-\itemize{
-\item A missing project manifest triggers an informative error
-\item Invalid labels or missing remote sources result in warning messages and skipped restoration
-\item Git clone failures are caught and reported
-\item Errors during restoration are caught per label, allowing partial success
-}
+\code{projr_content_update()} is deprecated. Use \code{\link[=projr_source]{projr_source()}}, which it now
+calls with the latest version and \code{cue = "always"}.
+\code{projr_restore_repo()} clones a GitHub repository and then fetches its
+directories with \code{\link[=projr_source]{projr_source()}}.
 }
 \examples{
 \dontrun{
-# Restore all raw artefacts in existing local project
-projr_content_update()
-
-# Restore specific labels
-projr_content_update(label = c("raw-data", "cache"))
-
-# Restore from specific source type
-projr_content_update(type = "local", title = "archive")
+# Fetch raw directories in an existing project
+projr_source()
 
 # Clone repository into subdirectory and restore artefacts
 projr_restore_repo("owner/repo")

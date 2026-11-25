@@ -482,30 +482,22 @@ test_that(".yml_build_check_dest validates destination settings", {
 
       # Valid local destination should pass
       yml <- .yml_get("default")
-      yml[["build"]][["local"]] <- list(
-        test = list(
-          content = "output",
-          structure = "latest",
-          path = "/tmp/test"
-        )
+      yml[["remotes"]] <- list(
+        local = list(test = list(structure = "latest", path = "/tmp/test"))
       )
+      yml[["build"]][["dest"]] <- list(test = list(content = "output"))
       .yml_set(yml, "default")
       expect_true(projr_yml_check())
 
       # Invalid structure should fail
-      yml[["build"]][["local"]][["test"]][["structure"]] <- "invalid"
+      yml[["remotes"]][["local"]][["test"]][["structure"]] <- "invalid"
       .yml_set(yml, "default")
       expect_error(projr_yml_check(), "invalid")
 
       # Invalid content should fail
       yml <- .yml_get("default")
-      yml[["build"]][["local"]] <- list(
-        test = list(
-          content = "invalid_label",
-          structure = "latest",
-          path = "/tmp/test"
-        )
-      )
+      yml[["remotes"]][["local"]][["test"]][["structure"]] <- "latest"
+      yml[["build"]][["dest"]] <- list(test = list(content = "invalid_label"))
       .yml_set(yml, "default")
       expect_error(projr_yml_check(), "invalid_label")
     },
@@ -526,36 +518,40 @@ test_that(".yml_build_check_dest_title validates destination title details", {
 
       # Valid send strategy should pass
       yml <- .yml_get("default")
-      yml[["build"]][["local"]] <- list(
-        test = list(
-          content = "output",
-          structure = "archive",
-          path = "/tmp/test",
-          send = list(
-            cue = "if-change",
-            strategy = "sync-diff",
-            inspect = "manifest"
+      yml[["remotes"]] <- list(
+        local = list(
+          test = list(
+            structure = "archive",
+            path = "/tmp/test",
+            send = list(
+              cue = "if-change",
+              strategy = "sync-diff",
+              inspect = "manifest"
+            )
           )
         )
       )
+      yml[["build"]][["dest"]] <- list(test = list(content = "output"))
       .yml_set(yml, "default")
       expect_true(projr_yml_check())
 
       # Invalid send strategy should fail
-      yml[["build"]][["local"]][["test"]][["send"]][["strategy"]] <- "invalid"
+      yml[["remotes"]][["local"]][["test"]][["send"]][["strategy"]] <- "invalid"
       .yml_set(yml, "default")
       expect_error(projr_yml_check(), "invalid")
 
       # Invalid send cue should fail
       yml <- .yml_get("default")
-      yml[["build"]][["local"]] <- list(
-        test = list(
-          content = "output",
-          structure = "latest",
-          path = "/tmp/test",
-          send = list(cue = "invalid")
+      yml[["remotes"]] <- list(
+        local = list(
+          test = list(
+            structure = "latest",
+            path = "/tmp/test",
+            send = list(cue = "invalid")
+          )
         )
       )
+      yml[["build"]][["dest"]] <- list(test = list(content = "output"))
       .yml_set(yml, "default")
       expect_error(projr_yml_check(), "invalid")
     },
