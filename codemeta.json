@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/SATVILab/projr",
   "issueTracker": "https://github.com/SATVILab/projr/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -536,7 +536,7 @@
       "name": "projr: Facilitate Reproducible and Archived Projects",
       "identifier": "10.5281/zenodo.18402379",
       "url": "https://satvilab.github.io/projr/",
-      "description": "R package version 0.8.0",
+      "description": "R package version 0.9.0",
       "@id": "https://doi.org/10.5281/zenodo.18402379",
       "sameAs": "https://doi.org/10.5281/zenodo.18402379"
     }

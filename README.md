@@ -58,7 +58,7 @@ install.packages(c("remotes", "gh"))
 remotes::install_github("SATVILab/projr@*release")
 ```
 
-To install version 0.8.0 specifically, run `remotes::install_github("SATVILab/projr@v0.8.0")`.
+To install version 0.9.0 specifically, run `remotes::install_github("SATVILab/projr@v0.9.0")`.
 To install the current development code, use `SATVILab/projr@main`.
 [Downloadable source packages](https://github.com/SATVILab/projr/releases)
 

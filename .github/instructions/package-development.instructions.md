@@ -147,7 +147,7 @@ pkgdown::build_site()
 - `DESCRIPTION` - Package metadata, dependencies, and configuration
 - `NAMESPACE` - Auto-generated exports (managed by roxygen2)
 - `_pkgdown.yml` - pkgdown website configuration
-- `codecov.yml` - Code coverage configuration
+- `.github/codecov.yml` - Code coverage configuration
 - `renv.lock` - Locked package versions
 - `.Rbuildignore` - Files to exclude from R package build
 

@@ -5,7 +5,7 @@ on:
     paths:
       - 'R/**'
       - 'tests/**'
-      - 'air.toml'
+      - '.air.toml'
       - '.github/workflows/format.yaml'
 
 permissions:
