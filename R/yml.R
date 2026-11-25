@@ -69,7 +69,9 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     elem_profile <- yml_projr_profile[[nm]]
     elem_local <- yml_projr_local[[nm]]
     if (
-      nm == "scripts" && length(parents) == 1L && parents %in% c("build", "dev")
+      nm == "scripts" &&
+        ((length(parents) == 1L && parents %in% c("build", "dev")) ||
+          (length(parents) == 2L && parents[[1L]] == "pipelines"))
     ) {
       # A profile chooses one ordered script sequence, including an explicit [].
       return(elem_local %||% elem_profile %||% elem_default)
@@ -77,7 +79,10 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     if (
       (nm == "not_behind_remote" &&
         identical(parents, c("build", "restrictions"))) ||
-        (nm %in% c("dest", "source") && identical(parents, "build"))
+        (nm %in% c("dest", "source") && identical(parents, "build")) ||
+        (nm == "pipeline" &&
+          length(parents) == 1L &&
+          parents %in% c("build", "dev"))
     ) {
       # A profile selects the complete set of archive titles to check.
       return(elem_local %||% elem_profile %||% elem_default)
@@ -274,7 +279,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     "settings",
     par_nm_vec,
     "metadata",
-    "profile"
+    "profile",
+    "pipelines"
   )
 
   pos_list <- lapply(nm_list, .yml_get_filter_top_level_ind, yml = yml)

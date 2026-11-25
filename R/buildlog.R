@@ -71,6 +71,7 @@
     summary,
     destinations,
     .buildlog_get_sources(),
+    .buildlog_get_pipeline(),
     system_resources_txt,
     projr_yml_txt,
     session_info_txt,

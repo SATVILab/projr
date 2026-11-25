@@ -38,6 +38,14 @@
 #' `projr` profile to use. Sets `PROJR_PROFILE` for the build, so it
 #' overrides that variable and the `profile` key in `_projr-local.yml` and
 #' `_projr.yml`.
+#' @param pipeline character.
+#' Names of pipelines under `pipelines` to run in order, or `FALSE` to run
+#' none. Entries can be globs; a glob's matches run in their order under
+#' `pipelines`, and each pipeline runs once.
+#' Overrides `build.pipeline` (or `dev.pipeline` for development builds) for
+#' this build. Inline `scripts` and `hooks`, and the `scripts` argument of
+#' `projr_build_dev()`, still combine with it. Default is `NULL`, using the
+#' configured selection.
 #' @param archive_github `TRUE`,`FALSE` orcharacter vector of
 #' directory labels.
 #' If `TRUE`, then all directories (`raw-data`, `output`, etc)
@@ -92,6 +100,7 @@ projr_build <- function(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -110,6 +119,7 @@ projr_build <- function(
     msg = msg,
     args_engine = args_engine,
     profile = profile,
+    pipeline = pipeline,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
@@ -123,6 +133,7 @@ projr_build_major <- function(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -134,6 +145,7 @@ projr_build_major <- function(
     msg = msg,
     args_engine = args_engine,
     profile = profile,
+    pipeline = pipeline,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
@@ -148,6 +160,7 @@ projr_build_minor <- function(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -159,6 +172,7 @@ projr_build_minor <- function(
     msg = msg,
     args_engine = args_engine,
     profile = profile,
+    pipeline = pipeline,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
@@ -173,6 +187,7 @@ projr_build_patch <- function(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -184,6 +199,7 @@ projr_build_patch <- function(
     msg = msg,
     args_engine = args_engine,
     profile = profile,
+    pipeline = pipeline,
     archive_github = archive_github,
     archive_local = archive_local,
     always_archive = always_archive,
@@ -202,7 +218,9 @@ projr_build_patch <- function(
 #' @param scripts character vector.
 #' Paths or glob patterns for scripts to build, relative to the project root
 #' or absolute. Prefix a pattern with `!` to exclude matches. Use an empty
-#' character vector or `""` to skip running scripts. The default, `NULL`,
+#' character vector or `""` to skip running scripts. With a pipeline
+#' selected, these scripts take the place of `dev.scripts` and combine with
+#' the pipeline's; add `pipeline = FALSE` to run only them. The default, `NULL`,
 #' checks `dev.scripts` and then `build.scripts`. If neither is set, a
 #' Quarto or Bookdown project renders before automatically detected R scripts.
 #' Without a project, scripts are detected in the project root and run
@@ -243,6 +261,7 @@ projr_build_dev <- function(
   old_dev_remove = TRUE,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   clear_output = "never",
   project = NULL
 ) {
@@ -262,6 +281,7 @@ projr_build_dev <- function(
     old_dev_remove = old_dev_remove,
     args_engine = args_engine,
     profile = profile,
+    pipeline = pipeline,
     clear_output = clear_output
   )
 }
@@ -311,6 +331,7 @@ projr_build_dev <- function(
   msg = "",
   args_engine,
   profile,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -321,6 +342,26 @@ projr_build_dev <- function(
     Sys.setenv(PROJR_PROFILE = profile)
     on.exit(Sys.setenv(PROJR_PROFILE = old_profile), add = TRUE, after = FALSE)
   }
+  if (!is.null(pipeline)) {
+    if (isFALSE(pipeline)) {
+      pipeline <- .pipeline_none
+    } else {
+      .pipeline_check_name(pipeline)
+      pipeline <- paste(pipeline, collapse = ",")
+    }
+    old_pipeline <- Sys.getenv("PROJR_PIPELINE", unset = NA_character_)
+    Sys.setenv(PROJR_PIPELINE = pipeline)
+    on.exit(
+      if (is.na(old_pipeline)) {
+        Sys.unsetenv("PROJR_PIPELINE")
+      } else {
+        Sys.setenv(PROJR_PIPELINE = old_pipeline)
+      },
+      add = TRUE,
+      after = FALSE
+    )
+  }
+  .pipeline_report(.pipeline_plan(.pipeline_mode(bump_component)))
   # set and unset environment variables
   .env_set(unset = TRUE)
   on.exit(.env_unset(), add = TRUE, after = FALSE)

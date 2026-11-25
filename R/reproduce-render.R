@@ -59,10 +59,12 @@
 .reproduce_sources <- function(
   engines = .engines_get(.scripts_get(NULL, "patch", NULL))
 ) {
-  hooks <- c(
-    .yml_hooks_get_stage("pre", NULL),
-    .yml_hooks_get_stage("post", NULL)
-  )
+  plan <- .pipeline_plan("build")
+  hooks <- if (is.null(plan)) {
+    c(.yml_hooks_get_stage("pre", NULL), .yml_hooks_get_stage("post", NULL))
+  } else {
+    c(plan[["pre"]], plan[["post"]])
+  }
   sources <- unique(c(
     unlist(engines, use.names = FALSE),
     .build_document_sources(engines),

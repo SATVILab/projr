@@ -236,6 +236,7 @@ projr_yml_check <- function(profile = NULL) {
   .yml_build_check_renv(profile)
   .yml_build_check_dest(profile)
   .yml_build_check_source(profile)
+  .yml_pipelines_check(profile)
 }
 
 # build: label
@@ -260,7 +261,8 @@ projr_yml_check <- function(profile = NULL) {
       "restrictions",
       "renv",
       "dest",
-      "source"
+      "source",
+      "pipeline"
     )
   )
   .assert_flag(.yml_build_get_dev_output(profile))
@@ -533,7 +535,7 @@ projr_yml_check <- function(profile = NULL) {
   # Only "scripts" and "hooks" keys are allowed under dev
   nm_vec <- names(yml_dev)
   if (!is.null(nm_vec) && length(nm_vec) > 0) {
-    .assert_in(nm_vec, c("scripts", "hooks"))
+    .assert_in(nm_vec, c("scripts", "hooks", "pipeline"))
   }
 
   invisible(TRUE)
