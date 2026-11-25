@@ -27,6 +27,7 @@ projr_yml_check <- function(profile = NULL) {
     )
     profile <- NULL
   }
+  lapply(c("default", "local"), .profile_config_read)
   .yml_settings_hashing(profile)
   .yml_dir_check(profile)
   .yml_build_check(profile)

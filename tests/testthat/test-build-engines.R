@@ -608,3 +608,42 @@ for (project_type in c("bookdown", "quarto_book")) {
     }
   )
 }
+
+test_that("configured Quarto profiles apply after args_engine and QUARTO_PROFILE", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      withr::local_envvar(c(QUARTO_PROFILE = NA))
+      engines <- c("quarto_project", "r")
+      expect_identical(.build_args_quarto_profile(list(), engines), list())
+
+      yml <- .yml_get_default_raw()
+      yaml::write_yaml(
+        c(yml, list(profile = list(quarto = "web"))),
+        "_projr.yml"
+      )
+      expect_identical(
+        .build_args_quarto_profile(list(), engines),
+        list(quarto_project = list(profile = "web"))
+      )
+      writeLines("profile: {quarto: [print, a4]}", "_projr-local.yml")
+      expect_identical(
+        .build_args_quarto_profile(list(), "quarto_document"),
+        list(quarto_document = list(profile = c("print", "a4")))
+      )
+
+      # Quarto reads QUARTO_PROFILE itself, so the configuration is skipped.
+      withr::with_envvar(c(QUARTO_PROFILE = "env"), {
+        expect_identical(.build_args_quarto_profile(list(), engines), list())
+      })
+
+      # args_engine wins over both.
+      args <- list(quarto_project = list(profile = "arg"))
+      withr::with_envvar(c(QUARTO_PROFILE = "env"), {
+        expect_identical(.build_args_quarto_profile(args, engines), args)
+      })
+    }
+  )
+})

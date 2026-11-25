@@ -11,6 +11,8 @@
 #' The profiles activated are those set in the `QUARTO_PROFILE`
 #' and the `PROJR_PROFILE` environment variables, with
 #' `QUARTO_PROFILE` priorities.
+#' When a variable is unset, the `profile` key in `_projr-local.yml` or
+#' `_projr.yml` supplies its profiles.
 #' The `QUARTO_PROFILE` variable can specify multiple profiles,
 #' separated by commas.
 #' The `PROJR_PROFILE` variable can also specify multiple profiles,
@@ -77,7 +79,7 @@ projr_env_set <- function(file = NULL) {
 .env_profile_get_quarto <- function() {
   quarto_profile <- Sys.getenv("QUARTO_PROFILE")
   if (!nzchar(quarto_profile)) {
-    return(character())
+    return(.profile_config("quarto")$profile)
   }
   quarto_profile_vec <- strsplit(quarto_profile, ",")[[1]]
   vapply(quarto_profile_vec, trimws, character(1)) |> stats::setNames(NULL)

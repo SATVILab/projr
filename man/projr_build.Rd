@@ -83,8 +83,9 @@ defaults. The default \code{list()} works for any selection.
 Quarto renders in the foreground so later scripts and hooks see its output.}
 
 \item{profile}{character.
-\code{projr} profile to use. Will set the environment variable
-.PROFILE` to this value at the start of the build,}
+\code{projr} profile to use. Sets \code{PROJR_PROFILE} for the build, so it
+overrides that variable and the \code{profile} key in \verb{_projr-local.yml} and
+\verb{_projr.yml}.}
 
 \item{archive_github}{\code{TRUE},\code{FALSE} orcharacter vector of
 directory labels.

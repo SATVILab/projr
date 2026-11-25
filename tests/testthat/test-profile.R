@@ -426,3 +426,122 @@ test_that("projr_profile_delete_local works", {
     force = TRUE
   )
 })
+
+test_that("config directories accept <profile>.yml file names", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      dir.create(".projr/config", recursive = TRUE, showWarnings = FALSE)
+      writeLines(
+        "directories: {output: {path: _out_analysis}}",
+        ".projr/config/analysis.yml"
+      )
+      writeLines("build: {git: false}", ".projr/config/local.yml")
+      expect_match(.yml_get_path("analysis"), ".projr/config/analysis.yml$")
+      expect_match(.yml_get_path("local"), ".projr/config/local.yml$")
+      withr::with_envvar(c(PROJR_PROFILE = "analysis"), {
+        expect_identical(
+          .yml_get(NULL)$directories$output$path,
+          "_out_analysis"
+        )
+      })
+      expect_false(.yml_get(NULL)$build$git)
+      expect_setequal(
+        .yml_config_file_profile(.yml_config_files()),
+        c("default", "analysis", "local")
+      )
+      .ignore_auto_yml()
+      expect_true(
+        any(grepl("projr/config/local.yml", readLines(".gitignore")))
+      )
+
+      file.copy(
+        ".projr/config/analysis.yml",
+        ".projr/config/_projr-analysis.yml"
+      )
+      expect_error(.yml_get_path("analysis"), "Keep one")
+      unlink(".projr/config/_projr-analysis.yml")
+
+      # The base file can live in the config directory as default.yml.
+      file.rename("_projr.yml", ".projr/config/default.yml")
+      expect_match(.yml_get_path("default"), ".projr/config/default.yml$")
+      expect_identical(
+        normalizePath(.path_project_root()),
+        normalizePath(dir_test)
+      )
+    }
+  )
+})
+
+test_that("the profile key selects projr profiles with env precedence", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      withr::local_envvar(c(PROJR_PROFILE = NA))
+      yml <- .yml_get_default_raw()
+      writeLines("directories: {output: {path: _out_a}}", "_projr-a.yml")
+      writeLines("directories: {output: {path: _out_b}}", "_projr-b.yml")
+      expect_identical(projr_profile_get(), "default")
+
+      # A sequence in the default file.
+      yaml::write_yaml(c(yml, list(profile = c("a", "b"))), "_projr.yml")
+      expect_identical(projr_profile_get(), c("a", "b"))
+      expect_identical(.yml_get(NULL)$directories$output$path, "_out_a")
+      expect_true(projr_yml_check())
+
+      # The mapping form in the local file overrides the default file.
+      writeLines("profile: {projr: b, quarto: [q1, q2]}", "_projr-local.yml")
+      expect_identical(projr_profile_get(), "b")
+      expect_identical(.profile_config("quarto")$profile, c("q1", "q2"))
+      expect_match(.profile_get_source(), "_projr-local.yml")
+      expect_identical(.yml_get(NULL)$directories$output$path, "_out_b")
+
+      # The environment variable overrides both files.
+      withr::with_envvar(c(PROJR_PROFILE = "default"), {
+        expect_identical(projr_profile_get(), "default")
+        expect_identical(.profile_get_source(), "PROJR_PROFILE")
+      })
+
+      # The build argument overrides the environment variable.
+      withr::with_envvar(c(PROJR_PROFILE = "b"), {
+        local_mocked_bindings(.env_set = function(...) {
+          stop("profiles: ", paste(.profile_get_var(), collapse = ","))
+        })
+        expect_error(
+          .build(bump_component = "dev", args_engine = list(), profile = "a"),
+          "profiles: a"
+        )
+        expect_identical(projr_profile_get(), "b")
+      })
+    }
+  )
+})
+
+test_that("invalid profile keys are rejected", {
+  skip_if(.is_test_select())
+  dir_test <- .test_setup_project(git = FALSE, set_env_var = FALSE)
+  usethis::with_project(
+    path = dir_test,
+    code = {
+      withr::local_envvar(c(PROJR_PROFILE = NA))
+      writeLines("profile: a", "_projr-b.yml")
+      expect_error(.yml_get("b"), "default and local files")
+      withr::with_envvar(c(PROJR_PROFILE = "b"), {
+        expect_error(projr_yml_check(), "default and local files")
+      })
+      unlink("_projr-b.yml")
+
+      writeLines("profile: 1", "_projr-local.yml")
+      expect_error(projr_profile_get(), "profile.projr")
+      expect_error(projr_yml_check(), "profile.projr")
+      writeLines("profile: {other: a}", "_projr-local.yml")
+      expect_error(projr_yml_check(), "profile")
+      writeLines("profile: {renv: a}", "_projr-local.yml")
+      expect_error(projr_yml_check(), "not supported")
+    }
+  )
+})

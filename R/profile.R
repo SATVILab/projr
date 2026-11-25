@@ -221,7 +221,52 @@ projr_profile_get <- function() {
 }
 
 .profile_get_raw <- function() {
-  Sys.getenv("PROJR_PROFILE")
+  profile <- Sys.getenv("PROJR_PROFILE")
+  if (nzchar(profile)) {
+    return(profile)
+  }
+  paste(.profile_config()$profile, collapse = ",")
+}
+
+.profile_get_source <- function() {
+  if (nzchar(Sys.getenv("PROJR_PROFILE"))) {
+    return("PROJR_PROFILE")
+  }
+  .profile_config()$source
+}
+
+# Profiles named by the `profile` key, local file first. Read the raw files:
+# the merged reader needs the resolved profiles.
+.profile_config <- function(kind = "projr") {
+  files <- if (length(.path_project_root(required = FALSE))) {
+    c("local", "default")
+  }
+  for (file in files) {
+    profile <- .profile_config_read(file)[[kind]]
+    if (length(profile)) {
+      path <- fs::path_rel(.yml_get_path(file), .path_get())
+      return(list(profile = profile, source = paste0("profile in ", path)))
+    }
+  }
+  list(profile = character(), source = "default")
+}
+
+.profile_config_read <- function(file) {
+  value <- .yml_get_profile_ind_raw(file)[["profile"]]
+  if (is.null(value)) {
+    return(list())
+  }
+  if (!is.list(value) || is.null(names(value))) {
+    value <- list(projr = unlist(value))
+  }
+  if ("renv" %in% names(value)) {
+    stop("profile.renv is not supported yet.", call. = FALSE)
+  }
+  .assert_in(names(value), c("projr", "quarto"), nm = "profile")
+  for (kind in names(value)) {
+    .assert_chr(value[[kind]], nm = paste0("profile.", kind))
+  }
+  value
 }
 
 #' @title Delete a projr profile from _projr.yml

@@ -189,6 +189,15 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 
 .yml_get_profile_ind <- function(profile) {
   yml <- .yml_get_profile_ind_raw(profile)
+  if ("profile" %in% names(yml) && !profile %in% c("default", "local")) {
+    stop(
+      "The profile key is read only from the default and local files, ",
+      "not from ",
+      basename(.yml_get_path(profile)),
+      ".",
+      call. = FALSE
+    )
+  }
   # Normalize the original spelling before merging profiles so their precedence holds.
   settings <- yml[["settings"]]
   if (is.list(settings) && "hash-engine" %in% names(settings)) {
@@ -264,7 +273,8 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
     "dev",
     "settings",
     par_nm_vec,
-    "metadata"
+    "metadata",
+    "profile"
   )
 
   pos_list <- lapply(nm_list, .yml_get_filter_top_level_ind, yml = yml)
@@ -290,27 +300,56 @@ projr_yml_get <- function(profile = NULL, check = FALSE) {
 }
 
 # Root files take precedence. New configurations are created at the root.
+# Inside a config directory, `<profile>.yml` (`default.yml` for the base
+# file) is accepted beside `_projr-<profile>.yml`.
 .yml_get_path <- function(profile) {
-  filename <- if (!.is_given_mid(profile) || profile == "default") {
+  if (!.is_given_mid(profile)) {
+    profile <- "default"
+  }
+  filename <- if (profile == "default") {
     "_projr.yml"
   } else {
     paste0("_projr-", profile, ".yml")
   }
   root <- .path_get()
-  paths <- c(
-    file.path(root, filename),
-    file.path(root, c(".projr/config", "_projr/config"), filename)
-  )
+  paths <- file.path(root, filename)
+  for (dir in c(".projr/config", "_projr/config")) {
+    candidates <- file.path(root, dir, c(filename, paste0(profile, ".yml")))
+    present <- candidates[file.exists(candidates)]
+    if (length(present) > 1L) {
+      stop(
+        "Both ",
+        paste(basename(present), collapse = " and "),
+        " exist in ",
+        dir,
+        "/. Keep one.",
+        call. = FALSE
+      )
+    }
+    paths <- c(paths, present)
+  }
   paths[match(TRUE, file.exists(paths), nomatch = 1L)]
 }
 
 .yml_config_files <- function(root = .path_get()) {
-  pattern <- "^_projr(-[[:alnum:]_-]+)?\\.yml$"
-  paths <- file.path(root, c("", ".projr/config", "_projr/config"))
-  as.character(fs::path_rel(
-    list.files(paths, pattern = pattern, full.names = TRUE),
-    root
-  ))
+  files <- c(
+    list.files(root, pattern = "^_projr(-[[:alnum:]_-]+)?\\.yml$"),
+    list.files(
+      file.path(root, c(".projr/config", "_projr/config")),
+      pattern = "^[[:alnum:]_-]+\\.yml$",
+      full.names = TRUE
+    ) |>
+      fs::path_rel(root)
+  )
+  as.character(files)
+}
+
+# The profile a config file belongs to: "default", "local" or a profile name.
+.yml_config_file_profile <- function(files) {
+  name <- sub("\\.yml$", "", basename(files))
+  name <- sub("^_projr-", "", name)
+  name[name == "_projr"] <- "default"
+  name
 }
 
 .yml_set_root <- function(list_save) {
