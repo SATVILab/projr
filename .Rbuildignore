@@ -10,7 +10,6 @@
 ^\.gitpod
 ^\.github$
 ^lib
-^codecov\.yml$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
@@ -39,8 +38,7 @@
 ^\.agents$
 ^\.projects$
 ^AGENTS\.md$
-^index\.md$
 ^CHANGELOG\.md$
 ^cran-comments\.md$
-^air\.toml$
+^\.air\.toml$
 ^\.git-blame-ignore-revs$
