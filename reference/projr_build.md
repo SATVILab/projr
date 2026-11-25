@@ -17,6 +17,7 @@ projr_build(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -28,6 +29,7 @@ projr_build_major(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -39,6 +41,7 @@ projr_build_minor(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -50,6 +53,7 @@ projr_build_patch(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -96,8 +100,20 @@ projr_build_patch(
 
 - profile:
 
-  character. `projr` profile to use. Will set the environment variable
-  .PROFILE\` to this value at the start of the build,
+  character. `projr` profile to use. Sets `PROJR_PROFILE` for the build,
+  so it overrides that variable and the `profile` key in
+  `_projr-local.yml` and `_projr.yml`.
+
+- pipeline:
+
+  character. Names of pipelines under `pipelines` to run in order, or
+  `FALSE` to run none. Entries can be globs; a glob's matches run in
+  their order under `pipelines`, and each pipeline runs once. Overrides
+  `build.pipeline` (or `dev.pipeline` for development builds) for this
+  build. Inline `scripts` and `hooks`, and the `scripts` argument of
+  [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md),
+  still combine with it. Default is `NULL`, using the configured
+  selection.
 
 - archive_github:
 

@@ -21,16 +21,43 @@ declarations determine which labels are available.
 | `_projr-<profile>.yml` | Overrides for a named analysis or machine. |
 | `_projr-local.yml`     | Local overrides with highest precedence.   |
 
-Each file can live at the project root or in `.projr/config/`. When both
-locations contain the same filename, the root copy wins. All relative
-paths in either location start at the project root. A nested script can
-therefore use the same directory labels when run in RStudio or during a
-build.
+Each file can live at the project root or in `.projr/config/`. Inside
+`.projr/config/`, the shorter names `default.yml`, `local.yml` and
+`<profile>.yml` also work. When both locations contain the same file,
+the root copy wins. All relative paths in either location start at the
+project root. A nested script can therefore use the same directory
+labels when run in RStudio or during a build.
 
 Select profiles with a build’s `profile` argument or `PROJR_PROFILE`.
 For example, `Sys.setenv(PROJR_PROFILE = "site-a,cluster")` applies both
 named profiles, with the earlier name taking precedence when both
-specify a value. Local overrides still win. Use
+specify a value. Local overrides still win.
+
+To choose profiles without an argument, add a `profile` key to
+`_projr.yml` or `_projr-local.yml`. A string or sequence names projr
+profiles. A mapping names projr and Quarto profiles separately:
+
+``` yaml
+profile: [site-a, cluster]
+```
+
+``` yaml
+profile:
+  projr: site-a
+  quarto: [print]
+```
+
+projr uses the first of these that names projr profiles: the build’s
+`profile` argument, `PROJR_PROFILE`, `profile` in `_projr-local.yml`,
+then `profile` in `_projr.yml`. For Quarto, the order is the `profile`
+option in `args_engine`, `QUARTO_PROFILE`, then the two files.
+Environment variables outrank the files, so a single run can select
+profiles without editing a tracked file, and
+[`projr_reproduce()`](https://satvilab.github.io/projr/reference/projr_reproduce.md)
+can restore a build’s recorded profiles. A named profile file cannot
+contain `profile`, and renv profiles are not supported yet.
+
+Use
 [`projr_yml_get()`](https://satvilab.github.io/projr/reference/projr_yml_get.md)
 to inspect the merged settings, `projr_yml_get("default")` to inspect
 the base file, and
@@ -160,6 +187,8 @@ after initialization.
 | `build.scripts` | Ordered inputs for a production build. Also used by dev builds when `dev.scripts` is absent. |
 | `dev.scripts` | Ordered inputs for a development build. The `scripts` argument to [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md) takes precedence. |
 | `build.hooks`, `dev.hooks` | Each accepts `pre`, `post`, and `both`. Supply R script paths under the stage. Dev and production hooks are configured independently. |
+| `pipelines.<name>` | A named set of `scripts` and `hooks` with the same formats as the inline settings. |
+| `build.pipeline`, `dev.pipeline` | One pipeline name or glob, or a list run in order, for production or development builds. `false` or `[]` selects none. Dev builds fall back to `build.pipeline`. The `pipeline` argument of the build functions takes precedence, and `pipeline = FALSE` selects none. |
 
 A script selection accepts `.R`, `.Rmd` and `.qmd` paths or glob
 patterns. To skip files, add an item such as
@@ -175,6 +204,14 @@ scripts run together alphabetically. Overlapping globs select each file
 once. Repeating a literal R script or standalone document runs it again.
 An explicit `scripts: []`, or `scripts = character()` in R, skips
 document rendering and script execution.
+
+With a pipeline selected, inline `scripts` and `hooks` under `build` or
+`dev`, and the `scripts` argument of
+[`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md),
+combine with its entries. Their key position relative to `pipeline`
+decides whether they run before or after the pipeline’s entries. See
+[named
+pipelines](https://satvilab.github.io/projr/articles/scripts-and-hooks.html#named-pipelines).
 
 For example, suppose a Quarto project has the following selection.
 

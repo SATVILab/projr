@@ -8,11 +8,12 @@ and finally `_environment` (global defaults).
 
 The profiles activated are those set in the `QUARTO_PROFILE` and the
 `PROJR_PROFILE` environment variables, with `QUARTO_PROFILE` priorities.
-The `QUARTO_PROFILE` variable can specify multiple profiles, separated
-by commas. The `PROJR_PROFILE` variable can also specify multiple
-profiles, separated by either commas or semi-colons. In both cases, the
-earlier profile takes precedence, e.g. `QUARTO_PROFILE=test,basic` will
-activate the `test` profile first.
+When a variable is unset, the `profile` key in `_projr-local.yml` or
+`_projr.yml` supplies its profiles. The `QUARTO_PROFILE` variable can
+specify multiple profiles, separated by commas. The `PROJR_PROFILE`
+variable can also specify multiple profiles, separated by either commas
+or semi-colons. In both cases, the earlier profile takes precedence,
+e.g. `QUARTO_PROFILE=test,basic` will activate the `test` profile first.
 
 ## Usage
 

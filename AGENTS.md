@@ -24,6 +24,12 @@ Key architectural patterns:
   `.projr/config/`. A root file takes precedence over a nested file of
   the same name. Update the selected file in place and interpret
   configured paths relative to the project root.
+  - A `profile` key in the default or local file names projr profiles
+    (string or sequence) or `projr`/`quarto` profiles (mapping).
+    Precedence: build `profile` argument or `args_engine`, then
+    `PROJR_PROFILE`/`QUARTO_PROFILE`, then the local file, then the
+    default file. A named profile file must not contain `profile`;
+    `profile.renv` is an error until renv profiles are supported.
 - **Directory paths**: Require a default configuration at the root or in
   `.projr/config/`. On the first build, write the starter at the project
   root if both supported locations lack a base YAML. The starter
@@ -153,6 +159,47 @@ on exit.
   `"!path-or-glob"` entries remain supported. Apply exclusions to the
   whole selection, including automatic discovery when only exclusions
   are supplied.
+- Define named pipelines under top-level `pipelines.<name>` with
+  `scripts` (same entries as `build.scripts`) and `hooks` (`pre`,
+  `post`, `both`). Reject names containing `:` or `,`. Select with
+  `build.pipeline`; `dev.pipeline` falls back to `build.pipeline`. The
+  `pipeline` argument of
+  [`projr_build()`](https://satvilab.github.io/projr/reference/projr_build.md),
+  the bump helpers and
+  [`projr_build_dev()`](https://satvilab.github.io/projr/reference/projr_build_dev.md)
+  overrides the configured selection for one build.
+- Accept one pipeline name or a list, with glob entries. Run entries in
+  the given order and a glob’s matches in their order under `pipelines`;
+  run each pipeline once, at its first position. Concatenate scripts and
+  each phase’s hooks in that order. Reject an entry matching no pipeline
+  before any hook, script or file change.
+- Combine inline `build`/`dev` `scripts` and `hooks` with the whole
+  group of pipelines. Entries keyed before `pipeline` run first; entries
+  keyed after are appended. Keep each hook in its phase, apply `both` in
+  each phase and run a repeated hook once, at its first position. Dev
+  builds keep `dev.scripts` (falling back to `build.scripts`) and
+  `dev.hooks` only. With a pipeline, the
+  `projr_build_dev(scripts = ...)` argument takes the place of the
+  inline scripts; without one, it overrides `dev.scripts` and
+  `build.scripts`.
+- Read key position from the highest-precedence file that sets
+  `pipeline` (local file, profiles in order, then `_projr.yml`; `dev`
+  before `build` for dev builds). Run inline entries first when that
+  mapping lacks the inline key. An argument-only selection runs the
+  pipelines after inline entries; an argument replacing a configured
+  selection keeps its position. Document this as a projr convention, as
+  YAML mappings are formally unordered.
+- `pipeline: false`, `pipeline: []` or `pipeline = FALSE` selects no
+  pipeline; a higher layer’s value replaces lower ones whole. Inline
+  scripts and hooks and the `scripts` argument still run.
+- An explicit empty inline list adds nothing and does not suppress the
+  pipelines. Without a pipeline, keep existing selection, discovery and
+  empty-list behaviour. A profile’s `pipelines.<name>.scripts` replaces
+  the default list. Keep remotes, versioning, renv, Git and publication
+  under `build`.
+- Report the selected pipelines and their scripts in the console, their
+  hooks in the detailed log, and their names, scripts and hooks in a
+  **Pipeline** section of production `.projr/BUILDLOG.md`.
 - Run explicitly selected scripts in the listed order. Sort matches
   alphabetically within each glob and keep repeated literal R scripts
   and standalone documents in place. Overlapping glob matches run once.

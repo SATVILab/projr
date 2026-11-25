@@ -125,6 +125,9 @@ to run.</p>
 <p>When <code>dev.scripts</code> is set, it completely replaces
 <code>build.scripts</code> for dev builds. To include production scripts
 in dev builds, list them explicitly under <code>dev.scripts</code>.</p>
+<p>When a <a href="#named-pipelines">named pipeline</a> is selected, its
+scripts combine with these inline settings and with the
+<code>scripts</code> argument.</p>
 </div>
 <div class="section level3">
 <h3 id="skip-files">Skip files<a class="anchor" aria-label="anchor" href="#skip-files"></a>
@@ -309,6 +312,171 @@ the build stops.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Setting up production environment..."</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"hooks/check-auth.R"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"hooks/prepare-data.R"</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="named-pipelines">Named pipelines<a class="anchor" aria-label="anchor" href="#named-pipelines"></a>
+</h2>
+<p>A pipeline names an ordered set of scripts and hooks. Define
+pipelines under the top-level <code>pipelines</code> key, then select
+them with <code>build.pipeline</code> for production builds and
+<code>dev.pipeline</code> for development builds.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">pipelines</span><span class="kw">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="at">  </span><span class="fu">primary</span><span class="kw">:</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="at">    </span><span class="fu">scripts</span><span class="kw">:</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> prepare.R</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> analyse.R</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> report.qmd</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="at">    </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="at">      </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/check-inputs.R</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="at">      </span><span class="fu">post</span><span class="kw">:</span><span class="at"> hooks/validate-results.R</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="at">  </span><span class="fu">sensitivity</span><span class="kw">:</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="at">    </span><span class="fu">scripts</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">sensitivity.R</span><span class="kw">,</span><span class="at"> sensitivity.qmd</span><span class="kw">]</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="at">  </span><span class="fu">pipeline</span><span class="kw">:</span><span class="at"> primary</span></span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="fu">dev</span><span class="kw">:</span></span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a><span class="at">  </span><span class="fu">pipeline</span><span class="kw">:</span><span class="at"> primary</span></span></code></pre></div>
+<p>A pipeline’s <code>scripts</code> accept the same entries as
+<code>build.scripts</code>: paths, glob patterns,
+<code>- exclude:</code> items and quoted <code>"!path"</code>
+exclusions. Its <code>hooks</code> accept <code>pre</code>,
+<code>post</code> and <code>both</code>. Rendering, project handling and
+hook execution work as described above. Pipeline names cannot contain
+<code>:</code> or <code>,</code>.</p>
+<p>Development builds use <code>dev.pipeline</code>. Without it, they
+use <code>build.pipeline</code>. Remote sources and destinations,
+versioning, renv, Git and publication stay under <code>build</code>. A
+pipeline only chooses scripts and hooks.</p>
+<div class="section level3">
+<h3 id="selecting-several-pipelines">Selecting several pipelines<a class="anchor" aria-label="anchor" href="#selecting-several-pipelines"></a>
+</h3>
+<p><code>pipeline</code> takes one name or a list. Entries can be glob
+patterns.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">pipelines</span><span class="kw">:</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="at">  </span><span class="fu">prepare</span><span class="kw">:</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="at">    </span><span class="fu">scripts</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">prepare.R</span><span class="kw">]</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="at">  </span><span class="fu">model-linear</span><span class="kw">:</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="at">    </span><span class="fu">scripts</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">model-linear.R</span><span class="kw">]</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="at">  </span><span class="fu">model-mixed</span><span class="kw">:</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="at">    </span><span class="fu">scripts</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">model-mixed.R</span><span class="kw">]</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="at">  </span><span class="fu">report</span><span class="kw">:</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="at">    </span><span class="fu">scripts</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">report.qmd</span><span class="kw">]</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="at">  </span><span class="fu">pipeline</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">prepare</span><span class="kw">,</span><span class="at"> model-</span><span class="ot">*,</span><span class="at"> report</span><span class="kw">]</span></span></code></pre></div>
+<p>This runs <code>prepare.R</code>, <code>model-linear.R</code>,
+<code>model-mixed.R</code> and then renders <code>report.qmd</code>. The
+entries run in the order given. A glob’s matches run in their order
+under <code>pipelines</code>. A pipeline matched more than once runs
+once, at its first position. Each phase’s hooks combine in the same
+order, and a hook named more than once runs once, at its first position.
+A name or glob that matches no pipeline stops the build before any hook,
+script or file change.</p>
+</div>
+<div class="section level3">
+<h3 id="switching-pipelines-for-one-build">Switching pipelines for one build<a class="anchor" aria-label="anchor" href="#switching-pipelines-for-one-build"></a>
+</h3>
+<p>Pass <code>pipeline</code> to <code><a href="../reference/projr_build.html">projr_build()</a></code>,
+<code><a href="../reference/projr_build.html">projr_build_patch()</a></code>, <code><a href="../reference/projr_build.html">projr_build_minor()</a></code>,
+<code><a href="../reference/projr_build.html">projr_build_major()</a></code> or <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code> to
+replace the configured selection for that build. The argument also
+accepts several names or globs.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span><span class="op">)</span>                          <span class="co"># runs primary</span></span>
+<span><span class="fu"><a href="../reference/projr_build.html">projr_build_patch</a></span><span class="op">(</span>pipeline <span class="op">=</span> <span class="st">"sensitivity"</span><span class="op">)</span>  <span class="co"># runs the sensitivity analysis</span></span>
+<span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>pipeline <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"primary"</span>, <span class="st">"sensitivity"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>The console reports the selected pipelines and their scripts, and the
+detailed log records their hooks. A production build adds a
+<strong>Pipeline</strong> section to <code>.projr/BUILDLOG.md</code>
+with the names, scripts and hooks.</p>
+</div>
+<div class="section level3">
+<h3 id="adding-inline-scripts-and-hooks">Adding inline scripts and hooks<a class="anchor" aria-label="anchor" href="#adding-inline-scripts-and-hooks"></a>
+</h3>
+<p><code>scripts</code> and <code>hooks</code> under <code>build</code>
+(or <code>dev</code>) combine with the selected pipelines. Use them for
+work that should run whichever pipeline is selected.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">pipelines</span><span class="kw">:</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="at">  </span><span class="fu">analysis</span><span class="kw">:</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="at">    </span><span class="fu">scripts</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">prepare.R</span><span class="kw">,</span><span class="at"> analyse.R</span><span class="kw">]</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="at">    </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="at">      </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/check-data.R</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="at">      </span><span class="fu">post</span><span class="kw">:</span><span class="at"> hooks/validate-results.R</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span><span class="at"> initialise.R</span></span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="at">  </span><span class="fu">pipeline</span><span class="kw">:</span><span class="at"> analysis</span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="at">    </span><span class="fu">pre</span><span class="kw">:</span><span class="at"> hooks/check-build.R</span></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="at">    </span><span class="fu">post</span><span class="kw">:</span><span class="at"> hooks/finish-build.R</span></span></code></pre></div>
+<p>A production build runs:</p>
+<ol style="list-style-type: decimal">
+<li>Pre-build hooks: <code>hooks/check-data.R</code>, then
+<code>hooks/check-build.R</code>.</li>
+<li>Scripts: <code>initialise.R</code>, <code>prepare.R</code>,
+<code>analyse.R</code>.</li>
+<li>Post-build hooks: <code>hooks/validate-results.R</code>, then
+<code>hooks/finish-build.R</code>.</li>
+</ol>
+<p><code>scripts</code> appears before <code>pipeline</code>, so
+<code>initialise.R</code> runs first. <code>hooks</code> appears after
+<code>pipeline</code>, so the inline hooks run after the pipeline’s
+hooks in each phase. Moving <code>hooks</code> above
+<code>pipeline</code> would run <code>hooks/check-build.R</code> before
+<code>hooks/check-data.R</code>, and <code>hooks/finish-build.R</code>
+before <code>hooks/validate-results.R</code>. With several pipelines,
+the inline entries go before or after the whole group.</p>
+<p>A pre-build hook stays in the pre-build phase and a post-build hook
+stays in the post-build phase, whatever the key order. A
+<code>both</code> hook runs in each phase. A hook listed both inline and
+in a pipeline runs once.</p>
+<p>An explicit empty inline list, such as <code>scripts: []</code>, adds
+nothing and leaves the pipelines’ scripts in place. Without a selected
+pipeline, <code>scripts: []</code> still skips rendering and
+scripts.</p>
+<p>Development builds keep their usual inline sources. They combine the
+pipelines with <code>dev.scripts</code> (or <code>build.scripts</code>
+when <code>dev.scripts</code> is absent) and with
+<code>dev.hooks</code>. They never use <code>build.hooks</code>. The
+<code>scripts</code> argument of <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code> takes
+the place of those inline scripts and combines with the pipelines in the
+same position. Without a pipeline it replaces <code>dev.scripts</code>
+and <code>build.scripts</code>, as before.</p>
+</div>
+<div class="section level3">
+<h3 id="turning-pipelines-off">Turning pipelines off<a class="anchor" aria-label="anchor" href="#turning-pipelines-off"></a>
+</h3>
+<p>Set <code>pipeline: false</code> or <code>pipeline: []</code> to
+select no pipeline. In <code>_projr-local.yml</code> or a profile, this
+overrides the <code>pipeline</code> set in a lower-precedence file,
+because the higher file’s value replaces the lower one whole. For one
+build, pass <code>pipeline = FALSE</code>. Inline scripts and hooks, and
+the <code>scripts</code> argument, still run. To run a single script
+during development:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span>scripts <span class="op">=</span> <span class="st">"explore.R"</span>, pipeline <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="how-projr-reads-key-order">How projr reads key order<a class="anchor" aria-label="anchor" href="#how-projr-reads-key-order"></a>
+</h3>
+<p>YAML mappings are formally unordered. Reading key order here is a
+projr convention, not a YAML guarantee, so keep <code>scripts</code>,
+<code>pipeline</code> and <code>hooks</code> in the same mapping and in
+the order you want.</p>
+<p>projr reads the order from the file with the highest precedence that
+sets <code>pipeline</code>: <code>_projr-local.yml</code>, then the
+active profiles in order, then <code>_projr.yml</code>. For a
+development build it looks for <code>dev.pipeline</code> first, then
+<code>build.pipeline</code>. If that mapping does not contain the inline
+key, the inline entries run first.</p>
+<p>When only the <code>pipeline</code> argument selects pipelines and no
+file sets <code>pipeline</code>, the pipelines’ entries run after the
+inline entries. When the argument replaces a configured selection, the
+configured position still applies.</p>
+<p>A profile’s <code>pipelines.&lt;name&gt;.scripts</code> replaces the
+list from <code>_projr.yml</code> rather than adding to it.</p>
 </div>
 </div>
 <div class="section level2">

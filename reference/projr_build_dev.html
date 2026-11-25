@@ -60,6 +60,7 @@ first versioned build. Staged outputs are available in the build cache.</p>
 <span>  old_dev_remove <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  profile <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pipeline <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  clear_output <span class="op">=</span> <span class="st">"never"</span>,</span>
 <span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -73,7 +74,9 @@ first versioned build. Staged outputs are available in the build cache.</p>
 <dd><p>character vector.
 Paths or glob patterns for scripts to build, relative to the project root
 or absolute. Prefix a pattern with <code>!</code> to exclude matches. Use an empty
-character vector or <code>""</code> to skip running scripts. The default, <code>NULL</code>,
+character vector or <code>""</code> to skip running scripts. With a pipeline
+selected, these scripts take the place of <code>dev.scripts</code> and combine with
+the pipeline's; add <code>pipeline = FALSE</code> to run only them. The default, <code>NULL</code>,
 checks <code>dev.scripts</code> and then <code>build.scripts</code>. If neither is set, a
 Quarto or Bookdown project renders before automatically detected R scripts.
 Without a project, scripts are detected in the project root and run
@@ -114,8 +117,20 @@ Quarto renders in the foreground so later scripts and hooks see its output.</p><
 
 <dt id="arg-profile">profile<a class="anchor" aria-label="anchor" href="#arg-profile"></a></dt>
 <dd><p>character.
-<code>projr</code> profile to use. Will set the environment variable
-.PROFILE` to this value at the start of the build,</p></dd>
+<code>projr</code> profile to use. Sets <code>PROJR_PROFILE</code> for the build, so it
+overrides that variable and the <code>profile</code> key in <code>_projr-local.yml</code> and
+<code>_projr.yml</code>.</p></dd>
+
+
+<dt id="arg-pipeline">pipeline<a class="anchor" aria-label="anchor" href="#arg-pipeline"></a></dt>
+<dd><p>character.
+Names of pipelines under <code>pipelines</code> to run in order, or <code>FALSE</code> to run
+none. Entries can be globs; a glob's matches run in their order under
+<code>pipelines</code>, and each pipeline runs once.
+Overrides <code>build.pipeline</code> (or <code>dev.pipeline</code> for development builds) for
+this build. Inline <code>scripts</code> and <code>hooks</code>, and the <code>scripts</code> argument of
+<code>projr_build_dev()</code>, still combine with it. Default is <code>NULL</code>, using the
+configured selection.</p></dd>
 
 
 <dt id="arg-clear-output">clear_output<a class="anchor" aria-label="anchor" href="#arg-clear-output"></a></dt>

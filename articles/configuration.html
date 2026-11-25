@@ -105,16 +105,36 @@ its directory declarations determine which labels are available.</p>
 </tbody>
 </table>
 <p>Each file can live at the project root or in
-<code>.projr/config/</code>. When both locations contain the same
-filename, the root copy wins. All relative paths in either location
+<code>.projr/config/</code>. Inside <code>.projr/config/</code>, the
+shorter names <code>default.yml</code>, <code>local.yml</code> and
+<code>&lt;profile&gt;.yml</code> also work. When both locations contain
+the same file, the root copy wins. All relative paths in either location
 start at the project root. A nested script can therefore use the same
 directory labels when run in RStudio or during a build.</p>
 <p>Select profiles with a build’s <code>profile</code> argument or
 <code>PROJR_PROFILE</code>. For example,
 <code>Sys.setenv(PROJR_PROFILE = "site-a,cluster")</code> applies both
 named profiles, with the earlier name taking precedence when both
-specify a value. Local overrides still win. Use
-<code><a href="../reference/projr_yml_get.html">projr_yml_get()</a></code> to inspect the merged settings,
+specify a value. Local overrides still win.</p>
+<p>To choose profiles without an argument, add a <code>profile</code>
+key to <code>_projr.yml</code> or <code>_projr-local.yml</code>. A
+string or sequence names projr profiles. A mapping names projr and
+Quarto profiles separately:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">profile</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">site-a</span><span class="kw">,</span><span class="at"> cluster</span><span class="kw">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">profile</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="at">  </span><span class="fu">projr</span><span class="kw">:</span><span class="at"> site-a</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">  </span><span class="fu">quarto</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">print</span><span class="kw">]</span></span></code></pre></div>
+<p>projr uses the first of these that names projr profiles: the build’s
+<code>profile</code> argument, <code>PROJR_PROFILE</code>,
+<code>profile</code> in <code>_projr-local.yml</code>, then
+<code>profile</code> in <code>_projr.yml</code>. For Quarto, the order
+is the <code>profile</code> option in <code>args_engine</code>,
+<code>QUARTO_PROFILE</code>, then the two files. Environment variables
+outrank the files, so a single run can select profiles without editing a
+tracked file, and <code><a href="../reference/projr_reproduce.html">projr_reproduce()</a></code> can restore a build’s
+recorded profiles. A named profile file cannot contain
+<code>profile</code>, and renv profiles are not supported yet.</p>
+<p>Use <code><a href="../reference/projr_yml_get.html">projr_yml_get()</a></code> to inspect the merged settings,
 <code>projr_yml_get("default")</code> to inspect the base file, and
 <code><a href="../reference/projr_yml_check.html">projr_yml_check()</a></code> to validate the active configuration.</p>
 <div class="section level3">
@@ -158,18 +178,18 @@ former cache directory remain readable with
 <p>This example keeps incoming data and generated figures where they
 already live. It also creates a deliverable containing the figures and
 the rendered documents.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data</span><span class="kw">:</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> incoming/site-a</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="at">  </span><span class="fu">cache</span><span class="kw">:</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> scratch</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="at">  </span><span class="fu">docs</span><span class="kw">:</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> reports/rendered</span></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="at">  </span><span class="fu">output-figures</span><span class="kw">:</span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> results/figures</span></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="at">  </span><span class="fu">output-delivery</span><span class="kw">:</span></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> deliverables</span></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="at">    </span><span class="fu">include</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-figures</span><span class="kw">,</span><span class="at"> docs</span><span class="kw">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-data</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> incoming/site-a</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">  </span><span class="fu">cache</span><span class="kw">:</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> scratch</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="at">  </span><span class="fu">docs</span><span class="kw">:</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> reports/rendered</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="at">  </span><span class="fu">output-figures</span><span class="kw">:</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> results/figures</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="at">  </span><span class="fu">output-delivery</span><span class="kw">:</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> deliverables</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="at">    </span><span class="fu">include</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-figures</span><span class="kw">,</span><span class="at"> docs</span><span class="kw">]</span></span></code></pre></div>
 <p>After a production build, the included copies are under
 <code>deliverables/output-figures/</code> and
 <code>deliverables/docs/</code>. Each copy reflects the current source,
@@ -319,6 +339,21 @@ argument to <code><a href="../reference/projr_build_dev.html">projr_build_dev()<
 <code>both</code>. Supply R script paths under the stage. Dev and
 production hooks are configured independently.</td>
 </tr>
+<tr class="even">
+<td><code>pipelines.&lt;name&gt;</code></td>
+<td>A named set of <code>scripts</code> and <code>hooks</code> with the
+same formats as the inline settings.</td>
+</tr>
+<tr class="odd">
+<td>
+<code>build.pipeline</code>, <code>dev.pipeline</code>
+</td>
+<td>One pipeline name or glob, or a list run in order, for production or
+development builds. <code>false</code> or <code>[]</code> selects none.
+Dev builds fall back to <code>build.pipeline</code>. The
+<code>pipeline</code> argument of the build functions takes precedence,
+and <code>pipeline = FALSE</code> selects none.</td>
+</tr>
 </tbody>
 </table>
 <p>A script selection accepts <code>.R</code>, <code>.Rmd</code> and
@@ -336,12 +371,17 @@ alphabetically. Overlapping globs select each file once. Repeating a
 literal R script or standalone document runs it again. An explicit
 <code>scripts: []</code>, or <code>scripts = character()</code> in R,
 skips document rendering and script execution.</p>
+<p>With a pipeline selected, inline <code>scripts</code> and
+<code>hooks</code> under <code>build</code> or <code>dev</code>, and the
+<code>scripts</code> argument of <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code>, combine
+with its entries. Their key position relative to <code>pipeline</code>
+decides whether they run before or after the pipeline’s entries. See <a href="scripts-and-hooks.html#named-pipelines">named pipelines</a>.</p>
 <p>For example, suppose a Quarto project has the following
 selection.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">prepare.R</span><span class="kw">,</span><span class="at"> intro.qmd</span><span class="kw">,</span><span class="at"> check-data.R</span><span class="kw">,</span><span class="at"> results.qmd</span><span class="kw">,</span><span class="at"> summarise.R</span><span class="kw">]</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="at">    </span><span class="fu">post</span><span class="kw">:</span><span class="at"> hooks/record-build.R</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="at">  </span><span class="fu">scripts</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">prepare.R</span><span class="kw">,</span><span class="at"> intro.qmd</span><span class="kw">,</span><span class="at"> check-data.R</span><span class="kw">,</span><span class="at"> results.qmd</span><span class="kw">,</span><span class="at"> summarise.R</span><span class="kw">]</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">  </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="at">    </span><span class="fu">post</span><span class="kw">:</span><span class="at"> hooks/record-build.R</span></span></code></pre></div>
 <p>Here <code>prepare.R</code> and <code>check-data.R</code> run first.
 Quarto builds <code>intro.qmd</code> and <code>results.qmd</code>
 together when the selection reaches <code>results.qmd</code>. Then
@@ -508,10 +548,10 @@ publish to, including those requested with <code>archive_github</code>
 or <code>archive_local</code>. To check specific archives on every
 production build, list their configured titles. This also checks
 registered archives that the build only reads.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="at">  </span><span class="fu">restrictions</span><span class="kw">:</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">    </span><span class="fu">not_behind_remote</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">reports</span><span class="kw">,</span><span class="at"> backup</span><span class="kw">]</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="fu">rule</span><span class="kw">:</span><span class="at"> target</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="at">  </span><span class="fu">restrictions</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="at">    </span><span class="fu">not_behind_remote</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">reports</span><span class="kw">,</span><span class="at"> backup</span><span class="kw">]</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="at">    </span><span class="fu">rule</span><span class="kw">:</span><span class="at"> target</span></span></code></pre></div>
 <p>If the same title appears under both <code>remotes.github</code> and
 <code>remotes.local</code>, write it as
 <code>&lt;type&gt;:&lt;title&gt;</code>, for example
@@ -524,10 +564,10 @@ Development builds skip both checks.</p>
 <div class="section level2">
 <h2 id="hashing-and-history">Hashing and history<a class="anchor" aria-label="anchor" href="#hashing-and-history"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">settings</span><span class="kw">:</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hashing</span><span class="kw">:</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">    </span><span class="fu">approach</span><span class="kw">:</span><span class="at"> cpp</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="at">    </span><span class="fu">cores</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">settings</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hashing</span><span class="kw">:</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="at">    </span><span class="fu">approach</span><span class="kw">:</span><span class="at"> cpp</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="at">    </span><span class="fu">cores</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span></code></pre></div>
 <p><code>cpp</code> streams files through the native implementation.
 <code>legacy</code> uses the historical R hashing method. Both produce
 the same file MD5s and use the same directory histories.
@@ -590,24 +630,24 @@ production build writes to. This example keeps a complete local archive
 called <code>shared</code> and sends just the figures to a GitHub
 repository. The project declares <code>output-figures</code> under
 <code>directories</code>.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> ../team-archives/study</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">      </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> research-team/study-results</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">      </span><span class="fu">tag</span><span class="kw">:</span><span class="at"> </span><span class="st">"figures-@branch"</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="at">      </span><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="at">      </span><span class="fu">send</span><span class="kw">:</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="at">        </span><span class="fu">inspect</span><span class="kw">:</span><span class="at"> manifest</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="at">        </span><span class="fu">strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="at">  </span><span class="fu">dest</span><span class="kw">:</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-figures</span><span class="kw">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> ../team-archives/study</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="at">      </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> research-team/study-results</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="at">      </span><span class="fu">tag</span><span class="kw">:</span><span class="at"> </span><span class="st">"figures-@branch"</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="at">      </span><span class="fu">structure</span><span class="kw">:</span><span class="at"> archive</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="at">      </span><span class="fu">send</span><span class="kw">:</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="at">        </span><span class="fu">inspect</span><span class="kw">:</span><span class="at"> manifest</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="at">        </span><span class="fu">strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="at">  </span><span class="fu">dest</span><span class="kw">:</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-figures</span><span class="kw">]</span></span></code></pre></div>
 <p><code>build.dest</code> takes one of three forms.</p>
 <table class="table">
 <colgroup>
@@ -824,7 +864,7 @@ section of that build’s <code>.projr/BUILDLOG.md</code>. In an older
 checkout, projr can read a root <code>BUILDLOG.md</code>. The next build
 or restore moves that history into <code>.projr/</code>. The changelog
 stays at the root.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">projr</span><span class="fu">::</span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"output-delivery"</span>, remote <span class="op">=</span> <span class="st">"local:shared"</span><span class="op">)</span></span></code></pre></div>
 <p><code>projr_restore_repo("owner/repo")</code> clones a repository and
 fetches its directories with <code><a href="../reference/projr_source.html">projr_source()</a></code>. Use
@@ -842,30 +882,30 @@ remotes before a build runs. It takes the same three forms as
 declared raw label. This example takes the latest survey files from a
 colleague’s GitHub release and pins the codebook to their build 0.6.3 in
 a local archive.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="at">    </span><span class="fu">survey-team</span><span class="kw">:</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="at">      </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> example/survey</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="at">      </span><span class="fu">tag</span><span class="kw">:</span><span class="at"> archive</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="at">      </span><span class="fu">get</span><span class="kw">:</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> ../team-archives/survey</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-survey</span><span class="kw">:</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data/survey</span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-codebook</span><span class="kw">:</span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data/codebook</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="at">  </span><span class="fu">source</span><span class="kw">:</span></span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="at">    </span><span class="fu">survey-team</span><span class="kw">:</span></span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-survey</span><span class="kw">]</span></span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="at">    local</span><span class="fu">:shared</span><span class="kw">:</span></span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-codebook</span><span class="kw">]</span></span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="at">      </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">"0.6.3"</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="at">    </span><span class="fu">survey-team</span><span class="kw">:</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="at">      </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> example/survey</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="at">      </span><span class="fu">tag</span><span class="kw">:</span><span class="at"> archive</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="at">      </span><span class="fu">get</span><span class="kw">:</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> ../team-archives/survey</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-survey</span><span class="kw">:</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data/survey</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-codebook</span><span class="kw">:</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data/codebook</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="at">  </span><span class="fu">source</span><span class="kw">:</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="at">    </span><span class="fu">survey-team</span><span class="kw">:</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-survey</span><span class="kw">]</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="at">    local</span><span class="fu">:shared</span><span class="kw">:</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-codebook</span><span class="kw">]</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="at">      </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">"0.6.3"</span></span></code></pre></div>
 <p>Set defaults under
 <code>remotes.&lt;type&gt;.&lt;title&gt;.get</code>. A setting under
 <code>build.source</code> applies to every listed remote, and a setting
@@ -946,7 +986,7 @@ whether to keep the local files, replace them or cancel. Otherwise
 same label and <code>build.source</code> does not choose one, name it
 with <code>remote</code>. <code>version = "current"</code> restores this
 checkout’s recorded build, as <code><a href="../reference/projr_restore.html">projr_restore()</a></code> does.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">projr</span><span class="fu">::</span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-survey"</span>, conflict <span class="op">=</span> <span class="st">"remote"</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

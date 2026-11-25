@@ -68,6 +68,7 @@ bumped set automatically, e.g. projr_build_major()<code> is equivalent projr_bui
 <span>  msg <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  profile <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pipeline <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  archive_github <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  archive_local <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  always_archive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -79,6 +80,7 @@ bumped set automatically, e.g. projr_build_major()<code> is equivalent projr_bui
 <span>  msg <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  profile <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pipeline <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  archive_github <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  archive_local <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  always_archive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -90,6 +92,7 @@ bumped set automatically, e.g. projr_build_major()<code> is equivalent projr_bui
 <span>  msg <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  profile <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pipeline <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  archive_github <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  archive_local <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  always_archive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -101,6 +104,7 @@ bumped set automatically, e.g. projr_build_major()<code> is equivalent projr_bui
 <span>  msg <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  args_engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  profile <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pipeline <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  archive_github <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  archive_local <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  always_archive <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -150,8 +154,20 @@ Quarto renders in the foreground so later scripts and hooks see its output.</p><
 
 <dt id="arg-profile">profile<a class="anchor" aria-label="anchor" href="#arg-profile"></a></dt>
 <dd><p>character.
-<code>projr</code> profile to use. Will set the environment variable
-.PROFILE` to this value at the start of the build,</p></dd>
+<code>projr</code> profile to use. Sets <code>PROJR_PROFILE</code> for the build, so it
+overrides that variable and the <code>profile</code> key in <code>_projr-local.yml</code> and
+<code>_projr.yml</code>.</p></dd>
+
+
+<dt id="arg-pipeline">pipeline<a class="anchor" aria-label="anchor" href="#arg-pipeline"></a></dt>
+<dd><p>character.
+Names of pipelines under <code>pipelines</code> to run in order, or <code>FALSE</code> to run
+none. Entries can be globs; a glob's matches run in their order under
+<code>pipelines</code>, and each pipeline runs once.
+Overrides <code>build.pipeline</code> (or <code>dev.pipeline</code> for development builds) for
+this build. Inline <code>scripts</code> and <code>hooks</code>, and the <code>scripts</code> argument of
+<code><a href="projr_build_dev.html">projr_build_dev()</a></code>, still combine with it. Default is <code>NULL</code>, using the
+configured selection.</p></dd>
 
 
 <dt id="arg-archive-github">archive_github<a class="anchor" aria-label="anchor" href="#arg-archive-github"></a></dt>
