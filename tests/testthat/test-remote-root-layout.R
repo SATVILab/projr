@@ -48,11 +48,11 @@ test_that("unlabeled local destinations keep manifests separate from their paylo
     expect_identical(readLines(file.path(latest, "result.txt")), "1.0.1-2")
     for (layout in c("latest", "archive")) {
       writeLines("stale", file.path(source, "other.txt"))
-      projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = layout,
-        clear = TRUE
+      projr_source(
+        "raw-data",
+        paste0("local:", layout),
+        cue = "always",
+        conflict = "remote"
       )
       expect_identical(
         list.files(source, all.files = TRUE, no.. = TRUE),
@@ -133,21 +133,17 @@ test_that("flat local destinations preserve history through an empty build", {
         # An explicitly empty build must clear a stale copy during restore.
         writeLines("stale", file)
         if (i == 2L) {
-          expect_false(projr_content_update(
-            label,
-            pos = "dest",
-            type = "local",
-            title = layout,
-            clear = FALSE
-          ))
+          expect_error(
+            projr_source(label, paste0("local:", layout), conflict = "error"),
+            "local changes"
+          )
           expect_identical(readLines(file), "stale")
         }
-        expect_true(projr_content_update(
+        expect_true(projr_source(
           label,
-          pos = "dest",
-          type = "local",
-          title = layout,
-          clear = TRUE
+          paste0("local:", layout),
+          cue = "always",
+          conflict = "remote"
         ))
         if (i == 2L) {
           expect_false(file.exists(file))
@@ -169,13 +165,16 @@ test_that("flat local destinations preserve history through an empty build", {
         # Missing files from a populated snapshot do not confirm an empty build.
         remote_file <- file.path(destinations[["latest"]], "result.txt")
         unlink(remote_file)
-        expect_false(projr_content_update(
-          label,
-          pos = "dest",
-          type = "local",
-          title = "latest",
-          clear = TRUE
-        ))
+        expect_error(
+          projr_source(
+            label,
+            "local:latest",
+            cue = "always",
+            inspect = "file",
+            conflict = "remote"
+          ),
+          "No matching files"
+        )
         expect_identical(readLines(file), "original")
         writeLines("original", remote_file)
       }

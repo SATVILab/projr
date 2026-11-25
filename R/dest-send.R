@@ -487,7 +487,11 @@
   yml <- .yml_get(NULL)
   selection <- yml[["build"]][[type]][[title]]
   content <- selection[["content"]]
-  if (!length(selection) && title %in% names(yml[["build"]][[type]])) {
+  # A registered remote selected without content sends all eligible labels.
+  if (
+    (!length(selection) && title %in% names(yml[["build"]][[type]])) ||
+      (is.null(content) && title %in% names(yml[["remotes"]][[type]]))
+  ) {
     return(.dest_send_title_get_content_auto())
   }
   if (is.null(content) || isFALSE(content)) {

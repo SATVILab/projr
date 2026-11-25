@@ -784,6 +784,18 @@ projr_use_data <- function(
   c("cue", "strategy", "conflict", "inspect")
 }
 
+# Fetch settings for `remotes.<type>.<title>.get` and `build.source`, with
+# the default first. `version` also accepts an x.y.z version.
+.opt_remote_fetch_get <- function() {
+  list(
+    version = "latest",
+    cue = c("if-empty", "never", "if-change", "always"),
+    inspect = c("manifest", "file", "none"),
+    strategy = c("sync-diff", "sync-purge", "download-all", "download-missing"),
+    conflict = c("error", "local", "remote")
+  )
+}
+
 .try_repeat <- function(fn, args, n_try = NULL, n_sleep = 3) {
   last_error <- NULL
 

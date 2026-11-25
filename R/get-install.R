@@ -1,5 +1,6 @@
-# Stage every selected label on the destination filesystem. Committing by rename
-# lets a failed download leave all destination directories as they were.
+# Stage every selected label beside its destination. Committing by rename lets
+# a failed download leave all destination directories as they were. `option`
+# names the caller's argument that allows replacing local changes.
 .get_install <- function(
   sources,
   labels,
@@ -7,10 +8,12 @@
   producer,
   out,
   overwrite,
-  workspace
+  workspace,
+  paths = file.path(out, labels),
+  option = "overwrite"
 ) {
   hashing <- producer$hashing %||% list(approach = "cpp", cores = 1L)
-  paths <- stats::setNames(as.character(file.path(out, labels)), labels)
+  paths <- stats::setNames(as.character(paths), labels)
   protected <- character()
   for (source in sources) {
     if (source$type == "local") {
@@ -70,29 +73,22 @@
   }
   lock <- filelock::lock(lockpath)
   on.exit(filelock::unlock(lock), add = TRUE)
-  stage <- tempfile(".projr-get-", tmpdir = out)
-  fs::dir_create(stage)
-  backup <- file.path(stage, ".original")
-  fs::dir_create(backup)
-  moved <- installed <- character()
+  stages <- moved <- installed <- character()
   done <- FALSE
   on.exit(
     {
+      kept <- character()
       if (!done) {
         unlink(paths[installed], recursive = TRUE)
         for (label in moved) {
-          if (!file.rename(file.path(backup, label), paths[[label]])) {
-            warning(
-              "Original files retained in ",
-              file.path(backup, label),
-              call. = FALSE
-            )
+          backup <- file.path(stages[[label]], "original")
+          if (!file.rename(backup, paths[[label]])) {
+            warning("Original files retained in ", backup, call. = FALSE)
+            kept <- c(kept, label)
           }
         }
       }
-      if (done || !length(list.files(backup, all.files = TRUE, no.. = TRUE))) {
-        unlink(stage, recursive = TRUE)
-      }
+      unlink(stages[setdiff(names(stages), kept)], recursive = TRUE)
     },
     add = TRUE,
     after = FALSE
@@ -134,21 +130,21 @@
       if (source$type %in% c("metadata", "project")) {
         project_snapshot <- snap
       }
+      if (
+        !is.null(snap$id) &&
+          !is.null(project_snapshot$id) &&
+          snap$id != project_snapshot$id
+      ) {
+        stop(
+          "Sources disagree about ",
+          label,
+          " at ",
+          version,
+          ".",
+          call. = FALSE
+        )
+      }
       if (is.null(snap$files)) {
-        if (
-          !is.null(snap$id) &&
-            !is.null(project_snapshot$id) &&
-            snap$id != project_snapshot$id
-        ) {
-          stop(
-            "Sources disagree about ",
-            label,
-            " at ",
-            version,
-            ".",
-            call. = FALSE
-          )
-        }
         if (is.null(project_snapshot$files)) {
           next
         }
@@ -167,10 +163,11 @@
         )
       }
       expected <- snap$files
-      if (source$type == "metadata") {
+      # A recorded empty directory needs no payload from any source.
+      if (source$type == "metadata" && length(expected)) {
         next
       }
-      if (source$type != "project") {
+      if (!source$type %in% c("metadata", "project")) {
         snap$versions <- unique(c(
           snap$versions,
           .restore_matching_versions(source$store, label, snap)
@@ -190,13 +187,21 @@
           path,
           " differ from ",
           version,
-          ". Use overwrite = TRUE to replace them.",
+          ". Use ",
+          option,
+          " = TRUE to replace them.",
           call. = FALSE
         )
       }
-      dest <- file.path(stage, label)
+      if (is.na(stages[label])) {
+        fs::dir_create(dirname(path))
+        stages[[label]] <- tempfile(".projr-get-", tmpdir = dirname(path))
+      }
+      dest <- file.path(stages[[label]], "new")
       fs::dir_create(dest)
-      if (source$type == "github") {
+      if (source$type == "metadata") {
+        found <- TRUE
+      } else if (source$type == "github") {
         found <- .get_github_label(
           source,
           label,
@@ -223,18 +228,25 @@
       unlink(dest, recursive = TRUE)
     }
     if (!found) {
-      stop("No matching files for ", label, " at ", version, ".", call. = FALSE)
+      stop(
+        "No matching files for ",
+        label,
+        " at ",
+        version,
+        ". No matching archive was found.",
+        call. = FALSE
+      )
     }
   }
-  for (label in labels[dir.exists(file.path(stage, labels))]) {
+  for (label in names(stages)[dir.exists(file.path(stages, "new"))]) {
     path <- paths[[label]]
     if (dir.exists(path)) {
-      if (!file.rename(path, file.path(backup, label))) {
+      if (!file.rename(path, file.path(stages[[label]], "original"))) {
         stop("Could not move existing ", path, call. = FALSE)
       }
       moved <- c(moved, label)
     }
-    if (!file.rename(file.path(stage, label), path)) {
+    if (!file.rename(file.path(stages[[label]], "new"), path)) {
       stop("Could not install ", path, call. = FALSE)
     }
     installed <- c(installed, label)

@@ -76,6 +76,36 @@ projr_get_github <- function(
   out,
   overwrite
 ) {
+  .assert_string(out, TRUE)
+  .assert_flag(overwrite, TRUE)
+  workspace <- tempfile("projr-get-")
+  fs::dir_create(workspace)
+  on.exit(unlink(workspace, recursive = TRUE), add = TRUE)
+  resolved <- .get_resolve(type, direct, remote, tag, label, version, workspace)
+  .get_install(
+    resolved$sources,
+    resolved$label,
+    resolved$version,
+    resolved$producer,
+    .path_resolve_links(fs::path_abs(out)),
+    overwrite,
+    workspace
+  )
+}
+
+# Find the manifest sources, completed version and labels a read uses,
+# downloading only metadata into `workspace`. Caller `metadata` (a checkout's
+# own manifests) is consulted first and keeps a release without a manifest.
+.get_resolve <- function(
+  type,
+  direct,
+  remote,
+  tag,
+  label,
+  version,
+  workspace,
+  metadata = NULL
+) {
   .assert_string(direct)
   .assert_string(remote)
   if (is.null(direct) == is.null(remote)) {
@@ -93,13 +123,6 @@ projr_get_github <- function(
     .assert_detect_single(version, "^v?[0-9]+([.-][0-9]+)*$", TRUE)
     version <- .version_v_add(version)
   }
-  .assert_string(out, TRUE)
-  .assert_flag(overwrite, TRUE)
-  out <- .path_resolve_links(fs::path_abs(out))
-  workspace <- tempfile("projr-get-")
-  fs::dir_create(workspace)
-  on.exit(unlink(workspace, recursive = TRUE), add = TRUE)
-
   if (!is.null(remote) || type == "local") {
     root <- if (is.null(remote)) fs::path_real(direct) else .path_get()
     producer <- with_dir(root, {
@@ -139,6 +162,7 @@ projr_get_github <- function(
       producer <- list(repo = repo)
     }
   }
+  producer$metadata <- producer$metadata %||% metadata
 
   sources <- list()
   record <- producer$record
@@ -173,7 +197,7 @@ projr_get_github <- function(
   for (key in titles) {
     def <- .yml_remote_definition(type, key, yml = yml) %||%
       .yml_remote_definition(type, key, yml = producer$yml)
-    if (!is.null(remote) && !is.null(def) && !is.null(version)) {
+    if (!is.null(remote) && !is.null(version)) {
       def <- .yml_remote_definition(type, key, record$yml) %||% def
     }
     if (is.null(def) && !is.null(remote)) {
@@ -246,7 +270,11 @@ projr_get_github <- function(
         )
       }
     }
-    if (.manifest_store_ready(source$store) || file.exists(source$csv)) {
+    if (
+      .manifest_store_ready(source$store) ||
+        file.exists(source$csv) ||
+        !is.null(metadata)
+    ) {
       sources[[length(sources) + 1L]] <- source
     }
   }
@@ -315,14 +343,11 @@ projr_get_github <- function(
     stop("No published labels for ", version, ".", call. = FALSE)
   }
   .assert_directory_labels(label)
-  .get_install(
-    sources,
-    unique(label),
-    version,
-    producer,
-    out,
-    overwrite,
-    workspace
+  list(
+    sources = sources,
+    label = unique(label),
+    version = version,
+    producer = producer
   )
 }
 

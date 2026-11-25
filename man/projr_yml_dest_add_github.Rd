@@ -17,7 +17,8 @@ projr_yml_dest_add_github(
 )
 }
 \arguments{
-\item{title}{character. GitHub release tag. The tag can contain
+\item{title}{character. Name of the archive under \code{remotes.github}, also
+used as the GitHub release tag and title. It can contain
 \verb{@branch}, \verb{@version}, and \verb{@uuid}.}
 
 \item{content}{character vector.
@@ -50,6 +51,7 @@ release should target. Use \verb{@branch} for the current checkout branch.
 The default uses GitHub's release target.}
 }
 \description{
-Add a GitHub release as a destination
-to a _projr.yml file.
+Register a GitHub release as an archive and select it for production
+builds. The release settings are written under \verb{remotes.github.<title>},
+and the selection, with its \code{content}, under \code{build.dest}.
 }

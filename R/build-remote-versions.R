@@ -106,40 +106,30 @@
     ))
   })
   names(available) <- names(archives)
-  if (is.character(selection)) {
-    result <- list()
-    for (title in unique(selection)) {
-      types <- names(Filter(function(titles) title %in% titles, available))
-      if (!length(types)) {
-        stop("Unknown remote title: ", title, call. = FALSE)
-      }
-      if (length(types) > 1L) {
-        stop(
-          "Ambiguous remote title: ",
-          title,
-          ". Specify its type (",
-          paste(types, collapse = " or "),
-          ").",
-          call. = FALSE
-        )
-      }
-      result[[types]] <- c(result[[types]], title)
+  result <- list()
+  for (ref in unique(selection)) {
+    parts <- regmatches(ref, regexec("^(local|github):(.+)$", ref))[[1L]]
+    title <- if (length(parts)) parts[[3L]] else ref
+    types <- names(Filter(function(titles) title %in% titles, available))
+    if (length(parts)) {
+      types <- intersect(types, parts[[2L]])
     }
-    return(result)
-  }
-  for (type in names(selection)) {
-    missing <- setdiff(selection[[type]], available[[type]])
-    if (length(missing)) {
+    if (!length(types)) {
+      stop("Unknown remote title: ", ref, call. = FALSE)
+    }
+    if (length(types) > 1L) {
       stop(
-        "Unknown ",
-        type,
-        " remote title: ",
-        paste(missing, collapse = ", "),
+        "Ambiguous remote title: ",
+        ref,
+        ". Use ",
+        paste0(types, ":", title, collapse = " or "),
+        ".",
         call. = FALSE
       )
     }
+    result[[types]] <- c(result[[types]], title)
   }
-  selection
+  result
 }
 
 .build_remote_version <- function(type, target, workspace) {

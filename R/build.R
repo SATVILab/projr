@@ -47,9 +47,11 @@
 #' If a character vector, then only the directories
 #' specified are uploaded.
 #' Default is `FALSE`.
-#' Ignored if there is a release named `archive`
-#' already specified as a destination in
+#' Ignored if a release named `archive`
+#' is already selected under `build.dest` in
 #' the `projr` configuration file.
+#' Otherwise, `remotes.github.archive` is registered in `_projr.yml`
+#' if absent, without adding it to `build.dest`.
 #' @param archive_local `TRUE`, `FALSE` or character vector of
 #' directory labels.
 #' If `TRUE`, then all directories (`raw-data`, `output`, etc)
@@ -58,14 +60,16 @@
 #' If a character vector, then only the directories
 #' specified are archived.
 #' Default is `FALSE`.
+#' When used, `remotes.local.archive` (with `path: _archive`) is registered
+#' in `_projr.yml` if absent, without adding it to `build.dest`.
 #' @param always_archive logical.
 #' If `TRUE`, then the directories are uploaded
 #' regardless of whether the directory to be uploaded
 #' has exactly the same contents as the latest version
 #' of the directory on the GitHub release.
 #' Default is `TRUE`.
-#' Ignored if there is a release named `archive`
-#' already specified as a destination in
+#' Ignored if a release named `archive`
+#' is already selected under `build.dest` in
 #' the `projr` configuration file.
 #' @param args_engine List of options for the selected build engines. For one
 #'   engine, use its native arguments directly, e.g. `list(quiet = TRUE)` for
@@ -509,6 +513,11 @@ projr_build_dev <- function(
   # whether it's an output run  or not
   output_run <- .build_get_output_run(bump_component)
 
+  # Plan raw-input fetches (downloads into staging only) before any changes.
+  source_workspace <- .dir_create_tmp_random()
+  on.exit(unlink(source_workspace, recursive = TRUE), add = TRUE)
+  source_plan <- .source_plan(source_workspace)
+
   if (output_run) {
     .build_check_remote_versions(
       version_run_on_list$desc[["run"]],
@@ -532,10 +541,13 @@ projr_build_dev <- function(
     archive_local = archive_local,
     always_archive = always_archive
   )
+  .build_pre_register_archives(output_run, archive_github, archive_local)
 
   # update reng, ignore files, doc directory and version
   .build_pre_document(output_run, archive_local)
   .ignore_auto_document_outputs(documents)
+
+  .source_install(source_plan)
 
   # run any pre-build hooks (backward compatible with build.script)
   # For dev builds, use dev.hooks; for production builds, use build.hooks

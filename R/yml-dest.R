@@ -192,7 +192,15 @@
   definition <- .yml_remote_definition(type, title, yml)
   if (title != "archive" || isFALSE(archive_type) || is.null(archive_type)) {
     if (title %in% names(yml[["remotes"]][[type]])) {
-      definition[["content"]] <- yml[["build"]][[type]][[title]][["content"]]
+      selection <- yml[["build"]][[type]][[title]]
+      definition[["content"]] <- selection[["content"]]
+      send <- selection[intersect(names(selection), .opt_build_send_names())]
+      if (length(send)) {
+        definition[["send"]] <- utils::modifyList(
+          definition[["send"]] %||% list(),
+          send
+        )
+      }
     }
     return(definition)
   }
@@ -401,7 +409,7 @@
     type = type,
     profile = profile
   )
-  yml_title[["cue"]] <- cue
+  yml_title[["send"]][["cue"]] <- cue
   .yml_dest_set_title(
     yml = yml_title,
     title = title,
@@ -412,107 +420,138 @@
 }
 
 # -----------------
-# default
+# removing
 # -----------------
 
-.yml_dest_add_add_default <- function(type, list_add, profile) {
-  .yml_dest_set_title(
-    type = type,
-    title = names(list_add),
-    profile = profile
-  )
-}
-
 .yml_dest_rm_title <- function(title, type, profile) {
-  yml_type <- .yml_dest_get_type(type, profile)
-  yml_type[[title]] <- NULL
-  .yml_dest_set_type(yml_type, type, profile)
+  profile <- profile %||% "default"
+  config <- .yml_get(profile)
+  config[["remotes"]][[type]][[title]] <- NULL
+  config[["build"]][["dest"]] <- .yml_build_dest_drop(
+    config[["build"]][["dest"]],
+    function(ref) ref %in% c(title, paste0(type, ":", title))
+  )
+  .yml_set(.yml_remotes_tidy(config), profile)
 }
 
-# removing
 .yml_dest_rm_type <- function(type, profile) {
-  .yml_dest_set_type(NULL, type, profile)
+  profile <- profile %||% "default"
+  config <- .yml_get(profile)
+  titles <- names(config[["remotes"]][[type]])
+  config[["remotes"]][[type]] <- NULL
+  config[["build"]][["dest"]] <- .yml_build_dest_drop(
+    config[["build"]][["dest"]],
+    function(ref) ref %in% c(titles, paste0(type, ":", titles))
+  )
+  .yml_set(.yml_remotes_tidy(config), profile)
 }
 
 .yml_dest_rm_type_all <- function(profile) {
-  type_vec <- .yml_dest_used_get(profile)
-  for (i in seq_along(type_vec)) {
-    .yml_dest_rm_type(type_vec[[i]], profile)
+  for (type in .yml_dest_opt_vec()) {
+    .yml_dest_rm_type(type, profile)
   }
   invisible(TRUE)
-}
-
-.yml_dest_used_get <- function(profile) {
-  .yml_dest_opt_vec()[
-    .yml_dest_opt_vec() %in%
-      names(.yml_get(profile)[["build"]])
-  ]
 }
 
 .yml_dest_opt_vec <- function() {
   c("local", "github")
 }
 
+# Remove emptied `remotes`/`build.dest` nodes so the YAML stays tidy.
+.yml_remotes_tidy <- function(config) {
+  config[["remotes"]] <- Filter(length, config[["remotes"]])
+  if (!length(config[["remotes"]])) {
+    config[["remotes"]] <- NULL
+  }
+  if (!length(config[["build"]][["dest"]])) {
+    config[["build"]][["dest"]] <- NULL
+  }
+  config
+}
+
+# `build.dest` in mapping form, without the remote entries `drop` selects.
+.yml_build_dest_drop <- function(dest, drop) {
+  dest <- .yml_build_dest_mapping(dest)
+  dest[!vapply(names(dest), drop, logical(1L))]
+}
+
+# `build.dest` in mapping form: global options, then one entry per remote.
+.yml_build_dest_mapping <- function(dest) {
+  if (is.null(dest)) {
+    return(list())
+  }
+  parsed <- .yml_build_role_parse(
+    dest,
+    "build.dest",
+    c("content", .opt_build_send_names())
+  )
+  remotes <- lapply(parsed[["remotes"]], function(x) {
+    if (length(x)) x else structure(list(), names = character())
+  })
+  c(parsed[["global"]], remotes)
+}
+
 # basic
 # -----------------
 
-# title
+# Store a destination's settings under `remotes.<type>.<title>` and select it,
+# with any `content`, under `build.dest`.
 .yml_dest_set_title <- function(yml, title, type, overwrite, profile) {
+  profile <- profile %||% "default"
   .yml_dest_set_title_check(type, title, overwrite, profile)
-  if (title %in% names(.yml_get_null(profile)[["remotes"]][[type]])) {
-    config <- .yml_get(profile)
-    settings <- yml[setdiff(names(yml), "content")]
-    # Older internal setters use the shorter cue field.
-    if (!is.null(settings[["cue"]])) {
-      settings[["send"]][["cue"]] <- settings[["cue"]]
-      settings[["cue"]] <- NULL
-    }
-    if (length(settings)) {
-      previous <- config[["remotes"]][[type]][[title]] %||% list()
-      config[["remotes"]][[type]][[title]] <- utils::modifyList(
-        previous,
-        settings
-      )
-    }
-    config[["build"]][[type]][title] <- list(yml[intersect(
-      "content",
-      names(yml)
-    )])
-    return(.yml_set(config, profile))
+  config <- .yml_get(profile)
+  settings <- yml[setdiff(names(yml), "content")]
+  # Older internal setters use the shorter cue field.
+  if (!is.null(settings[["cue"]])) {
+    settings[["send"]][["cue"]] <- settings[["cue"]]
+    settings[["cue"]] <- NULL
   }
-  yml_type <- .yml_dest_get_type(type, profile) %||%
-    (list())
-  yml_type[[title]] <- yml
-  .yml_dest_set_type(yml_type, type, profile)
+  previous <- config[["remotes"]][[type]][[title]] %||%
+    structure(list(), names = character())
+  config[["remotes"]][[type]][title] <- list(
+    utils::modifyList(previous, settings)
+  )
+  dest <- .yml_build_dest_mapping(config[["build"]][["dest"]])
+  other <- setdiff(.yml_dest_opt_vec(), type)
+  ref <- title
+  if (title %in% names(config[["remotes"]][[other]])) {
+    # A bare entry now refers to the other type; keep it unambiguous.
+    names(dest)[names(dest) == title] <- paste0(other, ":", title)
+    ref <- paste0(type, ":", title)
+  }
+  dest <- dest[!names(dest) %in% c(title, paste0(type, ":", title))]
+  dest[ref] <- list(
+    if ("content" %in% names(yml)) {
+      yml["content"]
+    } else {
+      structure(list(), names = character())
+    }
+  )
+  config[["build"]][["dest"]] <- dest
+  .yml_set(config, profile)
 }
 
 .yml_dest_set_title_check <- function(type, title, overwrite, profile) {
-  if (!overwrite) {
-    config <- .yml_get(profile)
-    if (
-      title %in%
-        c(names(config[["build"]][[type]]), names(config[["remotes"]][[type]]))
-    ) {
-      stop(
-        paste0("Title ", title, " already exists"),
-        call. = FALSE
-      )
-    }
+  if (!overwrite && title %in% names(.yml_get(profile)[["remotes"]][[type]])) {
+    stop(
+      paste0("Title ", title, " already exists"),
+      call. = FALSE
+    )
   }
 }
 
+# A destination's settings with its selected `content`, as written.
 .yml_dest_get_title <- function(title, type, profile) {
-  .yml_dest_get_type(type, profile)[[title]] %@@% NULL
+  profile <- profile %||% "default"
+  config <- .yml_get(profile)
+  definition <- config[["remotes"]][[type]][[title]]
+  dest <- .yml_build_dest_mapping(config[["build"]][["dest"]])
+  selection <- dest[[paste0(type, ":", title)]] %||% dest[[title]]
+  c(definition, selection["content"][!is.null(selection[["content"]])])
 }
 
 # most basic
 # -----------------
-
-# type
-.yml_dest_set_type <- function(yml_type, type, profile) {
-  .assert_in_single(type, c("local", "github"), TRUE)
-  .yml_build_set_nm(yml_type, type, profile)
-}
 
 .yml_dest_get_type <- function(type, profile) {
   .assert_in_single(type, c("local", "github"), TRUE)
@@ -521,4 +560,202 @@
     return(NULL)
   }
   init_list
+}
+
+# build.dest
+# -----------------
+
+# Settings `build.dest` accepts beside remote names, globally or per remote.
+.opt_build_send_names <- function() {
+  c("cue", "inspect", "strategy")
+}
+
+# Option words cannot name a remote, because remote names and options share
+# the mapping form of `build.dest` and `build.source`.
+.opt_remote_reserved_titles <- function() {
+  c("content", "cue", "inspect", "strategy", "conflict", "version")
+}
+
+# Expand `build.dest` into the `build.<type>.<title>` selections the rest of
+# the package reads. Each entry names a remote under `remotes`.
+.yml_build_dest_resolve <- function(yml) {
+  .yml_build_legacy_stop(yml[["build"]])
+  dest <- yml[["build"]][["dest"]]
+  if (is.null(dest)) {
+    return(yml)
+  }
+  yml[["build"]][["dest"]] <- NULL
+  options <- c("content", .opt_build_send_names())
+  parsed <- .yml_build_role_parse(dest, "build.dest", options)
+  for (ref in names(parsed[["remotes"]])) {
+    remote <- .yml_remote_ref_resolve(ref, yml[["remotes"]], "build.dest")
+    type <- remote[["type"]]
+    title <- remote[["title"]]
+    if (title %in% names(yml[["build"]][[type]])) {
+      stop(
+        "Select remote ",
+        title,
+        " in build.dest or build.",
+        type,
+        ", not both.",
+        call. = FALSE
+      )
+    }
+    yml[["build"]][[type]][title] <- list(utils::modifyList(
+      parsed[["global"]],
+      parsed[["remotes"]][[ref]]
+    ))
+  }
+  yml
+}
+
+# Split a `build.dest`/`build.source` value into global options and per-remote
+# settings. Accepts a remote name, a list of names (each optionally a
+# one-entry mapping with settings) or a mapping of options and remote names.
+.yml_build_role_parse <- function(value, key, options) {
+  if (is.character(value)) {
+    value <- as.list(value)
+  }
+  if (!is.list(value)) {
+    stop(key, " must name remotes declared under remotes.", call. = FALSE)
+  }
+  keys <- names(value) %||% rep("", length(value))
+  global <- list()
+  remotes <- list()
+  for (i in seq_along(value)) {
+    entry <- value[[i]]
+    if (nzchar(keys[[i]])) {
+      name <- keys[[i]]
+    } else if (is.character(entry) && length(entry) == 1L) {
+      name <- entry
+      entry <- NULL
+    } else if (
+      is.list(entry) && length(entry) == 1L && .is_given_mid(names(entry))
+    ) {
+      name <- names(entry)
+      entry <- entry[[1L]]
+    } else {
+      stop(
+        key,
+        " entries must be remote names or one-entry mappings.",
+        call. = FALSE
+      )
+    }
+    if (name %in% options) {
+      if (!nzchar(keys[[i]])) {
+        stop(key, " options belong in a mapping, not a list.", call. = FALSE)
+      }
+      global[name] <- list(entry)
+      next
+    }
+    if (name %in% names(remotes)) {
+      stop(key, " names remote ", name, " more than once.", call. = FALSE)
+    }
+    .yml_check_remote_mapping(entry, paste0(key, ".", name), options)
+    remotes[name] <- list(entry %||% list())
+  }
+  list(global = global, remotes = remotes)
+}
+
+# Resolve `title` or `<type>:<title>` to a remote declared under `remotes`.
+.yml_remote_ref_resolve <- function(ref, remotes, key) {
+  parts <- regmatches(ref, regexec("^(local|github):(.+)$", ref))[[1L]]
+  if (length(parts)) {
+    title <- parts[[3L]]
+    types <- parts[[2L]][title %in% names(remotes[[parts[[2L]]]])]
+  } else {
+    title <- ref
+    types <- Filter(
+      function(type) title %in% names(remotes[[type]]),
+      .opt_remote_get_type()
+    )
+  }
+  if (!length(types)) {
+    stop(
+      key,
+      " names ",
+      ref,
+      ", which is not declared under remotes.",
+      call. = FALSE
+    )
+  }
+  if (length(types) > 1L) {
+    stop(
+      key,
+      " names ",
+      ref,
+      ", which is declared under both remotes.local and remotes.github. ",
+      "Use local:",
+      ref,
+      " or github:",
+      ref,
+      ".",
+      call. = FALSE
+    )
+  }
+  list(type = types, title = title)
+}
+
+# build.source
+# -----------------
+
+# Remotes selected under `build.source`, keyed `<type>:<title>`, with their
+# content and fetch settings. Precedence: per-remote entry > whole
+# `build.source` > `remotes.<type>.<title>.get` > package default.
+.yml_build_source_get <- function(profile = NULL, source = NULL) {
+  yml <- .yml_get(profile)
+  source <- source %||% yml[["build"]][["source"]]
+  if (is.null(source)) {
+    return(list())
+  }
+  fetch <- .opt_remote_fetch_get()
+  parsed <- .yml_build_role_parse(
+    source,
+    "build.source",
+    c("content", names(fetch))
+  )
+  labels <- names(yml[["directories"]])
+  out <- list()
+  for (ref in names(parsed[["remotes"]])) {
+    remote <- .yml_remote_ref_resolve(ref, yml[["remotes"]], "build.source")
+    id <- paste0(remote[["type"]], ":", remote[["title"]])
+    if (id %in% names(out)) {
+      stop("build.source names remote ", id, " more than once.", call. = FALSE)
+    }
+    settings <- Reduce(
+      function(x, y) utils::modifyList(x, Filter(Negate(is.null), y)),
+      list(
+        lapply(fetch, `[[`, 1L),
+        yml[["remotes"]][[remote[["type"]]]][[remote[["title"]]]][["get"]] %||%
+          list(),
+        parsed[["global"]],
+        parsed[["remotes"]][[ref]]
+      )
+    )
+    out[[id]] <- c(
+      remote,
+      list(
+        content = unlist(settings[["content"]]) %||%
+          labels[.yml_dir_label_class_detect_raw(labels)],
+        explicit = !is.null(settings[["content"]])
+      ),
+      settings[names(fetch)]
+    )
+  }
+  out
+}
+
+# Archives used to be defined inline under `build.local`/`build.github`.
+.yml_build_legacy_stop <- function(build) {
+  legacy <- intersect(.opt_remote_get_type(), names(build))
+  if (length(legacy)) {
+    stop(
+      "build.",
+      legacy[[1L]],
+      " is no longer supported. Define each archive under remotes.",
+      legacy[[1L]],
+      ".<title> and select it with build.dest.",
+      call. = FALSE
+    )
+  }
 }

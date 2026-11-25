@@ -368,7 +368,7 @@ A local archive can live on a shared drive and use the team's existing file
 permissions. A GitHub release keeps downloadable artifacts alongside a code
 tag and requires write access to publish there. Define a reusable address under
 `remotes.local` or `remotes.github`. Select its title and directories to
-publish under `build.local` or `build.github`. A production build also
+publish under `build.dest`. A production build also
 accepts a one-off archive request.
 
 ### Why clear _output before builds?

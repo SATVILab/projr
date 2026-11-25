@@ -8,9 +8,13 @@ directories:
     path: _output
   docs:
     path: docs
+remotes:
+  github:
+    input: {}
+    output: {}
 build:
   git: true
-  github:
+  dest:
     input:
       content: [raw-data]
     output:

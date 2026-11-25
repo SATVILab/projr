@@ -174,7 +174,7 @@ test_that("projr_profile_create_local works", {
       expect_true(
         is.null(yml.local[["directories"]][["raw-data"]][["path"]])
       )
-      expect_true(all(names(yml.local) == c("directories", "build")))
+      expect_identical(names(yml.local), names(.yml_get_default_raw()))
       rbuildignore <- readLines(.path_get(".Rbuildignore"))
       expect_true("^_projr-local\\.yml$" %in% rbuildignore)
       gitignore <- readLines(.path_get(".gitignore"))

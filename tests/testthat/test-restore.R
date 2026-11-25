@@ -1,6 +1,7 @@
 # Dedicated Restore Tests
 #
-# This file tests restore functionality (projr_content_update and related functions)
+# This file tests restoring directories with projr_source() and the deprecated
+# projr_content_update() wrapper
 # All tests use local remotes and run in LITE mode for fast iteration
 # Tests focus on parameter validation, edge cases, and error handling
 
@@ -15,309 +16,68 @@ dir_test <- .test_setup_project(
 )
 
 # =============================================================================
-# Parameter Validation Tests
+# Deprecated wrapper
 # =============================================================================
 
-test_that("projr_content_update validates label parameter", {
-  skip_if(.is_test_cran())
+test_that("projr_source warns and delegates to projr_source", {
   skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create manifest so validation can proceed
-      .test_content_setup_label("raw-data")
-      projr_build_patch(msg = "test")
-
-      # Invalid type - not character
-      expect_error(
-        projr_content_update(label = 123),
-        "label must be a non-empty character vector"
-      )
-
-      # Invalid type - empty vector
-      expect_error(
-        projr_content_update(label = character(0)),
-        "label must be a non-empty character vector"
-      )
-
-      # Valid - NULL is allowed
-      expect_error(
-        projr_content_update(label = NULL),
-        NA # Should not error on NULL
-      )
-
-      # Valid - character vector
-      expect_error(
-        projr_content_update(label = "raw-data"),
-        NA # Should not error
-      )
+  received <- NULL
+  testthat::local_mocked_bindings(
+    projr_source = function(label, remote, cue, conflict) {
+      received <<- list(label, remote, cue, conflict)
+      invisible(TRUE)
     }
   )
-})
-
-test_that("projr_content_update validates pos parameter", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create manifest
-      .test_content_setup_label("raw-data")
-      projr_build_patch(msg = "test")
-
-      # Invalid type - not character
-      expect_error(
-        projr_content_update(pos = 123),
-        "pos must be a non-empty character vector"
-      )
-
-      # Invalid type - empty vector
-      expect_error(
-        projr_content_update(pos = character(0)),
-        "pos must be a non-empty character vector"
-      )
-
-      # Invalid value
-      expect_error(
-        projr_content_update(pos = "invalid"),
-        "pos must be one of source, dest"
-      )
-
-      # Valid - NULL
-      expect_error(
-        projr_content_update(pos = NULL),
-        NA
-      )
-
-      # Valid - "source"
-      expect_error(
-        projr_content_update(pos = "source"),
-        NA
-      )
-
-      # Valid - "dest"
-      expect_error(
-        projr_content_update(pos = "dest"),
-        NA
-      )
-
-      # Valid - both
-      expect_error(
-        projr_content_update(pos = c("source", "dest")),
-        NA
-      )
-    }
+  expect_warning(
+    result <- projr_content_update(
+      "raw-data",
+      pos = "dest",
+      type = "local",
+      title = "archive",
+      clear = TRUE
+    ),
+    "deprecated.*`pos` is ignored"
   )
-})
-
-test_that("projr_content_update validates type parameter", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create manifest
-      .test_content_setup_label("raw-data")
-      projr_build_patch(msg = "test")
-
-      # Invalid type - not character
-      expect_error(
-        projr_content_update(type = 123),
-        "type must be a non-empty string"
-      )
-
-      # Invalid type - empty vector
-      expect_error(
-        projr_content_update(type = character(0)),
-        "type must be a non-empty string"
-      )
-
-      # Invalid type - multiple values
-      expect_error(
-        projr_content_update(type = c("local", "github")),
-        "type must be a non-empty string"
-      )
-
-      # Invalid value
-      expect_error(
-        projr_content_update(type = "invalid"),
-        "type must be one of local, github"
-      )
-
-      # Valid - NULL
-      expect_error(
-        projr_content_update(type = NULL),
-        NA
-      )
-
-      # Valid - "local"
-      expect_error(
-        projr_content_update(type = "local"),
-        NA
-      )
-    }
+  expect_true(result)
+  expect_identical(
+    received,
+    list("raw-data", "local:archive", "always", "remote")
   )
-})
-
-test_that("projr_content_update validates title parameter", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create manifest
-      .test_content_setup_label("raw-data")
-      projr_build_patch(msg = "test")
-
-      # Invalid type - not character
-      expect_error(
-        projr_content_update(title = 123),
-        "title must be a non-empty string"
-      )
-
-      # Invalid type - empty vector
-      expect_error(
-        projr_content_update(title = character(0)),
-        "title must be a non-empty string"
-      )
-
-      # Invalid type - multiple values
-      expect_error(
-        projr_content_update(title = c("title1", "title2")),
-        "title must be a non-empty string"
-      )
-
-      # Valid - NULL
-      expect_error(
-        projr_content_update(title = NULL),
-        NA
-      )
-
-      # Valid - single string
-      expect_error(
-        projr_content_update(title = "test-title"),
-        NA
-      )
-    }
-  )
+  expect_warning(projr_content_update(title = "archive"), "deprecated")
+  expect_identical(received, list(NULL, "archive", "always", "error"))
+  suppressWarnings({
+    expect_error(projr_content_update(type = "local"), "Name one with `title`")
+    expect_error(
+      projr_content_update(destination = "v1"),
+      "no longer supported"
+    )
+  })
 })
 
 # =============================================================================
 # Edge Case Tests
 # =============================================================================
 
-test_that("projr_content_update reports a missing project manifest", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = .test_setup_project(git = FALSE, set_env_var = TRUE),
-    code = {
-      expect_error(projr_content_update(), "No project manifest found")
-    }
-  )
-})
-
-test_that("projr_content_update returns FALSE when no files to restore", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = .test_setup_project(git = FALSE, set_env_var = TRUE),
-    code = {
-      # Create manifest where raw-data label exists but has no files (empty marker)
-      manifest <- data.frame(
-        label = "raw-data",
-        fn = "",
-        version = "v0.0.1",
-        hash = "",
-        stringsAsFactors = FALSE
-      )
-      write.csv(manifest, "manifest.csv", row.names = FALSE)
-
-      # When no label specified, it looks for raw labels
-      # raw-data exists but has no files, so should return FALSE
-      result <- projr_content_update()
-      expect_false(result)
-    }
-  )
-})
-
-test_that("projr_content_update handles empty directory", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = .test_setup_project(git = FALSE, set_env_var = TRUE),
-    code = {
-      # Create manifest with empty label
-      manifest <- data.frame(
-        label = "raw-data",
-        fn = "",
-        version = "v0.0.1",
-        hash = "",
-        stringsAsFactors = FALSE
-      )
-      write.csv(manifest, "manifest.csv", row.names = FALSE)
-
-      # Configure local remote
-      remote_base <- .dir_create_tmp_random()
-      on.exit(unlink(remote_base, recursive = TRUE), add = TRUE)
-
-      projr_yml_dest_add_local(
-        title = "test-local",
-        content = "raw-data",
-        path = remote_base,
-        structure = "latest"
-      )
-
-      # Should return FALSE and not error
-      result <- projr_content_update(label = "raw-data", type = "local")
-      expect_false(result)
-    }
-  )
-})
-
-test_that("projr_content_update handles non-existent remote source", {
+test_that("projr_source reports a remote that is not registered", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
   usethis::with_project(
     path = dir_test,
     code = {
-      # Create manifest with a label
       .test_content_setup_label("raw-data")
-
-      # Setup a local remote
       remote_base <- .dir_create_tmp_random()
       on.exit(unlink(remote_base, recursive = TRUE), add = TRUE)
-
       projr_yml_dest_add_local(
         title = "existing-title",
         content = "raw-data",
         path = remote_base,
         structure = "latest"
       )
-
       projr_build_patch(msg = "test")
-
-      # Clear local
-      unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
-      projr_path_get_dir("raw-data", safe = FALSE)
-
-      # Try to restore from a non-existent title
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "non-existent-title"
+      expect_error(
+        projr_source("raw-data", remote = "local:non-existent-title")
       )
-
-      # Should return FALSE
-      expect_false(result)
     }
   )
 })
@@ -326,7 +86,7 @@ test_that("projr_content_update handles non-existent remote source", {
 # Clear Parameter Tests
 # =============================================================================
 
-test_that("projr_content_update clear parameter works correctly", {
+test_that("projr_source conflict setting keeps or replaces local changes", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -356,86 +116,25 @@ test_that("projr_content_update clear parameter works correctly", {
       writeLines("extra content", extra_file)
       expect_true(file.exists(extra_file))
 
-      # Restore without clear - extra file should remain
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local",
-        clear = FALSE
+      # A local change stops the fetch unless it is kept or replaced
+      expect_error(
+        projr_source("raw-data", "local:test-local", conflict = "error"),
+        "local changes"
       )
-      expect_true(result)
       expect_true(file.exists(extra_file))
-
-      # Restore with clear - extra file should be removed
-      writeLines("extra content again", extra_file)
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local",
-        clear = TRUE
-      )
-      expect_true(result)
+      expect_true(projr_source(
+        "raw-data",
+        "local:test-local",
+        conflict = "local"
+      ))
+      expect_true(file.exists(extra_file))
+      expect_true(projr_source(
+        "raw-data",
+        "local:test-local",
+        cue = "always",
+        conflict = "remote"
+      ))
       expect_false(file.exists(extra_file))
-    }
-  )
-})
-
-# =============================================================================
-# Position Preference Tests
-# =============================================================================
-
-test_that("projr_content_update respects pos parameter for dest only", {
-  skip_if(.is_test_cran())
-  skip_if(.is_test_select())
-
-  usethis::with_project(
-    path = dir_test,
-    code = {
-      # Create content
-      .test_content_setup_label("raw-data")
-
-      # Setup remote as dest only
-      remote_dest <- .dir_create_tmp_random()
-      on.exit(unlink(remote_dest, recursive = TRUE), add = TRUE)
-
-      projr_yml_dest_add_local(
-        title = "dest-title",
-        content = "raw-data",
-        path = remote_dest,
-        structure = "latest"
-      )
-
-      # Build to populate remote
-      projr_build_patch(msg = "test")
-
-      # Clear local
-      unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
-      projr_path_get_dir("raw-data", safe = FALSE)
-
-      # Restore with pos = "dest" - should work
-      result <- projr_content_update(
-        label = "raw-data",
-        pos = "dest"
-      )
-      expect_true(result)
-      expect_true(
-        length(list.files(
-          projr_path_get_dir("raw-data", safe = FALSE),
-          recursive = TRUE
-        )) >
-          0
-      )
-
-      # Clear local again
-      unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
-      projr_path_get_dir("raw-data", safe = FALSE)
-
-      # Restore with pos = "source" - should fail (no source configured)
-      result <- projr_content_update(
-        label = "raw-data",
-        pos = "source"
-      )
-      expect_false(result)
     }
   )
 })
@@ -444,7 +143,7 @@ test_that("projr_content_update respects pos parameter for dest only", {
 # Multiple Label Tests
 # =============================================================================
 
-test_that("projr_content_update can restore single label successfully", {
+test_that("projr_source can restore single label successfully", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -473,11 +172,7 @@ test_that("projr_content_update can restore single label successfully", {
       projr_path_get_dir("raw-data", safe = FALSE)
 
       # Restore
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local"
-      )
+      result <- projr_source("raw-data", "local:test-local")
 
       # Should be restored
       expect_true(result)
@@ -496,7 +191,7 @@ test_that("projr_content_update can restore single label successfully", {
 # Archive Structure Tests
 # =============================================================================
 
-test_that("projr_content_update restores from archive structure", {
+test_that("projr_source restores from archive structure", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -529,11 +224,7 @@ test_that("projr_content_update restores from archive structure", {
       projr_path_get_dir("raw-data", safe = FALSE)
 
       # Restore from archive
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-archive"
-      )
+      result <- projr_source("raw-data", "local:test-archive")
 
       expect_true(result)
       expect_true(
@@ -551,7 +242,7 @@ test_that("projr_content_update restores from archive structure", {
 # Error Recovery Tests
 # =============================================================================
 
-test_that("projr_content_update handles partial failures gracefully", {
+test_that("projr_source changes nothing when a label is missing", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -579,22 +270,19 @@ test_that("projr_content_update handles partial failures gracefully", {
       unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
       projr_path_get_dir("raw-data", safe = FALSE)
 
-      # Try to restore both raw-data (exists) and cache (doesn't exist)
-      # Should handle the error for cache and still succeed for raw-data
-      result <- projr_content_update(
-        label = c("raw-data", "cache"),
-        type = "local",
-        title = "test-local"
+      # The remote has raw-data but no cache
+      expect_error(
+        projr_source(c("raw-data", "cache"), "local:test-local"),
+        "has no cache"
       )
 
-      # Should return FALSE due to cache failure, but raw-data should be restored
-      expect_false(result)
-      expect_true(
-        length(list.files(
+      # Every label is checked before anything changes
+      expect_length(
+        list.files(
           projr_path_get_dir("raw-data", safe = FALSE),
           recursive = TRUE
-        )) >
-          0
+        ),
+        0
       )
     }
   )
@@ -604,7 +292,7 @@ test_that("projr_content_update handles partial failures gracefully", {
 # Latest Structure Overwrite Tests
 # =============================================================================
 
-test_that("projr_content_update handles latest structure overwrites", {
+test_that("projr_source handles latest structure overwrites", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -640,11 +328,7 @@ test_that("projr_content_update handles latest structure overwrites", {
       unlink(projr_path_get_dir("raw-data", safe = FALSE), recursive = TRUE)
       projr_path_get_dir("raw-data", safe = FALSE)
 
-      result <- projr_content_update(
-        label = "raw-data",
-        type = "local",
-        title = "test-local"
-      )
+      result <- projr_source("raw-data", "local:test-local")
 
       expect_true(result)
       content <- readLines(file.path(

@@ -119,29 +119,11 @@ test_that("a local build records its templated archive and restores from the rec
     expect_identical(.yml_dest_get_title(title, "local", NULL)[["path"]], path)
     original <- list.files("_raw_data", recursive = TRUE)
     expected <- tools::md5sum(file.path("_raw_data", original))
-    expect_false(projr_content_update(
-      "raw-data",
-      pos = "dest",
-      type = "local",
-      title = title,
-      destination = "archives/missing",
-      clear = TRUE
-    ))
-    expect_identical(
-      readLines("_raw_data/sample.txt"),
-      "Archived specimen data"
-    )
     unlink("_raw_data", recursive = TRUE)
     dir.create("nested")
     result <- withr::with_dir(
       "nested",
-      projr_content_update(
-        "raw-data",
-        pos = "dest",
-        type = "local",
-        title = title,
-        destination = archived
-      )
+      projr_source("raw-data", paste0("local:", title))
     )
     expect_true(result)
     expect_identical(tools::md5sum(file.path("_raw_data", original)), expected)

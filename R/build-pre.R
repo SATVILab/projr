@@ -554,3 +554,42 @@
 
   invisible(TRUE)
 }
+
+# Register a one-off `archive_github`/`archive_local` archive under `remotes`,
+# so later source lookups know where this build's files were sent.
+.build_pre_register_archives <- function(
+  output_run,
+  archive_github,
+  archive_local
+) {
+  if (!output_run) {
+    return(invisible(FALSE))
+  }
+  config <- .yml_get("default")
+  added <- character()
+  for (type in .opt_remote_get_type()) {
+    archive_type <- .dest_send_get_archive_type(
+      type,
+      archive_github,
+      archive_local
+    )
+    if (
+      isFALSE(archive_type) ||
+        "archive" %in% names(config[["remotes"]][[type]])
+    ) {
+      next
+    }
+    config[["remotes"]][[type]][["archive"]] <- if (type == "local") {
+      list(path = "_archive")
+    } else {
+      structure(list(), names = character())
+    }
+    added <- c(added, paste0(type, ":archive"))
+  }
+  if (!length(added)) {
+    return(invisible(FALSE))
+  }
+  .yml_set(config, "default")
+  .cli_info("Registered one-off archive{?s} under remotes: {added}")
+  invisible(TRUE)
+}

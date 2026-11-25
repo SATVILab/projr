@@ -1025,11 +1025,13 @@ test_that(".ignore_auto_dest_local handles local destinations from YAML", {
     code = {
       # Create YAML with local destination
       yml_content <- "
-build:
+remotes:
   local:
     my-dest:
       path: _local_dest
       ignore: git
+build:
+  dest: my-dest
 "
       writeLines(yml_content, "_projr.yml")
 
@@ -1083,9 +1085,11 @@ test_that(".ignore_auto_dest_local returns FALSE when no local destinations", {
     code = {
       # Create YAML without local destinations
       yml_content <- "
-build:
+remotes:
   github:
-    id: test-release
+    test-release: {}
+build:
+  dest: test-release
 "
       writeLines(yml_content, "_projr.yml")
 

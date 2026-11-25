@@ -12,9 +12,8 @@ projr_restore(
 )
 }
 \arguments{
-\item{label}{character vector or NULL. Specifies labels of artefacts to restore.
-Default is \code{NULL}, restoring all \code{raw} artefacts (e.g. \code{raw-data}).
-Must be NULL or a non-empty character vector with valid directory labels.}
+\item{label}{character vector or NULL. Directory labels to restore.
+Default is \code{NULL}, restoring every declared raw directory.}
 
 \item{version}{Character. An exact production build version. By default projr
 reads the checkout's version. On the follow-up development commit it uses

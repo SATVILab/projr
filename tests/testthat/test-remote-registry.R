@@ -39,8 +39,10 @@ test_that("registered remotes resolve independently of the selected publications
     )
     expect_identical(readLines("_projr.yml"), before)
 
-    config$build$local <- list(backup = list(content = "raw-data"))
-    config$build$github <- list(shared = NULL)
+    config$build$dest <- list(
+      backup = list(content = "raw-data"),
+      shared = NULL
+    )
     .yml_set(config)
     expect_true(projr_yml_check())
     expect_identical(
@@ -64,7 +66,7 @@ test_that("registered remotes resolve independently of the selected publications
       .buildlog_get_destinations(),
       fixed = TRUE
     )))
-    config$build$github$shared <- list(content = character())
+    config$build$dest$shared <- list(content = character())
     .yml_set(config)
     expect_true(projr_yml_check())
     expect_length(.dest_github_tags_needed(FALSE, TRUE), 0)
@@ -74,8 +76,9 @@ test_that("registered remotes resolve independently of the selected publications
       .buildlog_get_destinations(),
       fixed = TRUE
     )))
-    config$build$github["shared"] <- list(NULL)
-    config$build$github["reports"] <- list(NULL)
+    config$build$dest["shared"] <- list(NULL)
+    config$remotes$github$reports <- list()
+    config$build$dest["reports"] <- list(NULL)
     .yml_set(config)
     expect_true(projr_yml_check())
     expect_setequal(
@@ -86,11 +89,14 @@ test_that("registered remotes resolve independently of the selected publications
       .yml_dest_get_title_complete("reports", "github", NULL, FALSE, TRUE)$id,
       "reports"
     )
-    config$build$local["no-path"] <- list(NULL)
+    config$remotes$local["no-path"] <- list(list())
+    config$build$dest["no-path"] <- list(NULL)
     .yml_set(config)
     expect_error(projr_yml_check(), "path")
-    config$build$local[["no-path"]] <- NULL
-    config$build$github[["reports"]] <- NULL
+    config$remotes$local[["no-path"]] <- NULL
+    config$build$dest[["no-path"]] <- NULL
+    config$remotes$github[["reports"]] <- NULL
+    config$build$dest[["reports"]] <- NULL
     .yml_set(config)
     writeLines(
       c(
@@ -99,8 +105,9 @@ test_that("registered remotes resolve independently of the selected publications
         "    shared:",
         "      tag: later",
         "build:",
-        "  local:",
-        "    backup: {}"
+        "  dest:",
+        "    backup: {}",
+        "    shared:"
       ),
       "_projr-local.yml"
     )
@@ -114,37 +121,37 @@ test_that("registered remotes resolve independently of the selected publications
       .dest_send_title_get_content("backup", "local", FALSE),
       .dest_send_title_get_content_auto()
     )
-    writeLines(c("build:", "  local:", "    backup:"), "_projr-local.yml")
+    writeLines(c("build:", "  dest:", "    backup:"), "_projr-local.yml")
     expect_setequal(
       .dest_send_title_get_content("backup", "local", FALSE),
       .dest_send_title_get_content_auto()
     )
 
     unlink("_projr-local.yml")
-    config$build$github$shared <- list(tag = "inline")
+    config$build$dest$shared <- list(tag = "inline")
     .yml_set(config)
-    expect_error(projr_yml_check(), "remotes.github.shared")
-    config$build$github$shared <- list(content = "cache")
+    expect_error(projr_yml_check(), "build.dest.shared")
+    config$build$dest$shared <- list(content = "cache")
     .yml_set(config)
     expect_true(projr_yml_check())
     expect_identical(
       .dest_send_title_get_content("shared", "github", FALSE),
       "cache"
     )
-    config$build$github$shared <- list(content = "absent")
+    config$build$dest$shared <- list(content = "absent")
     .yml_set(config)
     expect_error(projr_yml_check(), "absent")
     projr_yml_dest_add_github("shared", "docs", send_strategy = "upload-all")
     expect_true(projr_yml_check())
     rewritten <- .yml_get("default")
-    expect_identical(rewritten$build$github$shared, list(content = "docs"))
+    expect_identical(rewritten$build$dest$shared, list(content = "docs"))
     expect_identical(rewritten$remotes$github$shared$repo, "other/archive")
     expect_identical(rewritten$remotes$github$shared$tag, "snapshot-@version")
     expect_identical(
       rewritten$remotes$github$shared$send$strategy,
       "upload-all"
     )
-    config$build$github$shared <- list(content = "raw-data")
+    config$build$dest$shared <- list(content = "raw-data")
     config$remotes$github$shared$repo <- "../../foo"
     .yml_set(config)
     expect_error(projr_yml_check(), "owner/repository")
@@ -162,7 +169,7 @@ test_that("GitHub preparation and asset transfer use the registered destination 
       archive = list(repo = "org/one-off", tag = "saved-@version"),
       hidden = list(repo = "org/reader", tag = "results")
     )
-    config$build$github <- list(
+    config$build$dest <- list(
       share = list(content = "raw-data"),
       copy = list(content = "docs")
     )
@@ -218,7 +225,7 @@ test_that("a selected registered local remote publishes the chosen content", {
     config <- .yml_get("default")
     config$build$scripts <- character()
     config$build$github <- NULL
-    config$build$local <- list(send = list(content = "raw-data"))
+    config$build$dest <- list(send = list(content = "raw-data"))
     config$remotes$local <- list(
       send = list(
         path = "backup",
@@ -262,7 +269,7 @@ test_that("registered publishers send assets and metadata to the named repositor
     config <- .yml_get("default")
     config$build$scripts <- character()
     config$build$local <- NULL
-    config$build$github <- list(share = list(content = "raw-data"))
+    config$build$dest <- list(share = list(content = "raw-data"))
     config$remotes$github <- list(
       share = list(repo = "fixture/destination", tag = "published")
     )
@@ -323,5 +330,237 @@ test_that("creating an empty release asset preserves the selected target branch"
       created,
       list(repo = "org/one-off", tag = "saved", branch = "private")
     )
+  })
+})
+
+test_that("build.dest selects registered remotes with overrides", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(git = FALSE)
+  usethis::with_project(project, {
+    config <- .yml_get("default")
+    config$build$local <- NULL
+    config$build$github <- NULL
+    config$remotes <- list(
+      local = list(
+        backup = list(path = "archives", send = list(cue = "if-change")),
+        shared = list(path = "shared")
+      ),
+      github = list(shared = list(), reports = list())
+    )
+    config$build$dest <- "backup"
+    .yml_set(config)
+    expect_true(projr_yml_check())
+    expect_named(.yml_get(NULL)$build$local, "backup")
+    expect_null(.yml_get(NULL)$build$dest)
+    expect_setequal(
+      .dest_send_title_get_content("backup", "local", FALSE),
+      .dest_send_title_get_content_auto()
+    )
+
+    config$build$dest <- list(
+      cue = "always",
+      content = list("raw-data"),
+      backup = NULL,
+      "github:shared" = list(cue = "if-change", strategy = "upload-all")
+    )
+    .yml_set(config)
+    expect_true(projr_yml_check())
+    expect_identical(
+      .dest_send_title_get_content("backup", "local", FALSE),
+      "raw-data"
+    )
+    send <- .yml_dest_get_title_complete(
+      "backup",
+      "local",
+      NULL,
+      FALSE,
+      FALSE
+    )$send
+    expect_identical(send$cue, "always")
+    send <- .yml_dest_get_title_complete(
+      "shared",
+      "github",
+      NULL,
+      FALSE,
+      FALSE
+    )$send
+    expect_identical(send$cue, "if-change")
+    expect_identical(send$strategy, "upload-all")
+
+    config$build$dest <- list("reports", list(backup = list(cue = "always")))
+    .yml_set(config)
+    # An empty selection in a higher layer turns uploads off.
+    writeLines(c("build:", "  dest: []"), "_projr-local.yml")
+    expect_null(.yml_get(NULL)$build$github)
+    expect_null(.yml_get(NULL)$build$local)
+    unlink("_projr-local.yml")
+    expect_named(.yml_get(NULL)$build$github, "reports")
+    expect_identical(.yml_get(NULL)$build$local$backup$cue, "always")
+
+    config$build$dest <- "shared"
+    .yml_set(config)
+    expect_error(.yml_get(NULL), "github:shared")
+    config$build$dest <- "missing"
+    .yml_set(config)
+    expect_error(.yml_get(NULL), "not declared under remotes")
+    config$build$dest <- list("backup", "cue")
+    .yml_set(config)
+    expect_error(.yml_get(NULL), "belong in a mapping")
+    config$build$dest <- list(backup = list(path = "x"))
+    .yml_set(config)
+    expect_error(.yml_get(NULL), "build.dest.backup")
+    config$build$dest <- "backup"
+    config$build$local <- list(backup = NULL)
+    expect_error(.yml_set(config), "build.local is no longer supported")
+    yaml::write_yaml(config, "_projr.yml")
+    expect_error(.yml_get(NULL), "build.local is no longer supported")
+    expect_error(
+      projr_yml_check("default"),
+      "build.local is no longer supported"
+    )
+
+    config$build$local <- NULL
+    config$build$dest <- list(backup = list(cue = "sometimes"))
+    .yml_set(config)
+    expect_error(projr_yml_check(), "cue")
+    config$build$dest <- NULL
+    config$remotes$local$cue <- list(path = "x")
+    .yml_set(config)
+    expect_error(projr_yml_check(), "reserved")
+  })
+})
+
+test_that("build.source selects registered remotes with fetch settings", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(git = FALSE)
+  usethis::with_project(project, {
+    config <- .yml_get("default")
+    config$build$local <- NULL
+    config$build$github <- NULL
+    config$directories$`raw-codebook` <- list(path = "_raw_data/codebook")
+    config$remotes <- list(
+      local = list(archive = list(path = "archives")),
+      github = list(
+        archive = list(),
+        survey = list(get = list(cue = "if-change", version = "0.6.3"))
+      )
+    )
+    .yml_set(config)
+    expect_identical(.yml_build_source_get(), list())
+
+    config$build$source <- "survey"
+    .yml_set(config)
+    expect_true(projr_yml_check())
+    source <- .yml_build_source_get()
+    expect_named(source, "github:survey")
+    expect_identical(source[[1]]$type, "github")
+    expect_setequal(source[[1]]$content, c("raw-data", "raw-codebook"))
+    expect_identical(source[[1]]$cue, "if-change")
+    expect_identical(source[[1]]$version, "0.6.3")
+    expect_identical(source[[1]]$inspect, "manifest")
+    expect_identical(source[[1]]$strategy, "sync-diff")
+    expect_identical(source[[1]]$conflict, "error")
+
+    config$build$source <- list(
+      "survey",
+      list(
+        "local:archive" = list(
+          version = "1.2.3"
+        )
+      )
+    )
+    .yml_set(config)
+    expect_true(projr_yml_check())
+    source <- .yml_build_source_get()
+    expect_named(source, c("github:survey", "local:archive"))
+    expect_identical(source[["local:archive"]]$version, "1.2.3")
+    expect_identical(source[["local:archive"]]$cue, "if-empty")
+
+    config$build$source <- list(
+      cue = "always",
+      content = list("raw-codebook"),
+      survey = NULL,
+      "local:archive" = list(cue = "never", content = list("raw-data"))
+    )
+    .yml_set(config)
+    expect_true(projr_yml_check())
+    source <- .yml_build_source_get()
+    expect_identical(source[["github:survey"]]$cue, "always")
+    expect_identical(source[["github:survey"]]$content, "raw-codebook")
+    expect_identical(source[["local:archive"]]$cue, "never")
+    expect_identical(source[["local:archive"]]$content, "raw-data")
+    expect_null(.yml_get(NULL)$build$github)
+
+    config$build$source <- "archive"
+    .yml_set(config)
+    expect_error(.yml_build_source_get(), "github:archive")
+    config$build$source <- "missing"
+    .yml_set(config)
+    expect_error(projr_yml_check(), "not declared under remotes")
+    config$build$source <- list(survey = list(content = list("output")))
+    .yml_set(config)
+    expect_error(projr_yml_check(), "build.source.github:survey.content")
+    config$build$source <- list(survey = list(strategy = "upload-all"))
+    .yml_set(config)
+    expect_error(projr_yml_check(), "strategy")
+    for (version in c("1", "1.2", "1.2.3", "latest")) {
+      config$build$source <- list(survey = list(version = version))
+      .yml_set(config)
+      expect_true(projr_yml_check())
+    }
+    config$build$source <- list(survey = list(version = "next"))
+    .yml_set(config)
+    expect_error(projr_yml_check(), "x.y.z")
+    config$build$source <- "survey"
+    config$build$dest <- "survey"
+    .yml_set(config)
+    # One remote can supply inputs and receive outputs.
+    expect_true(projr_yml_check())
+    config$build$dest <- NULL
+    config$remotes$github$survey$get$conflict <- "overwrite"
+    .yml_set(config)
+    expect_error(projr_yml_check(), "remotes.github.survey.get.conflict")
+  })
+})
+
+test_that("one-off archives are registered under remotes", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(git = FALSE)
+  usethis::with_project(project, {
+    config <- .yml_get("default")
+    config$build$local <- NULL
+    config$build$github <- NULL
+    config$remotes <- list(github = list(archive = list(tag = "kept")))
+    .yml_set(config)
+    expect_false(.build_pre_register_archives(FALSE, TRUE, TRUE))
+    expect_null(.yml_get("default")$remotes$local)
+    expect_true(.build_pre_register_archives(TRUE, TRUE, "raw-data"))
+    remotes <- .yml_get("default")$remotes
+    expect_identical(remotes$local$archive, list(path = "_archive"))
+    expect_identical(remotes$github$archive, list(tag = "kept"))
+    expect_true(projr_yml_check())
+    expect_false(.build_pre_register_archives(TRUE, TRUE, TRUE))
+
+    config$remotes <- NULL
+    .yml_set(config)
+    expect_true(.build_pre_register_archives(TRUE, TRUE, FALSE))
+    expect_length(.yml_get("default")$remotes$github$archive, 0)
+    expect_true(any(grepl("archive: \\{\\}", readLines("_projr.yml"))))
+    expect_null(.yml_get("default")$remotes$local)
+  })
+})
+
+test_that("directory and remote source settings are no longer accepted", {
+  skip_if(.is_test_select())
+  project <- .test_setup_project(git = FALSE)
+  usethis::with_project(project, {
+    config <- .yml_get("default")
+    config$directories$`raw-data`$source <- list(github = "archive")
+    .yml_set(config)
+    expect_error(projr_yml_check(), "directories.raw-data.source")
+    config$directories$`raw-data`$source <- NULL
+    config$remotes <- list(github = list(archive = list(source = TRUE)))
+    .yml_set(config)
+    expect_error(projr_yml_check(), "remotes.github.archive.source")
   })
 })

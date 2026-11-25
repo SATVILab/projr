@@ -159,10 +159,8 @@ projr_restore_repo(
   repo,          # "owner/repo" or "repo"
   path = NULL,   # clone destination (default: subdirectory named after repo)
   label = NULL,  # which artifacts (default: all raw-* labels)
-  pos = NULL,    # "source", "dest", or both (default: both)
-  type = NULL,   # "github" or "local" (default: first available)
-  title = NULL,  # remote title from _projr.yml
-  destination = NULL  # original concrete release tag or local path
+  type = NULL,   # "github" or "local", used with title
+  title = NULL   # remote title under `remotes` in _projr.yml
 )
 ```
 
@@ -174,8 +172,9 @@ projr_restore_repo("owner/repo")
 projr_restore_repo("owner/repo", path = "~/projects/my-analysis")
 ```
 
-The function reads `_projr.yml` in the cloned repo to locate configured
-remotes, then downloads all `raw-*` artifacts by default. Cache is not
+The function reads `_projr.yml` in the cloned repo and fetches its
+directories with `projr_source()`, which downloads all `raw-*` artifacts by
+default. Cache is not
 included unless requested explicitly. Returns `TRUE` on success.
 
 ## projr_restore_repo_wd()
@@ -186,10 +185,8 @@ A convenience wrapper that clones directly into the current working directory.
 projr_restore_repo_wd(
   repo,
   label = NULL,
-  pos = NULL,
   type = NULL,
-  title = NULL,
-  destination = NULL
+  title = NULL
 )
 ```
 
@@ -201,35 +198,35 @@ projr_restore_repo_wd("owner/repo")
 This writes files into your current directory, so make sure you are in the
 right place before calling it.
 
-## projr_content_update()
+## projr_source()
 
-Restores artifacts in an existing local project (no cloning). The project must
-have a build history in `.projr/manifests/` or a legacy root `manifest.csv`.
+Fetches artifacts into an existing local project (no cloning) from the
+remotes registered under `remotes` in `_projr.yml`. Without `remote`, it uses
+`build.source`, or else the single registered remote that published each
+label. `projr_content_update()` is deprecated and now calls `projr_source()`.
 
 ```{r eval=FALSE}
-projr_content_update(
-  label = NULL,  # which artifacts (default: all raw-* labels)
-  pos = NULL,    # "source", "dest", or both
-  type = NULL,   # "github" or "local"
-  title = NULL,  # remote title from _projr.yml
-  clear = FALSE,
-  destination = NULL
+projr_source(
+  label = NULL,     # which artifacts (default: all raw-* labels)
+  remote = NULL,    # "<title>" or "<type>:<title>" under `remotes`
+  version = NULL,   # "latest" (default), "1", "1.2", "1.2.3" or "current"
+  cue = NULL,       # "if-change" (default here), "if-empty", "always" or "never"
+  strategy = NULL,  # "sync-diff" (default), "sync-purge", "download-all" or "download-missing"
+  inspect = NULL,   # "manifest" (default), "file" or "none"
+  conflict = NULL   # "error", "local" or "remote" for changed local files
 )
 ```
 
 ```{r eval=FALSE}
-# Restore everything raw
-projr_content_update()
+# Fetch everything raw
+projr_source()
 
-# Restore raw data and cache
-projr_content_update(label = c("raw-data", "cache"))
+# Fetch raw data and cache
+projr_source(label = c("raw-data", "cache"))
 
-# Restore from a specific remote
-projr_content_update(type = "local", title = "network-backup")
+# Fetch from a specific remote
+projr_source(remote = "local:network-backup")
 ```
-
-If the project has no manifest, the project needs at least one successful
-`projr_build_*()` run first.
 
 ## Parameters
 
@@ -238,14 +235,19 @@ If the project has no manifest, the project needs at least one successful
   `output`, and `docs`. Prefer regenerating `output`/`docs` with
   `projr_build_dev()` rather than restoring them.
 
-- `type` -- remote type: `"github"` or `"local"`. `NULL` (default)
-  uses the first available remote in `_projr.yml` order.
+- `remote` (`projr_source()`) -- a remote registered under `remotes`, named
+  by its title or as `<type>:<title>`. `projr_restore_repo()` builds it from
+  `type` and `title`.
 
-- `title` -- selects a specific remote configuration when multiple exist for
-  the same type. `NULL` (default) uses the first available.
+- `conflict` (`projr_source()`) -- what to do with local files changed since
+  the last fetch. `"error"` stops before changing anything, `"local"` keeps
+  them and `"remote"` replaces them. An interactive session asks
+  instead, offering to keep, replace or cancel.
 
-- `pos` -- `"source"` for source directories, `"dest"` for build destinations,
-  or both (the default). Usually the default is fine.
+- `version`, `cue`, `strategy` and `inspect` (`projr_source()`) -- override
+  the `get` settings described in `vignette("configuration")`.
+  `version = "current"` restores this checkout's recorded build, as
+  `projr_restore()` does.
 
 - `repo` (restore_repo functions only) -- GitHub repository in
   `"owner/repo"` or `"repo"` format.
@@ -262,24 +264,6 @@ renv project pinned to projr 0.6.1 and see a missing-`httr` error, run
 For private GitHub artifacts, use a credential with access to the project.
 Run `projr_instr_auth_github()` for instructions. A local destination needs
 read access to the folder.
-
-## Selecting an earlier destination
-
-When a build expands `@branch` or `@uuid` in a destination, copy the concrete
-tag or path from its `.projr/BUILDLOG.md`. Select the configuration by its `title`
-and supply the earlier location as `destination`.
-
-```{r eval=FALSE}
-projr_content_update(
-  label = "output", pos = "dest", type = "github",
-  title = "study-@branch", destination = "study-site-a"
-)
-```
-
-Within that destination, restore selects its latest available version for the
-label. By default, it retains extra local files. Use `clear = TRUE` if you
-want the local label to match the restored payload, including an explicitly
-recorded empty directory.
 
 ## Configuring remotes
 
@@ -338,36 +322,56 @@ projr_build_dev()
 
 ```{r eval=FALSE}
 # Restore only raw data (skip cache, output, etc.)
-projr_content_update(label = "raw-data")
+projr_source(label = "raw-data")
 
 # Regenerate everything else
 projr_build_dev()
 ```
+
+### Keeping inputs in sync before each build
+
+List the remotes that supply raw inputs under `build.source` in `_projr.yml`.
+Each build then fetches them before any hook or script runs.
+
+```yaml
+build:
+  source:
+    backup:
+      cue: if-change
+```
+
+With the default `cue: if-empty`, a folder that already holds files is left
+alone and the build works offline. A file you edited since the last fetch
+stops the build before anything changes. Resolve it outside the build:
+
+```{r eval=FALSE}
+projr_source(label = "raw-data", conflict = "remote") # take the remote copy
+projr_source(label = "raw-data", conflict = "local")  # keep your edits
+```
+
+Production builds list each fetched label's remote, version and snapshot
+under **Raw-input sources** in `.projr/BUILDLOG.md`.
 
 ### Falling back between remotes
 
 ```{r eval=FALSE}
 # Try GitHub first, fall back to local
 result <- tryCatch(
-  projr_content_update(type = "github"),
+  projr_source(remote = "github:archive"),
   error = function(e) FALSE
 )
 
 if (!result) {
-  projr_content_update(type = "local")
+  projr_source(remote = "local:backup")
 }
 ```
 
 ## Notes
 
-- `projr_content_update()` selects the latest available version in the chosen
-  destination. Use `projr_restore()` for the verified inputs of a specific build.
+- `projr_source()` selects the latest completed build by default. Use
+  `projr_restore()` for the verified inputs of this checkout's build.
 
-- The default content-update search looks for a directory's configured source
-  before checking a build destination that contains that label.
-
-- `projr_content_update()` catches errors per label. `projr_restore()` verifies
-  all downloaded directories before installing them.
+- `projr_source()` checks every selected label before changing any files.
 
 - For debug output, set `Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")` before
   restoring.

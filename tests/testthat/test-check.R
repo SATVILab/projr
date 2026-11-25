@@ -730,7 +730,7 @@ test_that("assertions inspect every entry and give argument-specific errors", {
   )
   expect_identical(.string_create(c("a", "b"), sep = "|"), "a|b")
   expect_error(
-    projr_content_update(clear = c(TRUE, FALSE)),
+    suppressWarnings(projr_content_update(clear = c(TRUE, FALSE))),
     "clear must be a non-NA flag"
   )
   expect_error(projr_log_clear(history = NA), "history must be a non-NA flag")

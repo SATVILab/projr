@@ -30,7 +30,7 @@ test_that("projr_build_output works", {
   usethis::with_project(
     path = dir_test,
     code = {
-      .test_yml_unset_remote()
+      .yml_dest_rm_type_all("default")
       .yml_git_set_commit(TRUE, TRUE, NULL)
       .yml_git_set_add_untracked(TRUE, TRUE, NULL)
       .yml_git_set_push(FALSE, TRUE, NULL)

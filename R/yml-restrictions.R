@@ -12,10 +12,10 @@
 #' @param not_behind_remote Which archives to check. `TRUE` (default) checks
 #'   the destinations selected for publication by this build. `FALSE` skips
 #'   archive version checks. To check specific destinations, supply a character
-#'   vector of archive titles or a named list such as
-#'   `list(github = "reports", local = "backup")`. Include the type when a
-#'   title applies to more than one archive. Selected archives are checked even
-#'   when the build will not publish to them.
+#'   vector of remote names such as `c("reports", "backup")`. Write a title
+#'   registered under both types as `<type>:<title>`, for example
+#'   `"github:reports"`. Selected archives are checked even when the build will
+#'   not publish to them.
 #' @param rule Which project version must be at least as recent as each
 #'   selected archive's completed version. `"base_version_not_behind"` (or
 #'   `"base"`, the default) compares the version before the bump.
@@ -27,7 +27,7 @@
 #' projr_yml_restrictions_set(branch = c("main", "dev"))
 #' projr_yml_restrictions_set(not_behind_git = FALSE)
 #' projr_yml_restrictions_set(
-#'   not_behind_remote = list(github = "reports", local = "backup"),
+#'   not_behind_remote = c("github:reports", "backup"),
 #'   rule = "target"
 #' )
 #' }
@@ -126,11 +126,12 @@ projr_yml_restrictions_set <- function(
     return(selection)
   }
   if (is.list(selection) && length(names(selection))) {
-    .assert_in(names(selection), c("github", "local"), TRUE, nm = key)
-    if (anyDuplicated(names(selection))) {
-      stop(key, " repeats a remote type.", call. = FALSE)
-    }
-    return(lapply(selection, .yml_restrictions_remote_titles))
+    stop(
+      key,
+      " lists remote names. Write an ambiguous title as <type>:<title>, ",
+      "for example github:reports.",
+      call. = FALSE
+    )
   }
   .yml_restrictions_remote_titles(selection)
 }

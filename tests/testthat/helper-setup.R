@@ -162,7 +162,8 @@
     return(invisible(FALSE))
   }
   yml_projr <- yaml::read_yaml(path_yml)
-  yml_projr[["build"]][["github"]] <- NULL
+  yml_projr[["build"]][["dest"]] <- NULL
+  yml_projr[["remotes"]] <- NULL
   yaml::write_yaml(yml_projr, path_yml)
   invisible(TRUE)
 }
@@ -395,15 +396,6 @@
     .path_get("_tmp/coverage"),
     .path_get("_tmp/coverage.zip")
   )
-}
-
-.test_yml_unset_remote <- function() {
-  yml_projr_build <- .yml_build_get(NULL)
-  yml_projr_build <- yml_projr_build[setdiff(
-    names(yml_projr_build),
-    c("github", "osf", "local")
-  )]
-  .yml_build_set(yml_projr_build, NULL)
 }
 
 # ============================

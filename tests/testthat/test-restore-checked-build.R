@@ -78,10 +78,9 @@ test_that("a development build inside the README preserves the production archiv
       yml$build <- list(
         git = FALSE,
         scripts = list(),
-        github = list(
-          archive = list(content = "raw-data", structure = "archive")
-        )
+        dest = list(archive = list(content = "raw-data"))
       )
+      yml$remotes <- list(github = list(archive = list(structure = "archive")))
       .yml_set(yml, "default")
       projr_version_set("0.5.0-1")
       input <- projr_path_get("raw-data", "input.txt")

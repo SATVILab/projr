@@ -22,13 +22,12 @@ test_that("projr_yml_dest_add* functions work", {
         path = "_archive"
       )
       expect_identical(
-        .yml_dest_get_type("local", "default"),
-        list(
-          archive = list(
-            content = "raw-data",
-            path = "_archive"
-          )
-        )
+        .yml_dest_get_title("archive", "local", "default"),
+        list(path = "_archive", content = "raw-data")
+      )
+      expect_identical(
+        .yml_get("default")$build$dest,
+        list(archive = list(content = "raw-data"))
       )
       # add two
       projr_yml_dest_add_local(
@@ -37,28 +36,22 @@ test_that("projr_yml_dest_add* functions work", {
         path = "_archive/second"
       )
       expect_identical(
-        .yml_dest_get_type("local", "default"),
-        list(
-          archive = list(
-            content = "raw-data",
-            path = "_archive"
-          ),
-          "archive second" = list(
-            content = "output",
-            path = "_archive/second"
-          )
-        )
+        names(.yml_dest_get_type("local", NULL)),
+        c("archive", "archive second")
+      )
+      expect_identical(
+        .yml_dest_get_title("archive second", "local", "default"),
+        list(path = "_archive/second", content = "output")
       )
       # remove just one
       .yml_dest_rm_title("archive second", "local", "default")
       expect_identical(
-        .yml_dest_get_type("local", "default"),
-        list(
-          archive = list(
-            content = "raw-data",
-            path = "_archive"
-          )
-        )
+        .yml_dest_get_type("local", NULL),
+        list(archive = list(content = "raw-data"))
+      )
+      expect_identical(
+        names(.yml_get("default")$remotes$local),
+        "archive"
       )
 
       # ============
@@ -73,12 +66,12 @@ test_that("projr_yml_dest_add* functions work", {
         content = "raw-data"
       )
       expect_identical(
-        .yml_dest_get_type("github", "default"),
-        list(
-          archive = list(
-            content = "raw-data"
-          )
-        )
+        .yml_dest_get_type("github", NULL),
+        list(archive = list(content = "raw-data"))
+      )
+      expect_identical(
+        .yml_get("default")$remotes$github,
+        list(archive = structure(list(), names = character()))
       )
       # add two
       projr_yml_dest_add_github(
@@ -86,26 +79,19 @@ test_that("projr_yml_dest_add* functions work", {
         content = "output"
       )
       expect_identical(
-        .yml_dest_get_type("github", "default"),
+        .yml_dest_get_type("github", NULL),
         list(
-          archive = list(
-            content = "raw-data"
-          ),
-          "archive-second" = list(
-            content = "output"
-          )
+          archive = list(content = "raw-data"),
+          "archive-second" = list(content = "output")
         )
       )
       # remove just one
       .yml_dest_rm_title("archive-second", "github", "default")
       expect_identical(
-        .yml_dest_get_type("github", "default"),
-        list(
-          archive = list(
-            content = "raw-data"
-          )
-        )
+        .yml_dest_get_type("github", NULL),
+        list(archive = list(content = "raw-data"))
       )
+      expect_identical(names(.yml_get("default")$remotes$github), "archive")
     }
   )
 })
@@ -878,7 +864,7 @@ test_that(".dest_send_title_get_content_auto detects output directories", {
 # .dest_send_title_get_content_yml() - Content from YAML
 # =============================================================================
 
-test_that(".dest_send_title_get_content_yml returns empty for NULL", {
+test_that(".dest_send_title_get_content_yml auto-detects for a remote selected without content", {
   skip_if(.is_test_cran())
   skip_if(.is_test_select())
 
@@ -893,20 +879,14 @@ test_that(".dest_send_title_get_content_yml returns empty for NULL", {
     code = {
       .yml_dest_rm_type_all("default")
 
-      # Manually set YAML with NULL content to test function behavior
-      # Bypass wrapper validation since projr_yml_dest_add_local requires non-empty content
-      # This tests how .dest_send_title_get_content_yml handles NULL content in YAML
-      yml <- .yml_get(NULL)
-      yml$build$local <- list(
-        test = list(
-          content = NULL,
-          path = "_test"
-        )
-      )
-      .yml_set(yml, NULL)
+      # A registered remote selected without content sends all eligible labels
+      yml <- .yml_get("default")
+      yml$remotes$local$test <- list(path = "_test")
+      yml$build$dest <- list(test = list(content = NULL))
+      .yml_set(yml, "default")
 
       content <- .dest_send_title_get_content_yml("test", "local")
-      expect_identical(content, character(0L))
+      expect_identical(content, .dest_send_title_get_content_auto())
     }
   )
 })
@@ -929,14 +909,10 @@ test_that(".dest_send_title_get_content_yml returns empty for FALSE", {
       # Manually set YAML with FALSE content to test function behavior
       # Bypass wrapper validation since projr_yml_dest_add_local requires non-empty content
       # This tests how .dest_send_title_get_content_yml handles FALSE content in YAML
-      yml <- .yml_get(NULL)
-      yml$build$local <- list(
-        test = list(
-          content = FALSE,
-          path = "_test"
-        )
-      )
-      .yml_set(yml, NULL)
+      yml <- .yml_get("default")
+      yml$remotes$local$test <- list(path = "_test")
+      yml$build$dest <- list(test = list(content = FALSE))
+      .yml_set(yml, "default")
 
       content <- .dest_send_title_get_content_yml("test", "local")
       expect_identical(content, character(0L))
@@ -960,14 +936,10 @@ test_that(".dest_send_title_get_content_yml auto-detects for TRUE", {
       .yml_dest_rm_type_all("default")
 
       # Manually set YAML with TRUE content (auto-detect)
-      yml <- .yml_get(NULL)
-      yml$build$local <- list(
-        test = list(
-          content = TRUE,
-          path = "_test"
-        )
-      )
-      .yml_set(yml, NULL)
+      yml <- .yml_get("default")
+      yml$remotes$local$test <- list(path = "_test")
+      yml$build$dest <- list(test = list(content = TRUE))
+      .yml_set(yml, "default")
 
       content <- .dest_send_title_get_content_yml("test", "local")
 

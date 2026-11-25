@@ -306,13 +306,3 @@ projr_yml_git_set_default <- function(
   }
   invisible(TRUE)
 }
-
-# github
-# --------------------
-
-.yml_unset_github_dest <- function() {
-  yml_projr_root <- .yml_get_default()
-  yml_projr_root[["build"]][["github"]] <- NULL
-  .yml_set_root(yml_projr_root)
-  invisible(TRUE)
-}

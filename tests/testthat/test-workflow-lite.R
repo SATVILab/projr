@@ -74,7 +74,7 @@ test_that("LITE workflow: bookdown init -> build -> send -> restore with git", {
 
       # Clear and restore
       file.remove(file.path(raw_data_dir, "data.txt"))
-      result <- projr_content_update(label = "raw-data", type = "local")
+      result <- projr_source("raw-data", "local:lite-archive")
       expect_true(result)
 
       # Should restore latest version
@@ -336,7 +336,7 @@ test_that("LITE workflow: restore with multiple versions", {
       file.remove(file.path(raw_data_dir, "data.txt"))
 
       # Restore (should get latest)
-      result <- projr_content_update(label = "raw-data", type = "local")
+      result <- projr_source("raw-data", "local:multi-version")
       expect_true(result)
 
       # Should have v3

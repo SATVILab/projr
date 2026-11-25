@@ -27,10 +27,10 @@ Git upstream. Defaults to \code{TRUE}.}
 \item{not_behind_remote}{Which archives to check. \code{TRUE} (default) checks
 the destinations selected for publication by this build. \code{FALSE} skips
 archive version checks. To check specific destinations, supply a character
-vector of archive titles or a named list such as
-\code{list(github = "reports", local = "backup")}. Include the type when a
-title applies to more than one archive. Selected archives are checked even
-when the build will not publish to them.}
+vector of remote names such as \code{c("reports", "backup")}. Write a title
+registered under both types as \verb{<type>:<title>}, for example
+\code{"github:reports"}. Selected archives are checked even when the build will
+not publish to them.}
 
 \item{rule}{Which project version must be at least as recent as each
 selected archive's completed version. \code{"base_version_not_behind"} (or
@@ -51,7 +51,7 @@ and archive versions before a production build. Omit a setting or pass
 projr_yml_restrictions_set(branch = c("main", "dev"))
 projr_yml_restrictions_set(not_behind_git = FALSE)
 projr_yml_restrictions_set(
-  not_behind_remote = list(github = "reports", local = "backup"),
+  not_behind_remote = c("github:reports", "backup"),
   rule = "target"
 )
 }
