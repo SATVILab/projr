@@ -146,7 +146,9 @@
   record <- .get_build_record(strsplit(log, "\n", fixed = TRUE)[[1L]], version)
   config <- read("_projr.yml") %||%
     read(".projr/config/_projr.yml") %||%
-    read("_projr/config/_projr.yml")
+    read(".projr/config/default.yml") %||%
+    read("_projr/config/_projr.yml") %||%
+    read("_projr/config/default.yml")
   yml <- if (is.null(config)) {
     record$yml
   } else {

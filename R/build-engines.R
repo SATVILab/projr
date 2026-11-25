@@ -26,6 +26,30 @@
   args_engine[intersect(selected, keys)]
 }
 
+# A configured Quarto profile applies only when neither args_engine nor
+# QUARTO_PROFILE names one; Quarto reads QUARTO_PROFILE itself.
+.build_args_quarto_profile <- function(args_by_engine, engines) {
+  for (engine in intersect(engines, c("quarto_project", "quarto_document"))) {
+    profile <- args_by_engine[[engine]][["profile"]]
+    source <- "args_engine"
+    if (!length(profile) && nzchar(Sys.getenv("QUARTO_PROFILE"))) {
+      profile <- Sys.getenv("QUARTO_PROFILE")
+      source <- "QUARTO_PROFILE"
+    } else if (!length(profile)) {
+      config <- .profile_config("quarto")
+      profile <- config$profile
+      source <- config$source
+      if (length(profile)) {
+        args_by_engine[[engine]][["profile"]] <- profile
+      }
+    }
+    .cli_debug(
+      "Quarto profiles for {engine}: {paste(profile, collapse = ', ')} (from {source})"
+    )
+  }
+  args_by_engine
+}
+
 .build_engines <- function(
   engines,
   version_run_on_list,

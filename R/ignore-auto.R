@@ -138,7 +138,7 @@ projr_ignore_auto <- function() {
     pattern = "^_(quarto|bookdown)\\.yml$"
   )
   .ignore_auto_file_rbuild(c(configs, render_configs))
-  .ignore_auto_file_git(configs[basename(configs) == "_projr-local.yml"])
+  .ignore_auto_file_git(configs[.yml_config_file_profile(configs) == "local"])
 }
 
 .ignore_auto_env <- function() {

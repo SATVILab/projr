@@ -25,15 +25,41 @@ its directory declarations determine which labels are available.
 | `_projr-<profile>.yml` | Overrides for a named analysis or machine. |
 | `_projr-local.yml` | Local overrides with highest precedence. |
 
-Each file can live at the project root or in `.projr/config/`. When both
-locations contain the same filename, the root copy wins. All relative paths in
+Each file can live at the project root or in `.projr/config/`. Inside
+`.projr/config/`, the shorter names `default.yml`, `local.yml` and
+`<profile>.yml` also work. When both locations contain the same file, the root
+copy wins. All relative paths in
 either location start at the project root. A nested script can therefore use
 the same directory labels when run in RStudio or during a build.
 
 Select profiles with a build's `profile` argument or `PROJR_PROFILE`. For
 example, `Sys.setenv(PROJR_PROFILE = "site-a,cluster")` applies both named
 profiles, with the earlier name taking precedence when both specify a value.
-Local overrides still win. Use `projr_yml_get()` to inspect the merged settings,
+Local overrides still win.
+
+To choose profiles without an argument, add a `profile` key to `_projr.yml` or
+`_projr-local.yml`. A string or sequence names projr profiles. A mapping names
+projr and Quarto profiles separately:
+
+```yaml
+profile: [site-a, cluster]
+```
+
+```yaml
+profile:
+  projr: site-a
+  quarto: [print]
+```
+
+projr uses the first of these that names projr profiles: the build's `profile`
+argument, `PROJR_PROFILE`, `profile` in `_projr-local.yml`, then `profile` in
+`_projr.yml`. For Quarto, the order is the `profile` option in `args_engine`,
+`QUARTO_PROFILE`, then the two files. Environment variables outrank the files,
+so a single run can select profiles without editing a tracked file, and
+`projr_reproduce()` can restore a build's recorded profiles. A named profile
+file cannot contain `profile`, and renv profiles are not supported yet.
+
+Use `projr_yml_get()` to inspect the merged settings,
 `projr_yml_get("default")` to inspect the base file, and `projr_yml_check()`
 to validate the active configuration.
 

@@ -35,9 +35,9 @@
 #' being bumped to and the stage in the build process
 #' at which the commit was made.
 #' @param profile character.
-#' `projr` profile to use. Will set the environment variable
-#' .PROFILE` to this value at the start of the build,
-#  and set it to what it was before at the end of the build.
+#' `projr` profile to use. Sets `PROJR_PROFILE` for the build, so it
+#' overrides that variable and the `profile` key in `_projr-local.yml` and
+#' `_projr.yml`.
 #' @param archive_github `TRUE`,`FALSE` orcharacter vector of
 #' directory labels.
 #' If `TRUE`, then all directories (`raw-data`, `output`, etc)
@@ -222,9 +222,9 @@ projr_build_patch <- function(
 #' If `TRUE`, then previous development builds are deleted
 #' after a successful run.
 #' @param profile character.
-#' `projr` profile to use. Will set the environment variable
-#' .PROFILE` to this value at the start of the build,
-#  and set it to what it was before at the end of the build.
+#' `projr` profile to use. Sets `PROJR_PROFILE` for the build, so it
+#' overrides that variable and the `profile` key in `_projr-local.yml` and
+#' `_projr.yml`.
 #' @param clear_output character.
 #' When to clear output directories: "pre" (before build),
 #' "post" (after build), or "never" (default for dev builds).
@@ -355,6 +355,12 @@ projr_build_dev <- function(
     bump_component = bump_component,
     msg = msg
   )
+  .cli_debug(
+    "projr profiles: {paste(projr_profile_get(), collapse = ', ')} (from {if (is.null(profile)) .profile_get_source() else 'the profile argument'})"
+  )
+  if (!inherits(engines, "error")) {
+    args_by_engine <- .build_args_quarto_profile(args_by_engine, names(engines))
+  }
 
   # Track build success for logging
   build_success <- FALSE

@@ -263,8 +263,14 @@
     is_config_dir <- basename(path) == "config" &&
       basename(dirname(path)) %in% c(".projr", "_projr")
     (!is_config_dir && utils::file_test("-f", file.path(path, "_projr.yml"))) ||
-      utils::file_test("-f", file.path(path, ".projr/config/_projr.yml")) ||
-      utils::file_test("-f", file.path(path, "_projr/config/_projr.yml"))
+      any(utils::file_test(
+        "-f",
+        file.path(
+          path,
+          c(".projr/config", "_projr/config"),
+          rep(c("_projr.yml", "default.yml"), each = 2L)
+        )
+      ))
   },
   "a projr project configuration"
 )

@@ -27,6 +27,8 @@ and finally \verb{_environment} (global defaults).
 The profiles activated are those set in the \code{QUARTO_PROFILE}
 and the \code{PROJR_PROFILE} environment variables, with
 \code{QUARTO_PROFILE} priorities.
+When a variable is unset, the \code{profile} key in \verb{_projr-local.yml} or
+\verb{_projr.yml} supplies its profiles.
 The \code{QUARTO_PROFILE} variable can specify multiple profiles,
 separated by commas.
 The \code{PROJR_PROFILE} variable can also specify multiple profiles,
