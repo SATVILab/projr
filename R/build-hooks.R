@@ -1,4 +1,11 @@
 .build_hooks_run <- function(stage, is_dev_build = FALSE) {
+  plan <- .pipeline_plan(if (is_dev_build) "dev" else "build")
+  if (!is.null(plan)) {
+    for (path in plan[[stage]]) {
+      .hook_run(path, stage)
+    }
+    return(invisible(TRUE))
+  }
   # For dev builds, use dev.hooks and ignore build.hooks
   # For production builds, use build.hooks and ignore dev.hooks
   if (is_dev_build) {

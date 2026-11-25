@@ -61,6 +61,9 @@ When `dev.scripts` is set, it completely replaces `build.scripts` for dev
 builds. To include production scripts in dev builds, list them explicitly
 under `dev.scripts`.
 
+When a [named pipeline](#named-pipelines) is selected, its scripts combine
+with these inline settings and with the `scripts` argument.
+
 ### Skip files
 
 Add an `exclude:` item to skip a file or a group of files. For example,
@@ -255,6 +258,168 @@ message("Setting up production environment...")
 source("hooks/check-auth.R")
 source("hooks/prepare-data.R")
 ```
+
+## Named pipelines
+
+A pipeline names an ordered set of scripts and hooks. Define pipelines under
+the top-level `pipelines` key, then select them with `build.pipeline` for
+production builds and `dev.pipeline` for development builds.
+
+```yaml
+pipelines:
+  primary:
+    scripts:
+      - prepare.R
+      - analyse.R
+      - report.qmd
+    hooks:
+      pre: hooks/check-inputs.R
+      post: hooks/validate-results.R
+  sensitivity:
+    scripts: [sensitivity.R, sensitivity.qmd]
+
+build:
+  pipeline: primary
+
+dev:
+  pipeline: primary
+```
+
+A pipeline's `scripts` accept the same entries as `build.scripts`: paths,
+glob patterns, `- exclude:` items and quoted `"!path"` exclusions. Its
+`hooks` accept `pre`, `post` and `both`. Rendering, project handling and
+hook execution work as described above. Pipeline names cannot contain `:`
+or `,`.
+
+Development builds use `dev.pipeline`. Without it, they use
+`build.pipeline`. Remote sources and destinations, versioning, renv, Git and
+publication stay under `build`. A pipeline only chooses scripts and hooks.
+
+### Selecting several pipelines
+
+`pipeline` takes one name or a list. Entries can be glob patterns.
+
+```yaml
+pipelines:
+  prepare:
+    scripts: [prepare.R]
+  model-linear:
+    scripts: [model-linear.R]
+  model-mixed:
+    scripts: [model-mixed.R]
+  report:
+    scripts: [report.qmd]
+
+build:
+  pipeline: [prepare, model-*, report]
+```
+
+This runs `prepare.R`, `model-linear.R`, `model-mixed.R` and then renders
+`report.qmd`. The entries run in the order given. A glob's matches run in
+their order under `pipelines`. A pipeline matched more than once runs once,
+at its first position. Each phase's hooks combine in the same order, and a
+hook named more than once runs once, at its first position. A name or glob
+that matches no pipeline stops the build before any hook, script or file
+change.
+
+### Switching pipelines for one build
+
+Pass `pipeline` to `projr_build()`, `projr_build_patch()`,
+`projr_build_minor()`, `projr_build_major()` or `projr_build_dev()` to
+replace the configured selection for that build. The argument also accepts
+several names or globs.
+
+```{r eval=FALSE}
+projr_build_patch()                          # runs primary
+projr_build_patch(pipeline = "sensitivity")  # runs the sensitivity analysis
+projr_build_dev(pipeline = c("primary", "sensitivity"))
+```
+
+The console reports the selected pipelines and their scripts, and the
+detailed log records their hooks. A production build adds a **Pipeline**
+section to `.projr/BUILDLOG.md` with the names, scripts and hooks.
+
+### Adding inline scripts and hooks
+
+`scripts` and `hooks` under `build` (or `dev`) combine with the selected
+pipelines. Use them for work that should run whichever pipeline is selected.
+
+```yaml
+pipelines:
+  analysis:
+    scripts: [prepare.R, analyse.R]
+    hooks:
+      pre: hooks/check-data.R
+      post: hooks/validate-results.R
+
+build:
+  scripts: initialise.R
+  pipeline: analysis
+  hooks:
+    pre: hooks/check-build.R
+    post: hooks/finish-build.R
+```
+
+A production build runs:
+
+1. Pre-build hooks: `hooks/check-data.R`, then `hooks/check-build.R`.
+2. Scripts: `initialise.R`, `prepare.R`, `analyse.R`.
+3. Post-build hooks: `hooks/validate-results.R`, then `hooks/finish-build.R`.
+
+`scripts` appears before `pipeline`, so `initialise.R` runs first. `hooks`
+appears after `pipeline`, so the inline hooks run after the pipeline's hooks
+in each phase. Moving `hooks` above `pipeline` would run
+`hooks/check-build.R` before `hooks/check-data.R`, and
+`hooks/finish-build.R` before `hooks/validate-results.R`. With several
+pipelines, the inline entries go before or after the whole group.
+
+A pre-build hook stays in the pre-build phase and a post-build hook stays in
+the post-build phase, whatever the key order. A `both` hook runs in each
+phase. A hook listed both inline and in a pipeline runs once.
+
+An explicit empty inline list, such as `scripts: []`, adds nothing and leaves
+the pipelines' scripts in place. Without a selected pipeline, `scripts: []`
+still skips rendering and scripts.
+
+Development builds keep their usual inline sources. They combine the
+pipelines with `dev.scripts` (or `build.scripts` when `dev.scripts` is
+absent) and with `dev.hooks`. They never use `build.hooks`. The `scripts`
+argument of `projr_build_dev()` takes the place of those inline scripts and
+combines with the pipelines in the same position. Without a pipeline it
+replaces `dev.scripts` and `build.scripts`, as before.
+
+### Turning pipelines off
+
+Set `pipeline: false` or `pipeline: []` to select no pipeline. In
+`_projr-local.yml` or a profile, this overrides the `pipeline` set in a
+lower-precedence file, because the higher file's value replaces the lower
+one whole. For one build, pass `pipeline = FALSE`. Inline scripts and hooks,
+and the `scripts` argument, still run. To run a single script during
+development:
+
+```{r eval=FALSE}
+projr_build_dev(scripts = "explore.R", pipeline = FALSE)
+```
+
+### How projr reads key order
+
+YAML mappings are formally unordered. Reading key order here is a projr
+convention, not a YAML guarantee, so keep `scripts`, `pipeline` and `hooks`
+in the same mapping and in the order you want.
+
+projr reads the order from the file with the highest precedence that sets
+`pipeline`: `_projr-local.yml`, then the active profiles in order, then
+`_projr.yml`. For a development build it looks for `dev.pipeline` first, then
+`build.pipeline`. If that mapping does not contain the inline key, the inline
+entries run first.
+
+When only the `pipeline` argument selects pipelines and no file sets
+`pipeline`, the pipelines' entries run after the inline entries. When the
+argument replaces a configured selection, the configured position still
+applies.
+
+A profile's `pipelines.<name>.scripts` replaces the list from `_projr.yml`
+rather than adding to it.
 
 ## Tips
 

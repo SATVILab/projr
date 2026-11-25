@@ -12,6 +12,7 @@ projr_build(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -23,6 +24,7 @@ projr_build_major(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -34,6 +36,7 @@ projr_build_minor(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -45,6 +48,7 @@ projr_build_patch(
   msg = NULL,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   archive_github = FALSE,
   archive_local = FALSE,
   always_archive = TRUE,
@@ -86,6 +90,15 @@ Quarto renders in the foreground so later scripts and hooks see its output.}
 \code{projr} profile to use. Sets \code{PROJR_PROFILE} for the build, so it
 overrides that variable and the \code{profile} key in \verb{_projr-local.yml} and
 \verb{_projr.yml}.}
+
+\item{pipeline}{character.
+Names of pipelines under \code{pipelines} to run in order, or \code{FALSE} to run
+none. Entries can be globs; a glob's matches run in their order under
+\code{pipelines}, and each pipeline runs once.
+Overrides \code{build.pipeline} (or \code{dev.pipeline} for development builds) for
+this build. Inline \code{scripts} and \code{hooks}, and the \code{scripts} argument of
+\code{projr_build_dev()}, still combine with it. Default is \code{NULL}, using the
+configured selection.}
 
 \item{archive_github}{\code{TRUE},\code{FALSE} orcharacter vector of
 directory labels.

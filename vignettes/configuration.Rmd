@@ -176,6 +176,8 @@ and `Thumbs.db`. You can delete those defaults after initialization.
 | `build.scripts` | Ordered inputs for a production build. Also used by dev builds when `dev.scripts` is absent. |
 | `dev.scripts` | Ordered inputs for a development build. The `scripts` argument to `projr_build_dev()` takes precedence. |
 | `build.hooks`, `dev.hooks` | Each accepts `pre`, `post`, and `both`. Supply R script paths under the stage. Dev and production hooks are configured independently. |
+| `pipelines.<name>` | A named set of `scripts` and `hooks` with the same formats as the inline settings. |
+| `build.pipeline`, `dev.pipeline` | One pipeline name or glob, or a list run in order, for production or development builds. `false` or `[]` selects none. Dev builds fall back to `build.pipeline`. The `pipeline` argument of the build functions takes precedence, and `pipeline = FALSE` selects none. |
 
 A script selection accepts `.R`, `.Rmd` and `.qmd` paths or glob patterns.
 To skip files, add an item such as `- exclude: reports/draft.Rmd` to either
@@ -189,6 +191,12 @@ project, the remaining documents and scripts run together alphabetically.
 Overlapping globs select each file once. Repeating a literal R script or
 standalone document runs it again. An explicit `scripts: []`, or `scripts = character()`
 in R, skips document rendering and script execution.
+
+With a pipeline selected, inline `scripts` and `hooks` under `build` or
+`dev`, and the `scripts` argument of `projr_build_dev()`, combine with its
+entries. Their key position relative to `pipeline`
+decides whether they run before or after the pipeline's entries. See
+[named pipelines](scripts-and-hooks.html#named-pipelines).
 
 For example, suppose a Quarto project has the following selection.
 

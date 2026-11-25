@@ -8,10 +8,15 @@
 }
 
 .scripts_get_specified <- function(scripts, bump_component, profile) {
+  if (!is.null(scripts) && !identical(scripts, character())) {
+    .assert_chr_mid(scripts)
+  }
+  # The scripts argument adds to a selected pipeline like inline scripts.
+  plan <- .pipeline_plan(.pipeline_mode(bump_component), scripts)
+  if (!is.null(plan)) {
+    return(plan[["scripts"]])
+  }
   if (!is.null(scripts)) {
-    if (!identical(scripts, character())) {
-      .assert_chr_mid(scripts)
-    }
     return(scripts)
   }
   if (.is_dev_build(bump_component)) {
@@ -87,6 +92,10 @@
   hooks <- c(
     unlist(.yml_hooks_get(NULL), use.names = FALSE),
     unlist(.yml_dev_get_hooks(NULL), use.names = FALSE),
+    unlist(
+      lapply(.yml_get(NULL)[["pipelines"]], `[[`, "hooks"),
+      use.names = FALSE
+    ),
     unlist(lapply(.yml_script_get(NULL), `[[`, "path"), use.names = FALSE)
   )
   setdiff(

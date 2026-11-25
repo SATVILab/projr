@@ -10,6 +10,7 @@ projr_build_dev(
   old_dev_remove = TRUE,
   args_engine = list(),
   profile = NULL,
+  pipeline = NULL,
   clear_output = "never",
   project = NULL
 )
@@ -18,7 +19,9 @@ projr_build_dev(
 \item{scripts}{character vector.
 Paths or glob patterns for scripts to build, relative to the project root
 or absolute. Prefix a pattern with \code{!} to exclude matches. Use an empty
-character vector or \code{""} to skip running scripts. The default, \code{NULL},
+character vector or \code{""} to skip running scripts. With a pipeline
+selected, these scripts take the place of \code{dev.scripts} and combine with
+the pipeline's; add \code{pipeline = FALSE} to run only them. The default, \code{NULL},
 checks \code{dev.scripts} and then \code{build.scripts}. If neither is set, a
 Quarto or Bookdown project renders before automatically detected R scripts.
 Without a project, scripts are detected in the project root and run
@@ -55,6 +58,15 @@ Quarto renders in the foreground so later scripts and hooks see its output.}
 \code{projr} profile to use. Sets \code{PROJR_PROFILE} for the build, so it
 overrides that variable and the \code{profile} key in \verb{_projr-local.yml} and
 \verb{_projr.yml}.}
+
+\item{pipeline}{character.
+Names of pipelines under \code{pipelines} to run in order, or \code{FALSE} to run
+none. Entries can be globs; a glob's matches run in their order under
+\code{pipelines}, and each pipeline runs once.
+Overrides \code{build.pipeline} (or \code{dev.pipeline} for development builds) for
+this build. Inline \code{scripts} and \code{hooks}, and the \code{scripts} argument of
+\code{projr_build_dev()}, still combine with it. Default is \code{NULL}, using the
+configured selection.}
 
 \item{clear_output}{character.
 When to clear output directories: "pre" (before build),
