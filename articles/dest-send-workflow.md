@@ -285,7 +285,7 @@ remotes:
         strategy: sync-diff
         inspect: manifest
 build:
-  github:
+  dest:
     reports:
       content: [output]
 ```

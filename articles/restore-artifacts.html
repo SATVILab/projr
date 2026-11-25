@@ -235,10 +235,8 @@ the checkout you selected with <code>path</code>.</p>
 <span>  <span class="va">repo</span>,          <span class="co"># "owner/repo" or "repo"</span></span>
 <span>  path <span class="op">=</span> <span class="cn">NULL</span>,   <span class="co"># clone destination (default: subdirectory named after repo)</span></span>
 <span>  label <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># which artifacts (default: all raw-* labels)</span></span>
-<span>  pos <span class="op">=</span> <span class="cn">NULL</span>,    <span class="co"># "source", "dest", or both (default: both)</span></span>
-<span>  type <span class="op">=</span> <span class="cn">NULL</span>,   <span class="co"># "github" or "local" (default: first available)</span></span>
-<span>  title <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># remote title from _projr.yml</span></span>
-<span>  destination <span class="op">=</span> <span class="cn">NULL</span>  <span class="co"># original concrete release tag or local path</span></span>
+<span>  type <span class="op">=</span> <span class="cn">NULL</span>,   <span class="co"># "github" or "local", used with title</span></span>
+<span>  title <span class="op">=</span> <span class="cn">NULL</span>   <span class="co"># remote title under `remotes` in _projr.yml</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Clone into a subdirectory</span></span>
@@ -246,10 +244,11 @@ the checkout you selected with <code>path</code>.</p>
 <span></span>
 <span><span class="co"># Clone to a specific path</span></span>
 <span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span>, path <span class="op">=</span> <span class="st">"~/projects/my-analysis"</span><span class="op">)</span></span></code></pre></div>
-<p>The function reads <code>_projr.yml</code> in the cloned repo to
-locate configured remotes, then downloads all <code>raw-*</code>
-artifacts by default. Cache is not included unless requested explicitly.
-Returns <code>TRUE</code> on success.</p>
+<p>The function reads <code>_projr.yml</code> in the cloned repo and
+fetches its directories with <code><a href="../reference/projr_source.html">projr_source()</a></code>, which
+downloads all <code>raw-*</code> artifacts by default. Cache is not
+included unless requested explicitly. Returns <code>TRUE</code> on
+success.</p>
 </div>
 <div class="section level2">
 <h2 id="projr_restore_repo_wd">projr_restore_repo_wd()<a class="anchor" aria-label="anchor" href="#projr_restore_repo_wd"></a>
@@ -260,10 +259,8 @@ directory.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo_wd</a></span><span class="op">(</span></span>
 <span>  <span class="va">repo</span>,</span>
 <span>  label <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  pos <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  destination <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  title <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="st">"~/projects/my-analysis"</span><span class="op">)</span></span>
@@ -272,31 +269,33 @@ directory.</p>
 in the right place before calling it.</p>
 </div>
 <div class="section level2">
-<h2 id="projr_content_update">projr_content_update()<a class="anchor" aria-label="anchor" href="#projr_content_update"></a>
+<h2 id="projr_source">projr_source()<a class="anchor" aria-label="anchor" href="#projr_source"></a>
 </h2>
-<p>Restores artifacts in an existing local project (no cloning). The
-project must have a build history in <code>.projr/manifests/</code> or a
-legacy root <code>manifest.csv</code>.</p>
+<p>Fetches artifacts into an existing local project (no cloning) from
+the remotes registered under <code>remotes</code> in
+<code>_projr.yml</code>. Without <code>remote</code>, it uses
+<code>build.source</code>, or else the single registered remote that
+published each label. <code><a href="../reference/projr_content_update.html">projr_content_update()</a></code> is deprecated
+and now calls <code><a href="../reference/projr_source.html">projr_source()</a></code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span></span>
-<span>  label <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># which artifacts (default: all raw-* labels)</span></span>
-<span>  pos <span class="op">=</span> <span class="cn">NULL</span>,    <span class="co"># "source", "dest", or both</span></span>
-<span>  type <span class="op">=</span> <span class="cn">NULL</span>,   <span class="co"># "github" or "local"</span></span>
-<span>  title <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># remote title from _projr.yml</span></span>
-<span>  clear <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  destination <span class="op">=</span> <span class="cn">NULL</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span></span>
+<span>  label <span class="op">=</span> <span class="cn">NULL</span>,     <span class="co"># which artifacts (default: all raw-* labels)</span></span>
+<span>  remote <span class="op">=</span> <span class="cn">NULL</span>,    <span class="co"># "&lt;title&gt;" or "&lt;type&gt;:&lt;title&gt;" under `remotes`</span></span>
+<span>  version <span class="op">=</span> <span class="cn">NULL</span>,   <span class="co"># "latest" (default), "1", "1.2", "1.2.3" or "current"</span></span>
+<span>  cue <span class="op">=</span> <span class="cn">NULL</span>,       <span class="co"># "if-change" (default here), "if-empty", "always" or "never"</span></span>
+<span>  strategy <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># "sync-diff" (default), "sync-purge", "download-all" or "download-missing"</span></span>
+<span>  inspect <span class="op">=</span> <span class="cn">NULL</span>,   <span class="co"># "manifest" (default), "file" or "none"</span></span>
+<span>  conflict <span class="op">=</span> <span class="cn">NULL</span>   <span class="co"># "error", "local" or "remote" for changed local files</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Restore everything raw</span></span>
-<span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Fetch everything raw</span></span>
+<span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Restore raw data and cache</span></span>
-<span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"raw-data"</span>, <span class="st">"cache"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Fetch raw data and cache</span></span>
+<span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"raw-data"</span>, <span class="st">"cache"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Restore from a specific remote</span></span>
-<span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"local"</span>, title <span class="op">=</span> <span class="st">"network-backup"</span><span class="op">)</span></span></code></pre></div>
-<p>If the project has no manifest, the project needs at least one
-successful <code>projr_build_*()</code> run first.</p>
+<span><span class="co"># Fetch from a specific remote</span></span>
+<span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>remote <span class="op">=</span> <span class="st">"local:network-backup"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a>
@@ -308,15 +307,22 @@ labels. Valid labels include <code>raw-data</code>, <code>cache</code>,
 <code>output</code>, and <code>docs</code>. Prefer regenerating
 <code>output</code>/<code>docs</code> with
 <code><a href="../reference/projr_build_dev.html">projr_build_dev()</a></code> rather than restoring them.</p></li>
-<li><p><code>type</code> – remote type: <code>"github"</code> or
-<code>"local"</code>. <code>NULL</code> (default) uses the first
-available remote in <code>_projr.yml</code> order.</p></li>
-<li><p><code>title</code> – selects a specific remote configuration when
-multiple exist for the same type. <code>NULL</code> (default) uses the
-first available.</p></li>
-<li><p><code>pos</code> – <code>"source"</code> for source directories,
-<code>"dest"</code> for build destinations, or both (the default).
-Usually the default is fine.</p></li>
+<li><p><code>remote</code> (<code><a href="../reference/projr_source.html">projr_source()</a></code>) – a remote
+registered under <code>remotes</code>, named by its title or as
+<code>&lt;type&gt;:&lt;title&gt;</code>.
+<code><a href="../reference/projr_content_update.html">projr_restore_repo()</a></code> builds it from <code>type</code> and
+<code>title</code>.</p></li>
+<li><p><code>conflict</code> (<code><a href="../reference/projr_source.html">projr_source()</a></code>) – what to do
+with local files changed since the last fetch. <code>"error"</code>
+stops before changing anything, <code>"local"</code> keeps them and
+<code>"remote"</code> replaces them. An interactive session asks
+instead, offering to keep, replace or cancel.</p></li>
+<li><p><code>version</code>, <code>cue</code>, <code>strategy</code> and
+<code>inspect</code> (<code><a href="../reference/projr_source.html">projr_source()</a></code>) – override the
+<code>get</code> settings described in
+<code><a href="../articles/configuration.html">vignette("configuration")</a></code>. <code>version = "current"</code>
+restores this checkout’s recorded build, as <code><a href="../reference/projr_restore.html">projr_restore()</a></code>
+does.</p></li>
 <li><p><code>repo</code> (restore_repo functions only) – GitHub
 repository in <code>"owner/repo"</code> or <code>"repo"</code>
 format.</p></li>
@@ -337,24 +343,6 @@ project. Run <code><a href="../reference/instr_auth.html">projr_instr_auth_githu
 local destination needs read access to the folder.</p>
 </div>
 <div class="section level2">
-<h2 id="selecting-an-earlier-destination">Selecting an earlier destination<a class="anchor" aria-label="anchor" href="#selecting-an-earlier-destination"></a>
-</h2>
-<p>When a build expands <code>@branch</code> or <code>@uuid</code> in a
-destination, copy the concrete tag or path from its
-<code>.projr/BUILDLOG.md</code>. Select the configuration by its
-<code>title</code> and supply the earlier location as
-<code>destination</code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span></span>
-<span>  label <span class="op">=</span> <span class="st">"output"</span>, pos <span class="op">=</span> <span class="st">"dest"</span>, type <span class="op">=</span> <span class="st">"github"</span>,</span>
-<span>  title <span class="op">=</span> <span class="st">"study-@branch"</span>, destination <span class="op">=</span> <span class="st">"study-site-a"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Within that destination, restore selects its latest available version
-for the label. By default, it retains extra local files. Use
-<code>clear = TRUE</code> if you want the local label to match the
-restored payload, including an explicitly recorded empty directory.</p>
-</div>
-<div class="section level2">
 <h2 id="configuring-remotes">Configuring remotes<a class="anchor" aria-label="anchor" href="#configuring-remotes"></a>
 </h2>
 <p>To publish files for other readers, define a named archive under
@@ -367,7 +355,7 @@ settings together under <code>build</code>, use
 <code><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github()</a></code> or
 <code><a href="../reference/projr_yml_dest_add.html">projr_yml_dest_add_local()</a></code> to configure destinations in
 <code>_projr.yml</code>:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Archive raw data to GitHub releases</span></span>
 <span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"raw-data-@version"</span>,</span>
@@ -383,11 +371,11 @@ settings together under <code>build</code>, use
 <span><span class="op">)</span></span></code></pre></div>
 <p>Add restoration instructions to your project README so collaborators
 know what to run:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">## Setup</span></span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="ss">1. </span>Restore project: <span class="in">`projr::projr_restore_repo("owner/repo")`</span></span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="ss">2. </span>Install dependencies: <span class="in">`renv::restore()`</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="ss">3. </span>Build project: <span class="in">`projr::projr_build_dev()`</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">## Setup</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="ss">1. </span>Restore project: <span class="in">`projr::projr_restore_repo("owner/repo")`</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="ss">2. </span>Install dependencies: <span class="in">`renv::restore()`</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="ss">3. </span>Build project: <span class="in">`projr::projr_build_dev()`</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
@@ -395,7 +383,7 @@ know what to run:</p>
 <div class="section level3">
 <h3 id="new-collaborator-setup">New collaborator setup<a class="anchor" aria-label="anchor" href="#new-collaborator-setup"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Clone and restore artifacts</span></span>
 <span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"satvilab/my-study"</span><span class="op">)</span></span>
 <span></span>
@@ -407,25 +395,46 @@ know what to run:</p>
 <div class="section level3">
 <h3 id="selective-restoration-in-an-existing-project">Selective restoration in an existing project<a class="anchor" aria-label="anchor" href="#selective-restoration-in-an-existing-project"></a>
 </h3>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Restore only raw data (skip cache, output, etc.)</span></span>
-<span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Regenerate everything else</span></span>
 <span><span class="fu"><a href="../reference/projr_build_dev.html">projr_build_dev</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
+<h3 id="keeping-inputs-in-sync-before-each-build">Keeping inputs in sync before each build<a class="anchor" aria-label="anchor" href="#keeping-inputs-in-sync-before-each-build"></a>
+</h3>
+<p>List the remotes that supply raw inputs under
+<code>build.source</code> in <code>_projr.yml</code>. Each build then
+fetches them before any hook or script runs.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="at">  </span><span class="fu">source</span><span class="kw">:</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="at">    </span><span class="fu">backup</span><span class="kw">:</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="at">      </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span></code></pre></div>
+<p>With the default <code>cue: if-empty</code>, a folder that already
+holds files is left alone and the build works offline. A file you edited
+since the last fetch stops the build before anything changes. Resolve it
+outside the build:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span>, conflict <span class="op">=</span> <span class="st">"remote"</span><span class="op">)</span> <span class="co"># take the remote copy</span></span>
+<span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span>, conflict <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span>  <span class="co"># keep your edits</span></span></code></pre></div>
+<p>Production builds list each fetched label’s remote, version and
+snapshot under <strong>Raw-input sources</strong> in
+<code>.projr/BUILDLOG.md</code>.</p>
+</div>
+<div class="section level3">
 <h3 id="falling-back-between-remotes">Falling back between remotes<a class="anchor" aria-label="anchor" href="#falling-back-between-remotes"></a>
 </h3>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Try GitHub first, fall back to local</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"github"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>remote <span class="op">=</span> <span class="st">"github:archive"</span><span class="op">)</span>,</span>
 <span>  error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">result</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>remote <span class="op">=</span> <span class="st">"local:backup"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 </div>
@@ -433,15 +442,11 @@ know what to run:</p>
 <h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
 </h2>
 <ul>
-<li><p><code><a href="../reference/projr_content_update.html">projr_content_update()</a></code> selects the latest available
-version in the chosen destination. Use <code><a href="../reference/projr_restore.html">projr_restore()</a></code> for
-the verified inputs of a specific build.</p></li>
-<li><p>The default content-update search looks for a directory’s
-configured source before checking a build destination that contains that
-label.</p></li>
-<li><p><code><a href="../reference/projr_content_update.html">projr_content_update()</a></code> catches errors per label.
-<code><a href="../reference/projr_restore.html">projr_restore()</a></code> verifies all downloaded directories before
-installing them.</p></li>
+<li><p><code><a href="../reference/projr_source.html">projr_source()</a></code> selects the latest completed build by
+default. Use <code><a href="../reference/projr_restore.html">projr_restore()</a></code> for the verified inputs of
+this checkout’s build.</p></li>
+<li><p><code><a href="../reference/projr_source.html">projr_source()</a></code> checks every selected label before
+changing any files.</p></li>
 <li><p>For debug output, set
 <code>Sys.setenv(PROJR_OUTPUT_LEVEL = "debug")</code> before
 restoring.</p></li>

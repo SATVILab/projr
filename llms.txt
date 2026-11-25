@@ -133,6 +133,8 @@ Main functions for project workflow
   [`projr_get_local()`](https://satvilab.github.io/projr/reference/projr_get.md)
   [`projr_get_github()`](https://satvilab.github.io/projr/reference/projr_get.md)
   : Download directories from another projr analysis
+- [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md)
+  : Fetch raw inputs from their sources
 - [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
   : Restore the files used by a checked-out build
 - [`projr_reproduce()`](https://satvilab.github.io/projr/reference/projr_reproduce.md)

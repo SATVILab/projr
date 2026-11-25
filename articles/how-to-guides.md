@@ -126,7 +126,8 @@ build:
 
 This configuration publishes raw data to a shared folder and output to a
 GitHub release named `figures`. Keep the addresses and sending options
-under `remotes`. List the labels to send under `build`.
+under `remotes`. Select the archives and the labels to send under
+`build.dest`.
 
 ``` yaml
 remotes:
@@ -136,15 +137,14 @@ remotes:
   github:
     figures: {}
 build:
-  local:
+  dest:
     backup:
       content: [raw-data]
-  github:
     figures:
       content: [output]
 ```
 
-To pause new uploads to `backup`, remove its entry under `build.local`.
+To pause new uploads to `backup`, remove its entry under `build.dest`.
 The address under `remotes.local` still lets you retrieve earlier files.
 
 Use `structure: archive` to retain versioned artifacts or
@@ -183,21 +183,32 @@ projr_get_local(remote = "backup", label = "raw-data", version = "1.2.3", out = 
 
 To update configured directories in place from their latest available
 files, use
+[`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md).
+It replaces the deprecated
 [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md).
 
 ``` r
 
-projr_content_update(label = "raw-data")
-projr_content_update(label = c("raw-data", "output"))
-projr_content_update(label = "raw-data", type = "local", title = "backup")
+projr_source(label = "raw-data")
+projr_source(label = c("raw-data", "output"))
+projr_source(label = "raw-data", remote = "local:backup")
 ```
 
-By default,
-[`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
-looks for each label’s configured source, then a build destination
-containing that label. To reuse a templated archive from an earlier
-build, pass the concrete path or tag recorded in `.projr/BUILDLOG.md` as
-`destination`.
+Without `remote`,
+[`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md)
+uses `build.source`, or else the single remote registered under
+`remotes` that published each label.
+
+To fetch inputs before every build, list their remotes under
+`build.source`. The build stops on local edits before changing any
+files. See
+[`vignette("configuration")`](https://satvilab.github.io/projr/articles/configuration.md)
+for the settings.
+
+``` yaml
+build:
+  source: [backup]
+```
 
 ------------------------------------------------------------------------
 
@@ -266,10 +277,6 @@ Edit `_projr-dev.yml` to override specific settings. Unspecified keys
 fall back to `_projr.yml`.
 
 ``` yaml
-build:
-  github:
-    enabled: false
-
 directories:
   output:
     path: _output_dev

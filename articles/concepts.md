@@ -190,9 +190,9 @@ The `structure` setting controls how files are kept.
   still records earlier builds, but earlier files can only be retrieved
   if matching contents remain available.
 
-The R helpers below write supported inline build destinations. To keep
-an archive available for reads when uploads are paused, use a named
-entry under `remotes` as shown in the [archive
+The R helpers below register each archive under `remotes` and select it
+under `build.dest`. Remove an archive from `build.dest` to pause uploads
+while keeping it available for reads, as shown in the [archive
 guide](https://satvilab.github.io/projr/articles/send-to-remotes.md).
 
 ``` r
@@ -224,12 +224,12 @@ Or update a single label:
 
 ``` r
 
-projr_content_update(label = "raw-data")
-projr_content_update(label = "output", pos = "dest")
+projr_source(label = "raw-data")
+projr_source(label = "output", remote = "local:shared")
 ```
 
-projr uses each label’s configured source first, then a matching build
-destination.
+Without `remote`, projr uses `build.source`, or else the registered
+remote that published the label.
 
 ------------------------------------------------------------------------
 
@@ -262,12 +262,10 @@ Or in `.Renviron`:
 
     PROJR_PROFILE=dev
 
-Example `_projr-dev.yml` that disables GitHub archiving and Git commits:
+Example `_projr-dev.yml` that disables Git commits:
 
 ``` yaml
 build:
-  github:
-    enabled: false
   git:
     commit: false
 ```

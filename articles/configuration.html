@@ -227,18 +227,12 @@ those outputs, <code>true</code> for all other outputs, or
 package and copies it under <code>pkg/</code>.</td>
 </tr>
 <tr class="even">
-<td><code>source</code></td>
-<td>Preferred restore configuration by remote type. For example,
-<code>source: {local: shared}</code> selects a named local destination
-called <code>shared</code>.</td>
-</tr>
-<tr class="odd">
 <td><code>license</code></td>
 <td>A license identifier such as <code>CC-BY</code>, or a mapping
 containing <code>type</code>, <code>authors</code> and
 <code>year</code>. See <code><a href="../articles/directory-licenses.html">vignette("directory-licenses")</a></code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>ignore</code></td>
 <td>Controls both Git and R build rules. Defaults to false for package
 datasets (<code>data</code>) and true for other declared directories,
@@ -246,14 +240,14 @@ including <code>raw-data</code>. Accepts YAML booleans,
 <code>ignore</code>, <code>no-ignore</code>, or
 <code>manual</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>
 <code>ignore-git</code>, <code>ignore-rbuild</code>
 </td>
 <td>Set either type separately. When <code>ignore</code> is also
 supplied, the choices must agree.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>ignore-even-if-inactive</code></td>
 <td>Defaults to true. Applies that profile’s enabled ignore types while
 a different profile is active.</td>
@@ -519,8 +513,9 @@ registered archives that the build only reads.</p>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="at">    </span><span class="fu">not_behind_remote</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">reports</span><span class="kw">,</span><span class="at"> backup</span><span class="kw">]</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="at">    </span><span class="fu">rule</span><span class="kw">:</span><span class="at"> target</span></span></code></pre></div>
 <p>If the same title appears under both <code>remotes.github</code> and
-<code>remotes.local</code>, qualify it by type, for example
-<code>not_behind_remote: {github: [reports]}</code>. Set
+<code>remotes.local</code>, write it as
+<code>&lt;type&gt;:&lt;title&gt;</code>, for example
+<code>not_behind_remote: [github:reports]</code>. Set
 <code>not_behind_remote: false</code> to skip archive checks. Git
 upstream checks have their own <code>not_behind_git</code> setting.
 Development builds skip both checks.</p>
@@ -590,10 +585,10 @@ an earlier build</a>.</p>
 <h2 id="saving-artifacts">Saving artifacts<a class="anchor" aria-label="anchor" href="#saving-artifacts"></a>
 </h2>
 <p>Use <code>remotes</code> to give an archive a name and record where
-it lives. Use <code>build</code> to select which archives a production
-build writes to. This example keeps a complete local archive called
-<code>shared</code> and sends just the figures to a GitHub repository.
-The project declares <code>output-figures</code> under
+it lives. Use <code>build.dest</code> to select which archives a
+production build writes to. This example keeps a complete local archive
+called <code>shared</code> and sends just the figures to a GitHub
+repository. The project declares <code>output-figures</code> under
 <code>directories</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
@@ -609,52 +604,53 @@ The project declares <code>output-figures</code> under
 <span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="at">        </span><span class="fu">inspect</span><span class="kw">:</span><span class="at"> manifest</span></span>
 <span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="at">        </span><span class="fu">strategy</span><span class="kw">:</span><span class="at"> sync-diff</span></span>
 <span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-figures</span><span class="kw">]</span></span></code></pre></div>
-<p>For a name declared under <code>remotes</code>, the matching entry
-under <code>build</code> has three forms.</p>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="at">  </span><span class="fu">dest</span><span class="kw">:</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="at">    </span><span class="fu">reports</span><span class="kw">:</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">output-figures</span><span class="kw">]</span></span></code></pre></div>
+<p><code>build.dest</code> takes one of three forms.</p>
 <table class="table">
 <colgroup>
 <col width="50%">
 <col width="50%">
 </colgroup>
 <thead><tr class="header">
-<th>Entry under <code>build.github</code> or
-<code>build.local</code>
-</th>
+<th><code>build.dest</code></th>
 <th>What a production build sends</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>Omit the name</td>
-<td>Nothing to this archive. Its saved files remain available to
-readers.</td>
+<td><code>dest: shared</code></td>
+<td>All declared raw, output and docs labels to one archive. Cache is
+included only when explicitly selected.</td>
 </tr>
 <tr class="even">
-<td>
-<code>reports: {}</code> or a bare <code>reports:</code>
-</td>
-<td>All declared raw, output and docs labels. Cache is included only
-when explicitly selected.</td>
+<td><code>dest: [shared, reports]</code></td>
+<td>All of those labels to each listed archive.</td>
 </tr>
 <tr class="odd">
-<td><code>reports: {content: [output-figures]}</code></td>
-<td>Only the listed labels.</td>
+<td>A mapping</td>
+<td>Each key is an archive name or a setting. A setting
+(<code>content</code>, <code>cue</code>, <code>inspect</code> or
+<code>strategy</code>) applies to every listed archive. Settings under
+an archive’s name apply to that archive only.</td>
 </tr>
 </tbody>
 </table>
-<p>Put the address, layout and transfer settings under
-<code>remotes</code> and only <code>content</code> in the matching build
-entry. Readers can ask for any label actually saved for a build, even
-after its publishing selection changes. Existing configurations that
-define a destination entirely under <code>build</code> still work. To
-move an existing <code>build.github.archive</code> to the named layout,
-move its address, <code>structure</code> and <code>send</code> settings
-to <code>remotes.github.archive</code>. Leave its <code>content</code>
-selection under <code>build.github.archive</code>.</p>
+<p>A per-archive setting takes precedence over a setting for the whole
+of <code>build.dest</code>, which takes precedence over
+<code>remotes.&lt;type&gt;.&lt;title&gt;.send</code>. An archive left
+out of <code>build.dest</code> receives nothing, but its saved files
+remain available to readers. Readers can ask for any label actually
+saved for a build, even after its publishing selection changes. A
+profile’s <code>build.dest</code> replaces the default selection, so
+<code>dest: []</code> in a profile turns uploads off.</p>
+<p>Name an archive by its title when no other type uses that title, or
+as <code>&lt;type&gt;:&lt;title&gt;</code>, for example
+<code>github:reports</code>. The words <code>content</code>,
+<code>cue</code>, <code>inspect</code>, <code>strategy</code>,
+<code>conflict</code> and <code>version</code> cannot be archive
+titles.</p>
 <p>For GitHub, <code>repo</code> defaults to the repository that
 produced the build. The name under <code>remotes.github</code> supplies
 the release tag and title unless <code>tag</code> supplies a different
@@ -670,7 +666,8 @@ hold files from several project versions.</p>
 <col width="50%">
 </colgroup>
 <thead><tr class="header">
-<th>Destination field</th>
+<th>Field under <code>remotes.&lt;type&gt;.&lt;title&gt;</code>
+</th>
 <th>Values and effect</th>
 </tr></thead>
 <tbody>
@@ -730,22 +727,17 @@ treats the destination as empty for comparison.</td>
 <code>sync-diff</code>, or <code>upload-all</code> with
 <code>inspect: none</code>.</td>
 </tr>
-<tr class="even">
-<td><code>source</code></td>
-<td>Set true to prefer this destination for restores, false to skip it,
-or list the labels for which it is preferred.</td>
-</tr>
 </tbody>
 </table>
-<p>In an older inline <code>build.github</code> entry,
-<code>title</code> can also supply the release name. Under
-<code>remotes.github</code>, the mapping key names the destination and
-<code>tag</code> sets the release name.</p>
 <p>For a one-off production archive, pass labels to
 <code>archive_local</code> or <code>archive_github</code>.
 <code>TRUE</code> chooses the available archive labels.
 <code>always_archive</code> controls whether those one-off archives are
-sent even when unchanged.</p>
+sent even when unchanged. The first one-off archive also registers
+<code>remotes.github.archive: {}</code> or
+<code>remotes.local.archive: {path: _archive}</code> in
+<code>_projr.yml</code>, so projr knows where the files went. It does
+not add the archive to <code>build.dest</code>.</p>
 <div class="section level3">
 <h3 id="naming-a-destination-for-a-branch-or-build">Naming a destination for a branch or build<a class="anchor" aria-label="anchor" href="#naming-a-destination-for-a-branch-or-build"></a>
 </h3>
@@ -815,34 +807,147 @@ a specific build or <code>destination</code> for another release tag. It
 verifies every selected directory’s paths and MD5s before installing any
 downloads. Local changes and extra files stop the restore unless you
 explicitly allow replacement with <code>clear = TRUE</code>.</p>
-<p>In a checkout with manifest history, run
-<code><a href="../reference/projr_content_update.html">projr_content_update()</a></code> to restore the raw labels. Supply
-<code>label</code> to restore other directories. Projr first considers a
-directory’s configured <code>source</code> and then eligible build
-destinations. Use <code>pos = "source"</code> or <code>"dest"</code> to
-limit the search, <code>type</code> to select local or GitHub, and
-<code>title</code> to select the configuration entry. Within the
-selected destination, restore chooses its latest available version for
-the label. <code>clear = TRUE</code> can remove existing local files,
-including when the archive records an empty version.</p>
+<p>Run <code><a href="../reference/projr_source.html">projr_source()</a></code> to fetch the raw labels from their
+latest builds on the remotes registered under <code>remotes</code>.
+Supply <code>label</code> to fetch other directories and
+<code>remote</code> (a title, or
+<code>&lt;type&gt;:&lt;title&gt;</code>) to choose the remote. Without
+<code>remote</code>, projr uses <code>build.source</code>, or else the
+single registered remote that published each label.
+<code>conflict = "remote"</code> replaces local changes, including when
+the archive records an empty version.
+<code><a href="../reference/projr_content_update.html">projr_content_update()</a></code> is deprecated and now calls
+<code><a href="../reference/projr_source.html">projr_source()</a></code>.</p>
 <p>If a destination contained <code>@uuid</code>, find its concrete path
 or release tag in the <strong>Resolved archive destinations</strong>
 section of that build’s <code>.projr/BUILDLOG.md</code>. In an older
 checkout, projr can read a root <code>BUILDLOG.md</code>. The next build
 or restore moves that history into <code>.projr/</code>. The changelog
-stays at the root. Pass it back as <code>destination</code> to restore
-from the same place later.</p>
+stays at the root.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">projr</span><span class="fu">::</span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span></span>
-<span>  label <span class="op">=</span> <span class="st">"output-delivery"</span>, pos <span class="op">=</span> <span class="st">"dest"</span>, type <span class="op">=</span> <span class="st">"local"</span>, title <span class="op">=</span> <span class="st">"shared"</span>,</span>
-<span>  destination <span class="op">=</span> <span class="st">"../team-archives/study"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">projr</span><span class="fu">::</span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"output-delivery"</span>, remote <span class="op">=</span> <span class="st">"local:shared"</span><span class="op">)</span></span></code></pre></div>
 <p><code>projr_restore_repo("owner/repo")</code> clones a repository and
-restores its artifacts. Use
+fetches its directories with <code><a href="../reference/projr_source.html">projr_source()</a></code>. Use
 <code>projr_restore_repo_wd("owner/repo")</code> to clone into the
-current directory. Both accept the same label, source and destination
-selectors.</p>
+current directory. Both accept <code>label</code>, and <code>type</code>
+and <code>title</code> to name the remote.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="fetching-raw-inputs">Fetching raw inputs<a class="anchor" aria-label="anchor" href="#fetching-raw-inputs"></a>
+</h2>
+<p>Use <code>build.source</code> to fetch raw inputs from registered
+remotes before a build runs. It takes the same three forms as
+<code>build.dest</code>. By default each listed remote supplies every
+declared raw label. This example takes the latest survey files from a
+colleague’s GitHub release and pins the codebook to their build 0.6.3 in
+a local archive.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">remotes</span><span class="kw">:</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="at">    </span><span class="fu">survey-team</span><span class="kw">:</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="at">      </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> example/survey</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="at">      </span><span class="fu">tag</span><span class="kw">:</span><span class="at"> archive</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="at">      </span><span class="fu">get</span><span class="kw">:</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="at">        </span><span class="fu">cue</span><span class="kw">:</span><span class="at"> if-change</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="at">  </span><span class="fu">local</span><span class="kw">:</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="at">    </span><span class="fu">shared</span><span class="kw">:</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> ../team-archives/survey</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="fu">directories</span><span class="kw">:</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-survey</span><span class="kw">:</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data/survey</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="at">  </span><span class="fu">raw-codebook</span><span class="kw">:</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> _raw_data/codebook</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="at">  </span><span class="fu">source</span><span class="kw">:</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="at">    </span><span class="fu">survey-team</span><span class="kw">:</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-survey</span><span class="kw">]</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="at">    local</span><span class="fu">:shared</span><span class="kw">:</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="at">      </span><span class="fu">content</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">raw-codebook</span><span class="kw">]</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="at">      </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">"0.6.3"</span></span></code></pre></div>
+<p>Set defaults under
+<code>remotes.&lt;type&gt;.&lt;title&gt;.get</code>. A setting under
+<code>build.source</code> applies to every listed remote, and a setting
+under a remote’s name applies to that remote only.</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>
+<code>get</code> setting</th>
+<th>Values and effect</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>version</code></td>
+<td>
+<code>latest</code> (default), <code>x</code> for the latest build
+within major version <code>x</code>, <code>x.y</code> for the latest
+within that minor version, or an exact <code>x.y.z</code>.</td>
+</tr>
+<tr class="even">
+<td><code>cue</code></td>
+<td>
+<code>if-empty</code> (default in builds) fetches only into empty
+folders, without contacting the remote. <code>if-change</code> fetches
+when the remote’s snapshot differs. <code>always</code> fetches every
+time. <code>never</code> skips the remote.</td>
+</tr>
+<tr class="odd">
+<td><code>inspect</code></td>
+<td>
+<code>manifest</code> (default) trusts the remote’s recorded hashes.
+<code>file</code> downloads and hashes the files. <code>none</code>
+skips the comparison.</td>
+</tr>
+<tr class="even">
+<td><code>strategy</code></td>
+<td>
+<code>sync-diff</code> (default) and <code>sync-purge</code> mirror
+the remote and remove local files it lacks. <code>download-all</code>
+never deletes. <code>download-missing</code> never overwrites.</td>
+</tr>
+<tr class="odd">
+<td><code>conflict</code></td>
+<td>
+<code>error</code> (default) stops the build. <code>local</code>
+keeps local edits and <code>remote</code> replaces them.</td>
+</tr>
+</tbody>
+</table>
+<p>Before any hook or script runs, the build plans every fetch,
+downloading only into a temporary staging folder. It stops on a conflict
+before changing any files, then installs the verified files before
+hashing raw inputs. A pinned version that is already in place needs no
+network access.</p>
+<p>A conflict is a local file edited since the last fetch that the fetch
+would overwrite or delete. Fetch records are kept in the Git-ignored
+<code>.projr/source/&lt;label&gt;.json</code> and stay on that machine.
+A fresh clone has no record, so local files that differ from the remote
+count as conflicts until resolved. A <code>LICENSE</code> that projr
+writes into a licensed raw folder is not a local change. Production
+builds record each label’s remote, version and snapshot under
+<strong>Raw-input sources</strong> in <code>.projr/BUILDLOG.md</code>,
+and the console reports each update.</p>
+<p><code>directories.&lt;label&gt;.source</code> and a
+<code>source</code> field under <code>remotes</code> are no longer
+supported. Use <code>build.source</code> instead.</p>
+<p>Run <code><a href="../reference/projr_source.html">projr_source()</a></code> to fetch outside a build or to
+resolve a conflict. Its arguments (<code>label</code>,
+<code>remote</code>, <code>version</code>, <code>cue</code>,
+<code>strategy</code>, <code>inspect</code> and <code>conflict</code>)
+override the configuration, and <code>cue</code> defaults to
+<code>if-change</code>. In an interactive session, a conflict asks
+whether to keep the local files, replace them or cancel. Otherwise
+<code>conflict</code> decides. If two registered remotes publish the
+same label and <code>build.source</code> does not choose one, name it
+with <code>remote</code>. <code>version = "current"</code> restores this
+checkout’s recorded build, as <code><a href="../reference/projr_restore.html">projr_restore()</a></code> does.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">projr</span><span class="fu">::</span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-survey"</span>, conflict <span class="op">=</span> <span class="st">"remote"</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

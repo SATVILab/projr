@@ -149,7 +149,7 @@ remotes:
   github:
     input: {}
 build:
-  github:
+  dest:
     input:
       content: [raw-data]
 ```

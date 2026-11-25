@@ -75,9 +75,37 @@ the exact version and earlier matching assets first. When they are
 unavailable, a later upload may supply the files only if the release
 index records the same directory snapshot and its downloaded file list
 and hashes match the requested build. Preserve user changes unless
-`clear = TRUE`. The existing
+`clear = TRUE`.
 [`projr_content_update()`](https://satvilab.github.io/projr/reference/projr_content_update.md)
-retains its latest-version behavior.
+is a deprecated wrapper for
+[`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md).
+
+`build.source` selects registered remotes (same forms as `build.dest`)
+to supply raw inputs, defaulting to every declared raw label. Fetch
+settings live under `remotes.<type>.<title>.get` and can be overridden
+for all of `build.source` or per remote: `version`, `cue` (`if-empty` in
+builds), `inspect`, `strategy` and `conflict`.
+
+- Plan every fetch before any hook or script, downloading only into
+  staging. Stop on conflicts before changing files, then install
+  verified files before hashing raw inputs. `if-empty` and a pinned
+  version already in place need no network.
+- A conflict is a local edit since the last fetch. Keep fetch records in
+  the Git-ignored, machine-local `.projr/source/<label>.json`; without
+  one, differing files conflict. A projr-written raw `LICENSE` is not a
+  local change. Production builds record each label’s remote, version
+  and snapshot under “Raw-input sources” in `.projr/BUILDLOG.md`.
+- [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md)
+  fetches outside a build (default `cue: if-change`), using
+  `build.source` or the single registered remote publishing each label.
+  Interactive conflicts ask keep/replace/cancel. `version = "current"`
+  delegates to
+  [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md).
+  [`projr_source()`](https://satvilab.github.io/projr/reference/projr_source.md),
+  [`projr_restore()`](https://satvilab.github.io/projr/reference/projr_restore.md)
+  and `projr_get_*()` share the get backend.
+- `directories.<label>.source` and a remote’s `source:` field are
+  errors; use `build.source`.
 
 Set the file hashing approach and worker limit under `settings.hashing`.
 The defaults are `approach: cpp` and `cores: 1`. A positive whole-number
@@ -258,24 +286,36 @@ files.
   with the selected archives. Report each destination’s version and
   outcome. `build.restrictions.not_behind_remote` defaults to the
   planned publishing destinations, including one-off archives. A list
-  selects specific remote titles, including read-only destinations.
-  `false` skips the check. `build.restrictions.rule` defaults to
-  `base_version_not_behind` (`base`), requiring local base \>= remote
-  and proposed \> remote. `target_version_not_behind` (`target`)
-  requires only proposed \> remote. Empty archives pass. Keep Git’s
-  upstream check separate under `not_behind_git`, accepting the
-  historical `not_behind` spelling. Development builds skip both checks.
+  selects specific remote names (`<type>:<title>` when a title is
+  ambiguous), including read-only destinations. `false` skips the check.
+  `build.restrictions.rule` defaults to `base_version_not_behind`
+  (`base`), requiring local base \>= remote and proposed \> remote.
+  `target_version_not_behind` (`target`) requires only proposed \>
+  remote. Empty archives pass. Keep Git’s upstream check separate under
+  `not_behind_git`, accepting the historical `not_behind` spelling.
+  Development builds skip both checks.
 - Advance the archive’s project version only after publishing its final
   selected directory and changelog. An earlier successful label in an
   interrupted upload must preserve the last completed archive version.
-- Define reusable local and GitHub archives under
-  `remotes.<type>.<title>`. Store the address, layout and sending
-  options there. A registered title omitted from `build.<type>` remains
-  readable. A bare title or empty mapping under `build.<type>` publishes
-  all eligible raw, output and docs directory labels. An explicit
-  `content` list selects the labels to publish and can include cache.
-  Preserve existing inline build destinations and one-off archive
-  arguments.
+- Define local and GitHub archives under `remotes.<type>.<title>`. Store
+  the address, layout and sending options there. Select archives with
+  `build.dest`: a name, a list of names, or a mapping whose option keys
+  (`content`, `cue`, `inspect`, `strategy`) apply to every listed
+  archive and whose archive keys take per-archive overrides. Per-archive
+  settings take precedence over `build.dest` options, then
+  `remotes.<type>.<title>.send`, then defaults. A bare selection
+  publishes all eligible raw, output and docs directory labels. An
+  explicit `content` list selects the labels to publish and can include
+  cache. A title omitted from `build.dest` remains readable. Reject
+  inline `build.local` and `build.github` with a pointer to `remotes`
+  and `build.dest`.
+- Name an archive by its title when unique across types, otherwise as
+  `<type>:<title>`. Report unknown and ambiguous names. `content`,
+  `cue`, `inspect`, `strategy`, `conflict` and `version` cannot be
+  titles.
+- A one-off `archive_github` or `archive_local` build registers
+  `remotes.github.archive` or `remotes.local.archive` (path `_archive`)
+  when absent, without selecting it in `build.dest`.
 - For GitHub, default the destination repository to the producer’s
   repository and the tag and title to the configured name. An explicit
   `repo` or `tag` overrides its respective default. Expand templates

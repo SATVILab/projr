@@ -106,8 +106,10 @@ projr_build_patch(
   release named `archive` as versioned files (e.g. `output-v0.1.2.zip`).
   If `FALSE`, then no directories are uploaded. If a character vector,
   then only the directories specified are uploaded. Default is `FALSE`.
-  Ignored if there is a release named `archive` already specified as a
-  destination in the `projr` configuration file.
+  Ignored if a release named `archive` is already selected under
+  `build.dest` in the `projr` configuration file. Otherwise,
+  `remotes.github.archive` is registered in `_projr.yml` if absent,
+  without adding it to `build.dest`.
 
 - archive_local:
 
@@ -115,15 +117,17 @@ projr_build_patch(
   then all directories (`raw-data`, `output`, etc) are archived to a
   local directory. If `FALSE`, then no directories are archived locally.
   If a character vector, then only the directories specified are
-  archived. Default is `FALSE`.
+  archived. Default is `FALSE`. When used, `remotes.local.archive` (with
+  `path: _archive`) is registered in `_projr.yml` if absent, without
+  adding it to `build.dest`.
 
 - always_archive:
 
   logical. If `TRUE`, then the directories are uploaded regardless of
   whether the directory to be uploaded has exactly the same contents as
   the latest version of the directory on the GitHub release. Default is
-  `TRUE`. Ignored if there is a release named `archive` already
-  specified as a destination in the `projr` configuration file.
+  `TRUE`. Ignored if a release named `archive` is already selected under
+  `build.dest` in the `projr` configuration file.
 
 - clear_output:
 

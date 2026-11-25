@@ -90,10 +90,10 @@ Git upstream. Defaults to <code>TRUE</code>.</p></dd>
 <dd><p>Which archives to check. <code>TRUE</code> (default) checks
 the destinations selected for publication by this build. <code>FALSE</code> skips
 archive version checks. To check specific destinations, supply a character
-vector of archive titles or a named list such as
-<code>list(github = "reports", local = "backup")</code>. Include the type when a
-title applies to more than one archive. Selected archives are checked even
-when the build will not publish to them.</p></dd>
+vector of remote names such as <code>c("reports", "backup")</code>. Write a title
+registered under both types as <code>&lt;type&gt;:&lt;title&gt;</code>, for example
+<code>"github:reports"</code>. Selected archives are checked even when the build will
+not publish to them.</p></dd>
 
 
 <dt id="arg-rule">rule<a class="anchor" aria-label="anchor" href="#arg-rule"></a></dt>
@@ -115,7 +115,7 @@ build will create.</p></dd>
 <span class="r-in"><span><span class="fu">projr_yml_restrictions_set</span><span class="op">(</span>branch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"main"</span>, <span class="st">"dev"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">projr_yml_restrictions_set</span><span class="op">(</span>not_behind_git <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">projr_yml_restrictions_set</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  not_behind_remote <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>github <span class="op">=</span> <span class="st">"reports"</span>, local <span class="op">=</span> <span class="st">"backup"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  not_behind_remote <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"github:reports"</span>, <span class="st">"backup"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  rule <span class="op">=</span> <span class="st">"target"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>

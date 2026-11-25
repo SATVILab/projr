@@ -255,9 +255,11 @@ contents can share an earlier upload.</li>
 history still records earlier builds, but earlier files can only be
 retrieved if matching contents remain available.</li>
 </ul>
-<p>The R helpers below write supported inline build destinations. To
-keep an archive available for reads when uploads are paused, use a named
-entry under <code>remotes</code> as shown in the <a href="send-to-remotes.html">archive guide</a>.</p>
+<p>The R helpers below register each archive under <code>remotes</code>
+and select it under <code>build.dest</code>. Remove an archive from
+<code>build.dest</code> to pause uploads while keeping it available for
+reads, as shown in the <a href="send-to-remotes.html">archive
+guide</a>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_yml_dest_add_github.html">projr_yml_dest_add_github</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"my-release"</span>,</span>
@@ -280,10 +282,10 @@ entry under <code>remotes</code> as shown in the <a href="send-to-remotes.html">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_content_update.html">projr_restore_repo</a></span><span class="op">(</span><span class="st">"owner/repo"</span><span class="op">)</span></span></code></pre></div>
 <p>Or update a single label:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/projr_content_update.html">projr_content_update</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"output"</span>, pos <span class="op">=</span> <span class="st">"dest"</span><span class="op">)</span></span></code></pre></div>
-<p>projr uses each label’s configured source first, then a matching
-build destination.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"raw-data"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/projr_source.html">projr_source</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"output"</span>, remote <span class="op">=</span> <span class="st">"local:shared"</span><span class="op">)</span></span></code></pre></div>
+<p>Without <code>remote</code>, projr uses <code>build.source</code>, or
+else the registered remote that published the label.</p>
 <hr>
 </div>
 </div>
@@ -306,13 +308,10 @@ _projr-public.yml     # Public sharing overrides</code></pre>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>PROJR_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre></div>
 <p>Or in <code>.Renviron</code>:</p>
 <pre><code><span><span class="va">PROJR_PROFILE</span><span class="op">=</span><span class="va">dev</span></span></code></pre>
-<p>Example <code>_projr-dev.yml</code> that disables GitHub archiving
-and Git commits:</p>
+<p>Example <code>_projr-dev.yml</code> that disables Git commits:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">build</span><span class="kw">:</span></span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="at">  </span><span class="fu">github</span><span class="kw">:</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="at">  </span><span class="fu">git</span><span class="kw">:</span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="at">    </span><span class="fu">commit</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span></code></pre></div>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="at">  </span><span class="fu">git</span><span class="kw">:</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="at">    </span><span class="fu">commit</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level3">

@@ -42,10 +42,10 @@ projr_yml_restrictions_set(
   Which archives to check. `TRUE` (default) checks the destinations
   selected for publication by this build. `FALSE` skips archive version
   checks. To check specific destinations, supply a character vector of
-  archive titles or a named list such as
-  `list(github = "reports", local = "backup")`. Include the type when a
-  title applies to more than one archive. Selected archives are checked
-  even when the build will not publish to them.
+  remote names such as `c("reports", "backup")`. Write a title
+  registered under both types as `<type>:<title>`, for example
+  `"github:reports"`. Selected archives are checked even when the build
+  will not publish to them.
 
 - rule:
 
@@ -66,7 +66,7 @@ if (FALSE) { # \dontrun{
 projr_yml_restrictions_set(branch = c("main", "dev"))
 projr_yml_restrictions_set(not_behind_git = FALSE)
 projr_yml_restrictions_set(
-  not_behind_remote = list(github = "reports", local = "backup"),
+  not_behind_remote = c("github:reports", "backup"),
   rule = "target"
 )
 } # }

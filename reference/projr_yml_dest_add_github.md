@@ -1,6 +1,8 @@
 # Add a GitHub release as a destination
 
-Add a GitHub release as a destination to a \_projr.yml file.
+Register a GitHub release as an archive and select it for production
+builds. The release settings are written under `remotes.github.<title>`,
+and the selection, with its `content`, under `build.dest`.
 
 ## Usage
 
@@ -22,7 +24,8 @@ projr_yml_dest_add_github(
 
 - title:
 
-  character. GitHub release tag. The tag can contain `@branch`,
+  character. Name of the archive under `remotes.github`, also used as
+  the GitHub release tag and title. It can contain `@branch`,
   `@version`, and `@uuid`.
 
 - content:

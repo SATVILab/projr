@@ -20,7 +20,7 @@ Archive directories by their configured labels, such as `raw-data`,
 supplies its own source-code download for the commit at the release tag.
 
 Put the address of a named archive under `remotes` and select it under
-`build`. This example publishes documents to a GitHub release named
+`build.dest`. This example publishes documents to a GitHub release named
 `reports` in the analysis repository.
 
 ``` yaml
@@ -28,18 +28,19 @@ remotes:
   github:
     reports: {}
 build:
-  github:
+  dest:
     reports:
       content: [docs]
 ```
 
-To pause uploads, remove `reports` from `build.github`. Readers can
-still get previously published reports with
+To pause uploads, remove `reports` from `build.dest`. Readers can still
+get previously published reports with
 `projr_get_github(remote = "reports", label = "docs")` from a project
 where that name is registered. See the [configuration
 reference](https://satvilab.github.io/projr/articles/configuration.html#saving-artifacts)
 for local archives, separate GitHub repositories, and the all-label
-selection. The inline build configurations below are also supported.
+selection. The helpers below write both the `remotes` entry and the
+`build.dest` selection.
 
 ## GitHub Destinations
 
@@ -66,8 +67,12 @@ projr_yml_dest_add_github(
 YAML equivalent:
 
 ``` yaml
-build:
+remotes:
   github:
+    "raw-data-@version": {}
+    "output-@version": {}
+build:
+  dest:
     "raw-data-@version":
       content: [raw-data]
     "output-@version":
@@ -76,9 +81,10 @@ build:
 
 Parameters:
 
-- `title` sets both the release name and the Git tag. For version 1.2.3,
-  `"archive-@version"` produces `archive-v1.2.3`. The literal
-  `"archive"` shares one release across versions.
+- `title` names the archive under `remotes.github` and sets both the
+  release name and the Git tag. For version 1.2.3, `"archive-@version"`
+  produces `archive-v1.2.3`. The literal `"archive"` shares one release
+  across versions.
 - `branch` optionally sets the branch in the GitHub repository whose
   commit a newly created release should target. Use `branch: "@branch"`
   for the current checkout’s branch. A missing branch or a conflicting
@@ -111,17 +117,19 @@ projr_yml_dest_add_local(
 YAML equivalent:
 
 ``` yaml
-build:
+remotes:
   local:
     local-backup:
-      title: "local-backup"
-      content: [output]
       path: "~/project-archive/output"
+build:
+  dest:
+    local-backup:
+      content: [output]
 ```
 
 Parameters:
 
-- `title` – descriptive name (identification only).
+- `title` – name of the archive under `remotes.local`.
 - `content` – directory label to archive.
 - `path` – destination directory (absolute or project-relative).
 
@@ -134,7 +142,7 @@ this layout reserves the top-level names `manifests`, `manifest.csv`,
 subdirectories can use those names. For this latest layout, the
 destination’s `VERSION` and matching manifest record an empty build.
 When all archived files go missing after a populated build,
-`projr_content_update(clear = TRUE)` leaves the local files in place.
+`projr_source(conflict = "remote")` leaves the local files in place.
 
 Local destination names and paths and GitHub release names accept
 `@branch`, `@version`, and `@uuid`. For example,
@@ -274,7 +282,8 @@ projr_yml_dest_add_local(
 
 ### Multiple remotes
 
-projr uploads to all configured remotes during each production build.
+projr uploads to every archive selected under `build.dest` during each
+production build.
 
 ``` r
 
@@ -304,9 +313,8 @@ projr_yml_dest_add_local(
 
 ## Build Workflow
 
-Production builds publish to the destinations selected under
-`build.local` or `build.github` and to any one-off archive requested in
-the call.
+Production builds publish to the archives selected under `build.dest`
+and to any one-off archive requested in the call.
 
 ``` r
 
@@ -330,8 +338,7 @@ Check and validate your configuration:
 
 ``` r
 
-projr_yml_get()$build$github
-projr_yml_get()$build$local
+projr_yml_get()$remotes
 projr_yml_check()
 ```
 

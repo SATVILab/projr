@@ -21,10 +21,8 @@ projr_restore(
 
 - label:
 
-  character vector or NULL. Specifies labels of artefacts to restore.
-  Default is `NULL`, restoring all `raw` artefacts (e.g. `raw-data`).
-  Must be NULL or a non-empty character vector with valid directory
-  labels.
+  character vector or NULL. Directory labels to restore. Default is
+  `NULL`, restoring every declared raw directory.
 
 - version:
 

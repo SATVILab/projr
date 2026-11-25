@@ -1,6 +1,9 @@
 # Add a local directory as a destination
 
-Add a local directory as a destination to a \_projr.yml file.
+Register a local directory as an archive and select it for production
+builds. The address and transfer settings are written under
+`remotes.local.<title>`, and the selection, with its `content`, under
+`build.dest`.
 
 ## Usage
 
@@ -22,7 +25,7 @@ projr_yml_dest_add_local(
 
 - title:
 
-  character. Required name for this local destination in `_projr.yml`.
+  character. Required name for this local archive under `remotes.local`.
   Supply this name as `title` when selecting the configuration for a
   restore.
 
@@ -46,8 +49,8 @@ projr_yml_dest_add_local(
 
 - overwrite:
 
-  logical. Whether to rewrite an existing entry of the same title in the
-  specified `projr` configuration file. Default is TRUE.
+  logical. Whether to rewrite an existing archive of the same title in
+  the specified `projr` configuration file. Default is TRUE.
 
 - send_cue:
 
