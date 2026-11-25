@@ -43,7 +43,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="projr-development-version">projr (development version)<a class="anchor" aria-label="anchor" href="#projr-development-version"></a></h2>
-<ul><li>Breaking: <code><a href="../reference/projr_restore_repo.html">projr_restore_repo()</a></code> and <code><a href="../reference/projr_restore_repo.html">projr_restore_repo_wd()</a></code> take <code>remote</code> (a title, or <code>&lt;type&gt;:&lt;title&gt;</code>), as <code><a href="../reference/projr_source.html">projr_source()</a></code> does, in place of <code>pos</code>, <code>type</code>, <code>title</code> and <code>destination</code>.</li>
+<ul><li><p>Breaking: <code><a href="../reference/projr_restore_repo.html">projr_restore_repo()</a></code> and <code><a href="../reference/projr_restore_repo.html">projr_restore_repo_wd()</a></code> take <code>remote</code> (a title, or <code>&lt;type&gt;:&lt;title&gt;</code>), as <code><a href="../reference/projr_source.html">projr_source()</a></code> does, in place of <code>pos</code>, <code>type</code>, <code>title</code> and <code>destination</code>.</p></li>
+<li><p>GitHub release uploads that return a server error after storing the file no longer fail. projr checks the release, accepts a fully stored asset, and otherwise retries once.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.0" id="projr-090">projr 0.9.0<a class="anchor" aria-label="anchor" href="#projr-090"></a></h2>
