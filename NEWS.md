@@ -4,6 +4,10 @@
   `remote` (a title, or `<type>:<title>`), as `projr_source()` does, in place
   of `pos`, `type`, `title` and `destination`.
 
+* GitHub release uploads that return a server error after storing the file no
+  longer fail. projr checks the release, accepts a fully stored asset, and
+  otherwise retries once.
+
 # projr 0.9.0
 
 * Fetch raw inputs before a build runs. Register a remote under `remotes` and

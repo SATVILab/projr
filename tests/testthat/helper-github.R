@@ -55,10 +55,12 @@
     id = integer(),
     name = character(),
     release = integer(),
-    url = character()
+    url = character(),
+    size = numeric()
   )
   next_id <- 100L
-  fail_upload <- NULL
+  # Each failing upload of `fail$name` answers 503; `stored` keeps it anyway.
+  fail <- list(name = NULL, times = 0L, stored = FALSE)
   repository <- paste0(api, "/repos/", repo)
   releases <- paste0(repository, "/releases")
   release_urls <- paste0(releases, "/", seq_along(tags))
@@ -80,7 +82,10 @@
     if (req$method == "GET" && !is.na(index)) {
       owned <- which(assets$release == index)
       entries <- lapply(owned, function(i) {
-        as.list(assets[i, c("id", "name", "url")])
+        c(
+          as.list(assets[i, c("id", "name", "url", "size")]),
+          state = "uploaded"
+        )
       })
       return(.test_github_response(
         200,
@@ -98,9 +103,12 @@
     if (req$method == "POST" && !is.na(index)) {
       bytes <- req$options$readfunction(req$options$postfieldsize_large + 1)
       name <- httr::parse_url(req$url)$query$name
-      if (identical(name, fail_upload)) {
-        fail_upload <<- NULL
-        return(.test_github_response(503))
+      failing <- identical(name, fail$name) && fail$times > 0L
+      if (failing) {
+        fail$times <<- fail$times - 1L
+        if (!fail$stored) {
+          return(.test_github_response(503))
+        }
       }
       if (any(assets$release == index & assets$name == name)) {
         return(.test_github_response(422))
@@ -110,10 +118,14 @@
         id = next_id,
         name = name,
         release = index,
-        url = paste0(releases, "/assets/", next_id)
+        url = paste0(releases, "/assets/", next_id),
+        size = length(bytes)
       )
       assets <<- rbind(assets, item)
       writeBin(bytes, file.path(directory, next_id))
+      if (failing) {
+        return(.test_github_response(503))
+      }
       return(.test_github_response(201, as.list(item[c("id", "name", "url")])))
     }
     index <- match(url, assets$url)
@@ -140,5 +152,7 @@
   }
   previous <- httr::set_callback("request", handle)
   withr::defer(httr::set_callback("request", previous), envir = env)
-  invisible(function(name) fail_upload <<- name)
+  invisible(function(name, times = 1L, stored = FALSE) {
+    fail <<- list(name = name, times = times, stored = stored)
+  })
 }

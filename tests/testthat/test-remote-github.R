@@ -102,7 +102,7 @@ test_that("a failed second upload preserves the previous completed release versi
 
     writeLines("updated", first)
     writeLines("updated", second)
-    fail_upload("raw-two-v0.3.0.zip")
+    fail_upload("raw-two-v0.3.0.zip", times = 2L)
     expect_error(projr_build_minor(archive_github = TRUE), "503")
     assets <- .remote_ls_final_github_httr(.gh_repo_get(), "archive")
     expect_true("raw-one-v0.3.0.zip" %in% assets)
@@ -214,7 +214,7 @@ test_that("GitHub manifest and VERSION archives round-trip offline", {
       .remote_get_manifest("github", remote, "raw-data", "1.0.0"),
       manifest
     )
-    fail_next_upload("manifest.zip")
+    fail_next_upload("manifest.zip", times = 2L)
     expect_error(
       .remote_write_manifest(
         "github",
@@ -310,7 +310,7 @@ test_that("GitHub manifest and VERSION archives round-trip offline", {
     )
     expect_identical(readBin(retained_note, "raw", 4L), extra)
     previous_hash <- digest::digest(file = version_zip)
-    fail_next_upload("VERSION.zip")
+    fail_next_upload("VERSION.zip", times = 2L)
     expect_error(
       .remote_write_version_file("github", version_remote, "v1.2.4"),
       "503"

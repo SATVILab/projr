@@ -819,16 +819,57 @@
     repo = repo
   )
 
-  resp <- httr::POST(
-    upload_url,
-    httr::add_headers(.headers = headers_upload),
-    body = httr::upload_file(file_path)
-  )
+  # GitHub can store an asset yet answer with a 5xx or drop the connection.
+  # Confirm from the release listing before failing, and retry once otherwise.
+  for (attempt in 1:2) {
+    resp <- tryCatch(
+      httr::POST(
+        upload_url,
+        httr::add_headers(.headers = headers_upload),
+        body = httr::upload_file(file_path)
+      ),
+      error = identity
+    )
+    status <- if (inherits(resp, "error")) {
+      NA_integer_
+    } else {
+      httr::status_code(resp)
+    }
+    if (identical(status, 201L)) {
+      return(httr::content(resp, as = "parsed"))
+    }
+    # A 422 on the retry may be our earlier attempt, visible only now.
+    if (!is.na(status) && status < 500L && !(status == 422L && attempt == 2L)) {
+      break
+    }
+    asset <- .gh_release_asset_uploaded(
+      repo,
+      tag,
+      asset_name,
+      file_path,
+      overwrite,
+      api_url,
+      token
+    )
+    if (isTRUE(asset)) {
+      break
+    }
+    if (is.list(asset)) {
+      .cli_debug(
+        "GitHub release: Asset '{asset_name}' was stored despite {status_text}",
+        asset_name = asset_name,
+        status_text = if (is.na(status)) {
+          "a connection error"
+        } else {
+          paste("HTTP", status)
+        }
+      )
+      return(asset)
+    }
+  }
 
-  status <- httr::status_code(resp)
-
-  if (status == 201L) {
-    httr::content(resp, as = "parsed")
+  if (inherits(resp, "error")) {
+    stop("Failed to upload asset: ", conditionMessage(resp), call. = FALSE)
   } else if (status == 422L) {
     # Validation failed - possibly asset already present (race condition)
     detail <- tryCatch(
@@ -849,6 +890,58 @@
       ")",
       call. = FALSE
     )
+  }
+}
+
+# Returns the stored asset when it matches `file_path`, TRUE when a
+# same-named asset belongs to someone else, and NULL after removing a
+# partial upload or finding none.
+.gh_release_asset_uploaded <- function(
+  repo,
+  tag,
+  asset_name,
+  file_path,
+  overwrite,
+  api_url = NULL,
+  token = NULL
+) {
+  assets <- tryCatch(
+    .remote_get_info_github_httr(repo, tag, api_url = api_url, token = token),
+    error = function(e) list()
+  )
+  asset <- Find(function(x) identical(x$name, asset_name), assets)
+  if (is.null(asset)) {
+    return(NULL)
+  }
+  if (
+    !identical(as.numeric(asset$size), as.numeric(file.size(file_path))) ||
+      !identical(asset$state %||% "uploaded", "uploaded")
+  ) {
+    .gh_release_asset_delete_id(repo, asset$id, api_url, token)
+    return(NULL)
+  }
+  if (isTRUE(overwrite)) {
+    return(asset)
+  }
+  # Exclusive claims, such as the manifest lock, have equal sizes across
+  # writers, so compare the bytes before taking ownership.
+  stage <- .dir_create_tmp_random()
+  on.exit(unlink(stage, recursive = TRUE), add = TRUE)
+  stored <- .remote_file_get_all_github_httr(
+    repo,
+    tag,
+    asset_name,
+    stage,
+    api_url,
+    token,
+    asset = asset
+  )
+  if (
+    identical(unname(tools::md5sum(stored)), unname(tools::md5sum(file_path)))
+  ) {
+    asset
+  } else {
+    TRUE
   }
 }
 
