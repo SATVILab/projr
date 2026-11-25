@@ -1,3 +1,7 @@
+# projr (development version)
+
+* GitHub release uploads that return a server error or lose the connection now check the release, accept an asset that was fully stored, and otherwise retry once.
+
 # projr 0.9.0
 
 * Fetch raw inputs before a build runs. Register a remote under `remotes` and
